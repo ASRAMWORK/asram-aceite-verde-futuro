@@ -31,7 +31,20 @@ export function usePuntosVerdes(administradorId?: string) {
       
       const puntosData: PuntoVerde[] = [];
       puntosSnap.forEach((doc) => {
-        puntosData.push({ id: doc.id, ...doc.data() } as PuntoVerde);
+        const data = doc.data();
+        puntosData.push({ 
+          id: doc.id, 
+          distrito: data.distrito || '',
+          barrio: data.barrio || '',
+          direccion: data.direccion || '',
+          numViviendas: data.numViviendas || 0,
+          numContenedores: data.numContenedores || 0,
+          telefono: data.telefono || '',
+          litrosRecogidos: data.litrosRecogidos || 0,
+          administradorId: data.administradorId,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
+        });
       });
       
       // Ordenamos en memoria por distrito y luego por barrio
