@@ -44,25 +44,25 @@ export function useComunidadesVecinos() {
           setLoading(false);
         });
 
-        return () => unsubscribe();
+        return unsubscribe;
       } catch (err) {
         console.error("Error al obtener las comunidades:", err);
         setError("Error al cargar las comunidades");
         setLoading(false);
+        return () => {};
       }
     };
 
-    return fetchComunidades();
+    fetchComunidades();
   }, [user]);
 
   const createComunidad = async (data: Partial<ComunidadVecinos>) => {
     setIsLoading(true);
     try {
       const newComunidad = {
-        id: "",
         nombre: data.nombre,
         direccion: data.direccion,
-        numViviendas: data.numViviendas || 0, // Ensure numViviendas is included
+        numViviendas: data.numViviendas || 0,
         cif: data.cif,
         codigoPostal: data.codigoPostal,
         ciudad: data.ciudad,

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from 'react';
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -149,7 +150,8 @@ const FacturacionView = () => {
 
       {showInforme && (
         <InformeFinanciero 
-          data={{ ingresos, gastos }} 
+          ingresos={ingresos} 
+          gastos={gastos} 
           onClose={() => setShowInforme(false)} 
         />
       )}

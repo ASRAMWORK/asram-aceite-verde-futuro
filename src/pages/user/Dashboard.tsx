@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
 import AlianzaVerdeView from '@/components/dashboard/user/alianza/AlianzaVerdeView';
 import ApadrinaCalleView from '@/components/dashboard/user/apadrina/ApadrinaCalleView';
 import HomeView from '@/components/dashboard/user/home/HomeView';
