@@ -14,6 +14,7 @@ import UserDashboard from "./pages/user/Dashboard";
 import AdministradorDashboard from "./pages/administrador/Dashboard";
 import NotFound from "./pages/NotFound";
 import { doc, getDoc } from 'firebase/firestore';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const queryClient = new QueryClient();
 
@@ -86,21 +87,23 @@ const ProtectedAdministradorRoute = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/admin/dashboard" element={<ProtectedAdminRoute />} />
-          <Route path="/user/dashboard" element={<UserDashboard />} />
-          <Route path="/administrador/dashboard" element={<ProtectedAdministradorRoute />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/admin/dashboard" element={<ProtectedAdminRoute />} />
+            <Route path="/user/dashboard" element={<UserDashboard />} />
+            <Route path="/administrador/dashboard" element={<ProtectedAdministradorRoute />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

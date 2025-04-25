@@ -1,20 +1,20 @@
+
 import { useState, useEffect } from 'react';
-import { db, auth } from '@/lib/firebase';
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  getDocs,
-  query,
-  where,
-  serverTimestamp,
-  onSnapshot,
+import { db } from '@/lib/firebase';
+import { 
+  collection, 
+  doc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  where, 
+  serverTimestamp, 
+  onSnapshot 
 } from 'firebase/firestore';
-import { ComunidadVecinos } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { ComunidadVecinos } from '@/types';
 
 export function useComunidadesVecinos() {
   const [comunidades, setComunidades] = useState<ComunidadVecinos[]>([]);
