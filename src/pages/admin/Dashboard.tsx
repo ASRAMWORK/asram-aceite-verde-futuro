@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -32,10 +31,10 @@ import {
   MapPin, 
   Building, 
   GraduationCap, 
-  User, 
+  User,  // Replaced UserHard with User
   Calculator, 
   Receipt,
-  UserHard
+  UserRound  // Added another user icon option
 } from "lucide-react";
 
 const AdminDashboardPage = () => {
@@ -155,7 +154,7 @@ const AdminDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("trabajadores")}
           >
-            <UserHard className="mr-2 h-4 w-4" />
+            <User className="mr-2 h-4 w-4" />
             Trabajadores
           </Button>
           
