@@ -33,7 +33,16 @@ const GestionarComunidad = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Handle numeric fields specially
+    if (name === 'numViviendas' || name === 'totalViviendas') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value === '' ? 0 : parseInt(value, 10)
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

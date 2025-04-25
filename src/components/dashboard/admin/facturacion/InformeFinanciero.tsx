@@ -1,30 +1,40 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowDown, ArrowUp, CircleDollarSign, PiggyBank } from 'lucide-react';
+import { Ingreso, Gasto } from '@/types';
 
 interface Props {
-  ingresosMes: number;
-  gastosMes: number;
-  diasEnMes: number;
+  ingresos?: Ingreso[];
+  gastos?: Gasto[];
+  ingresosMes?: number;
+  gastosMes?: number;
+  diasEnMes?: number;
+  onClose?: () => void;
 }
 
-const InformeFinanciero: React.FC<Props> = ({ ingresosMes, gastosMes, diasEnMes }) => {
+const InformeFinanciero: React.FC<Props> = ({ 
+  ingresos = [], 
+  gastos = [], 
+  ingresosMes = 0, 
+  gastosMes = 0, 
+  diasEnMes = 30,
+  onClose 
+}) => {
+  // Calculate totals from arrays if direct values aren't provided
+  const totalIngresos = ingresosMes || ingresos.reduce((sum, ingreso) => sum + ingreso.cantidad, 0);
+  const totalGastos = gastosMes || gastos.reduce((sum, gasto) => sum + gasto.cantidad, 0);
+  
   // Calcula el promedio diario de ingresos y gastos
-  const promedioDiarioIngresos = ingresosMes / diasEnMes;
-  const promedioDiarioGastos = gastosMes / diasEnMes;
+  const promedioDiarioIngresos = totalIngresos / diasEnMes;
+  const promedioDiarioGastos = totalGastos / diasEnMes;
 
   // Proyecta los ingresos y gastos para el mes completo
   const proyeccionIngresos = promedioDiarioIngresos * 30;
   const proyeccionGastos = promedioDiarioGastos * 30;
 
   // Calcula el balance mensual
-  const balanceMensual = ingresosMes - gastosMes;
-
-  const promedioDiario = ingresosMes > 0 && diasEnMes > 0 ? Number(ingresosMes) / Number(diasEnMes) : 0;
-  const proyeccion = Number(promedioDiario) * 30;
-
-  const promedioDiarioGastosCalculado = gastosMes > 0 && diasEnMes > 0 ? Number(gastosMes) / Number(diasEnMes) : 0;
-  const proyeccionGastosCalculada = Number(promedioDiarioGastosCalculado) * 30;
+  const balanceMensual = totalIngresos - totalGastos;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -35,7 +45,7 @@ const InformeFinanciero: React.FC<Props> = ({ ingresosMes, gastosMes, diasEnMes 
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {ingresosMes.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+            {totalIngresos.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
           </div>
           <p className="text-xs text-muted-foreground">
             {promedioDiarioIngresos.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} / día
@@ -49,10 +59,10 @@ const InformeFinanciero: React.FC<Props> = ({ ingresosMes, gastosMes, diasEnMes 
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {gastosMes.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+            {totalGastos.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
           </div>
           <p className="text-xs text-muted-foreground">
-            {promedioDiarioGastosCalculado.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} / día
+            {promedioDiarioGastos.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} / día
           </p>
         </CardContent>
       </Card>
@@ -77,7 +87,7 @@ const InformeFinanciero: React.FC<Props> = ({ ingresosMes, gastosMes, diasEnMes 
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {proyeccion.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+            {proyeccionIngresos.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
           </div>
           <p className="text-xs text-muted-foreground">
             Proyección basada en el promedio diario
