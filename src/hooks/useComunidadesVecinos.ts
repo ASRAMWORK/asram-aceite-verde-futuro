@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, DocumentData } from 'firebase/firestore';
 import type { ComunidadVecinos } from '@/types';
 import { toast } from 'sonner';
 
@@ -31,8 +31,11 @@ export function useComunidadesVecinos(administradorId?: string) {
       
       const comunidadesData: ComunidadVecinos[] = [];
       comunidadesSnap.forEach((doc) => {
-        const docData = doc.data();
-        comunidadesData.push({ id: doc.id, ...docData } as ComunidadVecinos);
+        const docData = doc.data() as DocumentData;
+        comunidadesData.push({ 
+          id: doc.id, 
+          ...docData 
+        } as ComunidadVecinos);
       });
       
       setComunidades(comunidadesData);
