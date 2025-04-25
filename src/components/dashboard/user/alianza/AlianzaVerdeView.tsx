@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -188,7 +187,9 @@ const AlianzaVerdeView = () => {
                     </p>
                   </div>
                   <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                    {alianza.certificaciones.length} Certificaciones
+                    {typeof alianza.certificaciones === 'number' 
+                      ? alianza.certificaciones 
+                      : (alianza.certificaciones?.length || 0)} Certificaciones
                   </Badge>
                 </div>
               ))}
