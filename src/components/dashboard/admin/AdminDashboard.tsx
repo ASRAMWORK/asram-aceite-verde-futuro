@@ -40,13 +40,13 @@ import { usePuntosVerdes } from "@/hooks/usePuntosVerdes";
 import { useAlianzaVerde } from "@/hooks/useAlianzaVerde";
 import { useCallesApadrinadas } from "@/hooks/useCallesApadrinadas";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import { Buildings, GraduationCap, MapPinned, Droplet, Truck, Users, TrendingUp } from "lucide-react";
+import { Building, GraduationCap, MapPinned, Droplet, Truck, Users, TrendingUp } from "lucide-react";
 
 const AdminDashboard = () => {
   const { usuarios, loading: loadingUsuarios } = useUsuarios();
   const { puntosVerdes, loading: loadingPuntos } = usePuntosVerdes();
   const { alianzas, loading: loadingAlianzas } = useAlianzaVerde();
-  const { calles, loading: loadingCalles } = useCallesApadrinadas();
+  const { callesApadrinadas, loading: loadingCalles } = useCallesApadrinadas();
   const { recogidas, loading: loadingRecogidas } = useRecogidas();
 
   const [chartData, setChartData] = useState<any[]>([]);
