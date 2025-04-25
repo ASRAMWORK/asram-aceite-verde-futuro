@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, isAdminEmail } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,13 +23,13 @@ const LoginForm = () => {
       const user = userCredential.user;
 
       // Check if admin
-      if (email === "admin@asramadrid.com") {
+      if (isAdminEmail(user.email)) {
         navigate("/admin/dashboard");
+        toast.success("Inicio de sesión de administrador exitoso");
       } else {
         navigate("/user/dashboard");
+        toast.success("Inicio de sesión exitoso");
       }
-
-      toast.success("Inicio de sesión exitoso");
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
       toast.error("Error al iniciar sesión: " + error.message);
