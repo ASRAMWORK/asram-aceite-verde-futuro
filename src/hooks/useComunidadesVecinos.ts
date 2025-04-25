@@ -31,7 +31,8 @@ export function useComunidadesVecinos(administradorId?: string) {
       
       const comunidadesData: ComunidadVecinos[] = [];
       comunidadesSnap.forEach((doc) => {
-        comunidadesData.push({ id: doc.id, ...doc.data() } as ComunidadVecinos);
+        const docData = doc.data();
+        comunidadesData.push({ id: doc.id, ...docData } as ComunidadVecinos);
       });
       
       setComunidades(comunidadesData);
