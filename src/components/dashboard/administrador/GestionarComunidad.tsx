@@ -1,52 +1,16 @@
 
-import React, { useState } from 'react';
-import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ComunidadVecinos } from '@/types';
 import { Loader2 } from 'lucide-react';
 import { ComunidadBasicInfoForm } from './comunidad/ComunidadBasicInfoForm';
 import { ComunidadLocationForm } from './comunidad/ComunidadLocationForm';
 import { ComunidadStatsForm } from './comunidad/ComunidadStatsForm';
 import { ComunidadContactForm } from './comunidad/ComunidadContactForm';
+import { useComunidadForm } from '@/hooks/useComunidadForm';
 
 const GestionarComunidad = () => {
-  const { createComunidad, isLoading } = useComunidadesVecinos();
-  const [formData, setFormData] = useState<Partial<ComunidadVecinos>>({
-    nombre: '',
-    direccion: '',
-    cif: '',
-    codigoPostal: '',
-    ciudad: '',
-    distrito: '',
-    barrio: '',
-    numViviendas: 0,
-    totalViviendas: 0,
-    numeroPorteria: '',
-    nombreAdministracion: '',
-    correoContacto: '',
-    litrosRecogidos: 0,
-    beneficiosMedioambientales: {
-      co2: 0,
-      agua: 0,
-      energia: 0
-    }
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const numericFields = ['numViviendas', 'totalViviendas', 'litrosRecogidos'];
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: numericFields.includes(name) ? Number(value) : value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createComunidad(formData);
-  };
+  const { formData, isLoading, handleChange, handleSubmit } = useComunidadForm();
 
   return (
     <div>
