@@ -300,3 +300,17 @@ export type ChartConfig = {
   values: number[];
   colors?: string[];
 };
+
+export interface Reunion {
+  id: string;
+  tipo: string;
+  tipoUsuario?: string;
+  direccion?: string;
+  nombreCentro?: string;
+  responsable?: string;
+  telefono?: string;
+  email?: string;
+  fecha: Date;
+  createdAt: Date;
+  activa: boolean;
+}
