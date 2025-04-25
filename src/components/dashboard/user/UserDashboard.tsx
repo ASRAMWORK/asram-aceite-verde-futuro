@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -14,8 +15,20 @@ import {
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
+import UserProfileView from "./profile/UserProfileView";
+import RecursosView from "./recursos/RecursosView";
+import AlianzaVerdeView from "./alianza/AlianzaVerdeView";
+import ApadrinaCalleView from "./apadrina/ApadrinaCalleView";
+import PuntosVerdesView from "./puntos/PuntosVerdesView";
+import SolicitudRecogidaForm from "./solicitud/SolicitudRecogidaForm";
 
 const UserDashboard = () => {
+  const [showSolicitudDialog, setShowSolicitudDialog] = useState(false);
+  const [currentTab, setCurrentTab] = useState("perfil");
+
+  // Mock data for the chart
   const impactData = [
     { name: "CO2 Evitado", value: 540, color: "#10B981" },
     { name: "Agua Ahorrada", value: 360, color: "#3B82F6" },
@@ -33,7 +46,7 @@ const UserDashboard = () => {
             Bienvenido de nuevo, gestiona tus recogidas de aceite
           </p>
         </div>
-        <Button className="bg-asram hover:bg-asram-700">
+        <Button className="bg-asram hover:bg-asram-700" onClick={() => setShowSolicitudDialog(true)}>
           Solicitar Recogida
         </Button>
       </div>
@@ -100,7 +113,7 @@ const UserDashboard = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="perfil" className="space-y-6">
+      <Tabs defaultValue="perfil" className="space-y-6" value={currentTab} onValueChange={setCurrentTab}>
         <TabsList>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
           <TabsTrigger value="recursos">Recursos</TabsTrigger>
@@ -140,46 +153,7 @@ const UserDashboard = () => {
             </CardContent>
           </Card>
           
-          <Card className="futuristic-card">
-            <CardHeader>
-              <CardTitle>Tus Datos Personales</CardTitle>
-              <CardDescription>
-                Información personal y de contacto
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Nombre</p>
-                  <p className="font-medium">Juan Pérez</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Email</p>
-                  <p className="font-medium">juan.perez@example.com</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-                  <p className="font-medium">Calle Gran Vía, 15</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-                  <p className="font-medium">+34 612 345 678</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Distrito</p>
-                  <p className="font-medium">Centro</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Barrio</p>
-                  <p className="font-medium">Sol</p>
-                </div>
-              </div>
-              
-              <div className="pt-4">
-                <Button variant="outline">Editar perfil</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <UserProfileView />
           
           <Card className="futuristic-card">
             <CardHeader>
@@ -224,71 +198,40 @@ const UserDashboard = () => {
           </Card>
         </TabsContent>
         
-        {/* Other tab contents would be implemented in a complete app */}
         <TabsContent value="recursos">
-          <Card className="futuristic-card">
-            <CardHeader>
-              <CardTitle>Recursos Disponibles</CardTitle>
-              <CardDescription>
-                Guías y formaciones gratuitas para el reciclaje de aceite
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Sección de recursos cargando...
-              </p>
-            </CardContent>
-          </Card>
+          <RecursosView />
         </TabsContent>
         
         <TabsContent value="alianza-verde">
-          <Card className="futuristic-card">
-            <CardHeader>
-              <CardTitle>Alianza Verde Escolar</CardTitle>
-              <CardDescription>
-                Programa educativo para centros escolares
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Sección de Alianza Verde Escolar cargando...
-              </p>
-            </CardContent>
-          </Card>
+          <AlianzaVerdeView />
         </TabsContent>
         
         <TabsContent value="apadrina">
-          <Card className="futuristic-card">
-            <CardHeader>
-              <CardTitle>Apadrina una Calle</CardTitle>
-              <CardDescription>
-                Programa de suscripción para apadrinar calles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Sección de Apadrina una Calle cargando...
-              </p>
-            </CardContent>
-          </Card>
+          <ApadrinaCalleView />
         </TabsContent>
         
         <TabsContent value="puntos-verdes">
-          <Card className="futuristic-card">
-            <CardHeader>
-              <CardTitle>Puntos Verdes</CardTitle>
-              <CardDescription>
-                Información sobre puntos de recogida de aceite
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Sección de Puntos Verdes cargando...
-              </p>
-            </CardContent>
-          </Card>
+          <PuntosVerdesView />
         </TabsContent>
       </Tabs>
+
+      {/* Dialog for Solicitud de Recogida */}
+      <Dialog open={showSolicitudDialog} onOpenChange={setShowSolicitudDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Solicitar recogida de aceite</DialogTitle>
+            <DialogDescription>
+              Completa el formulario para programar una recogida de aceite usado
+            </DialogDescription>
+          </DialogHeader>
+          <SolicitudRecogidaForm />
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowSolicitudDialog(false)}>
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

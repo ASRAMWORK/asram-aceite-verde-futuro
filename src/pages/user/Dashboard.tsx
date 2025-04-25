@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import UserDashboard from "@/components/dashboard/user/UserDashboard";
 import { toast } from "sonner";
+import { 
+  User, UserCircle, BookOpen, School, MapPin, 
+  Activity, LogOut
+} from "lucide-react";
 
 const UserDashboardPage = () => {
   const [loading, setLoading] = useState(true);
@@ -60,6 +64,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("dashboard")}
           >
+            <Activity className="mr-2 h-4 w-4" />
             Dashboard
           </Button>
           
@@ -70,6 +75,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("perfil")}
           >
+            <UserCircle className="mr-2 h-4 w-4" />
             Perfil
           </Button>
           
@@ -80,6 +86,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("recursos")}
           >
+            <BookOpen className="mr-2 h-4 w-4" />
             Recursos
           </Button>
           
@@ -90,6 +97,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("alianza")}
           >
+            <School className="mr-2 h-4 w-4" />
             Alianza Verde Escolar
           </Button>
           
@@ -100,6 +108,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("apadrina")}
           >
+            <MapPin className="mr-2 h-4 w-4" />
             Apadrina una Calle
           </Button>
           
@@ -110,6 +119,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("puntos")}
           >
+            <User className="mr-2 h-4 w-4" />
             Puntos Verdes
           </Button>
           
@@ -120,6 +130,7 @@ const UserDashboardPage = () => {
             className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
             onClick={handleSignOut}
           >
+            <LogOut className="mr-2 h-4 w-4" />
             Cerrar sesión
           </Button>
         </nav>
