@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -14,7 +13,7 @@ import {
 
 const UserDashboardPage = () => {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("home");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,17 +39,17 @@ const UserDashboardPage = () => {
     }
   };
 
-  // Function to handle tab changes from sidebar
   const handleTabChange = (tab) => {
-    let tabValue = "dashboard";
+    let tabValue = "home";
     switch(tab) {
+      case "home": tabValue = "home"; break;
       case "dashboard": tabValue = "dashboard"; break;
       case "perfil": tabValue = "perfil"; break;
       case "recursos": tabValue = "recursos"; break; 
       case "alianza": tabValue = "alianza-verde"; break;
       case "apadrina": tabValue = "apadrina"; break;
       case "puntos": tabValue = "puntos-verdes"; break;
-      default: tabValue = "dashboard";
+      default: tabValue = "home";
     }
     setActiveTab(tabValue);
   };
@@ -65,13 +64,23 @@ const UserDashboardPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <div className="hidden md:flex flex-col w-64 bg-white border-r">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-asram">ASRAM</h1>
         </div>
         
         <nav className="flex-1 px-4 pb-4 space-y-1">
+          <Button
+            variant={activeTab === "home" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "home" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => handleTabChange("home")}
+          >
+            <Activity className="mr-2 h-4 w-4" />
+            Home
+          </Button>
+          
           <Button
             variant={activeTab === "dashboard" ? "default" : "ghost"}
             className={`w-full justify-start ${
@@ -151,7 +160,6 @@ const UserDashboardPage = () => {
         </nav>
       </div>
       
-      {/* Main content */}
       <div className="flex-1 overflow-auto">
         <header className="bg-white border-b sticky top-0 z-10">
           <div className="container flex items-center justify-between h-16 px-4">

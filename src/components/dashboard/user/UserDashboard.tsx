@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -23,8 +22,9 @@ import AlianzaVerdeView from "./alianza/AlianzaVerdeView";
 import ApadrinaCalleView from "./apadrina/ApadrinaCalleView";
 import PuntosVerdesView from "./puntos/PuntosVerdesView";
 import SolicitudRecogidaForm from "./solicitud/SolicitudRecogidaForm";
+import HomeView from "./home/HomeView";
 
-const UserDashboard = ({ activeTab = "dashboard" }) => {
+const UserDashboard = ({ activeTab = "home" }) => {
   const [showSolicitudDialog, setShowSolicitudDialog] = useState(false);
   const [currentTab, setCurrentTab] = useState(activeTab);
 
@@ -55,70 +55,9 @@ const UserDashboard = ({ activeTab = "dashboard" }) => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="futuristic-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">
-              Aceite Reciclado
-            </CardTitle>
-            <CardDescription>Total acumulado</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-asram">28L</div>
-            <p className="text-xs text-muted-foreground">
-              +5L desde la última recogida
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="futuristic-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">
-              Próxima Recogida
-            </CardTitle>
-            <CardDescription>Fecha programada</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-asram">15 Mayo 2025</div>
-            <p className="text-xs text-muted-foreground">
-              En 21 días
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="futuristic-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">
-              CO2 Evitado
-            </CardTitle>
-            <CardDescription>Impacto ambiental</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">56kg</div>
-            <p className="text-xs text-muted-foreground">
-              Equivalente a 15 árboles por día
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="futuristic-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">
-              Agua Ahorrada
-            </CardTitle>
-            <CardDescription>Litros no contaminados</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">28000L</div>
-            <p className="text-xs text-muted-foreground">
-              1000L por cada litro de aceite
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       <Tabs defaultValue={currentTab} value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
         <TabsList>
+          <TabsTrigger value="home">Home</TabsTrigger>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
           <TabsTrigger value="recursos">Recursos</TabsTrigger>
@@ -126,6 +65,10 @@ const UserDashboard = ({ activeTab = "dashboard" }) => {
           <TabsTrigger value="apadrina">Apadrina una Calle</TabsTrigger>
           <TabsTrigger value="puntos-verdes">Puntos Verdes</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="home">
+          <HomeView />
+        </TabsContent>
         
         <TabsContent value="dashboard" className="space-y-6">
           <Card className="futuristic-card">
