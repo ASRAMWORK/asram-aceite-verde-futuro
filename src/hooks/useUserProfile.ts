@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { UsuarioProfile, ComunidadProfile, RestauranteProfile, HotelProfile, AsociacionProfile, EscolarProfile } from '@/types';
+import { UserRole, UsuarioProfile } from '@/types';
 
 export function useUserProfile() {
   const [profile, setProfile] = useState<any>(null);

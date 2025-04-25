@@ -28,6 +28,9 @@ export interface AlianzaVerde {
   activo: boolean;
   createdAt?: any;
   updatedAt?: any;
+  // Added properties to fix errors
+  nombreCentro?: string;
+  numParticipantes?: number;
 }
 
 export interface CalleApadrinada {
@@ -43,6 +46,9 @@ export interface CalleApadrinada {
   activo: boolean;
   createdAt?: any;
   updatedAt?: any;
+  // Added properties to fix errors
+  nombreCalle?: string;
+  nombrePadrino?: string;
 }
 
 export interface Usuario {
@@ -103,4 +109,54 @@ export interface AuthUser {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+}
+
+// Added types to fix errors
+export type UserRole = 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
+
+export interface UsuarioProfile {
+  id: string;
+  email: string;
+  role: UserRole;
+  nombre?: string;
+  direccion?: string;
+  telefono?: string;
+  distrito?: string;
+  barrio?: string;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
+export interface ComunidadProfile extends UsuarioProfile {
+  numViviendas: number;
+  numContenedores: number;
+  frecuenciaRecogida: string;
+}
+
+export interface RestauranteProfile extends UsuarioProfile {
+  nombreRestaurante: string;
+  horarioApertura: string;
+  litrosEstimados: number;
+  frecuenciaRecogida: string;
+}
+
+export interface HotelProfile extends UsuarioProfile {
+  nombreHotel: string;
+  numHabitaciones: number;
+  litrosEstimados: number;
+  frecuenciaRecogida: string;
+}
+
+export interface AsociacionProfile extends UsuarioProfile {
+  nombreAsociacion: string;
+  tipoAsociacion: string;
+  numParticipantes: number;
+  frecuenciaRecogida: string;
+}
+
+export interface EscolarProfile extends UsuarioProfile {
+  nombreCentro: string;
+  tipoCentro: string;
+  numEstudiantes: number;
+  frecuenciaRecogida: string;
 }

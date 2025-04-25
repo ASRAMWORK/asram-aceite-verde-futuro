@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -100,12 +99,10 @@ const GestionRecogidas = () => {
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   const [filteredClientes, setFilteredClientes] = useState(usuarios);
   
-  // Filter recogidas based on current tab
   const filteredRecogidas = currentTab === "pendientes"
     ? recogidas.filter(r => !r.completada)
     : recogidas.filter(r => r.completada);
   
-  // Apply distrito filter if selected
   const displayedRecogidas = filterDistrito
     ? filteredRecogidas.filter(r => r.distrito === filterDistrito)
     : filteredRecogidas;
@@ -118,7 +115,6 @@ const GestionRecogidas = () => {
     });
     setFilteredBarrios(barrios[value] || []);
     
-    // Filter clients by distrito
     if (formData.tipoBusqueda === "zona") {
       const clientesFiltrados = usuarios.filter(u => u.distrito === value);
       setFilteredClientes(clientesFiltrados);
@@ -135,7 +131,6 @@ const GestionRecogidas = () => {
       barrio: value
     });
     
-    // Filter clients by barrio
     if (formData.tipoBusqueda === "zona") {
       const clientesFiltrados = usuarios.filter(u => 
         u.distrito === formData.distrito && u.barrio === value
@@ -150,7 +145,6 @@ const GestionRecogidas = () => {
       tipoBusqueda: value
     });
     
-    // Reset cliente selection
     if (value === "zona") {
       setFormData({
         ...formData,
@@ -174,7 +168,6 @@ const GestionRecogidas = () => {
       [name]: value
     });
     
-    // If selecting a client, populate distrito and barrio
     if (name === "clienteId") {
       const cliente = usuarios.find(u => u.id === value);
       if (cliente) {
@@ -207,7 +200,6 @@ const GestionRecogidas = () => {
       tipoBusqueda: "cliente"
     });
     
-    // Set filtered barrios based on the selected distrito
     if (recogida.distrito) {
       setFilteredBarrios(barrios[recogida.distrito] || []);
     }
@@ -236,7 +228,6 @@ const GestionRecogidas = () => {
   };
   
   const handleSubmit = async () => {
-    // Basic validation
     if (formData.tipoBusqueda === "cliente" && !formData.clienteId) {
       alert("Por favor selecciona un cliente");
       return;
@@ -254,7 +245,7 @@ const GestionRecogidas = () => {
       distrito: formData.distrito,
       barrio: formData.barrio,
       completada: false,
-      tipo: formData.tipoBusqueda === "cliente" ? "individual" : "zona"
+      tipo: formData.tipoBusqueda === "cliente" ? "individual" as const : "zona" as const
     };
     
     if (isEditingRecogida && selectedRecogida) {
@@ -283,7 +274,6 @@ const GestionRecogidas = () => {
     }
   };
   
-  // Helper function to find cliente name by ID
   const getClienteName = (clienteId: string) => {
     const cliente = usuarios.find(u => u.id === clienteId);
     return cliente ? cliente.nombre : "Cliente no encontrado";
@@ -457,7 +447,6 @@ const GestionRecogidas = () => {
         </div>
       </div>
 
-      {/* Recogidas Card */}
       <Card>
         <CardHeader>
           <CardTitle>Listado de Recogidas</CardTitle>
@@ -587,7 +576,6 @@ const GestionRecogidas = () => {
         </CardFooter>
       </Card>
       
-      {/* Dialog for completing a recogida */}
       <Dialog open={isCompletingRecogida} onOpenChange={setIsCompletingRecogida}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -652,7 +640,6 @@ const GestionRecogidas = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Dialog for editing a recogida - Similar to add dialog */}
       <Dialog open={isEditingRecogida} onOpenChange={setIsEditingRecogida}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -662,7 +649,6 @@ const GestionRecogidas = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* Same form fields as for adding */}
             <div className="space-y-2">
               <Label>Tipo de búsqueda</Label>
               <div className="flex space-x-4">
