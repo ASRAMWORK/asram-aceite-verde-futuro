@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -13,11 +14,17 @@ export function useRecogidas() {
     try {
       setLoading(true);
       const recogidasRef = collection(db, "recogidas");
-      const recogidasSnap = await getDocs(query(recogidasRef, orderBy("fecha", "desc")));
+      // Use fechaSolicitud if fecha isn't available
+      const recogidasSnap = await getDocs(query(recogidasRef, orderBy("fechaSolicitud", "desc")));
       
       const recogidasData: Recogida[] = [];
       recogidasSnap.forEach((doc) => {
-        recogidasData.push({ id: doc.id, ...doc.data() } as Recogida);
+        const data = doc.data();
+        // Ensure fecha is set if it's not present but fechaSolicitud is
+        if (!data.fecha && data.fechaSolicitud) {
+          data.fecha = data.fechaSolicitud;
+        }
+        recogidasData.push({ id: doc.id, ...data } as Recogida);
       });
       
       setRecogidas(recogidasData);

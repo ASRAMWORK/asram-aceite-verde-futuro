@@ -28,7 +28,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { distritos } from "@/data/madridDistritos";
-import { useAuth } from "@/lib/firebase";
 import { CalendarioRecogida } from "@/types";
 import { useRecogidas } from "@/hooks/useRecogidas";
 import { format, isSameDay } from "date-fns";
@@ -67,6 +66,17 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
       horaFin: newRecogida.horaFin,
       estado: "programado",
       notas: newRecogida.notas,
+      // Include required fields for Recogida type
+      fechaSolicitud: selectedDate,
+      fechaProgramada: selectedDate,
+      fechaCompletada: null,
+      clienteId: "sistema",
+      direccion: newRecogida.distrito,
+      telefono: "",
+      tipo: "calendario",
+      litrosEstimados: 0,
+      litrosRecogidos: 0,
+      completada: false
     });
 
     setShowAddDialog(false);
@@ -128,10 +138,10 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
                       <Badge
                         variant={
                           recogida.estado === "completado"
-                            ? "success"
+                            ? "default"
                             : recogida.estado === "cancelado"
                             ? "destructive"
-                            : "default"
+                            : "outline"
                         }
                       >
                         {recogida.estado}

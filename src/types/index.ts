@@ -34,6 +34,11 @@ export type AlianzaVerde = {
   fechaInicio: any;
   estado: string;
   activo: boolean;
+  distrito?: string;
+  barrio?: string;
+  numEstudiantes?: number;
+  talleresRealizados?: number;
+  certificaciones?: number | string[];
   createdAt?: any;
   updatedAt?: any;
 };
@@ -49,6 +54,10 @@ export type CalleApadrinada = {
   email: string;
   fechaInicio: any;
   activo: boolean;
+  padrinoId?: string;
+  precio?: number;
+  fechaRenovacion?: any;
+  descripcion?: string;
   createdAt?: any;
   updatedAt?: any;
 };
@@ -67,6 +76,11 @@ export type Recogida = {
   litrosRecogidos: number;
   notas?: string;
   completada: boolean;
+  fecha?: any;
+  distrito?: string;
+  barrio?: string;
+  horaInicio?: string;
+  horaFin?: string;
   createdAt?: any;
   updatedAt?: any;
 };
@@ -225,11 +239,15 @@ export type Usuario = {
   distrito?: string;
   barrio?: string;
   activo: boolean;
+  numViviendas?: number;
+  numContenedores?: number;
+  litrosRecogidos?: number;
   createdAt?: any;
   updatedAt?: any;
 };
 
-export type UserRole = "admin" | "user" | "administrador";
+// Updated UserRole to include all roles used in the application
+export type UserRole = "admin" | "user" | "administrador" | "comunidad" | "restaurante" | "hotel" | "asociacion" | "escolar" | "usuario";
 
 export type CalendarioRecogida = {
   id: string;
