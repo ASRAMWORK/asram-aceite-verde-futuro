@@ -182,7 +182,12 @@ const UserDashboardPage = () => {
               <Button
                 variant="outline"
                 className="hidden md:flex"
-                onClick={() => document.querySelector('[data-dialog-trigger="solicitud"]')?.click()}
+                onClick={() => {
+                  const element = document.querySelector('[data-dialog-trigger="solicitud"]');
+                  if (element instanceof HTMLElement) {
+                    element.click();
+                  }
+                }}
               >
                 Solicitar Recogida
               </Button>

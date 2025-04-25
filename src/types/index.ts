@@ -24,7 +24,7 @@ export interface AlianzaVerde {
   email: string;
   numEstudiantes: number;
   talleresRealizados: number;
-  certificaciones: string[] | number; // Updated to be either a string array or a number
+  certificaciones: string[] | number;
   activo: boolean;
   createdAt?: any;
   updatedAt?: any;
@@ -112,17 +112,46 @@ export interface AuthUser {
 // User roles and profiles
 export type UserRole = 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
 
+// Base profile interface with all common properties
 export interface UsuarioProfile {
   id: string;
   email: string;
   role: UserRole;
   nombre?: string;
+  apellidos?: string;
   direccion?: string;
   telefono?: string;
   distrito?: string;
   barrio?: string;
   createdAt?: any;
   updatedAt?: any;
+  
+  // Comunidad properties
+  numViviendas?: number;
+  numContenedores?: number;
+  frecuenciaRecogida?: string;
+  
+  // Restaurante properties
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  
+  // Hotel properties
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  
+  // Asociacion properties
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  
+  // Escolar properties
+  nombreCentro?: string;
+  tipoCentro?: string;
+  tipoEscolar?: string;
+  numAlumnos?: number;
+  numEstudiantes?: number;
+  participaAlianzaVerde?: boolean;
 }
 
 export interface ComunidadProfile extends UsuarioProfile {

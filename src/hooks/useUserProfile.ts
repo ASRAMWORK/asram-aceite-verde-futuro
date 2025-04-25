@@ -19,11 +19,19 @@ export function useUserProfile() {
       }
       
       try {
-        const docRef = doc(db, "usuarios", user.uid);
+        const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-          setProfile({ id: docSnap.id, ...docSnap.data() } as UsuarioProfile);
+          const userData = docSnap.data();
+          const profileData: UsuarioProfile = {
+            id: docSnap.id,
+            email: userData.email || user.email || '',
+            role: (userData.role as UserRole) || 'usuario',
+            ...userData
+          };
+          
+          setProfile(profileData);
         } else {
           setError("Perfil no encontrado");
         }
