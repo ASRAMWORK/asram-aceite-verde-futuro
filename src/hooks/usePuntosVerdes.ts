@@ -41,7 +41,7 @@ export function usePuntosVerdes(administradorId?: string) {
           numContenedores: data.numContenedores || 0,
           telefono: data.telefono || '',
           litrosRecogidos: data.litrosRecogidos || 0,
-          administradorId: data.administradorId,
+          administradorId: data.administradorId || null,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
         });

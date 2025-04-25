@@ -42,6 +42,24 @@ export function useUsuarios() {
     return usuarios.filter(usuario => usuario.barrio === barrio);
   };
 
+  const addUsuario = async (data: Omit<Usuario, "id">) => {
+    try {
+      const usuarioData = {
+        ...data,
+        createdAt: serverTimestamp(),
+      };
+      
+      const docRef = await addDoc(collection(db, "usuarios"), usuarioData);
+      toast.success("Cliente añadido correctamente");
+      await loadUsuariosData();
+      return { id: docRef.id, ...data };
+    } catch (err) {
+      console.error("Error añadiendo cliente:", err);
+      toast.error("Error al añadir el cliente");
+      throw err;
+    }
+  };
+
   const updateUsuario = async (id: string, data: Partial<Usuario>) => {
     try {
       await updateDoc(doc(db, "usuarios", id), {
@@ -87,6 +105,7 @@ export function useUsuarios() {
     getUsuariosByTipo,
     getUsuariosByDistrito,
     getUsuariosByBarrio,
+    addUsuario,
     updateUsuario,
     deleteUsuario
   };
