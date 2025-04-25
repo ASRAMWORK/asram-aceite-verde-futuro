@@ -18,12 +18,12 @@ const GestionarComunidad = () => {
     ciudad: '',
     distrito: '',
     barrio: '',
-    numViviendas: 0,
-    totalViviendas: 0,
+    numViviendas: 0, // Ensure this is a number, not a string
+    totalViviendas: 0, // Ensure this is a number, not a string
     numeroPorteria: '',
     nombreAdministracion: '',
     correoContacto: '',
-    litrosRecogidos: 0,
+    litrosRecogidos: 0, // Ensure this is a number, not a string
     beneficiosMedioambientales: {
       co2: 0,
       agua: 0,
