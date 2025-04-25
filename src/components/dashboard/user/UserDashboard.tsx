@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 
 import UserProfileView from "./profile/UserProfileView";
 import RecursosView from "./recursos/RecursosView";
@@ -23,9 +24,9 @@ import ApadrinaCalleView from "./apadrina/ApadrinaCalleView";
 import PuntosVerdesView from "./puntos/PuntosVerdesView";
 import SolicitudRecogidaForm from "./solicitud/SolicitudRecogidaForm";
 import HomeView from "./home/HomeView";
+import { Activity, Home, UserCircle, BookOpen, School, MapPin, User } from "lucide-react";
 
 const UserDashboard = ({ activeTab = "home" }) => {
-  const [showSolicitudDialog, setShowSolicitudDialog] = useState(false);
   const [currentTab, setCurrentTab] = useState(activeTab);
 
   useEffect(() => {
@@ -50,29 +51,52 @@ const UserDashboard = ({ activeTab = "home" }) => {
             Bienvenido de nuevo, gestiona tus recogidas de aceite
           </p>
         </div>
-        <Button className="bg-asram hover:bg-asram-700" onClick={() => setShowSolicitudDialog(true)}>
-          Solicitar Recogida
-        </Button>
+        <DialogTrigger asChild data-dialog-trigger="solicitud">
+          <Button className="bg-asram hover:bg-asram-700">
+            Solicitar Recogida
+          </Button>
+        </DialogTrigger>
       </div>
 
       <Tabs defaultValue={currentTab} value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="home">Home</TabsTrigger>
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="perfil">Perfil</TabsTrigger>
-          <TabsTrigger value="recursos">Recursos</TabsTrigger>
-          <TabsTrigger value="alianza-verde">Alianza Verde Escolar</TabsTrigger>
-          <TabsTrigger value="apadrina">Apadrina una Calle</TabsTrigger>
-          <TabsTrigger value="puntos-verdes">Puntos Verdes</TabsTrigger>
+        <TabsList className="grid grid-cols-7 h-auto p-1 max-w-3xl">
+          <TabsTrigger value="home" className="flex items-center gap-2 py-2">
+            <Home className="h-4 w-4" />
+            <span className="hidden md:inline">Home</span>
+          </TabsTrigger>
+          <TabsTrigger value="dashboard" className="flex items-center gap-2 py-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden md:inline">Dashboard</span>
+          </TabsTrigger>
+          <TabsTrigger value="perfil" className="flex items-center gap-2 py-2">
+            <UserCircle className="h-4 w-4" />
+            <span className="hidden md:inline">Perfil</span>
+          </TabsTrigger>
+          <TabsTrigger value="recursos" className="flex items-center gap-2 py-2">
+            <BookOpen className="h-4 w-4" />
+            <span className="hidden md:inline">Recursos</span>
+          </TabsTrigger>
+          <TabsTrigger value="alianza-verde" className="flex items-center gap-2 py-2">
+            <School className="h-4 w-4" />
+            <span className="hidden md:inline">Alianza</span>
+          </TabsTrigger>
+          <TabsTrigger value="apadrina" className="flex items-center gap-2 py-2">
+            <MapPin className="h-4 w-4" />
+            <span className="hidden md:inline">Apadrina</span>
+          </TabsTrigger>
+          <TabsTrigger value="puntos-verdes" className="flex items-center gap-2 py-2">
+            <User className="h-4 w-4" />
+            <span className="hidden md:inline">Puntos</span>
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="home">
+        <TabsContent value="home" className="animate-fade-in">
           <HomeView />
         </TabsContent>
         
-        <TabsContent value="dashboard" className="space-y-6">
-          <Card className="futuristic-card">
-            <CardHeader>
+        <TabsContent value="dashboard" className="space-y-6 animate-fade-in">
+          <Card className="overflow-hidden border-green-100">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50">
               <CardTitle>Tu Impacto Medioambiental</CardTitle>
               <CardDescription>
                 Distribución del impacto positivo de tu reciclaje
@@ -101,10 +125,8 @@ const UserDashboard = ({ activeTab = "home" }) => {
             </CardContent>
           </Card>
           
-          <UserProfileView />
-          
-          <Card className="futuristic-card">
-            <CardHeader>
+          <Card className="overflow-hidden border-green-100">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50">
               <CardTitle>Historial de Recogidas</CardTitle>
               <CardDescription>
                 Últimas recogidas de aceite realizadas
@@ -146,30 +168,30 @@ const UserDashboard = ({ activeTab = "home" }) => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="perfil">
+        <TabsContent value="perfil" className="animate-fade-in">
           <UserProfileView />
         </TabsContent>
         
-        <TabsContent value="recursos">
+        <TabsContent value="recursos" className="animate-fade-in">
           <RecursosView />
         </TabsContent>
         
-        <TabsContent value="alianza-verde">
+        <TabsContent value="alianza-verde" className="animate-fade-in">
           <AlianzaVerdeView />
         </TabsContent>
         
-        <TabsContent value="apadrina">
+        <TabsContent value="apadrina" className="animate-fade-in">
           <ApadrinaCalleView />
         </TabsContent>
         
-        <TabsContent value="puntos-verdes">
+        <TabsContent value="puntos-verdes" className="animate-fade-in">
           <PuntosVerdesView />
         </TabsContent>
       </Tabs>
 
       {/* Dialog for Solicitud de Recogida */}
-      <Dialog open={showSolicitudDialog} onOpenChange={setShowSolicitudDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+      <Dialog>
+        <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Solicitar recogida de aceite</DialogTitle>
             <DialogDescription>
@@ -177,10 +199,12 @@ const UserDashboard = ({ activeTab = "home" }) => {
             </DialogDescription>
           </DialogHeader>
           <SolicitudRecogidaForm />
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setShowSolicitudDialog(false)}>
-              Cancelar
-            </Button>
+          <DialogFooter className="mt-4 gap-2">
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                Cancelar
+              </Button>
+            </DialogTrigger>
           </DialogFooter>
         </DialogContent>
       </Dialog>

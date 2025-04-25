@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -8,7 +9,7 @@ import UserDashboard from "@/components/dashboard/user/UserDashboard";
 import { toast } from "sonner";
 import { 
   User, UserCircle, BookOpen, School, MapPin, 
-  Activity, LogOut
+  Activity, LogOut, Home as HomeIcon
 } from "lucide-react";
 
 const UserDashboardPage = () => {
@@ -64,12 +65,24 @@ const UserDashboardPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <div className="hidden md:flex flex-col w-64 bg-white border-r">
-        <div className="p-6">
+      <div className="hidden md:flex flex-col w-72 bg-white border-r shadow-sm">
+        <div className="p-6 flex items-center justify-center">
           <h1 className="text-2xl font-bold text-asram">ASRAM</h1>
         </div>
         
-        <nav className="flex-1 px-4 pb-4 space-y-1">
+        <div className="p-4">
+          <div className="bg-gray-100 p-4 rounded-lg mb-4 flex items-center space-x-3">
+            <div className="bg-asram text-white p-2 rounded-full">
+              <UserCircle className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Bienvenido</p>
+              <p className="text-xs text-gray-500">Usuario ASRAM</p>
+            </div>
+          </div>
+        </div>
+        
+        <nav className="flex-1 px-4 pb-6 space-y-1.5 overflow-auto">
           <Button
             variant={activeTab === "home" ? "default" : "ghost"}
             className={`w-full justify-start ${
@@ -77,7 +90,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => handleTabChange("home")}
           >
-            <Activity className="mr-2 h-4 w-4" />
+            <HomeIcon className="mr-3 h-5 w-5" />
             Home
           </Button>
           
@@ -88,7 +101,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => handleTabChange("dashboard")}
           >
-            <Activity className="mr-2 h-4 w-4" />
+            <Activity className="mr-3 h-5 w-5" />
             Dashboard
           </Button>
           
@@ -99,7 +112,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => handleTabChange("perfil")}
           >
-            <UserCircle className="mr-2 h-4 w-4" />
+            <UserCircle className="mr-3 h-5 w-5" />
             Perfil
           </Button>
           
@@ -110,7 +123,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => handleTabChange("recursos")}
           >
-            <BookOpen className="mr-2 h-4 w-4" />
+            <BookOpen className="mr-3 h-5 w-5" />
             Recursos
           </Button>
           
@@ -121,7 +134,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => handleTabChange("alianza")}
           >
-            <School className="mr-2 h-4 w-4" />
+            <School className="mr-3 h-5 w-5" />
             Alianza Verde Escolar
           </Button>
           
@@ -132,7 +145,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => handleTabChange("apadrina")}
           >
-            <MapPin className="mr-2 h-4 w-4" />
+            <MapPin className="mr-3 h-5 w-5" />
             Apadrina una Calle
           </Button>
           
@@ -143,7 +156,7 @@ const UserDashboardPage = () => {
             }`}
             onClick={() => handleTabChange("puntos")}
           >
-            <User className="mr-2 h-4 w-4" />
+            <User className="mr-3 h-5 w-5" />
             Puntos Verdes
           </Button>
           
@@ -154,14 +167,14 @@ const UserDashboardPage = () => {
             className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
             onClick={handleSignOut}
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-3 h-5 w-5" />
             Cerrar sesión
           </Button>
         </nav>
       </div>
       
       <div className="flex-1 overflow-auto">
-        <header className="bg-white border-b sticky top-0 z-10">
+        <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
           <div className="container flex items-center justify-between h-16 px-4">
             <h2 className="text-lg font-medium md:hidden">ASRAM</h2>
             
@@ -169,6 +182,7 @@ const UserDashboardPage = () => {
               <Button
                 variant="outline"
                 className="hidden md:flex"
+                onClick={() => document.querySelector('[data-dialog-trigger="solicitud"]')?.click()}
               >
                 Solicitar Recogida
               </Button>

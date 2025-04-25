@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { auth, db } from '@/lib/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 import {
   Form,
@@ -24,7 +25,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, MapPin, Phone } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const formSchema = z.object({
   litrosEstimados: z.coerce.number().min(1, {
@@ -33,17 +35,34 @@ const formSchema = z.object({
   fechaDeseada: z.date({
     required_error: 'Por favor selecciona una fecha.',
   }),
+  direccion: z.string().min(5, {
+    message: 'La dirección debe tener al menos 5 caracteres.',
+  }),
+  telefono: z.string().min(9, {
+    message: 'Introduce un número de teléfono válido.',
+  }),
   notas: z.string().optional(),
 });
 
 const SolicitudRecogidaForm = () => {
+  const { profile, loading } = useUserProfile();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       litrosEstimados: 5,
+      direccion: '',
+      telefono: '',
       notas: '',
     },
   });
+
+  // Prellenar la dirección y teléfono cuando se cargue el perfil
+  useEffect(() => {
+    if (profile) {
+      form.setValue('direccion', profile.direccion || '');
+      form.setValue('telefono', profile.telefono || '');
+    }
+  }, [profile, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -59,6 +78,8 @@ const SolicitudRecogidaForm = () => {
         userEmail: user.email,
         litrosEstimados: values.litrosEstimados,
         fechaDeseada: values.fechaDeseada,
+        direccion: values.direccion,
+        telefono: values.telefono,
         notas: values.notas,
         estado: 'pendiente',
         createdAt: serverTimestamp(),
@@ -68,6 +89,8 @@ const SolicitudRecogidaForm = () => {
       form.reset({
         litrosEstimados: 5,
         fechaDeseada: undefined,
+        direccion: profile?.direccion || '',
+        telefono: profile?.telefono || '',
         notas: '',
       });
     } catch (error) {
@@ -75,6 +98,14 @@ const SolicitudRecogidaForm = () => {
       toast.error('Error al enviar la solicitud. Inténtalo de nuevo.');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-6">
+        <p className="text-muted-foreground">Cargando datos de contacto...</p>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
@@ -95,6 +126,42 @@ const SolicitudRecogidaForm = () => {
             </FormItem>
           )}
         />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="direccion"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dirección de recogida</FormLabel>
+                <FormControl>
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Dirección completa" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="telefono"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Teléfono de contacto</FormLabel>
+                <FormControl>
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Teléfono" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
         <FormField
           control={form.control}
@@ -160,6 +227,12 @@ const SolicitudRecogidaForm = () => {
             </FormItem>
           )}
         />
+        
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-4 text-sm text-green-800">
+            <p>Confirma que la dirección y teléfono son correctos antes de enviar la solicitud.</p>
+          </CardContent>
+        </Card>
         
         <Button type="submit" className="w-full bg-asram hover:bg-asram-700">
           Enviar solicitud

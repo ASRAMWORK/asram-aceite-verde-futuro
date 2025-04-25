@@ -6,7 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { UserRole, UsuarioProfile } from '@/types';
 
 export function useUserProfile() {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UsuarioProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +23,7 @@ export function useUserProfile() {
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-          setProfile({ id: docSnap.id, ...docSnap.data() });
+          setProfile({ id: docSnap.id, ...docSnap.data() } as UsuarioProfile);
         } else {
           setError("Perfil no encontrado");
         }
