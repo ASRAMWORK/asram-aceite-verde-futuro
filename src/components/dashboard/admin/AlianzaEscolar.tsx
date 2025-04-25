@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -146,10 +145,11 @@ const AlianzaEscolar = () => {
       email: centro.email || "",
       numEstudiantes: centro.numEstudiantes || 0,
       talleresRealizados: centro.talleresRealizados || 0,
-      certificaciones: centro.certificaciones || 0
+      certificaciones: typeof centro.certificaciones === 'number' 
+        ? centro.certificaciones 
+        : (centro.certificaciones as string[])?.length || 0
     });
     
-    // Set filtered barrios based on the selected distrito
     if (centro.distrito) {
       setFilteredBarrios(barrios[centro.distrito] || []);
     }
@@ -176,7 +176,6 @@ const AlianzaEscolar = () => {
   };
   
   const handleSubmit = async () => {
-    // Basic validation
     if (!formData.nombre || !formData.tipo || !formData.direccion || !formData.distrito || !formData.email) {
       alert("Por favor completa todos los campos obligatorios");
       return;
@@ -200,20 +199,24 @@ const AlianzaEscolar = () => {
   };
   
   const handleExportData = (format: 'pdf' | 'excel') => {
-    // This would be implemented with a PDF/Excel generation library
     alert(`Exportando datos en formato ${format}. Esta función estará disponible próximamente.`);
   };
   
   const handleSendNotification = () => {
-    // This would be implemented with an email service
     alert("Enviando notificaciones a todos los centros. Esta función estará disponible próximamente.");
   };
   
-  // Calculate some stats for the dashboard cards
   const totalCentros = alianzas.length;
   const totalEstudiantes = alianzas.reduce((total, centro) => total + (centro.numEstudiantes || 0), 0);
   const totalTalleres = alianzas.reduce((total, centro) => total + (centro.talleresRealizados || 0), 0);
-  const totalCertificaciones = alianzas.reduce((total, centro) => total + (centro.certificaciones || 0), 0);
+  const totalCertificaciones = alianzas.reduce((total, centro) => {
+    if (typeof centro.certificaciones === 'number') {
+      return total + centro.certificaciones;
+    } else if (Array.isArray(centro.certificaciones)) {
+      return total + centro.certificaciones.length;
+    }
+    return total;
+  }, 0);
   
   return (
     <div className="space-y-6">
@@ -409,7 +412,6 @@ const AlianzaEscolar = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                {/* Form fields are the same as the add dialog */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nombre-edit">Nombre del centro</Label>
@@ -439,7 +441,6 @@ const AlianzaEscolar = () => {
                     </Select>
                   </div>
                 </div>
-                {/* Repeat similar structure for other fields */}
                 <div className="space-y-2">
                   <Label htmlFor="direccion-edit">Dirección</Label>
                   <Input
@@ -488,7 +489,6 @@ const AlianzaEscolar = () => {
                     </Select>
                   </div>
                 </div>
-                {/* Repeat for other fields */}
                 <div className="space-y-2">
                   <Label htmlFor="contacto-edit">Persona de contacto</Label>
                   <Input
@@ -587,7 +587,6 @@ const AlianzaEscolar = () => {
         </div>
       </div>
 
-      {/* Dashboard Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -647,7 +646,6 @@ const AlianzaEscolar = () => {
         </Card>
       </div>
 
-      {/* Centro Table */}
       <Card>
         <CardHeader>
           <CardTitle>Centros en Alianza Verde Escolar</CardTitle>
