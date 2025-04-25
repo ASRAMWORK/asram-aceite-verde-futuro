@@ -1,7 +1,9 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import HowItWorks from "@/components/home/HowItWorks";
+import OilDestination from "@/components/home/OilDestination";
+import Benefits from "@/components/home/Benefits";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -55,6 +57,10 @@ const Index = () => {
           </div>
         </section>
         
+        <HowItWorks />
+        <OilDestination />
+        <Benefits />
+
         <section className="py-20 bg-white">
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12">
@@ -141,25 +147,30 @@ const Index = () => {
           </div>
         </section>
         
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-gray-50">
           <div className="container mx-auto text-center">
             <h2 className="text-3xl font-bold mb-8">
-              Únete a nuestra comunidad
+              ¿Cómo participar?
             </h2>
-            <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-              Forma parte de la solución para un futuro más sostenible.
-              Regístrate ahora y comienza a reciclar tu aceite usado.
-            </p>
-            <Button
-              className="bg-asram hover:bg-asram-700 text-white text-lg py-6 px-8"
-              onClick={() => navigate("/register")}
-            >
-              Registrarse
-            </Button>
+            <div className="max-w-3xl mx-auto space-y-6">
+              <div className="futuristic-card p-6">
+                <ol className="list-decimal list-inside space-y-4 text-left">
+                  <li className="text-lg">
+                    Contacta con ASRAM vía web (sección "Puntos Verdes") o por teléfono/WhatsApp para solicitar la instalación.
+                  </li>
+                  <li className="text-lg">
+                    Se programa la instalación de los contenedores y se te facilita el calendario de recogida.
+                  </li>
+                  <li className="text-lg">
+                    ¡Empieza a depositar tu aceite usado y forma parte del cambio hacia un modelo sostenible!
+                  </li>
+                </ol>
+              </div>
+            </div>
           </div>
         </section>
       </main>
-      
+
       <footer className="bg-gray-50 border-t py-12">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
