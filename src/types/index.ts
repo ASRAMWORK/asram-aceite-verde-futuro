@@ -7,6 +7,7 @@ export interface PuntoVerde {
   numContenedores: number;
   telefono: string;
   litrosRecogidos: number;
+  administradorId?: string;
   createdAt?: any;
   updatedAt?: any;
 }
