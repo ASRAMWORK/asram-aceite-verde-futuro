@@ -1,4 +1,15 @@
-export interface PuntoVerde {
+// Existing types
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  type?: string;
+  activo?: boolean;
+  createdAt?: any;
+};
+
+export type PuntoVerde = {
   id: string;
   distrito: string;
   barrio: string;
@@ -7,218 +18,134 @@ export interface PuntoVerde {
   numContenedores: number;
   telefono: string;
   litrosRecogidos: number;
-  administradorId?: string;
+  administradorId: string | null;
   createdAt?: any;
   updatedAt?: any;
-}
+};
 
-export interface AlianzaVerde {
+export type AlianzaVerde = {
   id: string;
   nombre: string;
   tipo: string;
   direccion: string;
-  distrito: string;
-  barrio: string;
   contacto: string;
   telefono: string;
   email: string;
-  numEstudiantes: number;
-  talleresRealizados: number;
-  certificaciones: string[] | number;
+  fechaInicio: any;
+  estado: string;
   activo: boolean;
   createdAt?: any;
   updatedAt?: any;
-  nombreCentro?: string;
-  numParticipantes?: number;
-}
+};
 
-export interface CalleApadrinada {
+export type CalleApadrinada = {
   id: string;
   nombre: string;
   distrito: string;
   barrio: string;
-  descripcion: string;
-  padrinoId: string;
-  precio: number;
-  fechaInicio: string;
-  fechaRenovacion: string;
-  activo: boolean;
-  createdAt?: any;
-  updatedAt?: any;
-  nombreCalle?: string;
-  nombrePadrino?: string;
-}
-
-export interface Usuario {
-  id: string;
-  nombre: string;
-  tipo: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
+  padrino: string;
+  contacto: string;
   telefono: string;
   email: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  litrosRecogidos?: number;
-  frecuenciaRecogida?: string;
+  fechaInicio: any;
   activo: boolean;
   createdAt?: any;
   updatedAt?: any;
-}
+};
 
-export interface Recogida {
+export type Recogida = {
   id: string;
+  fechaSolicitud: any;
+  fechaProgramada: any | null;
+  fechaCompletada: any | null;
   clienteId: string;
-  tipo: 'individual' | 'zona';
-  fecha: string;
-  hora: string;
-  distrito: string;
-  barrio: string;
-  completada: boolean;
-  litrosRecogidos?: number;
-  fechaCompletada?: any;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-export interface Ruta {
-  id: string;
-  nombre: string;
-  distrito: string;
-  fecha: string;
-  hora: string;
-  recogedores: string;
-  clientes?: { id: string; nombre: string; direccion: string }[];
-  completada: boolean;
-  litrosTotales?: number;
-  fechaCompletada?: any;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-export interface DistritoBarrio {
-  distrito: string;
-  barrios: string[];
-}
-
-export interface AuthUser {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  photoURL: string | null;
-}
-
-// User roles and profiles
-export type UserRole = 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'administrador';
-
-// Base profile interface with all common properties
-export interface UsuarioProfile {
-  id: string;
-  email: string;
-  role: UserRole;
-  nombre?: string;
-  apellidos?: string;
-  direccion?: string;
-  telefono?: string;
-  distrito?: string;
-  barrio?: string;
-  createdAt?: any;
-  updatedAt?: any;
-  
-  // Comunidad properties
-  numViviendas?: number;
-  numContenedores?: number;
-  frecuenciaRecogida?: string;
-  
-  // Restaurante properties
-  nombreRestaurante?: string;
-  horarioApertura?: string;
-  litrosEstimados?: number;
-  
-  // Hotel properties
-  nombreHotel?: string;
-  numHabitaciones?: number;
-  
-  // Asociacion properties
-  nombreAsociacion?: string;
-  tipoAsociacion?: string;
-  numMiembros?: number;
-  numParticipantes?: number;
-  
-  // Escolar properties
-  nombreCentro?: string;
-  tipoCentro?: string;
-  tipoEscolar?: string;
-  numAlumnos?: number;
-  numEstudiantes?: number;
-  participaAlianzaVerde?: boolean;
-
-  // Administrador properties
-  nombreAdministracion?: string;
-  cifAdministracion?: string;
-}
-
-export interface ComunidadProfile extends UsuarioProfile {
-  numViviendas: number;
-  numContenedores: number;
-  frecuenciaRecogida: string;
-}
-
-export interface RestauranteProfile extends UsuarioProfile {
-  nombreRestaurante: string;
-  horarioApertura: string;
+  direccion: string;
+  telefono: string;
+  tipo: string;
+  estado: string;
   litrosEstimados: number;
-  frecuenciaRecogida: string;
-}
+  litrosRecogidos: number;
+  notas?: string;
+  completada: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+};
 
-export interface HotelProfile extends UsuarioProfile {
-  nombreHotel: string;
-  numHabitaciones: number;
-  litrosEstimados: number;
-  frecuenciaRecogida: string;
-}
-
-export interface AsociacionProfile extends UsuarioProfile {
-  nombreAsociacion: string;
-  tipoAsociacion: string;
-  numParticipantes: number;
-  frecuenciaRecogida: string;
-}
-
-export interface EscolarProfile extends UsuarioProfile {
-  nombreCentro: string;
-  tipoCentro: string;
-  numEstudiantes: number;
-  frecuenciaRecogida: string;
-}
-
-export interface AdministradorProfile extends UsuarioProfile {
-  nombreAdministracion: string;
-  cifAdministracion: string;
-}
-
-// Interface for communities managed by "Administradores de fincas"
-export interface ComunidadVecinos {
+export type ComunidadVecinos = {
   id: string;
   nombre: string;
   direccion: string;
-  cif: string;
-  codigoPostal: string;
-  ciudad: string;
-  distrito: string;
-  barrio: string;
-  totalViviendas: number;
-  numeroPorteria: number;
-  nombreAdministracion: string;
-  correoContacto: string;
-  administradorId: string;
-  litrosRecogidos: number;
-  beneficiosMedioambientales: {
-    co2Evitado: number;
-    aguaAhorrada: number;
-    energiaAhorrada: number;
-  };
+  numViviendas: number;
+  administradorId: string | null;
   createdAt?: any;
   updatedAt?: any;
-}
+};
+
+// New types for voluntarios module
+export type Voluntario = {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  direccion?: string;
+  codigoPostal?: string;
+  diasDisponibles: string[];
+  horasDisponibles: string;
+  habilidades?: string[];
+  experiencia?: string;
+  activo: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+};
+
+export type HorarioVoluntario = {
+  id: string;
+  voluntarioId: string;
+  voluntarioNombre: string;
+  actividad: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+  ubicacion: string;
+  createdAt?: any;
+};
+
+export type Tarea = {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  voluntarioId: string;
+  voluntarioNombre: string;
+  prioridad: "alta" | "media" | "baja";
+  fechaAsignacion: any;
+  fechaLimite?: any;
+  fechaCompletada?: any;
+  completada: boolean;
+};
+
+// New types for facturación module
+export type Ingreso = {
+  id: string;
+  concepto: string;
+  cantidad: number;
+  tipo: string;
+  fecha: any;
+  cliente?: string;
+  origen?: string;
+  numFactura?: string;
+  notas?: string;
+  createdAt?: any;
+};
+
+export type Gasto = {
+  id: string;
+  concepto: string;
+  cantidad: number;
+  tipo: string;
+  fecha: any;
+  proveedor?: string;
+  numFactura?: string;
+  notas?: string;
+  createdAt?: any;
+};

@@ -18,9 +18,23 @@ import CallesApadrinadas from "@/components/dashboard/admin/CallesApadrinadas";
 import GestionClientes from "@/components/dashboard/admin/GestionClientes";
 import GestionRecogidas from "@/components/dashboard/admin/GestionRecogidas";
 import RutasDistritos from "@/components/dashboard/admin/RutasDistritos";
+import VoluntariosView from "@/components/dashboard/admin/voluntarios/VoluntariosView";
+import SimuladorImpacto from "@/components/dashboard/admin/simulador/SimuladorImpacto";
+import FacturacionView from "@/components/dashboard/admin/facturacion/FacturacionView";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { 
+  Activity, 
+  Users, 
+  Truck, 
+  MapPin, 
+  Building, 
+  GraduationCap, 
+  User, 
+  Calculator, 
+  Receipt
+} from "lucide-react";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
@@ -97,6 +111,7 @@ const AdminDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("panel-control")}
           >
+            <Activity className="mr-2 h-4 w-4" />
             Panel de Control
           </Button>
           
@@ -107,6 +122,7 @@ const AdminDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("gestion-clientes")}
           >
+            <Users className="mr-2 h-4 w-4" />
             Gestión de Clientes
           </Button>
           
@@ -117,6 +133,7 @@ const AdminDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("gestion-recogidas")}
           >
+            <Truck className="mr-2 h-4 w-4" />
             Gestión de Recogidas
           </Button>
           
@@ -127,7 +144,41 @@ const AdminDashboardPage = () => {
             }`}
             onClick={() => setActiveTab("rutas-distritos")}
           >
+            <MapPin className="mr-2 h-4 w-4" />
             Rutas por Distritos
+          </Button>
+          
+          <Button
+            variant={activeTab === "voluntarios" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "voluntarios" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("voluntarios")}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Gestión Voluntarios
+          </Button>
+          
+          <Button
+            variant={activeTab === "simulador" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "simulador" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("simulador")}
+          >
+            <Calculator className="mr-2 h-4 w-4" />
+            Simulador Impacto
+          </Button>
+          
+          <Button
+            variant={activeTab === "facturacion" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "facturacion" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("facturacion")}
+          >
+            <Receipt className="mr-2 h-4 w-4" />
+            Facturación
           </Button>
           
           <Separator className="my-4" />
@@ -211,6 +262,12 @@ const AdminDashboardPage = () => {
           {activeTab === "gestion-recogidas" && <GestionRecogidas />}
           
           {activeTab === "rutas-distritos" && <RutasDistritos />}
+          
+          {activeTab === "voluntarios" && <VoluntariosView />}
+          
+          {activeTab === "simulador" && <SimuladorImpacto />}
+          
+          {activeTab === "facturacion" && <FacturacionView />}
         </main>
       </div>
     </div>
