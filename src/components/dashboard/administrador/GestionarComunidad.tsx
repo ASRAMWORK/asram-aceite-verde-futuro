@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -25,9 +24,10 @@ import { toast } from "sonner";
 const GestionarComunidad: React.FC = () => {
   const { profile } = useUserProfile();
   const { addComunidad, updateComunidad, comunidades } = useComunidadesVecinos(profile?.id);
-  const [formState, setFormState] = useState<Partial<ComunidadVecinos>>({
+  const [formData, setFormData] = useState<Partial<ComunidadVecinos>>({
     nombre: "",
     direccion: "",
+    numViviendas: 0,
     cif: "",
     codigoPostal: "",
     ciudad: "Madrid",
@@ -87,7 +87,7 @@ const GestionarComunidad: React.FC = () => {
     if (id) {
       const comunidad = comunidades.find(c => c.id === id);
       if (comunidad) {
-        setFormState({...comunidad});
+        setFormData({...comunidad});
         setEditMode(true);
         setComunidadId(id);
       }
@@ -97,14 +97,14 @@ const GestionarComunidad: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     
-    setFormState(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value
     }));
   };
   
   const handleSelectChange = (name: string, value: string) => {
-    setFormState(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -113,7 +113,7 @@ const GestionarComunidad: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formState.nombre || !formState.direccion || !formState.cif) {
+    if (!formData.nombre || !formData.direccion || !formData.cif) {
       toast.error("Por favor, completa todos los campos obligatorios");
       return;
     }
@@ -122,15 +122,15 @@ const GestionarComunidad: React.FC = () => {
     
     try {
       if (editMode && comunidadId) {
-        await updateComunidad(comunidadId, formState);
+        await updateComunidad(comunidadId, formData);
         toast.success("Comunidad actualizada correctamente");
       } else {
-        await addComunidad(formState as Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>);
+        await addComunidad(formData as Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>);
         toast.success("Comunidad añadida correctamente");
         
         // Reset form after successful submission
-        setFormState({
-          ...formState,
+        setFormData({
+          ...formData,
           nombre: "",
           direccion: "",
           cif: "",
@@ -153,7 +153,7 @@ const GestionarComunidad: React.FC = () => {
   const cancelEdit = () => {
     setEditMode(false);
     setComunidadId(null);
-    setFormState({
+    setFormData({
       nombre: "",
       direccion: "",
       cif: "",
@@ -199,7 +199,7 @@ const GestionarComunidad: React.FC = () => {
                 id="nombre"
                 name="nombre"
                 placeholder="Comunidad de Propietarios..."
-                value={formState.nombre}
+                value={formData.nombre}
                 onChange={handleInputChange}
                 required
               />
@@ -211,7 +211,7 @@ const GestionarComunidad: React.FC = () => {
                 id="cif"
                 name="cif"
                 placeholder="H12345678"
-                value={formState.cif}
+                value={formData.cif}
                 onChange={handleInputChange}
                 required
               />
@@ -223,7 +223,7 @@ const GestionarComunidad: React.FC = () => {
                 id="direccion"
                 name="direccion"
                 placeholder="Calle, número..."
-                value={formState.direccion}
+                value={formData.direccion}
                 onChange={handleInputChange}
                 required
               />
@@ -235,7 +235,7 @@ const GestionarComunidad: React.FC = () => {
                 id="codigoPostal"
                 name="codigoPostal"
                 placeholder="28001"
-                value={formState.codigoPostal}
+                value={formData.codigoPostal}
                 onChange={handleInputChange}
                 required
               />
@@ -246,7 +246,7 @@ const GestionarComunidad: React.FC = () => {
               <Input
                 id="ciudad"
                 name="ciudad"
-                value={formState.ciudad}
+                value={formData.ciudad}
                 onChange={handleInputChange}
                 readOnly
               />
@@ -255,7 +255,7 @@ const GestionarComunidad: React.FC = () => {
             <div>
               <Label htmlFor="distrito">Distrito *</Label>
               <Select
-                value={formState.distrito}
+                value={formData.distrito}
                 onValueChange={(value) => handleSelectChange("distrito", value)}
               >
                 <SelectTrigger>
@@ -272,15 +272,15 @@ const GestionarComunidad: React.FC = () => {
             <div>
               <Label htmlFor="barrio">Barrio *</Label>
               <Select
-                value={formState.barrio}
+                value={formData.barrio}
                 onValueChange={(value) => handleSelectChange("barrio", value)}
-                disabled={!formState.distrito}
+                disabled={!formData.distrito}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un barrio" />
                 </SelectTrigger>
                 <SelectContent>
-                  {formState.distrito && barrios[formState.distrito]?.map((b) => (
+                  {formData.distrito && barrios[formData.distrito]?.map((b) => (
                     <SelectItem key={b} value={b}>{b}</SelectItem>
                   ))}
                 </SelectContent>
@@ -293,7 +293,7 @@ const GestionarComunidad: React.FC = () => {
                 id="totalViviendas"
                 name="totalViviendas"
                 type="number"
-                value={formState.totalViviendas}
+                value={formData.totalViviendas}
                 onChange={handleInputChange}
                 required
               />
@@ -305,7 +305,7 @@ const GestionarComunidad: React.FC = () => {
                 id="numeroPorteria"
                 name="numeroPorteria"
                 type="number"
-                value={formState.numeroPorteria}
+                value={formData.numeroPorteria}
                 onChange={handleInputChange}
                 required
               />
@@ -316,7 +316,7 @@ const GestionarComunidad: React.FC = () => {
               <Input
                 id="nombreAdministracion"
                 name="nombreAdministracion"
-                value={formState.nombreAdministracion}
+                value={formData.nombreAdministracion}
                 onChange={handleInputChange}
                 required
               />
@@ -328,7 +328,7 @@ const GestionarComunidad: React.FC = () => {
                 id="correoContacto"
                 name="correoContacto"
                 type="email"
-                value={formState.correoContacto}
+                value={formData.correoContacto}
                 onChange={handleInputChange}
                 required
               />
@@ -341,7 +341,7 @@ const GestionarComunidad: React.FC = () => {
                   id="litrosRecogidos"
                   name="litrosRecogidos"
                   type="number"
-                  value={formState.litrosRecogidos}
+                  value={formData.litrosRecogidos}
                   onChange={handleInputChange}
                 />
               </div>

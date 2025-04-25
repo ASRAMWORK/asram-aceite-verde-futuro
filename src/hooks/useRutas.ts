@@ -1,23 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import type { Ruta } from '@/types';
 import { toast } from 'sonner';
-
-interface Ruta {
-  id: string;
-  nombre: string;
-  distrito: string;
-  barrio: string;
-  descripcion?: string;
-  puntoInicio: string;
-  puntoFin: string;
-  distancia: number;
-  tiempoEstimado: number;
-  activo: boolean;
-  createdAt?: any;
-  updatedAt?: any;
-}
 
 export function useRutas() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
@@ -28,25 +14,11 @@ export function useRutas() {
     try {
       setLoading(true);
       const rutasRef = collection(db, "rutas");
-      const rutasSnap = await getDocs(query(rutasRef, orderBy("distrito")));
+      const rutasSnap = await getDocs(query(rutasRef, orderBy("createdAt", "desc")));
       
       const rutasData: Ruta[] = [];
       rutasSnap.forEach((doc) => {
-        const data = doc.data();
-        rutasData.push({
-          id: doc.id,
-          nombre: data.nombre || '',
-          distrito: data.distrito || '',
-          barrio: data.barrio || '',
-          descripcion: data.descripcion,
-          puntoInicio: data.puntoInicio || '',
-          puntoFin: data.puntoFin || '',
-          distancia: data.distancia || 0,
-          tiempoEstimado: data.tiempoEstimado || 0,
-          activo: data.activo ?? true,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
-        });
+        rutasData.push({ id: doc.id, ...doc.data() } as Ruta);
       });
       
       setRutas(rutasData);
@@ -57,30 +29,22 @@ export function useRutas() {
       setLoading(false);
     }
   };
-  
-  const getRutasPorDistrito = (distrito: string) => {
-    return rutas.filter(r => r.distrito === distrito);
-  };
 
-  const getRutasActivas = () => {
-    return rutas.filter(r => r.activo);
-  };
-
-  const addRuta = async (data: Omit<Ruta, "id">) => {
+  const addRuta = async (nuevaRuta: Omit<Ruta, 'id'>) => {
     try {
       const rutaData = {
-        ...data,
+        ...nuevaRuta,
         createdAt: serverTimestamp(),
       };
       
-      const docRef = await addDoc(collection(db, "rutas"), rutaData);
-      toast.success("Ruta añadida correctamente");
+      await addDoc(collection(db, "rutas"), rutaData);
+      toast.success("Ruta creada correctamente");
       await loadRutasData();
-      return { id: docRef.id, ...data };
+      return true;
     } catch (err) {
       console.error("Error añadiendo ruta:", err);
-      toast.error("Error al añadir la ruta");
-      throw err;
+      toast.error("Error al crear la ruta");
+      return false;
     }
   };
 
@@ -99,37 +63,60 @@ export function useRutas() {
       return false;
     }
   };
-
+  
   const deleteRuta = async (id: string) => {
     try {
-      // Soft delete
-      await updateDoc(doc(db, "rutas", id), {
-        activo: false,
-        updatedAt: serverTimestamp()
-      });
-      toast.success("Ruta desactivada correctamente");
+      await deleteDoc(doc(db, "rutas", id));
+      toast.success("Ruta eliminada correctamente");
       await loadRutasData();
       return true;
     } catch (err) {
       console.error("Error eliminando ruta:", err);
-      toast.error("Error al desactivar la ruta");
+      toast.error("Error al eliminar la ruta");
       return false;
     }
+  };
+  
+  // Add the completeRuta function
+  const completeRuta = async (id: string, litrosTotales: number) => {
+    try {
+      await updateDoc(doc(db, "rutas", id), {
+        completada: true,
+        litrosTotales,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Ruta completada correctamente");
+      await loadRutasData();
+      return true;
+    } catch (err) {
+      console.error("Error completando ruta:", err);
+      toast.error("Error al completar la ruta");
+      return false;
+    }
+  };
+  
+  const getRutasPorDistrito = (distrito: string) => {
+    return rutas.filter(ruta => ruta.distrito === distrito);
+  };
+  
+  const getRutasActivas = () => {
+    return rutas.filter(ruta => !ruta.completada);
   };
 
   useEffect(() => {
     loadRutasData();
   }, []);
 
-  return { 
-    rutas, 
-    loading, 
-    error, 
+  return {
+    rutas,
+    loading,
+    error,
     loadRutasData,
     getRutasPorDistrito,
     getRutasActivas,
     addRuta,
     updateRuta,
-    deleteRuta
+    deleteRuta,
+    completeRuta
   };
 }

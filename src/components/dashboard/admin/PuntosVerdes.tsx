@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -67,7 +66,7 @@ const PuntosVerdes = () => {
   const [selectedDistrito, setSelectedDistrito] = useState("");
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   
-  const [newPoint, setNewPoint] = useState({
+  const [formData, setFormData] = useState({
     id: "",
     distrito: "",
     barrio: "",
@@ -82,8 +81,8 @@ const PuntosVerdes = () => {
     setSelectedDistrito(value);
     const distrito = distritosConBarrios.find(d => d.distrito === value);
     setFilteredBarrios(distrito?.barrios || []);
-    setNewPoint({
-      ...newPoint,
+    setFormData({
+      ...formData,
       distrito: value,
       barrio: "",
     });
@@ -91,8 +90,8 @@ const PuntosVerdes = () => {
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewPoint({
-      ...newPoint,
+    setFormData({
+      ...formData,
       [name]: name === "numViviendas" || name === "numContenedores" || name === "litrosRecogidos"
         ? parseInt(value) || 0 
         : value,
@@ -100,14 +99,14 @@ const PuntosVerdes = () => {
   };
   
   const handleSelectChange = (name: string, value: string) => {
-    setNewPoint({
-      ...newPoint,
+    setFormData({
+      ...formData,
       [name]: value,
     });
   };
   
   const resetForm = () => {
-    setNewPoint({
+    setFormData({
       id: "",
       distrito: "",
       barrio: "",
@@ -121,30 +120,30 @@ const PuntosVerdes = () => {
     setFilteredBarrios([]);
   };
   
-  const handleAddPoint = async () => {
+  const handleSubmit = async () => {
+    if (!formData.distrito || !formData.direccion) {
+      alert("Por favor completa los campos requeridos");
+      return;
+    }
+
     try {
-      if (!newPoint.distrito || !newPoint.barrio || !newPoint.direccion || !newPoint.telefono) {
-        toast.error("Por favor completa todos los campos obligatorios");
-        return;
-      }
+      const nuevoPunto: Omit<PuntoVerde, 'id'> = {
+        distrito: formData.distrito,
+        barrio: formData.barrio || "",
+        direccion: formData.direccion,
+        numViviendas: Number(formData.numViviendas) || 0,
+        numContenedores: Number(formData.numContenedores) || 0,
+        telefono: formData.telefono || "",
+        litrosRecogidos: 0,
+        administradorId: null // Adding the missing required field
+      };
+
+      await addPuntoVerde(nuevoPunto);
       
-      const success = await addPuntoVerde({
-        distrito: newPoint.distrito,
-        barrio: newPoint.barrio,
-        direccion: newPoint.direccion,
-        numViviendas: newPoint.numViviendas,
-        numContenedores: newPoint.numContenedores,
-        telefono: newPoint.telefono,
-        litrosRecogidos: 0
-      });
-      
-      if (success) {
-        setIsAddingPoint(false);
-        resetForm();
-      }
+      setIsAddingPoint(false);
+      resetForm();
     } catch (error) {
-      console.error("Error adding punto verde:", error);
-      toast.error("Error al añadir el punto verde");
+      console.error("Error al crear punto verde:", error);
     }
   };
 
@@ -153,7 +152,7 @@ const PuntosVerdes = () => {
     setFilteredBarrios(distrito?.barrios || []);
     setSelectedDistrito(punto.distrito);
     
-    setNewPoint({
+    setFormData({
       id: punto.id,
       distrito: punto.distrito,
       barrio: punto.barrio,
@@ -169,19 +168,19 @@ const PuntosVerdes = () => {
   
   const handleUpdatePoint = async () => {
     try {
-      if (!newPoint.id || !newPoint.distrito || !newPoint.barrio || !newPoint.direccion) {
+      if (!formData.id || !formData.distrito || !formData.barrio || !formData.direccion) {
         toast.error("Por favor completa todos los campos obligatorios");
         return;
       }
       
-      const success = await updatePuntoVerde(newPoint.id, {
-        distrito: newPoint.distrito,
-        barrio: newPoint.barrio,
-        direccion: newPoint.direccion,
-        numViviendas: newPoint.numViviendas,
-        numContenedores: newPoint.numContenedores,
-        telefono: newPoint.telefono,
-        litrosRecogidos: newPoint.litrosRecogidos
+      const success = await updatePuntoVerde(formData.id, {
+        distrito: formData.distrito,
+        barrio: formData.barrio,
+        direccion: formData.direccion,
+        numViviendas: Number(formData.numViviendas) || 0,
+        numContenedores: Number(formData.numContenedores) || 0,
+        telefono: formData.telefono,
+        litrosRecogidos: Number(formData.litrosRecogidos) || 0
       });
       
       if (success) {
@@ -198,7 +197,6 @@ const PuntosVerdes = () => {
     loadPuntosVerdesData();
   }, []);
   
-  // Group puntos verdes by distrito
   const puntosAgrupados: { [distrito: string]: PuntoVerde[] } = {};
   puntosVerdes.forEach(punto => {
     if (!puntosAgrupados[punto.distrito]) {
@@ -234,7 +232,7 @@ const PuntosVerdes = () => {
                 <div className="space-y-2">
                   <Label htmlFor="distrito">Distrito</Label>
                   <Select
-                    value={newPoint.distrito}
+                    value={formData.distrito}
                     onValueChange={(value) => handleDistritoChange(value)}
                   >
                     <SelectTrigger>
@@ -252,9 +250,9 @@ const PuntosVerdes = () => {
                 <div className="space-y-2">
                   <Label htmlFor="barrio">Barrio</Label>
                   <Select
-                    value={newPoint.barrio}
+                    value={formData.barrio}
                     onValueChange={(value) => handleSelectChange("barrio", value)}
-                    disabled={!newPoint.distrito}
+                    disabled={!formData.distrito}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona barrio" />
@@ -274,7 +272,7 @@ const PuntosVerdes = () => {
                 <Input
                   id="direccion"
                   name="direccion"
-                  value={newPoint.direccion}
+                  value={formData.direccion}
                   onChange={handleInputChange}
                 />
               </div>
@@ -285,7 +283,7 @@ const PuntosVerdes = () => {
                     id="numViviendas"
                     name="numViviendas"
                     type="number"
-                    value={newPoint.numViviendas}
+                    value={formData.numViviendas}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -295,7 +293,7 @@ const PuntosVerdes = () => {
                     id="numContenedores"
                     name="numContenedores"
                     type="number"
-                    value={newPoint.numContenedores}
+                    value={formData.numContenedores}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -305,7 +303,7 @@ const PuntosVerdes = () => {
                 <Input
                   id="telefono"
                   name="telefono"
-                  value={newPoint.telefono}
+                  value={formData.telefono}
                   onChange={handleInputChange}
                 />
               </div>
@@ -315,7 +313,7 @@ const PuntosVerdes = () => {
                   id="litrosRecogidos"
                   name="litrosRecogidos"
                   type="number"
-                  value={newPoint.litrosRecogidos}
+                  value={formData.litrosRecogidos}
                   onChange={handleInputChange}
                 />
               </div>
@@ -332,7 +330,7 @@ const PuntosVerdes = () => {
               </Button>
               <Button 
                 className="bg-asram hover:bg-asram-700"
-                onClick={handleAddPoint}
+                onClick={handleSubmit}
               >
                 Guardar
               </Button>
@@ -354,7 +352,7 @@ const PuntosVerdes = () => {
                 <div className="space-y-2">
                   <Label htmlFor="distrito">Distrito</Label>
                   <Select
-                    value={newPoint.distrito}
+                    value={formData.distrito}
                     onValueChange={(value) => handleDistritoChange(value)}
                   >
                     <SelectTrigger>
@@ -372,9 +370,9 @@ const PuntosVerdes = () => {
                 <div className="space-y-2">
                   <Label htmlFor="barrio">Barrio</Label>
                   <Select
-                    value={newPoint.barrio}
+                    value={formData.barrio}
                     onValueChange={(value) => handleSelectChange("barrio", value)}
-                    disabled={!newPoint.distrito}
+                    disabled={!formData.distrito}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona barrio" />
@@ -394,7 +392,7 @@ const PuntosVerdes = () => {
                 <Input
                   id="direccion"
                   name="direccion"
-                  value={newPoint.direccion}
+                  value={formData.direccion}
                   onChange={handleInputChange}
                 />
               </div>
@@ -405,7 +403,7 @@ const PuntosVerdes = () => {
                     id="numViviendas"
                     name="numViviendas"
                     type="number"
-                    value={newPoint.numViviendas}
+                    value={formData.numViviendas}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -415,7 +413,7 @@ const PuntosVerdes = () => {
                     id="numContenedores"
                     name="numContenedores"
                     type="number"
-                    value={newPoint.numContenedores}
+                    value={formData.numContenedores}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -425,7 +423,7 @@ const PuntosVerdes = () => {
                 <Input
                   id="telefono"
                   name="telefono"
-                  value={newPoint.telefono}
+                  value={formData.telefono}
                   onChange={handleInputChange}
                 />
               </div>
@@ -435,7 +433,7 @@ const PuntosVerdes = () => {
                   id="litrosRecogidos"
                   name="litrosRecogidos"
                   type="number"
-                  value={newPoint.litrosRecogidos}
+                  value={formData.litrosRecogidos}
                   onChange={handleInputChange}
                 />
               </div>

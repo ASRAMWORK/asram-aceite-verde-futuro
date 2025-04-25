@@ -194,7 +194,7 @@ const GestionRecogidas = () => {
     setFormData({
       clienteId: recogida.clienteId || "",
       fecha: recogida.fecha ? format(new Date(recogida.fecha), "yyyy-MM-dd") : "",
-      hora: recogida.hora || "",
+      hora: recogida.hora || recogida.horaInicio || "",
       distrito: recogida.distrito || "",
       barrio: recogida.barrio || "",
       tipoBusqueda: "cliente"
@@ -240,12 +240,20 @@ const GestionRecogidas = () => {
     
     const recogidaData = {
       clienteId: formData.clienteId,
+      fechaSolicitud: new Date(formData.fecha).toISOString(),
+      fechaProgramada: new Date(formData.fecha).toISOString(),
+      fechaCompletada: null,
       fecha: new Date(formData.fecha).toISOString(),
       hora: formData.hora,
       distrito: formData.distrito,
       barrio: formData.barrio,
-      completada: false,
-      tipo: formData.tipoBusqueda === "cliente" ? "individual" as const : "zona" as const
+      direccion: formData.distrito,
+      telefono: "",
+      tipo: formData.tipoBusqueda === "cliente" ? "individual" as const : "zona" as const,
+      estado: "programado",
+      litrosEstimados: 0,
+      litrosRecogidos: 0,
+      completada: false
     };
     
     if (isEditingRecogida && selectedRecogida) {
@@ -606,7 +614,7 @@ const GestionRecogidas = () => {
               </div>
               <div>
                 <p className="text-sm font-medium mb-1">Hora:</p>
-                <p>{selectedRecogida?.hora}</p>
+                <p>{selectedRecogida?.hora || selectedRecogida?.horaInicio}</p>
               </div>
             </div>
             <div className="space-y-2">

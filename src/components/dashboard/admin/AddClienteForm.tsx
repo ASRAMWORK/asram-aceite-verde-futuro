@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -54,7 +53,6 @@ const frecuencias = [
   "Bajo demanda"
 ];
 
-// Schema de validación para el formulario
 const formSchema = z.object({
   nombre: z.string().min(3, { message: "El nombre debe tener al menos 3 caracteres" }),
   tipo: z.string().min(1, { message: "Selecciona un tipo de cliente" }),
@@ -110,25 +108,25 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
     try {
       setSubmitting(true);
       
-      // Crear nuevo usuario
-      const nuevoUsuario: Omit<Usuario, "id"> = {
-        nombre: data.nombre,
-        tipo: data.tipo,
-        direccion: data.direccion,
-        distrito: data.distrito,
-        barrio: data.barrio,
-        telefono: data.telefono,
-        email: data.email || "",
-        numViviendas: data.numViviendas || 0,
-        numContenedores: data.numContenedores || 0,
-        frecuenciaRecogida: data.frecuenciaRecogida,
-        litrosRecogidos: 0,
+      const formData = form.getValues();
+      
+      const nuevoUsuario: Omit<Usuario, 'id'> = {
+        nombre: formData.nombre,
+        apellidos: "",
+        email: formData.email,
+        telefono: formData.telefono,
+        direccion: formData.direccion,
+        tipo: formData.tipo,
+        distrito: formData.distrito,
+        barrio: formData.barrio,
         activo: true,
+        numViviendas: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numViviendas) || 0 : undefined,
+        numContenedores: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numContenedores) || 0 : undefined,
+        frecuenciaRecogida: formData.frecuenciaRecogida
       };
       
       const usuarioCreado = await addUsuario(nuevoUsuario);
       
-      // Si el tipo es Comunidad de Vecinos, crear un punto verde
       if (data.tipo === "Comunidad de Vecinos" && data.numContenedores && data.numContenedores > 0) {
         const nuevoPuntoVerde: Omit<PuntoVerde, "id"> = {
           distrito: data.distrito,
@@ -138,7 +136,7 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
           numContenedores: data.numContenedores || 0,
           telefono: data.telefono,
           litrosRecogidos: 0,
-          administradorId: undefined, // Se puede asignar después si es necesario
+          administradorId: undefined,
         };
         
         await addPuntoVerde(nuevoPuntoVerde);

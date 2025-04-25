@@ -81,6 +81,7 @@ export type Recogida = {
   barrio?: string;
   horaInicio?: string;
   horaFin?: string;
+  hora?: string;
   createdAt?: any;
   updatedAt?: any;
 };
@@ -91,6 +92,18 @@ export type ComunidadVecinos = {
   direccion: string;
   numViviendas: number;
   administradorId: string | null;
+  cif?: string;
+  codigoPostal?: string;
+  ciudad?: string;
+  distrito?: string;
+  barrio?: string;
+  litrosRecogidos?: number;
+  totalViviendas?: number;
+  beneficiosMedioambientales?: {
+    co2?: number;
+    agua?: number;
+    energia?: number;
+  };
   createdAt?: any;
   updatedAt?: any;
 };
@@ -242,6 +255,7 @@ export type Usuario = {
   numViviendas?: number;
   numContenedores?: number;
   litrosRecogidos?: number;
+  frecuenciaRecogida?: string;
   createdAt?: any;
   updatedAt?: any;
 };
@@ -259,4 +273,30 @@ export type CalendarioRecogida = {
   notas?: string;
   createdAt?: any;
   updatedAt?: any;
+};
+
+// Adding missing Ruta type
+export type Ruta = {
+  id: string;
+  nombre: string;
+  distrito: string;
+  fecha?: any;
+  hora?: string;
+  recogedores?: string;
+  clientes?: Array<{
+    id: string;
+    nombre: string;
+    direccion: string;
+  }>;
+  completada?: boolean;
+  litrosTotales?: number;
+  createdAt?: any;
+  updatedAt?: any;
+};
+
+// Adding ChartConfig type for SimuladorImpacto
+export type ChartConfig = {
+  labels: string[];
+  values: number[];
+  colors?: string[];
 };

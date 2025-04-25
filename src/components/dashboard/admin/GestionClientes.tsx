@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -227,6 +226,7 @@ const GestionClientes = () => {
             numContenedores: formData.numContenedores || selectedUsuario.numContenedores || 0,
             telefono: formData.telefono || selectedUsuario.telefono || "",
             litrosRecogidos: 0,
+            administradorId: null // Adding the required field
           };
           
           await addPuntoVerde(nuevoPuntoVerde);
