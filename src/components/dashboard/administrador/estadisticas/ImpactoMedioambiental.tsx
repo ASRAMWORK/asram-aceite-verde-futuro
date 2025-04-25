@@ -35,6 +35,11 @@ const ImpactoMedioambiental = () => {
     { name: 'Energía ahorrada', value: totalMetrics.energia }
   ];
 
+  // Helper function to safely format numbers
+  const formatNumber = (value: any): string => {
+    return typeof value === 'number' ? value.toFixed(2) : '0.00';
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -53,7 +58,7 @@ const ImpactoMedioambiental = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <h3 className="text-muted-foreground text-sm">CO2 evitado</h3>
-                    <p className="text-3xl font-bold text-blue-500">{totalMetrics.co2.toFixed(2)} kg</p>
+                    <p className="text-3xl font-bold text-blue-500">{formatNumber(totalMetrics.co2)} kg</p>
                   </div>
                 </CardContent>
               </Card>
@@ -62,7 +67,7 @@ const ImpactoMedioambiental = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <h3 className="text-muted-foreground text-sm">Agua ahorrada</h3>
-                    <p className="text-3xl font-bold text-green-500">{totalMetrics.agua.toFixed(2)} L</p>
+                    <p className="text-3xl font-bold text-green-500">{formatNumber(totalMetrics.agua)} L</p>
                   </div>
                 </CardContent>
               </Card>
@@ -71,7 +76,7 @@ const ImpactoMedioambiental = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <h3 className="text-muted-foreground text-sm">Energía ahorrada</h3>
-                    <p className="text-3xl font-bold text-amber-500">{totalMetrics.energia.toFixed(2)} kWh</p>
+                    <p className="text-3xl font-bold text-amber-500">{formatNumber(totalMetrics.energia)} kWh</p>
                   </div>
                 </CardContent>
               </Card>
@@ -95,7 +100,9 @@ const ImpactoMedioambiental = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => value.toFixed(2)} />
+                  <Tooltip formatter={(value) => {
+                    return typeof value === 'number' ? value.toFixed(2) : value;
+                  }} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -104,8 +111,8 @@ const ImpactoMedioambiental = () => {
             <div className="bg-green-50 p-4 rounded-md mt-6 border border-green-100">
               <h3 className="font-semibold text-green-800 mb-2">Impacto positivo</h3>
               <p className="text-green-700">
-                La recogida de aceite ha evitado que {totalMetrics.agua.toFixed(0)} litros de agua
-                sean contaminados y ha reducido la emisión de {totalMetrics.co2.toFixed(0)} kg de CO2
+                La recogida de aceite ha evitado que {formatNumber(totalMetrics.agua)} litros de agua
+                sean contaminados y ha reducido la emisión de {formatNumber(totalMetrics.co2)} kg de CO2
                 a la atmósfera.
               </p>
             </div>

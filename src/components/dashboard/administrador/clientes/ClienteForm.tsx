@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
+  apellidos: z.string().min(2, 'Los apellidos son obligatorios'),
   telefono: z.string().min(9, 'Teléfono no válido'),
   email: z.string().email('Email no válido'),
   direccion: z.string().min(5, 'La dirección es obligatoria'),
@@ -42,6 +43,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
     ? usuarios.find(u => u.id === clienteId) || {}
     : {
         nombre: '',
+        apellidos: '',
         telefono: '',
         email: '',
         direccion: '',
@@ -100,6 +102,22 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
           
           <FormField
             control={form.control}
+            name="apellidos"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Apellidos</FormLabel>
+                <FormControl>
+                  <Input placeholder="Apellidos del cliente" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="telefono"
             render={({ field }) => (
               <FormItem>
@@ -111,21 +129,21 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
               </FormItem>
             )}
           />
+            
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="Email de contacto" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-          
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="Email de contacto" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
           
         <FormField
           control={form.control}
