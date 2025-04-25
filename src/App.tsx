@@ -13,7 +13,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import UserDashboard from "./pages/user/Dashboard";
 import AdministradorDashboard from "./pages/administrador/Dashboard";
 import NotFound from "./pages/NotFound";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from 'firebase/firestore';
 
 const queryClient = new QueryClient();
 
@@ -55,7 +55,7 @@ const ProtectedAdministradorRoute = () => {
         const checkRole = async () => {
           try {
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists && userDoc.data().role === "administrador") {
+            if (userDoc.exists() && userDoc.data().role === "administrador") {
               setIsAdministrador(true);
             } else {
               navigate("/login");
