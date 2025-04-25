@@ -40,6 +40,21 @@ const UserDashboardPage = () => {
     }
   };
 
+  // Function to handle tab changes from sidebar
+  const handleTabChange = (tab) => {
+    let tabValue = "dashboard";
+    switch(tab) {
+      case "dashboard": tabValue = "dashboard"; break;
+      case "perfil": tabValue = "perfil"; break;
+      case "recursos": tabValue = "recursos"; break; 
+      case "alianza": tabValue = "alianza-verde"; break;
+      case "apadrina": tabValue = "apadrina"; break;
+      case "puntos": tabValue = "puntos-verdes"; break;
+      default: tabValue = "dashboard";
+    }
+    setActiveTab(tabValue);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen dash-gradient flex items-center justify-center">
@@ -62,7 +77,7 @@ const UserDashboardPage = () => {
             className={`w-full justify-start ${
               activeTab === "dashboard" ? "bg-asram hover:bg-asram-700" : ""
             }`}
-            onClick={() => setActiveTab("dashboard")}
+            onClick={() => handleTabChange("dashboard")}
           >
             <Activity className="mr-2 h-4 w-4" />
             Dashboard
@@ -73,7 +88,7 @@ const UserDashboardPage = () => {
             className={`w-full justify-start ${
               activeTab === "perfil" ? "bg-asram hover:bg-asram-700" : ""
             }`}
-            onClick={() => setActiveTab("perfil")}
+            onClick={() => handleTabChange("perfil")}
           >
             <UserCircle className="mr-2 h-4 w-4" />
             Perfil
@@ -84,18 +99,18 @@ const UserDashboardPage = () => {
             className={`w-full justify-start ${
               activeTab === "recursos" ? "bg-asram hover:bg-asram-700" : ""
             }`}
-            onClick={() => setActiveTab("recursos")}
+            onClick={() => handleTabChange("recursos")}
           >
             <BookOpen className="mr-2 h-4 w-4" />
             Recursos
           </Button>
           
           <Button
-            variant={activeTab === "alianza" ? "default" : "ghost"}
+            variant={activeTab === "alianza-verde" ? "default" : "ghost"}
             className={`w-full justify-start ${
-              activeTab === "alianza" ? "bg-asram hover:bg-asram-700" : ""
+              activeTab === "alianza-verde" ? "bg-asram hover:bg-asram-700" : ""
             }`}
-            onClick={() => setActiveTab("alianza")}
+            onClick={() => handleTabChange("alianza")}
           >
             <School className="mr-2 h-4 w-4" />
             Alianza Verde Escolar
@@ -106,18 +121,18 @@ const UserDashboardPage = () => {
             className={`w-full justify-start ${
               activeTab === "apadrina" ? "bg-asram hover:bg-asram-700" : ""
             }`}
-            onClick={() => setActiveTab("apadrina")}
+            onClick={() => handleTabChange("apadrina")}
           >
             <MapPin className="mr-2 h-4 w-4" />
             Apadrina una Calle
           </Button>
           
           <Button
-            variant={activeTab === "puntos" ? "default" : "ghost"}
+            variant={activeTab === "puntos-verdes" ? "default" : "ghost"}
             className={`w-full justify-start ${
-              activeTab === "puntos" ? "bg-asram hover:bg-asram-700" : ""
+              activeTab === "puntos-verdes" ? "bg-asram hover:bg-asram-700" : ""
             }`}
-            onClick={() => setActiveTab("puntos")}
+            onClick={() => handleTabChange("puntos")}
           >
             <User className="mr-2 h-4 w-4" />
             Puntos Verdes
@@ -161,7 +176,7 @@ const UserDashboardPage = () => {
         </header>
         
         <main className="container py-8 px-4">
-          <UserDashboard />
+          <UserDashboard activeTab={activeTab} />
         </main>
       </div>
     </div>

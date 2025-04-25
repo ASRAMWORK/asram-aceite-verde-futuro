@@ -24,9 +24,13 @@ import ApadrinaCalleView from "./apadrina/ApadrinaCalleView";
 import PuntosVerdesView from "./puntos/PuntosVerdesView";
 import SolicitudRecogidaForm from "./solicitud/SolicitudRecogidaForm";
 
-const UserDashboard = () => {
+const UserDashboard = ({ activeTab = "dashboard" }) => {
   const [showSolicitudDialog, setShowSolicitudDialog] = useState(false);
-  const [currentTab, setCurrentTab] = useState("perfil");
+  const [currentTab, setCurrentTab] = useState(activeTab);
+
+  useEffect(() => {
+    setCurrentTab(activeTab);
+  }, [activeTab]);
 
   // Mock data for the chart
   const impactData = [
@@ -113,8 +117,9 @@ const UserDashboard = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="perfil" className="space-y-6" value={currentTab} onValueChange={setCurrentTab}>
+      <Tabs defaultValue={currentTab} value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
         <TabsList>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
           <TabsTrigger value="recursos">Recursos</TabsTrigger>
           <TabsTrigger value="alianza-verde">Alianza Verde Escolar</TabsTrigger>
@@ -122,7 +127,7 @@ const UserDashboard = () => {
           <TabsTrigger value="puntos-verdes">Puntos Verdes</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="perfil" className="space-y-6">
+        <TabsContent value="dashboard" className="space-y-6">
           <Card className="futuristic-card">
             <CardHeader>
               <CardTitle>Tu Impacto Medioambiental</CardTitle>
@@ -196,6 +201,10 @@ const UserDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="perfil">
+          <UserProfileView />
         </TabsContent>
         
         <TabsContent value="recursos">
