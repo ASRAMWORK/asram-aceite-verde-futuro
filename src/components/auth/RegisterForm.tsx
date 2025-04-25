@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -39,6 +40,10 @@ const RegisterForm = () => {
   const [nombreRestaurante, setNombreRestaurante] = useState("");
   const [horarioApertura, setHorarioApertura] = useState("");
   const [litrosEstimados, setLitrosEstimados] = useState("");
+  
+  // Nuevos campos para administradores de fincas
+  const [nombreAdministracion, setNombreAdministracion] = useState("");
+  const [cifAdministracion, setCifAdministracion] = useState("");
   
   const [frecuenciaRecogida, setFrecuenciaRecogida] = useState("mensual");
   
@@ -120,6 +125,16 @@ const RegisterForm = () => {
             frecuenciaRecogida,
           };
           break;
+        case "administrador":
+          specificData = {
+            nombreAdministracion,
+            cifAdministracion,
+            direccion,
+            distrito,
+            barrio,
+            telefono,
+          };
+          break;
       }
       
       const profileData = { ...userData, ...specificData };
@@ -163,6 +178,7 @@ const RegisterForm = () => {
                 <SelectItem value="asociacion">Asociación o entidad</SelectItem>
                 <SelectItem value="escolar">Centro escolar</SelectItem>
                 <SelectItem value="usuario">Usuario particular</SelectItem>
+                <SelectItem value="administrador">Administrador de fincas</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -214,13 +230,14 @@ const RegisterForm = () => {
           </div>
 
           <Tabs defaultValue="comunidad" value={role} className="mb-6">
-            <TabsList className="grid grid-cols-3 md:grid-cols-6">
+            <TabsList className="grid grid-cols-2 md:grid-cols-7">
               <TabsTrigger value="comunidad">Comunidad</TabsTrigger>
               <TabsTrigger value="restaurante">Restaurante</TabsTrigger>
               <TabsTrigger value="hotel">Hotel</TabsTrigger>
               <TabsTrigger value="asociacion">Asociación</TabsTrigger>
               <TabsTrigger value="escolar">Escolar</TabsTrigger>
               <TabsTrigger value="usuario">Usuario</TabsTrigger>
+              <TabsTrigger value="administrador">Administrador</TabsTrigger>
             </TabsList>
 
             <TabsContent value="comunidad" className="space-y-4 mt-4">
@@ -429,6 +446,78 @@ const RegisterForm = () => {
             
             <TabsContent value="usuario" className="pt-4">
               <p className="text-muted-foreground text-center">Complete sus datos como usuario particular</p>
+            </TabsContent>
+
+            <TabsContent value="administrador" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="nombreAdministracion">Nombre de la administración</Label>
+                  <Input
+                    id="nombreAdministracion"
+                    type="text"
+                    value={nombreAdministracion}
+                    onChange={(e) => setNombreAdministracion(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="cifAdministracion">CIF</Label>
+                  <Input
+                    id="cifAdministracion"
+                    type="text"
+                    value={cifAdministracion}
+                    onChange={(e) => setCifAdministracion(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="direccion">Dirección</Label>
+                  <Input
+                    id="direccion"
+                    type="text"
+                    value={direccion}
+                    onChange={(e) => setDireccion(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="distrito">Distrito</Label>
+                  <Select
+                    value={distrito}
+                    onValueChange={setDistrito}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un distrito" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {distritos.map((d) => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="barrio">Barrio</Label>
+                  <Select
+                    value={barrio}
+                    onValueChange={setBarrio}
+                    disabled={!distrito}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un barrio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {distrito && barrios[distrito]?.map((b) => (
+                        <SelectItem key={b} value={b}>{b}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
 

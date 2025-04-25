@@ -1,4 +1,3 @@
-
 export interface PuntoVerde {
   id: string;
   distrito: string;
@@ -110,7 +109,7 @@ export interface AuthUser {
 }
 
 // User roles and profiles
-export type UserRole = 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
+export type UserRole = 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'administrador';
 
 // Base profile interface with all common properties
 export interface UsuarioProfile {
@@ -144,6 +143,7 @@ export interface UsuarioProfile {
   nombreAsociacion?: string;
   tipoAsociacion?: string;
   numMiembros?: number;
+  numParticipantes?: number;
   
   // Escolar properties
   nombreCentro?: string;
@@ -152,6 +152,10 @@ export interface UsuarioProfile {
   numAlumnos?: number;
   numEstudiantes?: number;
   participaAlianzaVerde?: boolean;
+
+  // Administrador properties
+  nombreAdministracion?: string;
+  cifAdministracion?: string;
 }
 
 export interface ComunidadProfile extends UsuarioProfile {
@@ -186,4 +190,34 @@ export interface EscolarProfile extends UsuarioProfile {
   tipoCentro: string;
   numEstudiantes: number;
   frecuenciaRecogida: string;
+}
+
+export interface AdministradorProfile extends UsuarioProfile {
+  nombreAdministracion: string;
+  cifAdministracion: string;
+}
+
+// Interface for communities managed by "Administradores de fincas"
+export interface ComunidadVecinos {
+  id: string;
+  nombre: string;
+  direccion: string;
+  cif: string;
+  codigoPostal: string;
+  ciudad: string;
+  distrito: string;
+  barrio: string;
+  totalViviendas: number;
+  numeroPorteria: number;
+  nombreAdministracion: string;
+  correoContacto: string;
+  administradorId: string;
+  litrosRecogidos: number;
+  beneficiosMedioambientales: {
+    co2Evitado: number;
+    aguaAhorrada: number;
+    energiaAhorrada: number;
+  };
+  createdAt?: any;
+  updatedAt?: any;
 }
