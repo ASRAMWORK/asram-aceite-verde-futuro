@@ -230,3 +230,15 @@ export type Usuario = {
 };
 
 export type UserRole = "admin" | "user" | "administrador";
+
+export type CalendarioRecogida = {
+  id: string;
+  distrito: string;
+  fecha: any; // Firebase Timestamp
+  horaInicio: string;
+  horaFin: string;
+  estado: "programado" | "completado" | "cancelado";
+  notas?: string;
+  createdAt?: any;
+  updatedAt?: any;
+};

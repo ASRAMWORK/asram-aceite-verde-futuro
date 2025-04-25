@@ -40,6 +40,7 @@ import { useAlianzaVerde } from "@/hooks/useAlianzaVerde";
 import { useCallesApadrinadas } from "@/hooks/useCallesApadrinadas";
 import { useRecogidas } from "@/hooks/useRecogidas";
 import { Building, GraduationCap, MapPinned, Droplet, Truck, Users, TrendingUp } from "lucide-react";
+import RecogidaCalendar from "@/components/calendario/RecogidaCalendar";
 
 const AdminDashboard = () => {
   const { usuarios, loading: loadingUsuarios } = useUsuarios();
@@ -491,6 +492,8 @@ const AdminDashboard = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <RecogidaCalendar isAdmin={true} />
     </div>
   );
 };

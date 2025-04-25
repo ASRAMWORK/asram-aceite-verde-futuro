@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -25,13 +24,14 @@ import PuntosVerdesView from "./puntos/PuntosVerdesView";
 import SolicitudRecogidaForm from "./solicitud/SolicitudRecogidaForm";
 import HomeView from "./home/HomeView";
 import { Activity, Home, UserCircle, BookOpen, School, MapPin, User } from "lucide-react";
+import RecogidaCalendar from "@/components/calendario/RecogidaCalendar";
 
-const UserDashboard = ({ activeTab = "home" }) => {
-  const [currentTab, setCurrentTab] = useState(activeTab);
+const UserDashboard = () => {
+  const [currentTab, setCurrentTab] = useState("home");
 
   useEffect(() => {
-    setCurrentTab(activeTab);
-  }, [activeTab]);
+    setCurrentTab("home");
+  }, []);
 
   // Mock data for the chart
   const impactData = [
@@ -186,6 +186,8 @@ const UserDashboard = ({ activeTab = "home" }) => {
           <PuntosVerdesView />
         </TabsContent>
       </Tabs>
+
+      <RecogidaCalendar isAdmin={false} />
 
       {/* Dialog Content for Solicitud de Recogida */}
       <DialogContent className="sm:max-w-[550px]">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -112,10 +111,10 @@ export function useRecogidas() {
     loadRecogidasData();
   }, []);
 
-  return { 
-    recogidas, 
-    loading, 
-    error, 
+  return {
+    recogidas,
+    loading,
+    error,
     loadRecogidasData,
     addRecogida,
     updateRecogida,
