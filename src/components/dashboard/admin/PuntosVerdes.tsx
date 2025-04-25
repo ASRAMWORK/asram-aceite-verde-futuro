@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Card, 
@@ -67,7 +66,6 @@ const PuntosVerdes = () => {
   const [selectedDistrito, setSelectedDistrito] = useState("");
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   
-  // Form state
   const [newPoint, setNewPoint] = useState({
     distrito: "",
     barrio: "",
@@ -135,13 +133,11 @@ const PuntosVerdes = () => {
   
   const handleAddPoint = async () => {
     try {
-      // Validation
       if (!newPoint.distrito || !newPoint.barrio || !newPoint.direccion || !newPoint.telefono) {
         toast.error("Por favor completa todos los campos obligatorios");
         return;
       }
       
-      // Add to firestore
       await addDoc(collection(db, "puntosVerdes"), {
         ...newPoint,
         litrosRecogidos: 0,
@@ -151,7 +147,6 @@ const PuntosVerdes = () => {
       toast.success("Punto verde añadido correctamente");
       setIsAddingPoint(false);
       
-      // Reset form
       setNewPoint({
         distrito: "",
         barrio: "",
@@ -161,7 +156,6 @@ const PuntosVerdes = () => {
         telefono: "",
       });
       
-      // Reload points
       loadPuntosVerdes();
     } catch (error) {
       console.error("Error adding punto verde:", error);

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Card,
@@ -147,7 +148,7 @@ const AlianzaEscolar = () => {
       talleresRealizados: centro.talleresRealizados || 0,
       certificaciones: typeof centro.certificaciones === 'number' 
         ? centro.certificaciones 
-        : (centro.certificaciones as string[])?.length || 0
+        : (centro.certificaciones as string[]).length || 0
     });
     
     if (centro.distrito) {
@@ -689,7 +690,13 @@ const AlianzaEscolar = () => {
                         <TableCell>{centro.contacto}</TableCell>
                         <TableCell>{centro.numEstudiantes}</TableCell>
                         <TableCell>{centro.talleresRealizados}</TableCell>
-                        <TableCell>{centro.certificaciones}</TableCell>
+                        <TableCell>
+                          {typeof centro.certificaciones === 'number'
+                            ? centro.certificaciones
+                            : Array.isArray(centro.certificaciones)
+                              ? centro.certificaciones.length
+                              : 0}
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <Button 

@@ -29,7 +29,6 @@ const RegisterForm = () => {
   const [role, setRole] = useState<UserRole>("comunidad");
   const [loading, setLoading] = useState(false);
   
-  // Comunidad fields
   const [direccion, setDireccion] = useState("");
   const [distrito, setDistrito] = useState("");
   const [barrio, setBarrio] = useState("");
@@ -37,12 +36,10 @@ const RegisterForm = () => {
   const [numViviendas, setNumViviendas] = useState("");
   const [numContenedores, setNumContenedores] = useState("");
   
-  // Restaurant fields
   const [nombreRestaurante, setNombreRestaurante] = useState("");
   const [horarioApertura, setHorarioApertura] = useState("");
   const [litrosEstimados, setLitrosEstimados] = useState("");
   
-  // Common fields
   const [frecuenciaRecogida, setFrecuenciaRecogida] = useState("mensual");
   
   const navigate = useNavigate();
@@ -74,7 +71,6 @@ const RegisterForm = () => {
   const barrios: { [key: string]: string[] } = {
     "Centro": ["Palacio", "Embajadores", "Cortes", "Justicia", "Universidad", "Sol"],
     "Arganzuela": ["Imperial", "Acacias", "Chopera", "Legazpi", "Delicias", "Palos de Moguer", "Atocha"],
-    // More neighborhoods would be added here in a complete implementation
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -88,11 +84,9 @@ const RegisterForm = () => {
     setLoading(true);
 
     try {
-      // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Create user profile based on role
       const userData = {
         uid: user.uid,
         email: user.email,
@@ -100,7 +94,6 @@ const RegisterForm = () => {
         createdAt: serverTimestamp(),
       };
       
-      // Add role-specific data
       let specificData = {};
       
       switch (role) {
@@ -127,13 +120,10 @@ const RegisterForm = () => {
             frecuenciaRecogida,
           };
           break;
-        // Additional roles would have their specific data here
       }
       
-      // Merge common and specific data
       const profileData = { ...userData, ...specificData };
       
-      // Save to Firestore
       await setDoc(doc(db, "users", user.uid), profileData);
       
       toast.success("Registro exitoso");
@@ -425,25 +415,20 @@ const RegisterForm = () => {
               </div>
             </TabsContent>
             
-            {/* Other role tabs would be implemented similarly */}
             <TabsContent value="hotel" className="pt-4">
               <p className="text-muted-foreground text-center">Complete sus datos como hotel</p>
-              {/* Hotel specific form fields would be added here */}
             </TabsContent>
             
             <TabsContent value="asociacion" className="pt-4">
               <p className="text-muted-foreground text-center">Complete sus datos como asociación</p>
-              {/* Association specific form fields would be added here */}
             </TabsContent>
             
             <TabsContent value="escolar" className="pt-4">
               <p className="text-muted-foreground text-center">Complete sus datos como centro escolar</p>
-              {/* School specific form fields would be added here */}
             </TabsContent>
             
             <TabsContent value="usuario" className="pt-4">
               <p className="text-muted-foreground text-center">Complete sus datos como usuario particular</p>
-              {/* User specific form fields would be added here */}
             </TabsContent>
           </Tabs>
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -95,12 +94,10 @@ const CallesApadrinadas = () => {
   });
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   
-  // Calculate statistics
   const totalCalles = callesApadrinadas.length;
   const totalPadrinos = new Set(callesApadrinadas.map(calle => calle.padrinoId)).size;
   const ingresosMensuales = callesApadrinadas.reduce((sum, calle) => sum + (calle.precio || 0), 0);
   
-  // Calculate renewal percentage (simplified)
   const renovadas = callesApadrinadas.filter(calle => {
     if (!calle.fechaRenovacion) return false;
     const renovacion = new Date(calle.fechaRenovacion);
@@ -147,7 +144,6 @@ const CallesApadrinadas = () => {
       fechaRenovacion: calle.fechaRenovacion ? new Date(calle.fechaRenovacion).toISOString().split('T')[0] : ""
     });
     
-    // Set filtered barrios based on the selected distrito
     if (calle.distrito) {
       setFilteredBarrios(barrios[calle.distrito] || []);
     }
@@ -171,13 +167,11 @@ const CallesApadrinadas = () => {
   };
   
   const handleSubmit = async () => {
-    // Basic validation
     if (!formData.nombre || !formData.distrito || !formData.padrinoId) {
       alert("Por favor completa todos los campos obligatorios");
       return;
     }
     
-    // Format dates
     const dataToSubmit = {
       ...formData,
       fechaInicio: formData.fechaInicio ? new Date(formData.fechaInicio).toISOString() : '',
@@ -202,11 +196,9 @@ const CallesApadrinadas = () => {
   };
   
   const handleExportData = (format: 'pdf' | 'excel') => {
-    // This would be implemented with a PDF/Excel generation library
     alert(`Exportando datos en formato ${format}. Esta función estará disponible próximamente.`);
   };
   
-  // Helper function to find padrino name by ID
   const getPadrinoName = (padrinoId: string) => {
     const padrino = usuarios.find(u => u.id === padrinoId);
     return padrino ? padrino.nombre : "Desconocido";
@@ -306,7 +298,7 @@ const CallesApadrinadas = () => {
                     <SelectContent>
                       {usuarios.map((usuario) => (
                         <SelectItem key={usuario.id} value={usuario.id}>
-                          {usuario.nombre} ({usuario.email})
+                          {usuario.nombre || usuario.email || "Usuario sin nombre"}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -374,7 +366,6 @@ const CallesApadrinadas = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                {/* Same form fields as for adding */}
                 <div className="space-y-2">
                   <Label htmlFor="nombre-edit">Nombre de la calle</Label>
                   <Input
@@ -423,7 +414,6 @@ const CallesApadrinadas = () => {
                     </Select>
                   </div>
                 </div>
-                {/* Rest of edit form fields */}
                 <div className="space-y-2">
                   <Label htmlFor="descripcion-edit">Descripción</Label>
                   <Input
@@ -445,7 +435,7 @@ const CallesApadrinadas = () => {
                     <SelectContent>
                       {usuarios.map((usuario) => (
                         <SelectItem key={usuario.id} value={usuario.id}>
-                          {usuario.nombre} ({usuario.email})
+                          {usuario.nombre || usuario.email || "Usuario sin nombre"}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -515,7 +505,6 @@ const CallesApadrinadas = () => {
         </div>
       </div>
 
-      {/* Dashboard Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -575,7 +564,6 @@ const CallesApadrinadas = () => {
         </Card>
       </div>
 
-      {/* Calles Table */}
       <Card>
         <CardHeader>
           <CardTitle>Listado de Calles Apadrinadas</CardTitle>
