@@ -12,6 +12,10 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
+import {
+  Button
+} from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { 
   ChartContainer, 
   ChartTooltip, 
@@ -39,7 +43,7 @@ import { usePuntosVerdes } from "@/hooks/usePuntosVerdes";
 import { useAlianzaVerde } from "@/hooks/useAlianzaVerde";
 import { useCallesApadrinadas } from "@/hooks/useCallesApadrinadas";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import { Building, GraduationCap, MapPinned, Droplet, Truck, Users, TrendingUp, Calendar } from "lucide-react";
+import { Building, GraduationCap, MapPinned, Droplet, Truck, Users, TrendingUp, Calendar, Activity, MapPin } from "lucide-react";
 import RecogidaCalendar from "@/components/calendario/RecogidaCalendar";
 import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView";
 
@@ -456,160 +460,70 @@ const AdminDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case "panel-control":
-        return <AdminDashboard />;
+      case "vista-general":
+        return renderVistaGeneral();
       case "reuniones":
         return <ReunionesView />;
       default:
-        return <AdminDashboard />;
+        return renderVistaGeneral();
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <div className="hidden md:flex flex-col w-64 bg-white border-r">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold text-asram">ASRAM Admin</h1>
-        </div>
-        
-        <nav className="flex-1 px-4 pb-4 space-y-1">
-          <Button
-            variant={activeTab === "panel-control" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "panel-control" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("panel-control")}
-          >
-            <Activity className="mr-2 h-4 w-4" />
-            Panel de Control
-          </Button>
-          
-          <Button
-            variant={activeTab === "gestion-clientes" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "gestion-clientes" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("gestion-clientes")}
-          >
-            <Users className="mr-2 h-4 w-4" />
-            Gestión de Clientes
-          </Button>
-          
-          <Button
-            variant={activeTab === "gestion-recogidas" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "gestion-recogidas" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("gestion-recogidas")}
-          >
-            <Truck className="mr-2 h-4 w-4" />
-            Gestión de Recogidas
-          </Button>
-          
-          <Button
-            variant={activeTab === "rutas-distritos" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "rutas-distritos" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("rutas-distritos")}
-          >
-            <MapPin className="mr-2 h-4 w-4" />
-            Rutas por Distritos
-          </Button>
-          
-          <Button
-            variant={activeTab === "trabajadores" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "trabajadores" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("trabajadores")}
-          >
-            <Users className="mr-2 h-4 w-4" />
-            Trabajadores
-          </Button>
-          
-          <Button
-            variant={activeTab === "voluntarios" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "voluntarios" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("voluntarios")}
-          >
-            <Users className="mr-2 h-4 w-4" />
-            Gestión Voluntarios
-          </Button>
-          
-          <Button
-            variant={activeTab === "simulador" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "simulador" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("simulador")}
-          >
-            <Users className="mr-2 h-4 w-4" />
-            Simulador Impacto
-          </Button>
-          
-          <Button
-            variant={activeTab === "facturacion" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "facturacion" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("facturacion")}
-          >
-            <Users className="mr-2 h-4 w-4" />
-            Facturación
-          </Button>
-        
-        <Button
-          variant={activeTab === "reuniones" ? "default" : "ghost"}
-          className={`w-full justify-start ${
-            activeTab === "reuniones" ? "bg-asram hover:bg-asram-700" : ""
-          }`}
-          onClick={() => setActiveTab("reuniones")}
-        >
-          <Calendar className="mr-2 h-4 w-4" />
-          Reuniones
-        </Button>
-        
-        
-          
-          <Separator className="my-4" />
-          
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
-            onClick={handleSignOut}
-          >
-            Cerrar sesión
-          </Button>
-        </nav>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight text-purple-800">
+          Panel de Administración
+        </h2>
+        <p className="text-muted-foreground">
+          Gestiona todos los servicios y usuarios de ASRAM
+        </p>
       </div>
-      
-      <div className="flex-1 overflow-auto">
-        <header className="bg-white border-b sticky top-0 z-10">
-          <div className="container flex items-center justify-between h-16 px-4">
-            <h2 className="text-lg font-medium md:hidden">ASRAM Admin</h2>
-            
-            <div className="flex items-center gap-4 ml-auto">
-              <span className="text-sm text-muted-foreground hidden md:inline-block">
-                admin@asramadrid.com
-              </span>
-              <Button
-                variant="ghost"
-                className="md:hidden"
-                onClick={handleSignOut}
-              >
-                Salir
-              </Button>
-            </div>
-          </div>
-        </header>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-2 md:grid-cols-8 h-auto p-1">
+          <TabsTrigger value="vista-general" className="flex items-center gap-2 py-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden md:inline">General</span>
+          </TabsTrigger>
+          <TabsTrigger value="puntos-verdes" className="flex items-center gap-2 py-2">
+            <Building className="h-4 w-4" />
+            <span className="hidden md:inline">Puntos Verdes</span>
+          </TabsTrigger>
+          <TabsTrigger value="alianza-escolar" className="flex items-center gap-2 py-2">
+            <GraduationCap className="h-4 w-4" />
+            <span className="hidden md:inline">Alianza Escolar</span>
+          </TabsTrigger>
+          <TabsTrigger value="calles-apadrinadas" className="flex items-center gap-2 py-2">
+            <MapPinned className="h-4 w-4" />
+            <span className="hidden md:inline">Calles</span>
+          </TabsTrigger>
+          <TabsTrigger value="reuniones" className="flex items-center gap-2 py-2">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden md:inline">Reuniones</span>
+          </TabsTrigger>
+        </TabsList>
         
-        <main className="container py-8 px-4">
-          {renderContent()}
-        </main>
-      </div>
+        <TabsContent value="vista-general" className="animate-fade-in">
+          {renderVistaGeneral()}
+        </TabsContent>
+        
+        <TabsContent value="puntos-verdes" className="animate-fade-in">
+          {renderPlaceholderContent("puntos verdes")}
+        </TabsContent>
+        
+        <TabsContent value="alianza-escolar" className="animate-fade-in">
+          {renderPlaceholderContent("alianza escolar")}
+        </TabsContent>
+        
+        <TabsContent value="calles-apadrinadas" className="animate-fade-in">
+          {renderPlaceholderContent("calles apadrinadas")}
+        </TabsContent>
+        
+        <TabsContent value="reuniones" className="animate-fade-in">
+          <ReunionesView />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
