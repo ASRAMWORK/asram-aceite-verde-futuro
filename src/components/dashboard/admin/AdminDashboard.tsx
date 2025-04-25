@@ -145,7 +145,7 @@ const AdminDashboard = () => {
   const totalClientes = usuarios.filter(u => u.activo).length;
   const totalPuntosVerdes = puntosVerdes.length;
   const totalCentrosEscolares = alianzas.filter(a => a.activo).length;
-  const totalCallesApadrinadas = calles.filter(c => c.activo).length;
+  const totalCallesApadrinadas = callesApadrinadas.filter(c => c.activo).length;
   const litrosRecogidos = puntosVerdes.reduce((sum, punto) => sum + (punto.litrosRecogidos || 0), 0);
   
   // Cálculo del CO2 evitado: 1L aceite ~ 2kg CO2
@@ -212,7 +212,7 @@ const AdminDashboard = () => {
             <Card className="bg-gradient-to-br from-white to-green-50 shadow-md border-green-100">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-2xl font-bold text-green-800">
-                  <Buildings className="h-6 w-6 text-green-600" />
+                  <Building className="h-6 w-6 text-green-600" />
                   Puntos Verdes
                 </CardTitle>
                 <CardDescription>Contenedores activos</CardDescription>
@@ -314,7 +314,7 @@ const AdminDashboard = () => {
                   {totalCallesApadrinadas}
                 </div>
                 <p className="text-xs text-rose-700 mt-1">
-                  {calles.filter(c => {
+                  {callesApadrinadas.filter(c => {
                     if (!c.createdAt) return false;
                     const date = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
                     const oneMonthAgo = new Date();

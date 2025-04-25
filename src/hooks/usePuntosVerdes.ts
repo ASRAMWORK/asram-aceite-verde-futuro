@@ -31,7 +31,7 @@ export function usePuntosVerdes(administradorId?: string) {
       
       const puntosData: PuntoVerde[] = [];
       puntosSnap.forEach((doc) => {
-        const data = doc.data();
+        const data = doc.data() as Record<string, any>;
         puntosData.push({ 
           id: doc.id, 
           distrito: data.distrito || '',
