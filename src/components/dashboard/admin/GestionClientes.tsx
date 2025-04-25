@@ -50,6 +50,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import type { Usuario } from "@/types";
+import { distritos, distritosConBarrios, getBarriosByDistrito } from "@/data/madridDistritos";
 
 const tipos = [
   "Comunidad de Vecinos",
@@ -58,14 +59,6 @@ const tipos = [
   "Asociación/Entidad",
   "Centro Escolar",
   "Usuario Particular"
-];
-
-const distritos = [
-  "Centro", "Arganzuela", "Retiro", "Salamanca", "Chamartín", 
-  "Tetuán", "Chamberí", "Fuencarral-El Pardo", "Moncloa-Aravaca", 
-  "Latina", "Carabanchel", "Usera", "Puente de Vallecas", 
-  "Moratalaz", "Ciudad Lineal", "Hortaleza", "Villaverde",
-  "Villa de Vallecas", "Vicálvaro", "San Blas-Canillejas", "Barajas"
 ];
 
 const frecuencias = [
@@ -83,6 +76,7 @@ const GestionClientes = () => {
   const [selectedUsuario, setSelectedUsuario] = useState<Usuario | null>(null);
   const [currentTab, setCurrentTab] = useState("todos");
   const [filterDistrito, setFilterDistrito] = useState("");
+  const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   
   // Calculate statistics for each type of client
   const comunidades = usuarios.filter(u => u.tipo === "Comunidad de Vecinos");
@@ -110,6 +104,11 @@ const GestionClientes = () => {
       numContenedores: usuario.numContenedores || 0,
       litrosRecogidos: usuario.litrosRecogidos || 0
     });
+    
+    if (usuario.distrito) {
+      setFilteredBarrios(getBarriosByDistrito(usuario.distrito));
+    }
+    
     setIsEditingUsuario(true);
   };
   
@@ -130,11 +129,32 @@ const GestionClientes = () => {
       ...formData,
       [name]: value,
     });
+    
+    // If selecting distrito, update barrios
+    if (name === "distrito") {
+      const barriosDelDistrito = getBarriosByDistrito(value);
+      setFilteredBarrios(barriosDelDistrito);
+      
+      // Reset barrio if not in the new distrito
+      if (formData.barrio && !barriosDelDistrito.includes(formData.barrio)) {
+        setFormData({
+          ...formData,
+          distrito: value,
+          barrio: ""
+        });
+      } else {
+        setFormData({
+          ...formData,
+          distrito: value
+        });
+      }
+    }
   };
   
   const resetForm = () => {
     setFormData({});
     setSelectedUsuario(null);
+    setFilteredBarrios([]);
   };
   
   const handleSubmit = async () => {
@@ -425,12 +445,22 @@ const GestionClientes = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="barrio">Barrio</Label>
-                <Input
-                  id="barrio"
-                  name="barrio"
+                <Select
                   value={formData.barrio || ""}
-                  onChange={handleInputChange}
-                />
+                  onValueChange={(value) => handleSelectChange("barrio", value)}
+                  disabled={!formData.distrito}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona barrio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredBarrios.map((barrio) => (
+                      <SelectItem key={barrio} value={barrio}>
+                        {barrio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             

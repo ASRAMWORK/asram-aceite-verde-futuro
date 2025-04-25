@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Card, 
@@ -45,19 +46,8 @@ import {
   orderBy 
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { PuntoVerde, DistritoBarrio } from "@/types";
-
-const distritos: DistritoBarrio[] = [
-  { 
-    distrito: "Centro", 
-    barrios: ["Palacio", "Embajadores", "Cortes", "Justicia", "Universidad", "Sol"] 
-  },
-  { 
-    distrito: "Arganzuela", 
-    barrios: ["Imperial", "Acacias", "Chopera", "Legazpi", "Delicias", "Palos de Moguer", "Atocha"] 
-  },
-  // More districts would be added in a full implementation
-];
+import { PuntoVerde } from "@/types";
+import { distritosConBarrios } from "@/data/madridDistritos";
 
 const PuntosVerdes = () => {
   const [isAddingPoint, setIsAddingPoint] = useState(false);
@@ -77,7 +67,7 @@ const PuntosVerdes = () => {
   
   const handleDistritoChange = (value: string) => {
     setSelectedDistrito(value);
-    const distrito = distritos.find(d => d.distrito === value);
+    const distrito = distritosConBarrios.find(d => d.distrito === value);
     setFilteredBarrios(distrito?.barrios || []);
     setNewPoint({
       ...newPoint,
@@ -201,7 +191,7 @@ const PuntosVerdes = () => {
                       <SelectValue placeholder="Selecciona distrito" />
                     </SelectTrigger>
                     <SelectContent>
-                      {distritos.map((d) => (
+                      {distritosConBarrios.map((d) => (
                         <SelectItem key={d.distrito} value={d.distrito}>
                           {d.distrito}
                         </SelectItem>

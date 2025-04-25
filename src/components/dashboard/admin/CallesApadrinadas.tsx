@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Card,
@@ -50,6 +51,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { distritosConBarrios, getBarriosByDistrito } from "@/data/madridDistritos";
 
 type CalleFormData = {
   nombre: string;
@@ -60,20 +62,6 @@ type CalleFormData = {
   precio: number;
   fechaInicio: string;
   fechaRenovacion: string;
-};
-
-const distritos = [
-  "Centro", "Arganzuela", "Retiro", "Salamanca", "Chamartín", 
-  "Tetuán", "Chamberí", "Fuencarral-El Pardo", "Moncloa-Aravaca", 
-  "Latina", "Carabanchel", "Usera", "Puente de Vallecas", 
-  "Moratalaz", "Ciudad Lineal", "Hortaleza", "Villaverde",
-  "Villa de Vallecas", "Vicálvaro", "San Blas-Canillejas", "Barajas"
-];
-
-const barrios: Record<string, string[]> = {
-  "Centro": ["Palacio", "Embajadores", "Cortes", "Justicia", "Universidad", "Sol"],
-  "Arganzuela": ["Imperial", "Acacias", "Chopera", "Legazpi", "Delicias", "Palos de Moguer", "Atocha"],
-  // Add more barrios for each distrito as needed
 };
 
 const CallesApadrinadas = () => {
@@ -108,12 +96,13 @@ const CallesApadrinadas = () => {
   const porcentajeRenovacion = totalCalles > 0 ? Math.round((renovadas / totalCalles) * 100) : 0;
   
   const handleDistritoChange = (value: string) => {
+    const barrios = getBarriosByDistrito(value);
+    setFilteredBarrios(barrios);
     setFormData({
       ...formData,
       distrito: value,
       barrio: ""
     });
-    setFilteredBarrios(barrios[value] || []);
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,7 +134,7 @@ const CallesApadrinadas = () => {
     });
     
     if (calle.distrito) {
-      setFilteredBarrios(barrios[calle.distrito] || []);
+      setFilteredBarrios(getBarriosByDistrito(calle.distrito));
     }
     
     setIsEditingCalle(true);
@@ -249,9 +238,9 @@ const CallesApadrinadas = () => {
                         <SelectValue placeholder="Selecciona distrito" />
                       </SelectTrigger>
                       <SelectContent>
-                        {distritos.map((distrito) => (
-                          <SelectItem key={distrito} value={distrito}>
-                            {distrito}
+                        {distritosConBarrios.map((d) => (
+                          <SelectItem key={d.distrito} value={d.distrito}>
+                            {d.distrito}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -386,9 +375,9 @@ const CallesApadrinadas = () => {
                         <SelectValue placeholder="Selecciona distrito" />
                       </SelectTrigger>
                       <SelectContent>
-                        {distritos.map((distrito) => (
-                          <SelectItem key={distrito} value={distrito}>
-                            {distrito}
+                        {distritosConBarrios.map((d) => (
+                          <SelectItem key={d.distrito} value={d.distrito}>
+                            {d.distrito}
                           </SelectItem>
                         ))}
                       </SelectContent>

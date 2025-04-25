@@ -55,14 +55,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const distritos = [
-  "Centro", "Arganzuela", "Retiro", "Salamanca", "Chamartín", 
-  "Tetuán", "Chamberí", "Fuencarral-El Pardo", "Moncloa-Aravaca", 
-  "Latina", "Carabanchel", "Usera", "Puente de Vallecas", 
-  "Moratalaz", "Ciudad Lineal", "Hortaleza", "Villaverde",
-  "Villa de Vallecas", "Vicálvaro", "San Blas-Canillejas", "Barajas"
-];
+import { distritos } from "@/data/madridDistritos";
 
 type RutaFormData = {
   nombre: string;
