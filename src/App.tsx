@@ -50,7 +50,7 @@ const ProtectedAdministradorRoute = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const checkRole = async () => {
           try {

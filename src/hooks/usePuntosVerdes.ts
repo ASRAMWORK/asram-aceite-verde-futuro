@@ -5,7 +5,7 @@ import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc,
 import type { PuntoVerde } from '@/types';
 import { toast } from 'sonner';
 
-export function usePuntosVerdes() {
+export function usePuntosVerdes(administradorId?: string) {
   const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,9 +15,19 @@ export function usePuntosVerdes() {
       setLoading(true);
       setError(null);
       const puntosRef = collection(db, "puntosVerdes");
-      // Modificamos la consulta para que solo ordene por un campo
-      // y luego ordenaremos el resto en memoria
-      const puntosSnap = await getDocs(query(puntosRef, orderBy("distrito")));
+      
+      let puntosQuery;
+      if (administradorId) {
+        puntosQuery = query(
+          puntosRef,
+          where("administradorId", "==", administradorId),
+          orderBy("distrito")
+        );
+      } else {
+        puntosQuery = query(puntosRef, orderBy("distrito"));
+      }
+      
+      const puntosSnap = await getDocs(puntosQuery);
       
       const puntosData: PuntoVerde[] = [];
       puntosSnap.forEach((doc) => {
@@ -99,13 +109,13 @@ export function usePuntosVerdes() {
 
   useEffect(() => {
     loadPuntosVerdesData();
-  }, []);
+  }, [administradorId]);
 
   return { 
     puntosVerdes, 
     loading, 
     error, 
-    loadPuntosVerdesData, 
+    loadPuntosVerdesData,
     addPuntoVerde,
     updatePuntoVerde,
     deletePuntoVerde,

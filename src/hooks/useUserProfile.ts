@@ -28,6 +28,7 @@ export function useUserProfile() {
             id: docSnap.id,
             email: userData.email || user.email || '',
             role: (userData.role as UserRole) || 'usuario',
+            nombreAdministracion: userData.nombreAdministracion || '',
             ...userData
           };
           
