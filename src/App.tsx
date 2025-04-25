@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,11 +25,21 @@ const ProtectedAdminRoute = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user && isAdminEmail(user.email)) {
         setIsAdmin(true);
       } else {
-        navigate("/login");
+        // Check if the user has superadmin role
+        if (user) {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists() && userDoc.data().role === "superadmin") {
+            setIsAdmin(true);
+          } else {
+            navigate("/login");
+          }
+        } else {
+          navigate("/login");
+        }
       }
       setLoading(false);
     });
@@ -56,7 +67,7 @@ const ProtectedAdministradorRoute = () => {
         const checkRole = async () => {
           try {
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().role === "administrador") {
+            if (userDoc.exists() && (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
               setIsAdministrador(true);
             } else {
               navigate("/login");

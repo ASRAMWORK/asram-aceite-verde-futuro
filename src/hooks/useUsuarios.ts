@@ -34,6 +34,10 @@ export function useUsuarios() {
     return usuarios.filter(usuario => usuario.tipo === tipo);
   };
   
+  const getUsuariosByRole = (role: string) => {
+    return usuarios.filter(usuario => usuario.role === role);
+  };
+  
   const getUsuariosByDistrito = (distrito: string) => {
     return usuarios.filter(usuario => usuario.distrito === distrito);
   };
@@ -50,12 +54,12 @@ export function useUsuarios() {
       };
       
       const docRef = await addDoc(collection(db, "usuarios"), usuarioData);
-      toast.success("Cliente añadido correctamente");
+      toast.success("Usuario añadido correctamente");
       await loadUsuariosData();
       return { id: docRef.id, ...data };
     } catch (err) {
-      console.error("Error añadiendo cliente:", err);
-      toast.error("Error al añadir el cliente");
+      console.error("Error añadiendo usuario:", err);
+      toast.error("Error al añadir el usuario");
       throw err;
     }
   };
@@ -93,6 +97,22 @@ export function useUsuarios() {
     }
   };
 
+  const updateUserRole = async (id: string, role: string) => {
+    try {
+      await updateDoc(doc(db, "usuarios", id), {
+        role,
+        updatedAt: serverTimestamp()
+      });
+      toast.success(`Rol actualizado a ${role} correctamente`);
+      await loadUsuariosData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando rol:", err);
+      toast.error("Error al actualizar el rol del usuario");
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadUsuariosData();
   }, []);
@@ -103,10 +123,12 @@ export function useUsuarios() {
     error, 
     loadUsuariosData,
     getUsuariosByTipo,
+    getUsuariosByRole,
     getUsuariosByDistrito,
     getUsuariosByBarrio,
     addUsuario,
     updateUsuario,
-    deleteUsuario
+    deleteUsuario,
+    updateUserRole
   };
 }

@@ -3,7 +3,7 @@ export type User = {
   id: string;
   email: string;
   name: string;
-  role: string;
+  role: UserRole;
   type?: string;
   activo?: boolean;
   createdAt?: any;
@@ -111,7 +111,7 @@ export type ComunidadVecinos = {
     aguaAhorrada?: number;
     energiaAhorrada?: number;
   };
-  numeroPorteria?: number;
+  numeroPorteria?: string;
   nombreAdministracion?: string;
   correoContacto?: string;
   createdAt?: any;
@@ -259,6 +259,7 @@ export type Usuario = {
   telefono: string;
   direccion?: string;
   tipo: string;
+  role?: UserRole;
   distrito?: string;
   barrio?: string;
   activo: boolean;
@@ -268,6 +269,7 @@ export type Usuario = {
   frecuenciaRecogida?: string;
   createdAt?: any;
   updatedAt?: any;
+  permisos?: string[];
 };
 
 // Adding UsuarioProfile type that's being referenced
@@ -276,11 +278,20 @@ export type UsuarioProfile = {
   email: string;
   role: UserRole;
   nombreAdministracion?: string;
+  permisos?: string[];
   [key: string]: any;
 };
 
 // Updated UserRole to include all roles used in the application
-export type UserRole = "admin" | "user" | "administrador" | "comunidad" | "restaurante" | "hotel" | "asociacion" | "escolar" | "usuario";
+export type UserRole = "superadmin" | "admin" | "admin_finca" | "user" | "administrador" | "comunidad" | "restaurante" | "hotel" | "asociacion" | "escolar" | "usuario";
+
+// New type for permissions
+export type Permiso = {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  modulo?: string;
+};
 
 export type CalendarioRecogida = {
   id: string;
