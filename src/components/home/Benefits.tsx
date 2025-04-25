@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Water, Recycle, Book } from "lucide-react";
+import { Droplet, Recycle, Book } from "lucide-react";
 
 const Benefits = () => {
   return (
@@ -13,7 +13,7 @@ const Benefits = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="futuristic-card">
             <CardHeader>
-              <Water className="w-12 h-12 text-asram mb-4" />
+              <Droplet className="w-12 h-12 text-asram mb-4" />
               <CardTitle>Reducción de la contaminación</CardTitle>
             </CardHeader>
             <CardContent>

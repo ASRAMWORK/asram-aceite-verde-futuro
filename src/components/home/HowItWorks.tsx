@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Oil, Recycle } from "lucide-react";
+import { Oil, Calendar, Recycle } from "lucide-react";
 
 const HowItWorks = () => {
   return (

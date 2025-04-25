@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HandHelping, Environment } from "lucide-react";
+import { HandHelping, Earth } from "lucide-react";
 
 const OilDestination = () => {
   return (
@@ -25,7 +25,7 @@ const OilDestination = () => {
 
           <Card className="futuristic-card">
             <CardHeader>
-              <Environment className="w-12 h-12 text-asram mb-4" />
+              <Earth className="w-12 h-12 text-asram mb-4" />
               <CardTitle>Gestión autorizada</CardTitle>
             </CardHeader>
             <CardContent>
