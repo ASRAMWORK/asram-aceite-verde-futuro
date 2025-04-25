@@ -149,8 +149,7 @@ const FacturacionView = () => {
 
       {showInforme && (
         <InformeFinanciero 
-          ingresos={ingresos} 
-          gastos={gastos} 
+          data={{ ingresos, gastos }} 
           onClose={() => setShowInforme(false)} 
         />
       )}

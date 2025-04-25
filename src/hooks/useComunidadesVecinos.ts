@@ -1,142 +1,159 @@
-
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, DocumentData } from 'firebase/firestore';
-import type { ComunidadVecinos } from '@/types';
+import { db, auth } from '@/lib/firebase';
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  query,
+  where,
+  serverTimestamp,
+  onSnapshot,
+} from 'firebase/firestore';
+import { ComunidadVecinos } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export function useComunidadesVecinos(administradorId?: string) {
+export function useComunidadesVecinos() {
   const [comunidades, setComunidades] = useState<ComunidadVecinos[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const loadComunidadesData = async () => {
-    try {
-      setLoading(true);
-      const comunidadesRef = collection(db, "comunidadesVecinos");
-      let comunidadesQuery;
-      
-      if (administradorId) {
-        comunidadesQuery = query(
-          comunidadesRef, 
-          where("administradorId", "==", administradorId),
-          orderBy("createdAt", "desc")
-        );
-      } else {
-        comunidadesQuery = query(comunidadesRef, orderBy("createdAt", "desc"));
-      }
-      
-      const comunidadesSnap = await getDocs(comunidadesQuery);
-      
-      const comunidadesData: ComunidadVecinos[] = [];
-      comunidadesSnap.forEach((doc) => {
-        const data = doc.data() as DocumentData;
-        const comunidad: ComunidadVecinos = {
-          id: doc.id,
-          nombre: data.nombre,
-          direccion: data.direccion,
-          cif: data.cif,
-          codigoPostal: data.codigoPostal,
-          ciudad: data.ciudad,
-          distrito: data.distrito,
-          barrio: data.barrio,
-          totalViviendas: data.totalViviendas,
-          numeroPorteria: data.numeroPorteria,
-          nombreAdministracion: data.nombreAdministracion,
-          correoContacto: data.correoContacto,
-          administradorId: data.administradorId,
-          litrosRecogidos: data.litrosRecogidos,
-          beneficiosMedioambientales: data.beneficiosMedioambientales,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
-        };
-        comunidadesData.push(comunidad);
-      });
-      
-      setComunidades(comunidadesData);
-    } catch (err) {
-      console.error("Error cargando comunidades de vecinos:", err);
-      setError("Error al cargar datos de comunidades");
-    } finally {
+  useEffect(() => {
+    if (!user) {
       setLoading(false);
+      return;
     }
-  };
 
-  const addComunidad = async (data: Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const fetchComunidades = async () => {
+      setLoading(true);
+      try {
+        const comunidadesCollection = collection(db, 'comunidades');
+        const q = query(comunidadesCollection, where('administradorId', '==', user.uid));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const comunidadesData = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as ComunidadVecinos[];
+          setComunidades(comunidadesData);
+          setLoading(false);
+        });
+
+        return () => unsubscribe();
+      } catch (err) {
+        console.error("Error al obtener las comunidades:", err);
+        setError("Error al cargar las comunidades");
+        setLoading(false);
+      }
+    };
+
+    return fetchComunidades();
+  }, [user]);
+
+  const createComunidad = async (data: Partial<ComunidadVecinos>) => {
+    setIsLoading(true);
     try {
-      const beneficios = {
-        co2: data.litrosRecogidos ? data.litrosRecogidos * 2.3 : 0,
-        agua: data.litrosRecogidos ? data.litrosRecogidos * 1000 : 0,
-        energia: data.litrosRecogidos ? data.litrosRecogidos * 1.5 : 0
-      };
-      
-      const comunidadData = {
-        ...data,
-        beneficiosMedioambientales: beneficios,
+      const newComunidad = {
+        id: "",
+        nombre: data.nombre,
+        direccion: data.direccion,
+        numViviendas: data.numViviendas || 0, // Ensure numViviendas is included
+        cif: data.cif,
+        codigoPostal: data.codigoPostal,
+        ciudad: data.ciudad,
+        distrito: data.distrito,
+        barrio: data.barrio,
+        totalViviendas: data.totalViviendas,
+        numeroPorteria: data.numeroPorteria,
+        nombreAdministracion: data.nombreAdministracion,
+        correoContacto: data.correoContacto,
+        administradorId: user?.uid || null,
+        litrosRecogidos: 0,
+        beneficiosMedioambientales: {
+          co2: 0,
+          agua: 0,
+          energia: 0
+        },
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       };
-      
-      await addDoc(collection(db, "comunidadesVecinos"), comunidadData);
-      toast.success("Comunidad de vecinos añadida correctamente");
-      await loadComunidadesData();
-      return true;
-    } catch (err) {
-      console.error("Error añadiendo comunidad:", err);
-      toast.error("Error al añadir la comunidad");
-      return false;
+      const comunidadesCollection = collection(db, 'comunidades');
+      await addDoc(comunidadesCollection, newComunidad);
+      toast.success('Comunidad creada con éxito');
+    } catch (error) {
+      console.error("Error al crear la comunidad:", error);
+      toast.error('Error al crear la comunidad');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const updateComunidad = async (id: string, data: Partial<ComunidadVecinos>) => {
+    setIsLoading(true);
     try {
-      let updateData = { ...data, updatedAt: serverTimestamp() };
-      
-      if (data.litrosRecogidos) {
-        const beneficios = {
-          co2: data.litrosRecogidos * 2.3,
-          agua: data.litrosRecogidos * 1000,
-          energia: data.litrosRecogidos * 1.5,
-        };
-        
-        updateData.beneficiosMedioambientales = beneficios;
-      }
-      
-      await updateDoc(doc(db, "comunidadesVecinos", id), updateData);
-      toast.success("Comunidad actualizada correctamente");
-      await loadComunidadesData();
-      return true;
-    } catch (err) {
-      console.error("Error actualizando comunidad:", err);
-      toast.error("Error al actualizar la comunidad");
-      return false;
+      const comunidadDoc = doc(db, 'comunidades', id);
+      await updateDoc(comunidadDoc, {
+        ...data,
+        updatedAt: serverTimestamp(),
+      });
+      toast.success('Comunidad actualizada con éxito');
+    } catch (error) {
+      console.error("Error al actualizar la comunidad:", error);
+      toast.error('Error al actualizar la comunidad');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const deleteComunidad = async (id: string) => {
+    setIsLoading(true);
     try {
-      await deleteDoc(doc(db, "comunidadesVecinos", id));
-      toast.success("Comunidad eliminada correctamente");
-      await loadComunidadesData();
-      return true;
-    } catch (err) {
-      console.error("Error eliminando comunidad:", err);
-      toast.error("Error al eliminar la comunidad");
-      return false;
+      const comunidadDoc = doc(db, 'comunidades', id);
+      await deleteDoc(comunidadDoc);
+      toast.success('Comunidad eliminada con éxito');
+    } catch (error) {
+      console.error("Error al eliminar la comunidad:", error);
+      toast.error('Error al eliminar la comunidad');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadComunidadesData();
-  }, [administradorId]);
+  const updateBeneficios = async (id: string, litrosRecogidos: number) => {
+    try {
+      // Calculate environmental benefits
+      const co2 = litrosRecogidos * 2.3; // kg of CO2 saved
+      const agua = litrosRecogidos * 1000; // liters of water saved
+      const energia = litrosRecogidos * 1.5; // kWh of energy saved
 
-  return { 
-    comunidades, 
-    loading, 
-    error, 
-    loadComunidadesData,
-    addComunidad,
+      await updateDoc(doc(db, "comunidades", id), {
+        litrosRecogidos,
+        beneficiosMedioambientales: {
+          co2,
+          agua,
+          energia
+        }
+      });
+      toast.success('Beneficios actualizados con éxito');
+    } catch (error) {
+      console.error("Error al actualizar los beneficios:", error);
+      toast.error('Error al actualizar los beneficios');
+    }
+  };
+
+  return {
+    comunidades,
+    loading,
+    error,
+    createComunidad,
     updateComunidad,
-    deleteComunidad
+    deleteComunidad,
+    updateBeneficios,
+    isLoading
   };
 }
