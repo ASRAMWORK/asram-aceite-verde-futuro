@@ -56,7 +56,7 @@ const UserDashboard = ({ activeTab = "home" }) => {
         </Button>
       </div>
 
-      <Tabs defaultValue={currentTab} value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
+      <Tabs value={currentTab} onValueChange={setCurrentTab}>
         <TabsList className="grid grid-cols-7 h-auto p-1 max-w-3xl">
           <TabsTrigger value="home" className="flex items-center gap-2 py-2">
             <Home className="h-4 w-4" />

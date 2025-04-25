@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -43,7 +42,6 @@ const AdminDashboardPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Ensure the admin user exists
     const createAdminIfNeeded = async () => {
       try {
         await createUserWithEmailAndPassword(auth, "colabora@asramadrid.com", "Hola3030");
@@ -97,7 +95,6 @@ const AdminDashboardPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <div className="hidden md:flex flex-col w-64 bg-white border-r">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-asram">ASRAM Admin</h1>
@@ -193,7 +190,6 @@ const AdminDashboardPage = () => {
         </nav>
       </div>
       
-      {/* Main content */}
       <div className="flex-1 overflow-auto">
         <header className="bg-white border-b sticky top-0 z-10">
           <div className="container flex items-center justify-between h-16 px-4">
@@ -216,7 +212,7 @@ const AdminDashboardPage = () => {
         
         <main className="container py-8 px-4">
           {activeTab === "panel-control" && (
-            <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="space-y-6">
+            <Tabs value={activeSubTab} onValueChange={setActiveSubTab}>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-bold tracking-tight">Panel de Control</h2>
               </div>

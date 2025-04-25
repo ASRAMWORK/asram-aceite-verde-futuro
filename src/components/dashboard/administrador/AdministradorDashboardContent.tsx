@@ -39,7 +39,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
         </p>
       </div>
 
-      <Tabs defaultValue={currentTab} value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
+      <Tabs value={currentTab} onValueChange={setCurrentTab}>
         <TabsList className="grid grid-cols-4 md:grid-cols-8 h-auto p-1">
           <TabsTrigger value="home" className="flex items-center gap-2 py-2">
             <Home className="h-4 w-4" />

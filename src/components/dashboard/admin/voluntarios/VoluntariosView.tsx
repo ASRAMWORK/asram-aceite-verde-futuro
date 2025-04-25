@@ -79,7 +79,7 @@ const VoluntariosView = () => {
           </CardContent>
         </Card>
       ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="inscripciones">Inscripciones</TabsTrigger>
             <TabsTrigger value="horarios">Horarios</TabsTrigger>

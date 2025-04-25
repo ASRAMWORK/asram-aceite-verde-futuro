@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -46,12 +45,10 @@ const FacturacionView = () => {
   const [showInforme, setShowInforme] = useState(false);
   const { ingresos, gastos, loading, addIngreso, addGasto, deleteIngreso, deleteGasto } = useFacturacion();
 
-  // Calculamos los totales
   const totalIngresos = ingresos.reduce((sum, ingreso) => sum + ingreso.cantidad, 0);
   const totalGastos = gastos.reduce((sum, gasto) => sum + gasto.cantidad, 0);
   const balance = totalIngresos - totalGastos;
 
-  // Procesamos los datos para las gráficas
   const ingresosPorTipo = procesarDatosPorTipo(ingresos);
   const gastosPorTipo = procesarDatosPorTipo(gastos);
   
@@ -75,7 +72,6 @@ const FacturacionView = () => {
     const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     const currentYear = new Date().getFullYear();
     
-    // Inicializar datos
     const mensuales = meses.map((mes, index) => ({
       name: mes,
       ingresos: 0,
@@ -83,7 +79,6 @@ const FacturacionView = () => {
       balance: 0
     }));
     
-    // Procesar ingresos por mes
     ingresos.forEach(ingreso => {
       if (ingreso.fecha) {
         const fecha = new Date(ingreso.fecha);
@@ -94,7 +89,6 @@ const FacturacionView = () => {
       }
     });
     
-    // Procesar gastos por mes
     gastos.forEach(gasto => {
       if (gasto.fecha) {
         const fecha = new Date(gasto.fecha);
@@ -105,7 +99,6 @@ const FacturacionView = () => {
       }
     });
     
-    // Calcular balance
     mensuales.forEach(mes => {
       mes.balance = mes.ingresos - mes.gastos;
     });
@@ -257,7 +250,7 @@ const FacturacionView = () => {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
           <TabsTrigger value="ingresos">Ingresos</TabsTrigger>

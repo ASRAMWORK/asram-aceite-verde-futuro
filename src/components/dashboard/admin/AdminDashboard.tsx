@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -54,37 +53,30 @@ const AdminDashboard = () => {
   const [tipoClienteData, setTipoClienteData] = useState<any[]>([]);
   
   useEffect(() => {
-    // Procesamos los datos para las gráficas cuando estén disponibles
     if (!loadingPuntos && !loadingRecogidas) {
-      // Datos para la gráfica de recogida por meses
       const monthlyData = processMonthlyLitros(recogidas);
       setChartData(monthlyData);
 
-      // Datos para la gráfica de distribución por distritos
       const distritos = processPuntosPorDistrito(puntosVerdes);
       setDistritosData(distritos);
     }
 
-    // Datos para la gráfica de tipos de clientes
     if (!loadingUsuarios) {
       const tiposData = processTiposClientes(usuarios);
       setTipoClienteData(tiposData);
     }
   }, [loadingPuntos, loadingRecogidas, loadingUsuarios, puntosVerdes, recogidas, usuarios]);
 
-  // Función para procesar datos de recogida mensual
   const processMonthlyLitros = (recogidas: any[]) => {
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     const currentYear = new Date().getFullYear();
     
-    // Inicializar datos con valores 0 para cada mes
     const monthlyLitros = months.map((month, index) => ({
       name: month,
       litros: 0,
       recogidas: 0
     }));
 
-    // Contabilizar litros por mes
     recogidas.forEach(recogida => {
       if (recogida.completada && recogida.fechaCompletada) {
         const fecha = recogida.fechaCompletada.toDate ? recogida.fechaCompletada.toDate() : new Date(recogida.fechaCompletada);
@@ -99,7 +91,6 @@ const AdminDashboard = () => {
     return monthlyLitros;
   };
 
-  // Función para procesar datos de puntos verdes por distrito
   const processPuntosPorDistrito = (puntos: any[]) => {
     const distritos: Record<string, number> = {};
     
@@ -115,7 +106,6 @@ const AdminDashboard = () => {
     })).sort((a, b) => b.value - a.value).slice(0, 6);
   };
 
-  // Función para procesar datos de tipos de clientes
   const processTiposClientes = (usuarios: any[]) => {
     const tipos: Record<string, number> = {};
     
@@ -141,20 +131,16 @@ const AdminDashboard = () => {
     return 'Particulares';
   };
 
-  // Calcular los totales para las tarjetas
   const totalClientes = usuarios.filter(u => u.activo).length;
   const totalPuntosVerdes = puntosVerdes.length;
   const totalCentrosEscolares = alianzas.filter(a => a.activo).length;
   const totalCallesApadrinadas = callesApadrinadas.filter(c => c.activo).length;
   const litrosRecogidos = puntosVerdes.reduce((sum, punto) => sum + (punto.litrosRecogidos || 0), 0);
   
-  // Cálculo del CO2 evitado: 1L aceite ~ 2kg CO2
   const co2Evitado = litrosRecogidos * 2;
 
-  // Colores para las gráficas
   const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];
   
-  // Datos para la gráfica de distribución del tipo de recogida
   const tipoRecogidaData = [
     { name: 'Individual', value: recogidas.filter(r => r.tipo === 'individual').length },
     { name: 'Por zona', value: recogidas.filter(r => r.tipo === 'zona').length }
@@ -473,28 +459,24 @@ const AdminDashboard = () => {
           <p className="text-center text-muted-foreground py-8">
             Sección de gestión de Puntos Verdes cargando...
           </p>
-          {/* Here we would include the Puntos Verdes management component */}
         </TabsContent>
         
         <TabsContent value="alianza-escolar">
           <p className="text-center text-muted-foreground py-8">
             Sección de gestión de la Alianza Verde Escolar cargando...
           </p>
-          {/* Here we would include the Alianza Verde Escolar management component */}
         </TabsContent>
         
         <TabsContent value="calles-apadrinadas">
           <p className="text-center text-muted-foreground py-8">
             Sección de gestión de Calles Apadrinadas cargando...
           </p>
-          {/* Here we would include the Calles Apadrinadas management component */}
         </TabsContent>
         
         <TabsContent value="estadisticas">
           <p className="text-center text-muted-foreground py-8">
             Sección de reportes y estadísticas cargando...
           </p>
-          {/* Here we would include the statistics and reports component */}
         </TabsContent>
       </Tabs>
     </div>
