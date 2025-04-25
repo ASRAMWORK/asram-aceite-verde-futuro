@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Oil, Calendar, Recycle } from "lucide-react";
+import { Container, Calendar, Recycle } from "lucide-react";
 
 const HowItWorks = () => {
   return (
@@ -13,7 +13,7 @@ const HowItWorks = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="futuristic-card">
             <CardHeader>
-              <Oil className="w-12 h-12 text-asram mb-4" />
+              <Container className="w-12 h-12 text-asram mb-4" />
               <CardTitle>Instalación gratuita</CardTitle>
             </CardHeader>
             <CardContent>
@@ -45,7 +45,7 @@ const HowItWorks = () => {
                 Se recoge aceite vegetal usado de cocina (girasol, oliva…) siempre que esté libre de restos sólidos, agua o contaminantes.
               </p>
             </CardContent>
-          </Card>
+            </Card>
         </div>
       </div>
     </section>
