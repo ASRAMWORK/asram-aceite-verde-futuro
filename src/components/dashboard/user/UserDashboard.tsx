@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 import UserProfileView from "./profile/UserProfileView";
 import RecursosView from "./recursos/RecursosView";
@@ -51,11 +51,9 @@ const UserDashboard = ({ activeTab = "home" }) => {
             Bienvenido de nuevo, gestiona tus recogidas de aceite
           </p>
         </div>
-        <DialogTrigger asChild data-dialog-trigger="solicitud">
-          <Button className="bg-asram hover:bg-asram-700">
-            Solicitar Recogida
-          </Button>
-        </DialogTrigger>
+        <Button className="bg-asram hover:bg-asram-700">
+          Solicitar Recogida
+        </Button>
       </div>
 
       <Tabs defaultValue={currentTab} value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
@@ -189,25 +187,21 @@ const UserDashboard = ({ activeTab = "home" }) => {
         </TabsContent>
       </Tabs>
 
-      {/* Dialog for Solicitud de Recogida */}
-      <Dialog>
-        <DialogContent className="sm:max-w-[550px]">
-          <DialogHeader>
-            <DialogTitle>Solicitar recogida de aceite</DialogTitle>
-            <DialogDescription>
-              Completa el formulario para programar una recogida de aceite usado
-            </DialogDescription>
-          </DialogHeader>
-          <SolicitudRecogidaForm />
-          <DialogFooter className="mt-4 gap-2">
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                Cancelar
-              </Button>
-            </DialogTrigger>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Dialog Content for Solicitud de Recogida */}
+      <DialogContent className="sm:max-w-[550px]">
+        <DialogHeader>
+          <DialogTitle>Solicitar recogida de aceite</DialogTitle>
+          <DialogDescription>
+            Completa el formulario para programar una recogida de aceite usado
+          </DialogDescription>
+        </DialogHeader>
+        <SolicitudRecogidaForm />
+        <DialogFooter className="mt-4 gap-2">
+          <Button variant="outline">
+            Cancelar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </div>
   );
 };
