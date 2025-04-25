@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
 import type { PuntoVerde } from '@/types';
+import { toast } from 'sonner';
 
 export function usePuntosVerdes() {
   const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
@@ -29,9 +30,75 @@ export function usePuntosVerdes() {
     }
   };
 
+  const addPuntoVerde = async (nuevoPunto: Omit<PuntoVerde, 'id'>) => {
+    try {
+      const puntoData = {
+        ...nuevoPunto,
+        litrosRecogidos: 0,
+        createdAt: serverTimestamp(),
+      };
+      
+      await addDoc(collection(db, "puntosVerdes"), puntoData);
+      toast.success("Punto verde añadido correctamente");
+      await loadPuntosVerdesData();
+      return true;
+    } catch (err) {
+      console.error("Error añadiendo punto verde:", err);
+      toast.error("Error al añadir el punto verde");
+      return false;
+    }
+  };
+
+  const updatePuntoVerde = async (id: string, data: Partial<PuntoVerde>) => {
+    try {
+      await updateDoc(doc(db, "puntosVerdes", id), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Punto verde actualizado correctamente");
+      await loadPuntosVerdesData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando punto verde:", err);
+      toast.error("Error al actualizar el punto verde");
+      return false;
+    }
+  };
+
+  const deletePuntoVerde = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "puntosVerdes", id));
+      toast.success("Punto verde eliminado correctamente");
+      await loadPuntosVerdesData();
+      return true;
+    } catch (err) {
+      console.error("Error eliminando punto verde:", err);
+      toast.error("Error al eliminar el punto verde");
+      return false;
+    }
+  };
+
+  const getPuntosByDistrito = (distrito: string) => {
+    return puntosVerdes.filter(punto => punto.distrito === distrito);
+  };
+  
+  const getPuntosByBarrio = (barrio: string) => {
+    return puntosVerdes.filter(punto => punto.barrio === barrio);
+  };
+
   useEffect(() => {
     loadPuntosVerdesData();
   }, []);
 
-  return { puntosVerdes, loading, error, loadPuntosVerdesData };
+  return { 
+    puntosVerdes, 
+    loading, 
+    error, 
+    loadPuntosVerdesData, 
+    addPuntoVerde,
+    updatePuntoVerde,
+    deletePuntoVerde,
+    getPuntosByDistrito,
+    getPuntosByBarrio
+  };
 }

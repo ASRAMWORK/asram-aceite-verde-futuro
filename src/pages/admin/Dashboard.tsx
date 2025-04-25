@@ -13,14 +13,38 @@ import {
 import { Separator } from "@/components/ui/separator";
 import AdminDashboard from "@/components/dashboard/admin/AdminDashboard";
 import PuntosVerdes from "@/components/dashboard/admin/PuntosVerdes";
+import AlianzaEscolar from "@/components/dashboard/admin/AlianzaEscolar";
+import CallesApadrinadas from "@/components/dashboard/admin/CallesApadrinadas";
+import GestionClientes from "@/components/dashboard/admin/GestionClientes";
+import GestionRecogidas from "@/components/dashboard/admin/GestionRecogidas";
+import RutasDistritos from "@/components/dashboard/admin/RutasDistritos";
 import { toast } from "sonner";
+import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
+  const [activeSubTab, setActiveSubTab] = useState("vista-general");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Ensure the admin user exists
+    const createAdminIfNeeded = async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, "colabora@asramadrid.com", "Hola3030");
+        console.log("Admin user created");
+      } catch (error: any) {
+        if (error.code === 'auth/email-already-in-use') {
+          console.log("Admin user already exists");
+        } else {
+          console.error("Error creating admin user:", error);
+        }
+      }
+    };
+    
+    createAdminIfNeeded();
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setLoading(false);
       
@@ -29,9 +53,7 @@ const AdminDashboardPage = () => {
         return;
       }
       
-      // Normally we would check in Firestore if the user has admin role
-      // For now, we'll just check the email as per the specification
-      if (user.email !== "admin@asramadrid.com") {
+      if (!isAdminEmail(user.email)) {
         toast.error("No tienes permisos para acceder al panel de administración");
         navigate("/user/dashboard");
       }
@@ -142,25 +164,53 @@ const AdminDashboardPage = () => {
         </header>
         
         <main className="container py-8 px-4">
-          {activeTab === "panel-control" && <AdminDashboard />}
-          {activeTab === "gestion-clientes" && (
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight">Gestión de Clientes</h2>
-              <p className="text-muted-foreground">Esta sección está en desarrollo</p>
-            </div>
+          {activeTab === "panel-control" && (
+            <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="space-y-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-3xl font-bold tracking-tight">Panel de Control</h2>
+              </div>
+              
+              <TabsList>
+                <TabsTrigger value="vista-general">Vista General</TabsTrigger>
+                <TabsTrigger value="puntos-verdes">Puntos Verdes</TabsTrigger>
+                <TabsTrigger value="alianza-escolar">Alianza Escolar</TabsTrigger>
+                <TabsTrigger value="calles-apadrinadas">Calles Apadrinadas</TabsTrigger>
+                <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="vista-general">
+                <AdminDashboard />
+              </TabsContent>
+              
+              <TabsContent value="puntos-verdes">
+                <PuntosVerdes />
+              </TabsContent>
+              
+              <TabsContent value="alianza-escolar">
+                <AlianzaEscolar />
+              </TabsContent>
+              
+              <TabsContent value="calles-apadrinadas">
+                <CallesApadrinadas />
+              </TabsContent>
+              
+              <TabsContent value="estadisticas">
+                <div className="p-8 text-center">
+                  <h3 className="text-2xl font-bold mb-4">Estadísticas y reportes</h3>
+                  <p className="text-muted-foreground">
+                    Esta sección está actualmente en desarrollo. Próximamente podrás visualizar estadísticas
+                    detalladas y generar reportes avanzados para monitorizar el rendimiento de la organización.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
           )}
-          {activeTab === "gestion-recogidas" && (
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight">Gestión de Recogidas</h2>
-              <p className="text-muted-foreground">Esta sección está en desarrollo</p>
-            </div>
-          )}
-          {activeTab === "rutas-distritos" && (
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight">Rutas por Distritos</h2>
-              <p className="text-muted-foreground">Esta sección está en desarrollo</p>
-            </div>
-          )}
+          
+          {activeTab === "gestion-clientes" && <GestionClientes />}
+          
+          {activeTab === "gestion-recogidas" && <GestionRecogidas />}
+          
+          {activeTab === "rutas-distritos" && <RutasDistritos />}
         </main>
       </div>
     </div>

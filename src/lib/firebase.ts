@@ -23,4 +23,13 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+// Admin email for quick checks
+export const ADMIN_EMAILS = ["admin@asramadrid.com", "colabora@asramadrid.com"];
+
+// Helper function to check if a user is an admin
+export const isAdminEmail = (email: string | null | undefined) => {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase());
+};
+
 export { app, analytics, auth, db, storage };

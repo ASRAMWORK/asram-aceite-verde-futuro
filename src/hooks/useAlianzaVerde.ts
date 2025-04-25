@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import type { AlianzaVerde } from '@/types';
+import { toast } from 'sonner';
 
 export function useAlianzaVerde() {
   const [alianzas, setAlianzas] = useState<AlianzaVerde[]>([]);
@@ -29,9 +30,69 @@ export function useAlianzaVerde() {
     }
   };
 
+  const addAlianzaVerde = async (nuevaAlianza: Omit<AlianzaVerde, 'id'>) => {
+    try {
+      const alianzaData = {
+        ...nuevaAlianza,
+        activo: true,
+        createdAt: serverTimestamp(),
+      };
+      
+      await addDoc(collection(db, "alianzaVerde"), alianzaData);
+      toast.success("Centro educativo añadido correctamente");
+      await loadAlianzaVerdeData();
+      return true;
+    } catch (err) {
+      console.error("Error añadiendo nuevo centro:", err);
+      toast.error("Error al añadir centro educativo");
+      return false;
+    }
+  };
+
+  const updateAlianzaVerde = async (id: string, data: Partial<AlianzaVerde>) => {
+    try {
+      await updateDoc(doc(db, "alianzaVerde", id), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Información del centro actualizada");
+      await loadAlianzaVerdeData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando centro:", err);
+      toast.error("Error al actualizar información del centro");
+      return false;
+    }
+  };
+
+  const deleteAlianzaVerde = async (id: string) => {
+    try {
+      // Soft delete - just mark as inactive
+      await updateDoc(doc(db, "alianzaVerde", id), {
+        activo: false,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Centro eliminado correctamente");
+      await loadAlianzaVerdeData();
+      return true;
+    } catch (err) {
+      console.error("Error eliminando centro:", err);
+      toast.error("Error al eliminar centro");
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadAlianzaVerdeData();
   }, []);
 
-  return { alianzas, loading, error, loadAlianzaVerdeData };
+  return { 
+    alianzas, 
+    loading, 
+    error, 
+    loadAlianzaVerdeData, 
+    addAlianzaVerde,
+    updateAlianzaVerde,
+    deleteAlianzaVerde
+  };
 }

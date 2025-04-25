@@ -1,77 +1,4 @@
 
-export type UserRole = 'admin' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
-
-export interface UserProfile {
-  uid: string;
-  email: string;
-  displayName?: string;
-  role: UserRole;
-  createdAt: Date;
-}
-
-export interface ComunidadProfile extends UserProfile {
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  telefono: string;
-  numViviendas: number;
-  numContenedores: number;
-  frecuenciaRecogida: string;
-}
-
-export interface RestauranteProfile extends UserProfile {
-  nombreRestaurante: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  telefono: string;
-  horarioApertura: string;
-  litrosEstimados: number;
-  frecuenciaRecogida: string;
-}
-
-export interface HotelProfile extends UserProfile {
-  nombreHotel: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  telefono: string;
-  numHabitaciones: number;
-  litrosEstimados: number;
-  frecuenciaRecogida: string;
-}
-
-export interface AsociacionProfile extends UserProfile {
-  nombreAsociacion: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  telefono: string;
-  tipoAsociacion: string;
-  numMiembros: number;
-  frecuenciaRecogida: string;
-}
-
-export interface EscolarProfile extends UserProfile {
-  nombreCentro: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  telefono: string;
-  numAlumnos: number;
-  tipoEscolar: string;
-  participaAlianzaVerde: boolean;
-}
-
-export interface UsuarioProfile extends UserProfile {
-  nombre: string;
-  apellidos: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  telefono: string;
-}
-
 export interface PuntoVerde {
   id: string;
   distrito: string;
@@ -81,60 +8,89 @@ export interface PuntoVerde {
   numContenedores: number;
   telefono: string;
   litrosRecogidos: number;
-  createdAt: Date;
-  lastCollection?: Date;
-}
-
-export interface Recogida {
-  id: string;
-  clienteId: string;
-  nombreCliente: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  fechaProgramada: Date;
-  fechaRealizada?: Date;
-  litrosRecogidos: number;
-  estado: 'programada' | 'realizada' | 'cancelada';
-  notas?: string;
-  userId: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface AlianzaVerde {
   id: string;
-  nombreCentro: string;
-  tipo: 'escolar' | 'asociacion' | 'empresa' | 'entidad';
+  nombre: string;
+  tipo: string;
+  direccion: string;
+  distrito: string;
+  barrio: string;
+  contacto: string;
+  telefono: string;
+  email: string;
+  numEstudiantes: number;
+  talleresRealizados: number;
+  certificaciones: number;
+  activo: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
+export interface CalleApadrinada {
+  id: string;
+  nombre: string;
+  distrito: string;
+  barrio: string;
+  descripcion: string;
+  padrinoId: string;
+  precio: number;
+  fechaInicio: string;
+  fechaRenovacion: string;
+  activo: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
+export interface Usuario {
+  id: string;
+  nombre: string;
+  tipo: string;
   direccion: string;
   distrito: string;
   barrio: string;
   telefono: string;
   email: string;
-  numParticipantes: number;
-  fechaInicio: Date;
-  talleresRealizados: number;
-  certificaciones: string[];
+  numViviendas?: number;
+  numContenedores?: number;
+  litrosRecogidos?: number;
+  frecuenciaRecogida?: string;
   activo: boolean;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
-export interface CalleApadrinada {
+export interface Recogida {
   id: string;
-  nombreCalle: string;
+  clienteId: string;
+  tipo: 'individual' | 'zona';
+  fecha: string;
+  hora: string;
   distrito: string;
   barrio: string;
-  padrinoId: string;
-  nombrePadrino: string;
-  fechaInicio: Date;
-  fechaRenovacion: Date;
-  importeMensual: number;
-  activo: boolean;
+  completada: boolean;
+  litrosRecogidos?: number;
+  fechaCompletada?: any;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
-export interface DatoEstadistico {
-  fecha: Date;
-  litrosRecogidos: number;
-  co2Evitado: number;
-  aguaAhorrada: number;
-  energiaAhorrada: number;
+export interface Ruta {
+  id: string;
+  nombre: string;
+  distrito: string;
+  fecha: string;
+  hora: string;
+  recogedores: string;
+  clientes?: { id: string; nombre: string; direccion: string }[];
+  completada: boolean;
+  litrosTotales?: number;
+  fechaCompletada?: any;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface DistritoBarrio {
@@ -142,8 +98,9 @@ export interface DistritoBarrio {
   barrios: string[];
 }
 
-export interface MenuItem {
-  name: string;
-  path: string;
-  icon: string;
+export interface AuthUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
 }
