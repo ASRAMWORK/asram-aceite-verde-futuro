@@ -21,7 +21,7 @@ const calendarioRecogidas = [
 ];
 
 const PuntosVerdesView = () => {
-  const { puntosVerdes, loading, error } = usePuntosVerdes();
+  const { puntosVerdes, loading, error, loadPuntosVerdesData } = usePuntosVerdes();
   
   return (
     <div className="space-y-6">
@@ -242,7 +242,7 @@ const PuntosVerdesView = () => {
           ) : error ? (
             <div className="text-center py-8">
               <p className="text-red-500">{error}</p>
-              <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
+              <Button variant="outline" onClick={loadPuntosVerdesData} className="mt-2">
                 Reintentar
               </Button>
             </div>

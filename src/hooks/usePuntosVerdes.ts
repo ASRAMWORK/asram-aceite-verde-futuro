@@ -15,14 +15,24 @@ export function usePuntosVerdes() {
       setLoading(true);
       setError(null);
       const puntosRef = collection(db, "puntosVerdes");
-      const puntosSnap = await getDocs(query(puntosRef, orderBy("distrito"), orderBy("barrio")));
+      // Modificamos la consulta para que solo ordene por un campo
+      // y luego ordenaremos el resto en memoria
+      const puntosSnap = await getDocs(query(puntosRef, orderBy("distrito")));
       
       const puntosData: PuntoVerde[] = [];
       puntosSnap.forEach((doc) => {
         puntosData.push({ id: doc.id, ...doc.data() } as PuntoVerde);
       });
       
-      setPuntosVerdes(puntosData);
+      // Ordenamos en memoria por distrito y luego por barrio
+      const puntosOrdenados = puntosData.sort((a, b) => {
+        if (a.distrito === b.distrito) {
+          return a.barrio.localeCompare(b.barrio);
+        }
+        return a.distrito.localeCompare(b.distrito);
+      });
+      
+      setPuntosVerdes(puntosOrdenados);
     } catch (err) {
       console.error("Error cargando puntos verdes:", err);
       setError("Error al cargar datos de Puntos Verdes");
