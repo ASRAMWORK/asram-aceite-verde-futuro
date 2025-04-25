@@ -553,9 +553,7 @@ const FacturacionView = () => {
                     <YAxis />
                     <Tooltip formatter={(value) => `${Number(value).toLocaleString()}€`} />
                     <Legend />
-                    <Bar dataKey="balance" name="Balance" fill={({ balance }) => (
-                      balance >= 0 ? "#3B82F6" : "#F59E0B"
-                    )} />
+                    <Bar dataKey="balance" name="Balance" fill="#3B82F6" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

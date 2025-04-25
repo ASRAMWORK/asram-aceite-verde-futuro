@@ -113,15 +113,15 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
       const nuevoUsuario: Omit<Usuario, 'id'> = {
         nombre: formData.nombre,
         apellidos: "",
-        email: formData.email,
+        email: formData.email || "",
         telefono: formData.telefono,
         direccion: formData.direccion,
         tipo: formData.tipo,
         distrito: formData.distrito,
         barrio: formData.barrio,
         activo: true,
-        numViviendas: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numViviendas) || 0 : undefined,
-        numContenedores: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numContenedores) || 0 : undefined,
+        numViviendas: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numViviendas?.toString() || "0") : undefined,
+        numContenedores: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numContenedores?.toString() || "0") : undefined,
         frecuenciaRecogida: formData.frecuenciaRecogida
       };
       
@@ -136,7 +136,7 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
           numContenedores: data.numContenedores || 0,
           telefono: data.telefono,
           litrosRecogidos: 0,
-          administradorId: undefined,
+          administradorId: null,
         };
         
         await addPuntoVerde(nuevoPuntoVerde);

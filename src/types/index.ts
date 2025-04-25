@@ -41,6 +41,8 @@ export type AlianzaVerde = {
   certificaciones?: number | string[];
   createdAt?: any;
   updatedAt?: any;
+  nombreCentro?: string;
+  numParticipantes?: number;
 };
 
 export type CalleApadrinada = {
@@ -60,6 +62,8 @@ export type CalleApadrinada = {
   descripcion?: string;
   createdAt?: any;
   updatedAt?: any;
+  nombreCalle?: string;
+  nombrePadrino?: string;
 };
 
 export type Recogida = {
@@ -103,7 +107,13 @@ export type ComunidadVecinos = {
     co2?: number;
     agua?: number;
     energia?: number;
+    co2Evitado?: number;
+    aguaAhorrada?: number;
+    energiaAhorrada?: number;
   };
+  numeroPorteria?: number;
+  nombreAdministracion?: string;
+  correoContacto?: string;
   createdAt?: any;
   updatedAt?: any;
 };
@@ -260,6 +270,15 @@ export type Usuario = {
   updatedAt?: any;
 };
 
+// Adding UsuarioProfile type that's being referenced
+export type UsuarioProfile = {
+  id: string;
+  email: string;
+  role: UserRole;
+  nombreAdministracion?: string;
+  [key: string]: any;
+};
+
 // Updated UserRole to include all roles used in the application
 export type UserRole = "admin" | "user" | "administrador" | "comunidad" | "restaurante" | "hotel" | "asociacion" | "escolar" | "usuario";
 
@@ -280,6 +299,7 @@ export type Ruta = {
   id: string;
   nombre: string;
   distrito: string;
+  barrio?: string;
   fecha?: any;
   hora?: string;
   recogedores?: string;

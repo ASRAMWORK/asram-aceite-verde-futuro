@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Card,
@@ -22,13 +21,20 @@ const AdministradorDashboardOverview: React.FC<AdministradorDashboardOverviewPro
 }) => {
   // Calculate total statistics
   const totalComunidades = comunidades.length;
-  const totalViviendas = comunidades.reduce((acc, com) => acc + com.totalViviendas, 0);
-  const totalLitrosRecogidos = comunidades.reduce((acc, com) => acc + com.litrosRecogidos, 0);
+  const totalViviendas = comunidades.reduce((total, c) => total + (c.totalViviendas || 0), 0);
+  const totalLitrosRecogidos = comunidades.reduce((total, c) => total + (c.litrosRecogidos || 0), 0);
   
+  const totalCO2 = comunidades.reduce((total, c) => 
+    total + (c.beneficiosMedioambientales?.co2 || 0), 0);
+  const totalAgua = comunidades.reduce((total, c) => 
+    total + (c.beneficiosMedioambientales?.agua || 0), 0);
+  const totalEnergia = comunidades.reduce((total, c) => 
+    total + (c.beneficiosMedioambientales?.energia || 0), 0);
+
   const totalBeneficios = {
-    co2Evitado: comunidades.reduce((acc, com) => acc + (com.beneficiosMedioambientales?.co2Evitado || 0), 0),
-    aguaAhorrada: comunidades.reduce((acc, com) => acc + (com.beneficiosMedioambientales?.aguaAhorrada || 0), 0),
-    energiaAhorrada: comunidades.reduce((acc, com) => acc + (com.beneficiosMedioambientales?.energiaAhorrada || 0), 0),
+    co2Evitado: totalCO2,
+    aguaAhorrada: totalAgua,
+    energiaAhorrada: totalEnergia,
   };
 
   // Prepare chart data

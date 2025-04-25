@@ -65,9 +65,9 @@ export function useComunidadesVecinos(administradorId?: string) {
   const addComunidad = async (data: Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       const beneficios = {
-        co2Evitado: data.litrosRecogidos * 2.3,
-        aguaAhorrada: data.litrosRecogidos * 1000,
-        energiaAhorrada: data.litrosRecogidos * 1.5,
+        co2: data.litrosRecogidos ? data.litrosRecogidos * 2.3 : 0,
+        agua: data.litrosRecogidos ? data.litrosRecogidos * 1000 : 0,
+        energia: data.litrosRecogidos ? data.litrosRecogidos * 1.5 : 0
       };
       
       const comunidadData = {
@@ -94,9 +94,9 @@ export function useComunidadesVecinos(administradorId?: string) {
       
       if (data.litrosRecogidos) {
         const beneficios = {
-          co2Evitado: data.litrosRecogidos * 2.3,
-          aguaAhorrada: data.litrosRecogidos * 1000,
-          energiaAhorrada: data.litrosRecogidos * 1.5,
+          co2: data.litrosRecogidos * 2.3,
+          agua: data.litrosRecogidos * 1000,
+          energia: data.litrosRecogidos * 1.5,
         };
         
         updateData.beneficiosMedioambientales = beneficios;

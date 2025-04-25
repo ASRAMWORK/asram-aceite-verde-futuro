@@ -40,16 +40,15 @@ const GestionarComunidad: React.FC = () => {
     litrosRecogidos: 0,
     administradorId: profile?.id || "",
     beneficiosMedioambientales: {
-      co2Evitado: 0,
-      aguaAhorrada: 0,
-      energiaAhorrada: 0,
+      co2: 0,
+      agua: 0,
+      energia: 0,
     },
   });
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [comunidadId, setComunidadId] = useState<string | null>(null);
 
-  // Get distritos and barrios
   const distritos = [
     "Centro",
     "Arganzuela",
@@ -79,7 +78,6 @@ const GestionarComunidad: React.FC = () => {
     "Arganzuela": ["Imperial", "Acacias", "Chopera", "Legazpi", "Delicias", "Palos de Moguer", "Atocha"],
   };
 
-  // Check URL parameters for edit mode
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
@@ -128,7 +126,6 @@ const GestionarComunidad: React.FC = () => {
         await addComunidad(formData as Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>);
         toast.success("Comunidad añadida correctamente");
         
-        // Reset form after successful submission
         setFormData({
           ...formData,
           nombre: "",
@@ -168,13 +165,12 @@ const GestionarComunidad: React.FC = () => {
       litrosRecogidos: 0,
       administradorId: profile?.id || "",
       beneficiosMedioambientales: {
-        co2Evitado: 0,
-        aguaAhorrada: 0,
-        energiaAhorrada: 0,
+        co2: 0,
+        agua: 0,
+        energia: 0,
       },
     });
     
-    // Remove id from URL
     window.history.replaceState(null, "", "/administrador/dashboard?tab=gestionar");
   };
 
