@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent,
@@ -43,26 +43,39 @@ import {
   query, 
   getDocs, 
   where, 
-  orderBy 
+  orderBy,
+  doc,
+  updateDoc 
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { PuntoVerde } from "@/types";
 import { distritosConBarrios } from "@/data/madridDistritos";
+import { usePuntosVerdes } from "@/hooks/usePuntosVerdes";
 
 const PuntosVerdes = () => {
+  const { 
+    puntosVerdes, 
+    loading, 
+    error, 
+    loadPuntosVerdesData,
+    addPuntoVerde,
+    updatePuntoVerde 
+  } = usePuntosVerdes();
+  
   const [isAddingPoint, setIsAddingPoint] = useState(false);
-  const [loadingPoints, setLoadingPoints] = useState(false);
-  const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
+  const [isEditingPoint, setIsEditingPoint] = useState(false);
   const [selectedDistrito, setSelectedDistrito] = useState("");
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   
   const [newPoint, setNewPoint] = useState({
+    id: "",
     distrito: "",
     barrio: "",
     direccion: "",
     numViviendas: 0,
     numContenedores: 0,
     telefono: "",
+    litrosRecogidos: 0
   });
   
   const handleDistritoChange = (value: string) => {
@@ -80,8 +93,8 @@ const PuntosVerdes = () => {
     const { name, value } = e.target;
     setNewPoint({
       ...newPoint,
-      [name]: name === "numViviendas" || name === "numContenedores" 
-        ? parseInt(value) 
+      [name]: name === "numViviendas" || name === "numContenedores" || name === "litrosRecogidos"
+        ? parseInt(value) || 0 
         : value,
     });
   };
@@ -93,32 +106,19 @@ const PuntosVerdes = () => {
     });
   };
   
-  const loadPuntosVerdes = async () => {
-    setLoadingPoints(true);
-    try {
-      const q = query(
-        collection(db, "puntosVerdes"),
-        orderBy("distrito"),
-        orderBy("barrio")
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const points: PuntoVerde[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        points.push({
-          id: doc.id,
-          ...doc.data()
-        } as PuntoVerde);
-      });
-      
-      setPuntosVerdes(points);
-    } catch (error) {
-      console.error("Error loading puntos verdes:", error);
-      toast.error("Error al cargar los puntos verdes");
-    } finally {
-      setLoadingPoints(false);
-    }
+  const resetForm = () => {
+    setNewPoint({
+      id: "",
+      distrito: "",
+      barrio: "",
+      direccion: "",
+      numViviendas: 0,
+      numContenedores: 0,
+      telefono: "",
+      litrosRecogidos: 0
+    });
+    setSelectedDistrito("");
+    setFilteredBarrios([]);
   };
   
   const handleAddPoint = async () => {
@@ -128,34 +128,84 @@ const PuntosVerdes = () => {
         return;
       }
       
-      await addDoc(collection(db, "puntosVerdes"), {
-        ...newPoint,
-        litrosRecogidos: 0,
-        createdAt: serverTimestamp(),
+      const success = await addPuntoVerde({
+        distrito: newPoint.distrito,
+        barrio: newPoint.barrio,
+        direccion: newPoint.direccion,
+        numViviendas: newPoint.numViviendas,
+        numContenedores: newPoint.numContenedores,
+        telefono: newPoint.telefono,
+        litrosRecogidos: 0
       });
       
-      toast.success("Punto verde añadido correctamente");
-      setIsAddingPoint(false);
-      
-      setNewPoint({
-        distrito: "",
-        barrio: "",
-        direccion: "",
-        numViviendas: 0,
-        numContenedores: 0,
-        telefono: "",
-      });
-      
-      loadPuntosVerdes();
+      if (success) {
+        setIsAddingPoint(false);
+        resetForm();
+      }
     } catch (error) {
       console.error("Error adding punto verde:", error);
       toast.error("Error al añadir el punto verde");
     }
   };
+
+  const handleEditPoint = (punto: PuntoVerde) => {
+    const distrito = distritosConBarrios.find(d => d.distrito === punto.distrito);
+    setFilteredBarrios(distrito?.barrios || []);
+    setSelectedDistrito(punto.distrito);
+    
+    setNewPoint({
+      id: punto.id,
+      distrito: punto.distrito,
+      barrio: punto.barrio,
+      direccion: punto.direccion,
+      numViviendas: punto.numViviendas,
+      numContenedores: punto.numContenedores,
+      telefono: punto.telefono,
+      litrosRecogidos: punto.litrosRecogidos
+    });
+    
+    setIsEditingPoint(true);
+  };
   
-  React.useEffect(() => {
-    loadPuntosVerdes();
+  const handleUpdatePoint = async () => {
+    try {
+      if (!newPoint.id || !newPoint.distrito || !newPoint.barrio || !newPoint.direccion) {
+        toast.error("Por favor completa todos los campos obligatorios");
+        return;
+      }
+      
+      const success = await updatePuntoVerde(newPoint.id, {
+        distrito: newPoint.distrito,
+        barrio: newPoint.barrio,
+        direccion: newPoint.direccion,
+        numViviendas: newPoint.numViviendas,
+        numContenedores: newPoint.numContenedores,
+        telefono: newPoint.telefono,
+        litrosRecogidos: newPoint.litrosRecogidos
+      });
+      
+      if (success) {
+        setIsEditingPoint(false);
+        resetForm();
+      }
+    } catch (error) {
+      console.error("Error updating punto verde:", error);
+      toast.error("Error al actualizar el punto verde");
+    }
+  };
+  
+  useEffect(() => {
+    loadPuntosVerdesData();
   }, []);
+  
+  // Group puntos verdes by distrito
+  const puntosAgrupados: { [distrito: string]: PuntoVerde[] } = {};
+  puntosVerdes.forEach(punto => {
+    if (!puntosAgrupados[punto.distrito]) {
+      puntosAgrupados[punto.distrito] = [];
+    }
+    puntosAgrupados[punto.distrito].push(punto);
+  });
   
   return (
     <div className="space-y-6">
@@ -259,11 +309,24 @@ const PuntosVerdes = () => {
                   onChange={handleInputChange}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="litrosRecogidos">Litros recogidos</Label>
+                <Input
+                  id="litrosRecogidos"
+                  name="litrosRecogidos"
+                  type="number"
+                  value={newPoint.litrosRecogidos}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button
                 variant="outline"
-                onClick={() => setIsAddingPoint(false)}
+                onClick={() => {
+                  setIsAddingPoint(false);
+                  resetForm();
+                }}
               >
                 Cancelar
               </Button>
@@ -272,6 +335,126 @@ const PuntosVerdes = () => {
                 onClick={handleAddPoint}
               >
                 Guardar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditingPoint} onOpenChange={setIsEditingPoint}>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle>Editar punto verde</DialogTitle>
+              <DialogDescription>
+                Modifica la información del punto de recogida de aceite.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="distrito">Distrito</Label>
+                  <Select
+                    value={newPoint.distrito}
+                    onValueChange={(value) => handleDistritoChange(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona distrito" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {distritosConBarrios.map((d) => (
+                        <SelectItem key={d.distrito} value={d.distrito}>
+                          {d.distrito}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="barrio">Barrio</Label>
+                  <Select
+                    value={newPoint.barrio}
+                    onValueChange={(value) => handleSelectChange("barrio", value)}
+                    disabled={!newPoint.distrito}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona barrio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredBarrios.map((barrio) => (
+                        <SelectItem key={barrio} value={barrio}>
+                          {barrio}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="direccion">Dirección</Label>
+                <Input
+                  id="direccion"
+                  name="direccion"
+                  value={newPoint.direccion}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="numViviendas">Número de viviendas</Label>
+                  <Input
+                    id="numViviendas"
+                    name="numViviendas"
+                    type="number"
+                    value={newPoint.numViviendas}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="numContenedores">Número de contenedores</Label>
+                  <Input
+                    id="numContenedores"
+                    name="numContenedores"
+                    type="number"
+                    value={newPoint.numContenedores}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="telefono">Teléfono de contacto</Label>
+                <Input
+                  id="telefono"
+                  name="telefono"
+                  value={newPoint.telefono}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="litrosRecogidos">Litros recogidos</Label>
+                <Input
+                  id="litrosRecogidos"
+                  name="litrosRecogidos"
+                  type="number"
+                  value={newPoint.litrosRecogidos}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditingPoint(false);
+                  resetForm();
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-asram hover:bg-asram-700"
+                onClick={handleUpdatePoint}
+              >
+                Guardar cambios
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -313,66 +496,63 @@ const PuntosVerdes = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {loadingPoints ? (
+          {loading ? (
             <div className="flex justify-center items-center h-32">
               <p className="text-muted-foreground">Cargando puntos verdes...</p>
             </div>
+          ) : error ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="text-center">
+                <p className="text-red-500 mb-2">{error}</p>
+                <Button onClick={loadPuntosVerdesData}>Reintentar</Button>
+              </div>
+            </div>
+          ) : Object.keys(puntosAgrupados).length === 0 ? (
+            <div className="flex justify-center items-center h-32">
+              <p className="text-muted-foreground">No hay puntos verdes registrados</p>
+            </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Distrito</TableHead>
-                  <TableHead>Barrio</TableHead>
-                  <TableHead>Dirección</TableHead>
-                  <TableHead className="text-right">Viviendas</TableHead>
-                  <TableHead className="text-right">Contenedores</TableHead>
-                  <TableHead className="text-right">Litros recogidos</TableHead>
-                  <TableHead>Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {puntosVerdes.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center">
-                      No hay puntos verdes registrados
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  puntosVerdes.map((punto) => (
-                    <TableRow key={punto.id}>
-                      <TableCell>{punto.distrito}</TableCell>
-                      <TableCell>{punto.barrio}</TableCell>
-                      <TableCell>{punto.direccion}</TableCell>
-                      <TableCell className="text-right">{punto.numViviendas}</TableCell>
-                      <TableCell className="text-right">{punto.numContenedores}</TableCell>
-                      <TableCell className="text-right">{punto.litrosRecogidos}L</TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">
-                          Ver
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <div className="space-y-6">
+              {Object.entries(puntosAgrupados).sort(([distritoA], [distritoB]) => 
+                distritoA.localeCompare(distritoB)
+              ).map(([distrito, puntos]) => (
+                <div key={distrito} className="space-y-2">
+                  <h3 className="font-semibold text-lg bg-muted px-4 py-2 rounded-md">
+                    {distrito}
+                  </h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Barrio</TableHead>
+                        <TableHead>Dirección</TableHead>
+                        <TableHead className="text-right">Viviendas</TableHead>
+                        <TableHead className="text-right">Contenedores</TableHead>
+                        <TableHead className="text-right">Litros recogidos</TableHead>
+                        <TableHead>Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {puntos.sort((a, b) => a.barrio.localeCompare(b.barrio)).map((punto) => (
+                        <TableRow key={punto.id}>
+                          <TableCell>{punto.barrio}</TableCell>
+                          <TableCell>{punto.direccion}</TableCell>
+                          <TableCell className="text-right">{punto.numViviendas}</TableCell>
+                          <TableCell className="text-right">{punto.numContenedores}</TableCell>
+                          <TableCell className="text-right">{punto.litrosRecogidos}L</TableCell>
+                          <TableCell>
+                            <Button variant="outline" size="sm" onClick={() => handleEditPoint(punto)}>
+                              Editar
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
-        <CardFooter className="border-t px-6 py-4">
-          <div className="flex items-center justify-between w-full">
-            <p className="text-xs text-muted-foreground">
-              Mostrando {puntosVerdes.length} puntos verdes
-            </p>
-            <div className="space-x-2">
-              <Button variant="outline" size="sm">
-                Anterior
-              </Button>
-              <Button variant="outline" size="sm">
-                Siguiente
-              </Button>
-            </div>
-          </div>
-        </CardFooter>
       </Card>
     </div>
   );

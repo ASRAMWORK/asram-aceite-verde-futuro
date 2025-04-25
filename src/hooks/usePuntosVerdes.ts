@@ -13,6 +13,7 @@ export function usePuntosVerdes() {
   const loadPuntosVerdesData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const puntosRef = collection(db, "puntosVerdes");
       const puntosSnap = await getDocs(query(puntosRef, orderBy("distrito"), orderBy("barrio")));
       
@@ -34,7 +35,7 @@ export function usePuntosVerdes() {
     try {
       const puntoData = {
         ...nuevoPunto,
-        litrosRecogidos: 0,
+        litrosRecogidos: nuevoPunto.litrosRecogidos || 0,
         createdAt: serverTimestamp(),
       };
       
