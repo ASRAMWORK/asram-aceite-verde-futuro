@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { User, Phone, Mail, Calendar, Briefcase, MapPin, Clock, Truck, Users, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";

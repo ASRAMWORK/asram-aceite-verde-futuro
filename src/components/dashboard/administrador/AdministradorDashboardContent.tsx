@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building, Activity, Home, BookOpen, School, MapPin, User, Plus } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -24,9 +24,33 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   const { profile } = useUserProfile();
   const { comunidades, loading } = useComunidadesVecinos(profile?.id);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentTab(activeTab);
   }, [activeTab]);
+
+  // Component to render based on the active tab
+  const renderTabContent = () => {
+    switch (currentTab) {
+      case "home":
+        return <HomeView />;
+      case "dashboard":
+        return <AdministradorDashboardOverview comunidades={comunidades} loading={loading} />;
+      case "comunidades":
+        return <MisComunidades />;
+      case "gestionar":
+        return <GestionarComunidad />;
+      case "recursos":
+        return <RecursosView />;
+      case "alianza-verde":
+        return <AlianzaVerdeView />;
+      case "apadrina":
+        return <ApadrinaCalleView />;
+      case "puntos-verdes":
+        return <PuntosVerdesView />;
+      default:
+        return <HomeView />;
+    }
+  };
 
   return (
     <div className="space-y-6">

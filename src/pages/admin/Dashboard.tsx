@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -94,6 +95,30 @@ const AdminDashboardPage = () => {
       </div>
     );
   }
+
+  // Render the correct content based on the active tab
+  const renderContent = () => {
+    switch (activeTab) {
+      case "panel-control":
+        return <AdminDashboard />;
+      case "gestion-clientes":
+        return <GestionClientes />;
+      case "gestion-recogidas":
+        return <GestionRecogidas />;
+      case "rutas-distritos":
+        return <RutasDistritos />;
+      case "trabajadores":
+        return <TrabajadoresView />;
+      case "voluntarios":
+        return <VoluntariosView />;
+      case "simulador":
+        return <SimuladorImpacto />;
+      case "facturacion":
+        return <FacturacionView />;
+      default:
+        return <AdminDashboard />;
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -224,61 +249,7 @@ const AdminDashboardPage = () => {
         </header>
         
         <main className="container py-8 px-4">
-          {activeTab === "panel-control" && (
-            <Tabs value={activeSubTab} onValueChange={setActiveSubTab}>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-3xl font-bold tracking-tight">Panel de Control</h2>
-              </div>
-              
-              <TabsList>
-                <TabsTrigger value="vista-general">Vista General</TabsTrigger>
-                <TabsTrigger value="puntos-verdes">Puntos Verdes</TabsTrigger>
-                <TabsTrigger value="alianza-escolar">Alianza Escolar</TabsTrigger>
-                <TabsTrigger value="calles-apadrinadas">Calles Apadrinadas</TabsTrigger>
-                <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="vista-general">
-                <AdminDashboard />
-              </TabsContent>
-              
-              <TabsContent value="puntos-verdes">
-                <PuntosVerdes />
-              </TabsContent>
-              
-              <TabsContent value="alianza-escolar">
-                <AlianzaEscolar />
-              </TabsContent>
-              
-              <TabsContent value="calles-apadrinadas">
-                <CallesApadrinadas />
-              </TabsContent>
-              
-              <TabsContent value="estadisticas">
-                <div className="p-8 text-center">
-                  <h3 className="text-2xl font-bold mb-4">Estadísticas y reportes</h3>
-                  <p className="text-muted-foreground">
-                    Esta sección está actualmente en desarrollo. Próximamente podrás visualizar estadísticas
-                    detalladas y generar reportes avanzados para monitorizar el rendimiento de la organización.
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
-          )}
-          
-          {activeTab === "gestion-clientes" && <GestionClientes />}
-          
-          {activeTab === "gestion-recogidas" && <GestionRecogidas />}
-          
-          {activeTab === "rutas-distritos" && <RutasDistritos />}
-          
-          {activeTab === "trabajadores" && <TrabajadoresView />}
-          
-          {activeTab === "voluntarios" && <VoluntariosView />}
-          
-          {activeTab === "simulador" && <SimuladorImpacto />}
-          
-          {activeTab === "facturacion" && <FacturacionView />}
+          {renderContent()}
         </main>
       </div>
     </div>
