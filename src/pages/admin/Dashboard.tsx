@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -20,6 +21,7 @@ import RutasDistritos from "@/components/dashboard/admin/RutasDistritos";
 import VoluntariosView from "@/components/dashboard/admin/voluntarios/VoluntariosView";
 import SimuladorImpacto from "@/components/dashboard/admin/simulador/SimuladorImpacto";
 import FacturacionView from "@/components/dashboard/admin/facturacion/FacturacionView";
+import TrabajadoresView from "@/components/dashboard/admin/trabajadores/TrabajadoresView";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -32,7 +34,8 @@ import {
   GraduationCap, 
   User, 
   Calculator, 
-  Receipt
+  Receipt,
+  UserHard
 } from "lucide-react";
 
 const AdminDashboardPage = () => {
@@ -143,6 +146,17 @@ const AdminDashboardPage = () => {
           >
             <MapPin className="mr-2 h-4 w-4" />
             Rutas por Distritos
+          </Button>
+          
+          <Button
+            variant={activeTab === "trabajadores" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "trabajadores" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("trabajadores")}
+          >
+            <UserHard className="mr-2 h-4 w-4" />
+            Trabajadores
           </Button>
           
           <Button
@@ -258,6 +272,8 @@ const AdminDashboardPage = () => {
           {activeTab === "gestion-recogidas" && <GestionRecogidas />}
           
           {activeTab === "rutas-distritos" && <RutasDistritos />}
+          
+          {activeTab === "trabajadores" && <TrabajadoresView />}
           
           {activeTab === "voluntarios" && <VoluntariosView />}
           

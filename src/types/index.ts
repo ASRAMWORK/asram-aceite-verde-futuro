@@ -149,3 +149,84 @@ export type Gasto = {
   notas?: string;
   createdAt?: any;
 };
+
+// New types for workers module
+export type TipoContrato = "indefinido" | "temporal" | "practicas" | "formacion" | "obra" | "otro";
+export type TipoJornada = "completa" | "parcial";
+export type RolTrabajador = "recolector" | "conductor" | "supervisor" | "analista" | "administrador" | "gestor";
+
+export type Trabajador = {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+  fechaNacimiento: any;
+  email: string;
+  telefono: string;
+  direccion: string;
+  foto?: string;
+  fechaAlta: any;
+  tipoContrato: TipoContrato;
+  tipoJornada: TipoJornada;
+  roles: RolTrabajador[];
+  vehiculoAsignado?: string;
+  rutasAsignadas: string[];
+  activo: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+};
+
+export type Vehiculo = {
+  id: string;
+  matricula: string;
+  modelo: string;
+  tipo: string;
+  capacidad: number;
+  estado: "disponible" | "en_ruta" | "mantenimiento" | "inactivo";
+  ultimoMantenimiento?: any;
+  conductorAsignado?: string;
+  createdAt?: any;
+  updatedAt?: any;
+};
+
+export type Turno = {
+  id: string;
+  trabajadorId: string;
+  trabajadorNombre: string;
+  dia: string; // "lunes", "martes", etc.
+  horaInicio: string;
+  horaFin: string;
+  rutaId?: string;
+  vehiculoId?: string;
+  createdAt?: any;
+};
+
+export type Incidencia = {
+  id: string;
+  tipo: "tecnica" | "cliente" | "retraso" | "accidente" | "otra";
+  descripcion: string;
+  trabajadorId: string;
+  trabajadorNombre: string;
+  fecha: any;
+  estado: "abierta" | "en_proceso" | "resuelta";
+  prioridad: "baja" | "media" | "alta";
+  createdAt?: any;
+  resueltaEn?: any;
+};
+
+export type Usuario = {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  direccion?: string;
+  tipo: string;
+  distrito?: string;
+  barrio?: string;
+  activo: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+};
+
+export type UserRole = "admin" | "user" | "administrador";
