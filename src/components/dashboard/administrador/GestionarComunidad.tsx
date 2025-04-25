@@ -12,6 +12,31 @@ import { useComunidadForm } from '@/hooks/useComunidadForm';
 const GestionarComunidad = () => {
   const { formData, isLoading, handleChange, handleSubmit } = useComunidadForm();
 
+  // Extract only the needed properties for each form component
+  const basicInfoProps = {
+    nombre: formData.nombre || '',
+    cif: formData.cif || '',
+    direccion: formData.direccion || '',
+    codigoPostal: formData.codigoPostal || ''
+  };
+
+  const locationProps = {
+    ciudad: formData.ciudad || '',
+    distrito: formData.distrito || '',
+    barrio: formData.barrio || '',
+    numeroPorteria: formData.numeroPorteria || ''
+  };
+
+  const statsProps = {
+    numViviendas: formData.numViviendas || 0,
+    totalViviendas: formData.totalViviendas || 0
+  };
+
+  const contactProps = {
+    nombreAdministracion: formData.nombreAdministracion || '',
+    correoContacto: formData.correoContacto || ''
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Gestionar Comunidad</h2>
@@ -19,10 +44,22 @@ const GestionarComunidad = () => {
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <ComunidadBasicInfoForm formData={formData} onChange={handleChange} />
-            <ComunidadLocationForm formData={formData} onChange={handleChange} />
-            <ComunidadStatsForm formData={formData} onChange={handleChange} />
-            <ComunidadContactForm formData={formData} onChange={handleChange} />
+            <ComunidadBasicInfoForm 
+              formData={basicInfoProps} 
+              onChange={handleChange} 
+            />
+            <ComunidadLocationForm 
+              formData={locationProps} 
+              onChange={handleChange} 
+            />
+            <ComunidadStatsForm 
+              formData={statsProps} 
+              onChange={handleChange} 
+            />
+            <ComunidadContactForm 
+              formData={contactProps} 
+              onChange={handleChange} 
+            />
             
             <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? (
