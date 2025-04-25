@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, DocumentData } from 'firebase/firestore';
@@ -16,7 +15,6 @@ export function useComunidadesVecinos(administradorId?: string) {
       const comunidadesRef = collection(db, "comunidadesVecinos");
       let comunidadesQuery;
       
-      // If administradorId is provided, only get communities for that administrator
       if (administradorId) {
         comunidadesQuery = query(
           comunidadesRef, 
@@ -31,11 +29,27 @@ export function useComunidadesVecinos(administradorId?: string) {
       
       const comunidadesData: ComunidadVecinos[] = [];
       comunidadesSnap.forEach((doc) => {
-        const docData = doc.data() as DocumentData;
-        comunidadesData.push({ 
-          id: doc.id, 
-          ...docData 
-        } as ComunidadVecinos);
+        const data = doc.data() as DocumentData;
+        const comunidad: ComunidadVecinos = {
+          id: doc.id,
+          nombre: data.nombre,
+          direccion: data.direccion,
+          cif: data.cif,
+          codigoPostal: data.codigoPostal,
+          ciudad: data.ciudad,
+          distrito: data.distrito,
+          barrio: data.barrio,
+          totalViviendas: data.totalViviendas,
+          numeroPorteria: data.numeroPorteria,
+          nombreAdministracion: data.nombreAdministracion,
+          correoContacto: data.correoContacto,
+          administradorId: data.administradorId,
+          litrosRecogidos: data.litrosRecogidos,
+          beneficiosMedioambientales: data.beneficiosMedioambientales,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
+        };
+        comunidadesData.push(comunidad);
       });
       
       setComunidades(comunidadesData);
@@ -46,14 +60,13 @@ export function useComunidadesVecinos(administradorId?: string) {
       setLoading(false);
     }
   };
-  
+
   const addComunidad = async (data: Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      // Calculate environmental benefits based on liters collected (sample calculation)
       const beneficios = {
-        co2Evitado: data.litrosRecogidos * 2.3, // kg of CO2 per liter
-        aguaAhorrada: data.litrosRecogidos * 1000, // liters of water per liter of oil
-        energiaAhorrada: data.litrosRecogidos * 1.5, // kWh per liter of oil
+        co2Evitado: data.litrosRecogidos * 2.3,
+        aguaAhorrada: data.litrosRecogidos * 1000,
+        energiaAhorrada: data.litrosRecogidos * 1.5,
       };
       
       const comunidadData = {
@@ -76,7 +89,6 @@ export function useComunidadesVecinos(administradorId?: string) {
 
   const updateComunidad = async (id: string, data: Partial<ComunidadVecinos>) => {
     try {
-      // If litrosRecogidos is updated, recalculate environmental benefits
       let updateData = { ...data, updatedAt: serverTimestamp() };
       
       if (data.litrosRecogidos) {
