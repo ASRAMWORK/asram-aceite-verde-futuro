@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -916,4 +917,98 @@ const RutasDistritos = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="semanal">Semanal</SelectItem>
-                  <SelectItem value="mensual
+                  <SelectItem value="mensual">Mensual</SelectItem>
+                  <SelectItem value="anual">Anual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditingRuta(false);
+                resetForm();
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Actualizar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Completar Ruta</DialogTitle>
+            <DialogDescription>
+              Registra las cantidades recogidas para cada cliente antes de finalizar la ruta
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedRuta && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-medium text-sm text-muted-foreground">Ruta:</h3>
+                  <p className="font-medium">{selectedRuta.nombre}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm text-muted-foreground">Distrito:</h3>
+                  <p>{selectedRuta.distrito}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm text-muted-foreground">Fecha:</h3>
+                  <p>{selectedRuta.fecha ? format(new Date(selectedRuta.fecha), "dd/MM/yyyy") : "No programada"}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm text-muted-foreground">Personal asignado:</h3>
+                  <p>{selectedRuta.recogedores || "No asignado"}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-medium mb-2">Clientes en la ruta</h3>
+                
+                {selectedRuta.clientes && selectedRuta.clientes.length > 0 ? (
+                  <ClientesRutaList
+                    clientes={selectedRuta.clientes}
+                    onUpdateLitros={(clienteId, litros) => 
+                      handleUpdateClienteLitros(selectedRuta.id, clienteId, litros)
+                    }
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">No hay clientes asignados a esta ruta</p>
+                )}
+                
+                <div className="border-t pt-4 mt-6">
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-1">
+                      <h3 className="font-medium">Total litros recogidos:</h3>
+                      <p className="text-2xl font-bold">{litrosTotales}L</p>
+                    </div>
+                    <Button
+                      onClick={handleCompleteRuta}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <Check className="mr-2 h-5 w-5" />
+                      Finalizar Ruta
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default RutasDistritos;
