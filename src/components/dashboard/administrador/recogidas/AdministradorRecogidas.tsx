@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RecogidasList from './RecogidasList';
 import RecogidaForm from './RecogidaForm';
 import RecogidasChart from './RecogidasChart';
-import { StatsCard } from '../stats/StatsCard';
+import { StatsCard } from '@/components/dashboard/admin/stats/StatsCard';
 import { useRecogidas } from '@/hooks/useRecogidas';
 
 const AdministradorRecogidas = () => {
@@ -50,6 +50,13 @@ const AdministradorRecogidas = () => {
       icon: TrendingUp,
     },
   ];
+
+  const handleCompleteRecogida = async (id: string) => {
+    // Default to 0 liters but in a real implementation
+    // you would prompt for the amount or have it in the form
+    const litrosRecogidos = 10; 
+    await completeRecogida(id, litrosRecogidos);
+  };
 
   return (
     <div className="space-y-6">
@@ -95,7 +102,7 @@ const AdministradorRecogidas = () => {
           <CardDescription>Litros de aceite recogidos por mes</CardDescription>
         </CardHeader>
         <CardContent>
-          <RecogidasChart data={chartData} />
+          <RecogidasChart />
         </CardContent>
       </Card>
 
@@ -110,7 +117,7 @@ const AdministradorRecogidas = () => {
             <CardContent className="pt-6">
               <RecogidasList 
                 recogidas={recogidas.filter(r => !r.completada)}
-                onCompleteRecogida={completeRecogida}
+                onCompleteRecogida={handleCompleteRecogida}
               />
             </CardContent>
           </Card>

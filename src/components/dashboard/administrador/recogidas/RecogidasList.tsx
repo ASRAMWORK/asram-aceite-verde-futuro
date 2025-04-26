@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Table,
@@ -121,7 +122,7 @@ const RecogidasList: React.FC<RecogidasListProps> = ({ recogidas, onCompleteReco
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    {recogida.estado !== 'completada' && (
+                    {!recogida.completada && (
                       <Button 
                         variant="outline" 
                         size="sm"
