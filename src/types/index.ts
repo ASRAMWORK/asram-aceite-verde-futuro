@@ -417,3 +417,18 @@ export interface Reunion {
   telefono?: string;
   email?: string;
 }
+
+export interface TrabajadorPago {
+  id: string;
+  trabajadorId: string;
+  cantidad: number;
+  fecha: Date;
+  concepto: string;
+  tipo: 'salario' | 'bono' | 'extra' | 'otro';
+  estado: 'pendiente' | 'pagado' | 'cancelado';
+  metodoPago?: string;
+  comprobante?: string;
+  notas?: string;
+  createdAt: any;
+  updatedAt?: any;
+}
