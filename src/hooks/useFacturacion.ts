@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -34,6 +35,7 @@ export function useFacturacion() {
           numFactura: data.numFactura || '',
           notas: data.notas || '',
           createdAt: data.createdAt,
+          categoria: data.categoria || data.tipo || '', // Use tipo as fallback
         });
       });
       
@@ -57,6 +59,7 @@ export function useFacturacion() {
           numFactura: data.numFactura || '',
           notas: data.notas || '',
           createdAt: data.createdAt,
+          categoria: data.categoria || data.tipo || '', // Use tipo as fallback
         });
       });
       
@@ -72,10 +75,14 @@ export function useFacturacion() {
 
   const addIngreso = async (data: Omit<Ingreso, 'id'>) => {
     try {
-      await addDoc(collection(db, "ingresos"), {
+      // Make sure categoria is set, fallback to tipo if not provided
+      const ingresoData = {
         ...data,
+        categoria: data.categoria || data.tipo || '',
         createdAt: serverTimestamp()
-      });
+      };
+      
+      await addDoc(collection(db, "ingresos"), ingresoData);
       toast.success("Ingreso registrado correctamente");
       await loadFacturacionData();
       return true;
@@ -117,10 +124,14 @@ export function useFacturacion() {
 
   const addGasto = async (data: Omit<Gasto, 'id'>) => {
     try {
-      await addDoc(collection(db, "gastos"), {
+      // Make sure categoria is set, fallback to tipo if not provided
+      const gastoData = {
         ...data,
+        categoria: data.categoria || data.tipo || '',
         createdAt: serverTimestamp()
-      });
+      };
+      
+      await addDoc(collection(db, "gastos"), gastoData);
       toast.success("Gasto registrado correctamente");
       await loadFacturacionData();
       return true;

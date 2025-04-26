@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -33,6 +34,8 @@ export function useVoluntarios() {
           habilidades: data.habilidades || [],
           experiencia: data.experiencia || '',
           activo: data.activo ?? true,
+          fechaAlta: data.fechaAlta || new Date(),
+          estado: data.estado || 'activo',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
         });
@@ -49,10 +52,15 @@ export function useVoluntarios() {
 
   const addVoluntario = async (data: Omit<Voluntario, "id">) => {
     try {
-      const docRef = await addDoc(collection(db, "voluntarios"), {
+      // Ensure required fields are set
+      const voluntarioData = {
         ...data,
+        fechaAlta: data.fechaAlta || new Date(),
+        estado: data.estado || 'activo',
         createdAt: serverTimestamp()
-      });
+      };
+      
+      const docRef = await addDoc(collection(db, "voluntarios"), voluntarioData);
       toast.success("Voluntario añadido correctamente");
       await loadVoluntariosData();
       return true;

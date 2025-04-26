@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, where, serverTimestamp } from 'firebase/firestore';
@@ -25,7 +26,8 @@ export function useVehiculos() {
           tipo: data.tipo || '',
           capacidad: data.capacidad || 0,
           estado: data.estado || 'disponible',
-          ultimoMantenimiento: data.ultimoMantenimiento,
+          ultimaRevision: data.ultimaRevision,
+          proximaRevision: data.proximaRevision,
           conductorAsignado: data.conductorAsignado,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
