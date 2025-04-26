@@ -46,6 +46,10 @@ import { useRecogidas } from "@/hooks/useRecogidas";
 import { Building, GraduationCap, MapPinned, Droplet, Truck, Users, TrendingUp, Calendar, Activity, MapPin } from "lucide-react";
 import RecogidaCalendar from "@/components/calendario/RecogidaCalendar";
 import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView";
+import { useFacturacion } from '@/hooks/useFacturacion';
+import { useTrabajadores } from '@/hooks/useTrabajadores';
+import { useVoluntarios } from '@/hooks/useVoluntarios';
+import { useInstalaciones } from '@/hooks/useInstalaciones';
 
 const AdminDashboard = () => {
   const { usuarios, loading: loadingUsuarios } = useUsuarios();
@@ -60,6 +64,14 @@ const AdminDashboard = () => {
   const [distritosData, setDistritosData] = useState<any[]>([]);
   const [tipoClienteData, setTipoClienteData] = useState<any[]>([]);
   
+  const { trabajadores } = useTrabajadores();
+  const { voluntarios } = useVoluntarios();
+  const { instalaciones } = useInstalaciones();
+  const { ingresos, gastos } = useFacturacion();
+  
+  const totalViviendas = instalaciones.reduce((acc, inst) => acc + inst.numeroViviendas, 0);
+  const totalContenedores = instalaciones.reduce((acc, inst) => acc + inst.contenedoresInstalados, 0);
+
   useEffect(() => {
     if (!loadingPuntos && !loadingRecogidas) {
       const monthlyData = processMonthlyLitros(recogidas);
@@ -304,6 +316,56 @@ const AdminDashboard = () => {
                 return date > oneMonthAgo;
               }).length} nuevas este mes
             </p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gradient-to-br from-white to-blue-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              Trabajadores Activos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {trabajadores.filter(t => t.activo).length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-white to-green-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              Voluntarios Registrados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {voluntarios.filter(v => v.activo).length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-white to-purple-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Viviendas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalViviendas}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-white to-amber-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              Contenedores Instalados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalContenedores}</div>
           </CardContent>
         </Card>
       </div>

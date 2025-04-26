@@ -22,10 +22,10 @@ const clienteSchema = z.object({
   telefono: z.string().min(9, 'Teléfono no válido'),
   email: z.string().email('Email no válido'),
   direccion: z.string().min(5, 'La dirección es obligatoria'),
-  distrito: z.string().optional(),
-  barrio: z.string().optional(),
-  codigoPostal: z.string().optional(),
-  frecuenciaRecogida: z.string().optional(),
+  distrito: z.string().min(1, 'El distrito es obligatorio'),
+  barrio: z.string().min(1, 'El barrio es obligatorio'),
+  codigoPostal: z.string().min(5, 'Código postal no válido'),
+  frecuenciaRecogida: z.string(),
   notas: z.string().optional(),
 });
 
@@ -39,8 +39,19 @@ interface ClienteFormProps {
 const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
   const { addUsuario, updateUsuario, usuarios } = useUsuarios();
   
-  const defaultValues: Partial<ClienteFormValues> = clienteId 
-    ? usuarios.find(u => u.id === clienteId) || {}
+  const defaultValues: ClienteFormValues = clienteId 
+    ? usuarios.find(u => u.id === clienteId) || {
+        nombre: '',
+        apellidos: '',
+        telefono: '',
+        email: '',
+        direccion: '',
+        distrito: '',
+        barrio: '',
+        codigoPostal: '',
+        frecuenciaRecogida: 'mensual',
+        notas: '',
+      }
     : {
         nombre: '',
         apellidos: '',

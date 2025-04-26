@@ -345,3 +345,16 @@ export interface Reunion {
   createdAt: Date;
   activa: boolean;
 }
+
+export interface Instalacion {
+  id: string;
+  nombre: string;
+  direccion: string;
+  distrito: string;
+  barrio: string;
+  contenedoresInstalados: number;
+  numeroPorteria: string;
+  numeroViviendas: number;
+  createdAt: any;
+  updatedAt: any;
+}

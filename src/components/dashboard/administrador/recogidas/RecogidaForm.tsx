@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,6 +28,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
+import { distritos, getBarriosByDistrito } from '@/data/madridDistritos';
 
 const recogidaSchema = z.object({
   comunidadId: z.string().min(1, 'Selecciona una comunidad'),
@@ -36,7 +36,9 @@ const recogidaSchema = z.object({
     required_error: "Selecciona una fecha",
   }),
   litrosRecogidos: z.number().min(1, 'Ingresa la cantidad de litros'),
-  observaciones: z.string().optional()
+  observaciones: z.string().optional(),
+  distrito: z.string().min(1, 'Selecciona un distrito'),
+  barrio: z.string().min(1, 'Selecciona un barrio'),
 });
 
 type RecogidaFormValues = z.infer<typeof recogidaSchema>;
@@ -49,6 +51,14 @@ interface RecogidaFormProps {
 const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => {
   const { comunidades, updateBeneficios } = useComunidadesVecinos();
   const [date, setDate] = useState<Date>(new Date());
+  const [selectedDistrito, setSelectedDistrito] = useState<string>('');
+  const [barrios, setBarrios] = useState<string[]>([]);
+  
+  useEffect(() => {
+    if (selectedDistrito) {
+      setBarrios(getBarriosByDistrito(selectedDistrito));
+    }
+  }, [selectedDistrito]);
   
   const form = useForm<RecogidaFormValues>({
     resolver: zodResolver(recogidaSchema),
@@ -56,7 +66,9 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
       comunidadId: '',
       fechaRecogida: new Date(),
       litrosRecogidos: 0,
-      observaciones: ''
+      observaciones: '',
+      distrito: '',
+      barrio: '',
     }
   });
 
@@ -197,6 +209,68 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
             </FormItem>
           )}
         />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="distrito"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Distrito</FormLabel>
+                <Select 
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    setSelectedDistrito(value);
+                  }} 
+                  value={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar distrito" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {distritos.map(distrito => (
+                      <SelectItem key={distrito} value={distrito}>
+                        {distrito}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="barrio"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Barrio</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  value={field.value}
+                  disabled={!selectedDistrito}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar barrio" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {barrios.map(barrio => (
+                      <SelectItem key={barrio} value={barrio}>
+                        {barrio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
