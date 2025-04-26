@@ -5,70 +5,123 @@ import {
   CardDescription 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, FilePlus, Plus } from 'lucide-react';
+import { CalendarDays, FilePlus, Plus, TrendingUp } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RecogidasList from './RecogidasList';
 import RecogidaForm from './RecogidaForm';
 import RecogidasChart from './RecogidasChart';
+import { StatsCard } from '../stats/StatsCard';
+import { useRecogidas } from '@/hooks/useRecogidas';
 
 const AdministradorRecogidas = () => {
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('listado');
-  
+  const { recogidas, loading, completeRecogida, getTotalLitrosRecogidos } = useRecogidas();
+
+  const chartData = {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Litros Recogidos',
+        data: [450, 590, 800, 810, 560, 550],
+        backgroundColor: '#8B5CF6',
+        borderColor: '#7C3AED',
+        borderWidth: 2,
+      },
+      {
+        label: 'Objetivo',
+        data: [600, 600, 600, 600, 600, 600],
+        backgroundColor: '#D1D5DB',
+        borderColor: '#9CA3AF',
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const stats = [
+    {
+      title: "Total Recogidas",
+      value: recogidas.length,
+      icon: CalendarDays,
+    },
+    {
+      title: "Litros Recogidos",
+      value: getTotalLitrosRecogidos(),
+      icon: TrendingUp,
+    },
+  ];
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Registro de Recogidas</h2>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Nueva Recogida
-          </Button>
-          <Button variant="outline">
-            <FilePlus className="mr-2 h-4 w-4" /> Exportar Informe
-          </Button>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold">Gestión de Recogidas</h2>
+          <p className="text-muted-foreground">
+            Administra y monitorea las recogidas de aceite
+          </p>
         </div>
+        <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" /> Nueva Recogida
+        </Button>
       </div>
-      
-      {showForm ? (
-        <Card className="mb-6">
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {stats.map((stat, index) => (
+          <StatsCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            className="bg-card"
+          />
+        ))}
+      </div>
+
+      {showForm && (
+        <Card>
           <CardHeader>
-            <CardTitle>Registro de Recogida</CardTitle>
-            <CardDescription>Ingrese los datos de la recogida</CardDescription>
+            <CardTitle>Nueva Recogida</CardTitle>
+            <CardDescription>Registra una nueva recogida de aceite</CardDescription>
           </CardHeader>
           <CardContent>
             <RecogidaForm onCancel={() => setShowForm(false)} />
           </CardContent>
         </Card>
-      ) : null}
-      
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Evolución de Recogidas</CardTitle>
+          <CardDescription>Litros de aceite recogidos por mes</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RecogidasChart data={chartData} />
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="listado" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="listado">
-            <CalendarDays className="mr-2 h-4 w-4" /> Listado de Recogidas
-          </TabsTrigger>
-          <TabsTrigger value="estadisticas">
-            <CalendarDays className="mr-2 h-4 w-4" /> Estadísticas
-          </TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="pendientes">Pendientes</TabsTrigger>
+          <TabsTrigger value="completadas">Completadas</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="listado">
+
+        <TabsContent value="pendientes">
           <Card>
             <CardContent className="pt-6">
-              <RecogidasList />
+              <RecogidasList 
+                recogidas={recogidas.filter(r => !r.completada)}
+                onCompleteRecogida={completeRecogida}
+              />
             </CardContent>
           </Card>
         </TabsContent>
-        
-        <TabsContent value="estadisticas">
+
+        <TabsContent value="completadas">
           <Card>
-            <CardHeader>
-              <CardTitle>Evolución de Recogidas</CardTitle>
-              <CardDescription>
-                Litros de aceite recogidos por mes
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RecogidasChart />
+            <CardContent className="pt-6">
+              <RecogidasList 
+                recogidas={recogidas.filter(r => r.completada)}
+              />
             </CardContent>
           </Card>
         </TabsContent>

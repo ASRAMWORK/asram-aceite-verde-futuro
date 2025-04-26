@@ -1,168 +1,162 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from '@/components/ui/popover';
-import { Input } from '@/components/ui/input';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { format } from 'date-fns';
-import { CalendarDays, Search } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { MapPin, Calendar, Clock, Check } from 'lucide-react';
+import { Recogida } from '@/types';
+import { format, isValid } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-const dummyRecogidas = [
-  {
-    id: '1',
-    fecha: new Date('2023-11-15'),
-    comunidad: 'Comunidad Las Rosas',
-    direccion: 'Calle Rosa 23',
-    litros: 15,
-    estado: 'completada'
-  },
-  {
-    id: '2',
-    fecha: new Date('2023-11-20'),
-    comunidad: 'Comunidad Los Pinos',
-    direccion: 'Av. Principal 45',
-    litros: 12,
-    estado: 'completada'
-  },
-  {
-    id: '3',
-    fecha: new Date('2023-12-05'),
-    comunidad: 'Comunidad El Bosque',
-    direccion: 'Calle Encina 34',
-    litros: 20,
-    estado: 'pendiente'
-  },
-  {
-    id: '4',
-    fecha: new Date('2023-12-08'),
-    comunidad: 'Comunidad Las Palomas',
-    direccion: 'Plaza Mayor 12',
-    litros: 8,
-    estado: 'completada'
-  },
-];
+interface RecogidasListProps {
+  recogidas: Recogida[];
+  onCompleteRecogida?: (id: string) => void;
+}
 
-const RecogidasList = () => {
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('todos');
-  
-  // Filter recogidas based on date, searchTerm and status
-  const filteredRecogidas = dummyRecogidas.filter(recogida => {
-    const matchesDate = date ? 
-      recogida.fecha.toDateString() === date.toDateString() : 
-      true;
+const RecogidasList: React.FC<RecogidasListProps> = ({ recogidas, onCompleteRecogida }) => {
+  const [selectedRecogidaId, setSelectedRecogidaId] = React.useState<string | null>(null);
+
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) return "-";
     
-    const matchesSearch = 
-      recogida.comunidad.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      recogida.direccion.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'todos' || 
-      recogida.estado === statusFilter;
-    
-    return matchesDate && matchesSearch && matchesStatus;
-  });
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      if (!dateObj || !isValid(dateObj)) return "-";
+      return format(dateObj, 'dd/MM/yyyy');
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "-";
+    }
+  };
+
+  const handleComplete = (id: string) => {
+    setSelectedRecogidaId(id);
+  };
+
+  const confirmComplete = () => {
+    if (selectedRecogidaId && onCompleteRecogida) {
+      onCompleteRecogida(selectedRecogidaId);
+    }
+    setSelectedRecogidaId(null);
+  };
+
+  const getBadgeColor = (estado: string) => {
+    switch (estado) {
+      case 'pendiente':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'realizada':
+        return 'bg-green-100 text-green-800';
+      case 'cancelada':
+        return 'bg-red-100 text-red-800';
+      case 'programado':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
-        <div className="flex gap-2">
-          <div className="relative w-64">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por comunidad..."
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos</SelectItem>
-              <SelectItem value="pendiente">Pendientes</SelectItem>
-              <SelectItem value="completada">Completadas</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                <CalendarDays className="mr-2 h-4 w-4" />
-                {date ? format(date, 'PPP') : 'Filtrar por fecha'}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-      
+    <>
       <Table>
-        <TableCaption>Listado de recogidas registradas</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Comunidad</TableHead>
             <TableHead>Dirección</TableHead>
-            <TableHead className="text-right">Litros</TableHead>
+            <TableHead>Fecha</TableHead>
+            <TableHead>Hora</TableHead>
+            <TableHead>Distrito</TableHead>
             <TableHead>Estado</TableHead>
+            <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredRecogidas.map((recogida) => (
-            <TableRow key={recogida.id}>
-              <TableCell>{format(recogida.fecha, 'dd/MM/yyyy')}</TableCell>
-              <TableCell>{recogida.comunidad}</TableCell>
-              <TableCell>{recogida.direccion}</TableCell>
-              <TableCell className="text-right">{recogida.litros}</TableCell>
-              <TableCell>
-                <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                  recogida.estado === 'completada' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-amber-100 text-amber-800'
-                }`}>
-                  {recogida.estado === 'completada' ? 'Completada' : 'Pendiente'}
-                </span>
+          {recogidas.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                No hay recogidas programadas
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            recogidas.map((recogida) => (
+              <TableRow key={recogida.id} className="hover:bg-muted/50 transition-colors">
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{recogida.nombreLugar}</span>
+                    <span className="text-sm text-gray-500 flex items-center">
+                      <MapPin className="h-3 w-3 mr-1" /> {recogida.direccion}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 text-gray-500 mr-2" />
+                    {formatDate(recogida.fecha)}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 text-gray-500 mr-2" />
+                    {recogida.hora || recogida.horaInicio || "-"}
+                  </div>
+                </TableCell>
+                <TableCell>{recogida.distrito} / {recogida.barrio}</TableCell>
+                <TableCell>
+                  <Badge className={getBadgeColor(recogida.estado)}>
+                    {recogida.estado.charAt(0).toUpperCase() + recogida.estado.slice(1)}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    {recogida.estado !== 'completada' && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleComplete(recogida.id)}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Confirmar
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
-    </div>
+
+      <AlertDialog open={!!selectedRecogidaId} onOpenChange={() => setSelectedRecogidaId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar recogida</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Está seguro de que desea marcar esta recogida como completada?
+              Esta acción moverá el registro a recogidas realizadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmComplete}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
