@@ -113,7 +113,7 @@ const NavBar = () => {
               <Link to="/login">Acceder</Link>
             </Button>
             <Button asChild>
-              <Link to="/contacto">Colabora</Link>
+              <Link to="/contacto">Contáctanos</Link>
             </Button>
             <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu}>
               {isMenuOpen ? <X /> : <Menu />}

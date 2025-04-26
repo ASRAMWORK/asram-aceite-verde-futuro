@@ -82,6 +82,11 @@ const Index = () => {
                       </CardContent>
                     </Card>
                   </div>
+                  <div className="flex justify-center mt-6">
+                    <Button size="lg" asChild>
+                      <Link to="/alianza-verde">Ver más detalles</Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
               <ImpactMetrics />
