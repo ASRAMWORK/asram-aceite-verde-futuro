@@ -253,7 +253,7 @@ export interface Ruta {
   hora?: string;
   recogedores?: string;
   completada?: boolean;
-  clientes?: { id: string; nombre: string; direccion: string }[];
+  clientes?: { id: string; nombre: string; direccion: string; litros?: number }[];
   litrosTotales?: number;
 }
 
