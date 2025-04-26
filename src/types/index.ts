@@ -1,3 +1,4 @@
+
 export interface User {
   uid: string;
   email: string | null;
@@ -18,7 +19,7 @@ export interface UserProfile {
   direccion?: string;
   ciudad?: string;
   codigoPostal?: string;
-  role?: 'user' | 'admin_finca' | 'superadmin';
+  role?: UserRole;
   tipo?: 'particular' | 'comunidad' | 'empresa' | 'admin';
   activo?: boolean;
   nombreAdministracion?: string;
@@ -40,7 +41,7 @@ export interface Usuario {
   notas?: string;
   tipo: string;
   activo: boolean;
-  role?: 'user' | 'admin_finca' | 'superadmin';
+  role?: UserRole;
   createdAt: Date;
   updatedAt?: Date;
   numViviendas?: number;
@@ -153,6 +154,9 @@ export interface Trabajador {
   createdAt: any;
   updatedAt?: any;
   vehiculoAsignado?: string;
+  foto?: string;
+  activo?: boolean;
+  rutasAsignadas?: number;
 }
 
 export interface Instalacion {
@@ -195,6 +199,8 @@ export interface Ruta {
   hora?: string;
   recogedores?: string;
   completada?: boolean;
+  clientes?: { id: string; nombre: string; direccion: string }[];
+  litrosTotales?: number;
 }
 
 export interface Turno {
@@ -209,6 +215,10 @@ export interface Turno {
   estado: 'programado' | 'completado' | 'cancelado';
   createdAt: any;
   updatedAt?: any;
+  dia?: string;
+  rutaId?: string;
+  vehiculoId?: string;
+  trabajadorNombre?: string;
 }
 
 export interface Ingreso {
@@ -221,6 +231,8 @@ export interface Ingreso {
   notas?: string;
   createdAt: any;
   updatedAt?: any;
+  tipo?: string;
+  origen?: string;
 }
 
 export interface Gasto {
@@ -233,6 +245,7 @@ export interface Gasto {
   notas?: string;
   createdAt: any;
   updatedAt?: any;
+  tipo?: string;
 }
 
 export interface ChartConfig {
