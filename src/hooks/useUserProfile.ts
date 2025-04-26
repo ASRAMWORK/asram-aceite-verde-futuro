@@ -1,13 +1,11 @@
-
-
 import { useState, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { UserRole, UsuarioProfile } from '@/types';
+import { UserProfile } from '@/types';
 
 export function useUserProfile() {
-  const [profile, setProfile] = useState<UsuarioProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,10 +23,10 @@ export function useUserProfile() {
         
         if (docSnap.exists()) {
           const userData = docSnap.data();
-          const profileData: UsuarioProfile = {
+          const profileData: UserProfile = {
             id: docSnap.id,
             email: userData.email || user.email || '',
-            role: (userData.role as UserRole) || 'usuario',
+            role: (userData.role as UserProfile['role']) || 'usuario',
             nombreAdministracion: userData.nombreAdministracion || '',
             ...userData
           };

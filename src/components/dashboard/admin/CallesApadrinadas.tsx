@@ -82,7 +82,7 @@ const CallesApadrinadas = () => {
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   
   const totalCalles = callesApadrinadas.length;
-  const totalPadrinos = new Set(callesApadrinadas.map(calle => calle.padrinoId)).size;
+  const totalPadrinos = new Set(callesApadrinadas.map(calle => calle.padrino)).size;
   const ingresosMensuales = callesApadrinadas.reduce((sum, calle) => sum + (calle.precio || 0), 0);
   
   const renovadas = callesApadrinadas.filter(calle => {

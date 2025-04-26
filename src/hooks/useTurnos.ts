@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -21,14 +20,18 @@ export function useTurnos() {
         const data = doc.data();
         turnosData.push({
           id: doc.id,
-          trabajadorId: data.trabajadorId || '',
-          trabajadorNombre: data.trabajadorNombre || '',
-          dia: data.dia || '',
-          horaInicio: data.horaInicio || '',
-          horaFin: data.horaFin || '',
+          trabajadorId: data.trabajadorId,
+          trabajadorNombre: data.trabajadorNombre,
+          dia: data.dia,
+          horaInicio: data.horaInicio,
+          horaFin: data.horaFin,
           rutaId: data.rutaId,
           vehiculoId: data.vehiculoId,
-          createdAt: data.createdAt
+          createdAt: data.createdAt,
+          nombreTrabajador: data.nombreTrabajador || data.trabajadorNombre || '',
+          fecha: data.fecha || new Date(),
+          distrito: data.distrito || '',
+          estado: data.estado || 'programado'
         });
       });
       

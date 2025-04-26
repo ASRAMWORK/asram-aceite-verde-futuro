@@ -211,7 +211,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
                         <MapPin className="h-5 w-5 text-asram mt-0.5" />
                         <div>
                           <div className="font-medium">{ruta.nombre}</div>
-                          <div className="text-sm text-gray-500">{ruta.distrito} - {ruta.barrio}</div>
+                          <div className="text-sm text-gray-500">{ruta.distrito} - {Array.isArray(ruta.barrios) ? ruta.barrios.join(', ') : ruta.barrios}</div>
                         </div>
                       </div>
                     ))}

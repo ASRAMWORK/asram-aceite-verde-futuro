@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { UsuarioProfile } from '@/types';
+import { UserProfile } from '@/types';
 
 const profileSchema = z.object({
   nombreAdministracion: z.string().min(2, "El nombre es obligatorio"),
@@ -29,7 +28,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 interface DatosPerfilFormProps {
-  profile: UsuarioProfile | null;
+  profile: UserProfile | null;
 }
 
 const DatosPerfilForm: React.FC<DatosPerfilFormProps> = ({ profile }) => {

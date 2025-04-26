@@ -1,3 +1,4 @@
+
 export interface User {
   uid: string;
   email: string | null;
@@ -60,7 +61,7 @@ export interface ComunidadVecinos {
   distrito: string;
   barrio: string;
   totalViviendas?: number;
-  numeroPorteria?: number;
+  numeroPorteria?: string;
   nombreAdministracion?: string;
   correoContacto?: string;
   administradorId: string | null;
@@ -135,6 +136,13 @@ export interface Voluntario {
   observaciones?: string;
   createdAt: any;
   updatedAt?: any;
+  // Added missing properties
+  activo: boolean;
+  diasDisponibles: string[];
+  horasDisponibles: string;
+  experiencia?: string;
+  habilidades?: string[];
+  codigoPostal?: string;
 }
 
 export interface Trabajador {
@@ -161,6 +169,24 @@ export interface Trabajador {
   activo?: boolean;
   rutasAsignadas?: string[];
   roles?: string[];
+}
+
+// Added missing types
+export type TipoContrato = 'indefinido' | 'temporal' | 'practicas' | 'formacion' | 'obra' | 'otro';
+export type TipoJornada = 'completa' | 'parcial';
+export type RolTrabajador = 'recolector' | 'conductor' | 'supervisor' | 'analista' | 'administrador' | 'gestor';
+
+export interface Vehiculo {
+  id: string;
+  matricula: string;
+  modelo: string;
+  tipo: string;
+  capacidad?: number;
+  estado: 'disponible' | 'en_ruta' | 'mantenimiento' | 'averiado';
+  ultimaRevision?: Date;
+  proximaRevision?: Date;
+  createdAt: any;
+  updatedAt?: any;
 }
 
 export interface Instalacion {
@@ -237,6 +263,7 @@ export interface Ingreso {
   updatedAt?: any;
   tipo?: string;
   origen?: string;
+  numFactura?: string; // Added missing property
 }
 
 export interface Gasto {
@@ -250,6 +277,7 @@ export interface Gasto {
   createdAt: any;
   updatedAt?: any;
   tipo?: string;
+  numFactura?: string; // Added missing property
 }
 
 export interface ChartConfig {
@@ -291,6 +319,7 @@ export interface AlianzaVerde {
     nivel3?: boolean;
     ecosistema?: boolean;
   } | number | string[];
+  nombreCentro?: string; // Added missing property
 }
 
 export interface CalleApadrinada {
@@ -310,4 +339,59 @@ export interface CalleApadrinada {
   descripcion?: string;
   precio?: number;
   fechaRenovacion?: Date;
+  nombreCalle?: string; // Added missing property
+  nombrePadrino?: string; // Added missing property
+}
+
+// Added missing types
+export interface Tarea {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  voluntarioId: string;
+  voluntarioNombre: string;
+  prioridad: 'alta' | 'media' | 'baja';
+  completada: boolean;
+  fechaAsignacion: Date;
+  fechaLimite?: Date | null;
+  fechaCompletada?: Date | null;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
+export interface HorarioVoluntario {
+  id: string;
+  voluntarioId: string;
+  voluntarioNombre: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+  actividad: string;
+  ubicacion: string;
+  createdAt: any;
+  updatedAt?: any;
+}
+
+export interface Incidencia {
+  id: string;
+  tipo: string;
+  descripcion: string;
+  fecha: Date;
+  trabajadorId: string;
+  estado: 'abierta' | 'en_proceso' | 'cerrada';
+  createdAt: any;
+  updatedAt?: any;
+}
+
+export interface Reunion {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  hora: string;
+  duracion: number;
+  ubicacion: string;
+  participantes: string[];
+  createdAt: any;
+  updatedAt?: any;
 }

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,6 +21,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { Usuario } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
@@ -88,7 +88,16 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
         toast.success('Cliente actualizado correctamente');
       } else {
         await addUsuario({
-          ...data,
+          nombre: data.nombre,
+          apellidos: data.apellidos,
+          telefono: data.telefono,
+          email: data.email,
+          direccion: data.direccion,
+          distrito: data.distrito,
+          barrio: data.barrio,
+          codigoPostal: data.codigoPostal,
+          frecuenciaRecogida: data.frecuenciaRecogida,
+          notas: data.notas,
           tipo: 'comunidad',
           activo: true,
           role: 'user',

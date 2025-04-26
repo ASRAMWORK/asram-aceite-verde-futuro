@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Trabajador, TipoContrato, TipoJornada, RolTrabajador, Vehiculo } from "@/types";
+import type { Trabajador, Vehiculo } from "@/types";
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es obligatorio" }),
@@ -84,14 +83,14 @@ const TrabajadorForm = ({ onSubmit, onCancel, initialData, vehiculos, rutas }: T
       apellidos: initialData?.apellidos || "",
       dni: initialData?.dni || "",
       fechaNacimiento: initialData?.fechaNacimiento
-        ? new Date(initialData.fechaNacimiento.seconds * 1000).toISOString().split("T")[0]
+        ? new Date(initialData.fechaNacimiento).toISOString().split("T")[0]
         : "",
       email: initialData?.email || "",
       telefono: initialData?.telefono || "",
       direccion: initialData?.direccion || "",
       foto: initialData?.foto || "",
       fechaAlta: initialData?.fechaAlta
-        ? new Date(initialData.fechaAlta.seconds * 1000).toISOString().split("T")[0]
+        ? new Date(initialData.fechaAlta).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],
       tipoContrato: initialData?.tipoContrato || "indefinido",
       tipoJornada: initialData?.tipoJornada || "completa",

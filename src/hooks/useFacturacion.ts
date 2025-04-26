@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -71,20 +70,18 @@ export function useFacturacion() {
     }
   };
 
-  const addIngreso = async (nuevoIngreso: Omit<Ingreso, 'id'>) => {
+  const addIngreso = async (data: Omit<Ingreso, 'id'>) => {
     try {
-      const ingresoData = {
-        ...nuevoIngreso,
-        createdAt: serverTimestamp(),
-      };
-      
-      await addDoc(collection(db, "ingresos"), ingresoData);
+      await addDoc(collection(db, "ingresos"), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
       toast.success("Ingreso registrado correctamente");
       await loadFacturacionData();
       return true;
-    } catch (err) {
-      console.error("Error añadiendo ingreso:", err);
-      toast.error("Error al registrar el ingreso");
+    } catch (error) {
+      console.error("Error al añadir ingreso:", error);
+      toast.error("Error al registrar ingreso");
       return false;
     }
   };
@@ -117,21 +114,19 @@ export function useFacturacion() {
       return false;
     }
   };
-  
-  const addGasto = async (nuevoGasto: Omit<Gasto, 'id'>) => {
+
+  const addGasto = async (data: Omit<Gasto, 'id'>) => {
     try {
-      const gastoData = {
-        ...nuevoGasto,
-        createdAt: serverTimestamp(),
-      };
-      
-      await addDoc(collection(db, "gastos"), gastoData);
+      await addDoc(collection(db, "gastos"), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
       toast.success("Gasto registrado correctamente");
       await loadFacturacionData();
       return true;
-    } catch (err) {
-      console.error("Error añadiendo gasto:", err);
-      toast.error("Error al registrar el gasto");
+    } catch (error) {
+      console.error("Error al añadir gasto:", error);
+      toast.error("Error al registrar gasto");
       return false;
     }
   };

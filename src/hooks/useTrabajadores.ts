@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
-import type { Trabajador, RolTrabajador, TipoContrato, TipoJornada } from '@/types';
+import type { Trabajador } from '@/types';
 import { toast } from 'sonner';
 
 export function useTrabajadores() {
@@ -30,14 +29,18 @@ export function useTrabajadores() {
           direccion: data.direccion || '',
           foto: data.foto,
           fechaAlta: data.fechaAlta,
-          tipoContrato: data.tipoContrato as TipoContrato,
-          tipoJornada: data.tipoJornada as TipoJornada,
+          tipoContrato: data.tipoContrato,
+          tipoJornada: data.tipoJornada,
           roles: data.roles || [],
           vehiculoAsignado: data.vehiculoAsignado,
           rutasAsignadas: data.rutasAsignadas || [],
           activo: data.activo ?? true,
           createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          updatedAt: data.updatedAt,
+          puesto: data.puesto || '',
+          departamento: data.departamento || '',
+          fechaContratacion: data.fechaContratacion,
+          estado: data.estado || 'activo'
         });
       });
       
@@ -50,7 +53,7 @@ export function useTrabajadores() {
     }
   };
 
-  const getTrabajadoresPorRol = (rol: RolTrabajador) => {
+  const getTrabajadoresPorRol = (rol: any) => {
     return trabajadores.filter(t => t.roles.includes(rol));
   };
 

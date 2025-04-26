@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -205,7 +204,7 @@ const HorariosVoluntarios = ({ voluntarios }: HorariosVoluntariosProps) => {
             <p className="text-center py-4">No hay horarios programados</p>
           ) : (
             <div className="space-y-6">
-              {voluntarios.filter(v => groupedHorarios[v.id]).map((voluntario) => (
+              {voluntarios.filter(v => v.activo).map((voluntario) => (
                 <div key={voluntario.id} className="border rounded-lg p-4">
                   <h3 className="font-medium text-lg mb-2">{voluntario.nombre} {voluntario.apellidos}</h3>
                   <Table>

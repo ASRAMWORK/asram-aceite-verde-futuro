@@ -181,15 +181,19 @@ const AlianzaVerdeView = () => {
               {alianzas.map((alianza) => (
                 <div key={alianza.id} className="flex justify-between items-center border-b pb-4">
                   <div>
-                    <p className="font-medium">{alianza.nombreCentro}</p>
+                    <div className="font-medium">{alianza.nombre}</div>
                     <p className="text-sm text-muted-foreground">
                       {alianza.barrio}, {alianza.distrito} • {alianza.numParticipantes} participantes
                     </p>
                   </div>
                   <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                    {typeof alianza.certificaciones === 'number' 
-                      ? alianza.certificaciones 
-                      : (alianza.certificaciones?.length || 0)} Certificaciones
+                    {Array.isArray(alianza.certificaciones) ? 
+                      alianza.certificaciones.length > 0 ? (
+                        <div>...</div>
+                      ) : null
+                    : typeof alianza.certificaciones === 'object' && alianza.certificaciones ? (
+                      <div>...</div>
+                    ) : null}
                   </Badge>
                 </div>
               ))}

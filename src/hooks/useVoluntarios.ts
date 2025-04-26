@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -48,20 +47,18 @@ export function useVoluntarios() {
     }
   };
 
-  const addVoluntario = async (nuevoVoluntario: Omit<Voluntario, 'id'>) => {
+  const addVoluntario = async (data: Omit<Voluntario, "id">) => {
     try {
-      const voluntarioData = {
-        ...nuevoVoluntario,
-        createdAt: serverTimestamp(),
-      };
-      
-      await addDoc(collection(db, "voluntarios"), voluntarioData);
+      const docRef = await addDoc(collection(db, "voluntarios"), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
       toast.success("Voluntario añadido correctamente");
       await loadVoluntariosData();
       return true;
     } catch (err) {
-      console.error("Error añadiendo voluntario:", err);
-      toast.error("Error al añadir el voluntario");
+      console.error("Error al añadir voluntario:", err);
+      toast.error("Error al añadir voluntario");
       return false;
     }
   };

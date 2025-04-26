@@ -55,6 +55,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { distritos } from "@/data/madridDistritos";
+import { toast } from 'sonner';
 
 type RutaFormData = {
   nombre: string;
@@ -63,7 +64,7 @@ type RutaFormData = {
   hora: string;
   recogedores: string;
   barrios: string[];
-  clientes: string[];
+  clientes: { id: string, nombre: string, direccion: string }[];
   completada: boolean;
   puntosRecogida: number;
   distanciaTotal: number;
@@ -230,6 +231,31 @@ const RutasDistritos = () => {
     }
   };
   
+  const handleAddCliente = () => {
+    const clientesFormateados = selectedClientes.map(id => {
+      const cliente = clientes.find(c => c.id === id);
+      return {
+        id: cliente?.id || '',
+        nombre: cliente?.nombre || '',
+        direccion: cliente?.direccion || ''
+      };
+    });
+
+    setFormData({
+      ...formData,
+      clientes: clientesFormateados
+    });
+  };
+
+  const handleRemoveCliente = (index: number) => {
+    const rutaClientes = [...(formData.clientes || [])];
+    rutaClientes.splice(index, 1);
+    setFormData({
+      ...formData,
+      clientes: rutaClientes
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">

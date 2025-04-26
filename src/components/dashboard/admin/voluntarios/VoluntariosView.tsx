@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { Button } from "@/components/ui/button";
@@ -125,7 +124,7 @@ const VoluntariosView = () => {
                             <TableCell>
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
-                                <span>{voluntario.diasDisponibles.join(", ")}</span>
+                                <span>{voluntario.diasDisponibles?.join(", ")}</span>
                               </div>
                               <div className="flex items-center gap-1 mt-1">
                                 <Clock className="h-4 w-4" />

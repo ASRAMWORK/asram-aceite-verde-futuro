@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ComunidadVecinos } from '@/types';
 import { useComunidadesVecinos } from './useComunidadesVecinos';
@@ -40,7 +39,12 @@ export const useComunidadForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createComunidad(formData);
+    createComunidad({
+      ...formData,
+      numViviendas: Number(formData.numViviendas || 0),
+      totalViviendas: Number(formData.totalViviendas || 0),
+      numeroPorteria: formData.numeroPorteria ? String(formData.numeroPorteria) : undefined
+    });
   };
 
   return {

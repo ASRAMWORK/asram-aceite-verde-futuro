@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, where, serverTimestamp } from 'firebase/firestore';
-import type { Vehiculo } from '@/types';
+import { Vehiculo } from '@/types';
 import { toast } from 'sonner';
 
 export function useVehiculos() {

@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import type { Tarea } from '@/types';
+import { Tarea } from '@/types';
 import { toast } from 'sonner';
 
 export function useTareas() {

@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
-import type { HorarioVoluntario } from '@/types';
+import { HorarioVoluntario } from '@/types';
 import { toast } from 'sonner';
 
 export function useHorarios() {

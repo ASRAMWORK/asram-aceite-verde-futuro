@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -222,16 +221,14 @@ const ApadrinaCalleView = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {callesApadrinadas.map((calle) => (
-                <div key={calle.id} className="flex justify-between items-center border-b pb-4">
+              {callesApadrinadas.map((calleApadrinada) => (
+                <div key={calleApadrinada.id} className="flex justify-between items-center border-b pb-4">
                   <div>
-                    <p className="font-medium">{calle.nombreCalle}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {calle.barrio}, {calle.distrito} • Apadrinada por {calle.nombrePadrino}
-                    </p>
+                    <div className="font-medium text-lg mb-1">{calleApadrinada.nombre}</div>
+                    <div className="text-sm text-gray-600">Apadrinada por: <span className="font-medium">{calleApadrinada.padrino}</span></div>
                   </div>
                   <div className="text-sm font-medium text-green-600">
-                    Activa desde {new Date(calle.fechaInicio).toLocaleDateString()}
+                    Activa desde {new Date(calleApadrinada.fechaInicio).toLocaleDateString()}
                   </div>
                 </div>
               ))}

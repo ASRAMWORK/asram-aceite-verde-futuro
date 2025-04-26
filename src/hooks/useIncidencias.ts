@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import type { Incidencia } from '@/types';
 import { toast } from 'sonner';
 
@@ -21,15 +20,13 @@ export function useIncidencias() {
         const data = doc.data();
         incidenciasData.push({
           id: doc.id,
-          tipo: data.tipo || 'otra',
+          tipo: data.tipo || '',
           descripcion: data.descripcion || '',
+          fecha: data.fecha.toDate(),
           trabajadorId: data.trabajadorId || '',
-          trabajadorNombre: data.trabajadorNombre || '',
-          fecha: data.fecha,
           estado: data.estado || 'abierta',
-          prioridad: data.prioridad || 'media',
           createdAt: data.createdAt,
-          resueltaEn: data.resueltaEn
+          updatedAt: data.updatedAt
         });
       });
       
@@ -41,49 +38,52 @@ export function useIncidencias() {
       setLoading(false);
     }
   };
-  
-  const getIncidenciasPorTrabajador = (trabajadorId: string) => {
-    return incidencias.filter(i => i.trabajadorId === trabajadorId);
-  };
 
-  const getIncidenciasAbiertas = () => {
-    return incidencias.filter(i => i.estado !== 'resuelta');
+  const getIncidenciasPorTrabajador = (trabajadorId: string) => {
+    return incidencias.filter(incidencia => incidencia.trabajadorId === trabajadorId);
   };
 
   const addIncidencia = async (data: Omit<Incidencia, "id">) => {
     try {
-      const incidenciaData = {
+      const docRef = await addDoc(collection(db, "incidencias"), {
         ...data,
-        createdAt: serverTimestamp(),
-      };
-      
-      const docRef = await addDoc(collection(db, "incidencias"), incidenciaData);
-      toast.success("Incidencia registrada correctamente");
+        createdAt: serverTimestamp()
+      });
+      toast.success("Incidencia añadida correctamente");
       await loadIncidenciasData();
-      return { id: docRef.id, ...data };
+      return true;
     } catch (err) {
       console.error("Error añadiendo incidencia:", err);
-      toast.error("Error al registrar la incidencia");
-      throw err;
+      toast.error("Error al añadir incidencia");
+      return false;
     }
   };
 
   const updateIncidencia = async (id: string, data: Partial<Incidencia>) => {
     try {
-      const updateData = { ...data };
-      
-      // Si estamos marcando como resuelta y no se ha especificado fecha de resolución
-      if (data.estado === 'resuelta' && !data.resueltaEn) {
-        updateData.resueltaEn = serverTimestamp();
-      }
-      
-      await updateDoc(doc(db, "incidencias", id), updateData);
+      await updateDoc(doc(db, "incidencias", id), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
       toast.success("Incidencia actualizada correctamente");
       await loadIncidenciasData();
       return true;
     } catch (err) {
       console.error("Error actualizando incidencia:", err);
-      toast.error("Error al actualizar la incidencia");
+      toast.error("Error al actualizar incidencia");
+      return false;
+    }
+  };
+
+  const deleteIncidencia = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "incidencias", id));
+      toast.success("Incidencia eliminada correctamente");
+      await loadIncidenciasData();
+      return true;
+    } catch (err) {
+      console.error("Error eliminando incidencia:", err);
+      toast.error("Error al eliminar incidencia");
       return false;
     }
   };
@@ -98,8 +98,8 @@ export function useIncidencias() {
     error, 
     loadIncidenciasData,
     getIncidenciasPorTrabajador,
-    getIncidenciasAbiertas,
     addIncidencia,
-    updateIncidencia
+    updateIncidencia,
+    deleteIncidencia
   };
 }

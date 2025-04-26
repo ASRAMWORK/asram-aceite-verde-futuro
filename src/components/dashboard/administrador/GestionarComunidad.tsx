@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,11 +19,12 @@ const GestionarComunidad = () => {
     codigoPostal: formData.codigoPostal || ''
   };
 
+  // Convert numeroPorteria to string if it's a number
   const locationProps = {
     ciudad: formData.ciudad || '',
     distrito: formData.distrito || '',
     barrio: formData.barrio || '',
-    numeroPorteria: formData.numeroPorteria || ''
+    numeroPorteria: String(formData.numeroPorteria || '')
   };
 
   const statsProps = {
