@@ -6,6 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useProjects } from "@/hooks/useProjects";
@@ -18,7 +19,8 @@ import {
   PieChart, 
   MoreHorizontal, 
   PenLine, 
-  Trash2 
+  Trash2,
+  Plus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,6 +32,10 @@ import {
 import { useFacturacion } from "@/hooks/useFacturacion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { IngresosForm } from "./IngresosForm";
+import { GastosForm } from "./GastosForm";
+import { toast } from "sonner";
 
 interface ProjectsViewProps {
   onEditProject: (projectId: string) => void;
@@ -37,9 +43,12 @@ interface ProjectsViewProps {
 
 export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
   const { projects, loading, deleteProject } = useProjects();
-  const { ingresos, gastos } = useFacturacion();
+  const { ingresos, gastos, addIngreso, addGasto } = useFacturacion();
   const [activeFilter, setActiveFilter] = useState<string>("all");
-  
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [isIngresoDialogOpen, setIsIngresoDialogOpen] = useState(false);
+  const [isGastoDialogOpen, setIsGastoDialogOpen] = useState(false);
+
   const getProjectFinancials = (projectId: string) => {
     const projectIngresos = ingresos.filter(i => i.origen === projectId);
     const projectGastos = gastos.filter(g => g.tipo === projectId);
@@ -47,12 +56,41 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
     const totalIngresos = projectIngresos.reduce((sum, i) => sum + i.cantidad, 0);
     const totalGastos = projectGastos.reduce((sum, g) => sum + g.cantidad, 0);
     
+    // Calculate project profitability (rentabilidad)
+    let rentabilidad = 0;
+    if (totalIngresos > 0) {
+      rentabilidad = ((totalIngresos - totalGastos) / totalIngresos) * 100;
+    }
+    
     return {
       ingresos: totalIngresos,
       gastos: totalGastos,
       balance: totalIngresos - totalGastos,
-      percentComplete: Math.min(100, Math.round((totalIngresos / (projectIngresos.length > 0 ? totalIngresos + totalGastos : 1)) * 100)),
+      rentabilidad: rentabilidad.toFixed(2),
+      percentComplete: Math.min(100, Math.round((totalIngresos / (totalIngresos + totalGastos || 1)) * 100)),
     };
+  };
+  
+  const handleAddIngreso = async (data: any) => {
+    if (selectedProjectId) {
+      await addIngreso({
+        ...data,
+        origen: selectedProjectId
+      });
+      setIsIngresoDialogOpen(false);
+      toast.success("Ingreso añadido al proyecto correctamente");
+    }
+  };
+
+  const handleAddGasto = async (data: any) => {
+    if (selectedProjectId) {
+      await addGasto({
+        ...data,
+        tipo: selectedProjectId
+      });
+      setIsGastoDialogOpen(false);
+      toast.success("Gasto añadido al proyecto correctamente");
+    }
   };
   
   const filteredProjects = activeFilter === "all" 
@@ -63,6 +101,16 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este proyecto?")) {
       deleteProject(projectId);
     }
+  };
+
+  const handleOpenIngresoDialog = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setIsIngresoDialogOpen(true);
+  };
+
+  const handleOpenGastoDialog = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setIsGastoDialogOpen(true);
   };
   
   return (
@@ -76,14 +124,24 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
                 Gestiona los proyectos financieros de ASRAM
               </CardDescription>
             </div>
-            <Tabs value={activeFilter} onValueChange={setActiveFilter}>
-              <TabsList>
-                <TabsTrigger value="all">Todos</TabsTrigger>
-                <TabsTrigger value="activo">Activos</TabsTrigger>
-                <TabsTrigger value="pendiente">Pendientes</TabsTrigger>
-                <TabsTrigger value="completado">Completados</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex gap-2">
+              <Tabs value={activeFilter} onValueChange={setActiveFilter}>
+                <TabsList>
+                  <TabsTrigger value="all">Todos</TabsTrigger>
+                  <TabsTrigger value="activo">Activos</TabsTrigger>
+                  <TabsTrigger value="pendiente">Pendientes</TabsTrigger>
+                  <TabsTrigger value="completado">Completados</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Button 
+                variant="outline"
+                className="border-dashed border-2"
+                onClick={() => onEditProject("")}
+              >
+                <FolderPlus className="mr-2 h-4 w-4" />
+                Nuevo Proyecto
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -148,7 +206,15 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => onEditProject(project.id)}>
                               <PenLine className="mr-2 h-4 w-4" />
-                              Editar
+                              Editar proyecto
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpenIngresoDialog(project.id)}>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Añadir ingreso
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpenGastoDialog(project.id)}>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Añadir gasto
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDelete(project.id)}
@@ -178,7 +244,7 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
                         </div>
                       </div>
                       
-                      <div>
+                      <div className="space-y-3 pt-2">
                         <div className="flex justify-between items-center mb-1 text-sm">
                           <div className="flex items-center">
                             <BadgeDollarSign className="h-4 w-4 mr-1 text-blue-600" />
@@ -200,6 +266,19 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
                           <div>Ingresos: <span className="text-green-600">{financials.ingresos.toLocaleString()}€</span></div>
                           <div>Gastos: <span className="text-red-600">{financials.gastos.toLocaleString()}€</span></div>
                         </div>
+                        
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-sm font-medium">Rentabilidad:</span>
+                          <Badge 
+                            className={
+                              parseFloat(financials.rentabilidad) > 20 ? 'bg-green-100 text-green-800 hover:bg-green-200' : 
+                              parseFloat(financials.rentabilidad) > 0 ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                              'bg-red-100 text-red-800 hover:bg-red-200'
+                            }
+                          >
+                            {financials.rentabilidad}%
+                          </Badge>
+                        </div>
                       </div>
                       
                       {project.descripcion && (
@@ -208,6 +287,24 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
                         </p>
                       )}
                     </CardContent>
+                    <CardFooter className="bg-slate-50 flex justify-between pt-2 pb-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs"
+                        onClick={() => handleOpenIngresoDialog(project.id)}
+                      >
+                        <Plus className="h-3 w-3 mr-1" /> Ingreso
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs"
+                        onClick={() => handleOpenGastoDialog(project.id)}
+                      >
+                        <Plus className="h-3 w-3 mr-1" /> Gasto
+                      </Button>
+                    </CardFooter>
                   </Card>
                 );
               })}
@@ -215,6 +312,23 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
           )}
         </CardContent>
       </Card>
+      
+      {/* Dialogs for adding financial transactions */}
+      <Dialog open={isIngresoDialogOpen} onOpenChange={setIsIngresoDialogOpen}>
+        <IngresosForm 
+          project={projects.find(p => p.id === selectedProjectId)}
+          onSave={handleAddIngreso}
+          onCancel={() => setIsIngresoDialogOpen(false)}
+        />
+      </Dialog>
+      
+      <Dialog open={isGastoDialogOpen} onOpenChange={setIsGastoDialogOpen}>
+        <GastosForm 
+          project={projects.find(p => p.id === selectedProjectId)}
+          onSave={handleAddGasto}
+          onCancel={() => setIsGastoDialogOpen(false)}
+        />
+      </Dialog>
     </div>
   );
 };

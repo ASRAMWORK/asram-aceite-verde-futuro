@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, getDoc, serverTimestamp } from 'firebase/firestore';
@@ -16,6 +15,7 @@ export interface Project {
   estado: 'activo' | 'pendiente' | 'completado' | 'cancelado';
   createdAt: any;
   updatedAt?: any;
+  rentabilidad?: number;  // New field for profitability
 }
 
 export function useProjects() {
@@ -46,7 +46,8 @@ export function useProjects() {
           fechaFin: data.fechaFin,
           estado: data.estado || 'activo',
           createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          updatedAt: data.updatedAt,
+          rentabilidad: data.rentabilidad || 0
         });
       });
       
@@ -80,7 +81,8 @@ export function useProjects() {
           fechaFin: data.fechaFin,
           estado: data.estado || 'activo',
           createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          updatedAt: data.updatedAt,
+          rentabilidad: data.rentabilidad || 0
         };
       }
       return null;

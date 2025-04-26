@@ -79,6 +79,7 @@ export function useFacturacion() {
       const ingresoData = {
         ...data,
         categoria: data.categoria || data.tipo || '',
+        origen: data.origen || '', // This is the projectId
         createdAt: serverTimestamp() // Ensure createdAt is always set
       };
       
@@ -128,6 +129,7 @@ export function useFacturacion() {
       const gastoData = {
         ...data,
         categoria: data.categoria || data.tipo || '',
+        tipo: data.tipo || '', // This is the projectId
         createdAt: serverTimestamp() // Ensure createdAt is always set
       };
       
