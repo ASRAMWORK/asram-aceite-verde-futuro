@@ -46,7 +46,9 @@ import {
   Search,
   DropletIcon,
   Container,
-  ChevronRight
+  ChevronRight,
+  Box,
+  Droplet
 } from "lucide-react";
 import {
   Select,
@@ -107,8 +109,10 @@ const GestionClientes = () => {
   });
   
   const comunidades = instalaciones.length;
-  const totalViviendas = instalaciones.reduce((sum, i) => sum + (i.numViviendas || 0), 0);
-  const totalContenedores = instalaciones.reduce((sum, i) => sum + (i.numContenedores || 0), 0);
+  const totalViviendas = typedUsuarios.reduce((sum, u) => sum + (u.numViviendas || 0), 0);
+  const totalContenedores = typedUsuarios.reduce((sum, u) => sum + (u.numContenedores || 0), 0);
+  const totalClientes = typedUsuarios.length;
+  const totalLitros = typedUsuarios.reduce((sum, u) => sum + (u.litrosRecogidos || 0), 0);
   
   const totalLitrosRecogidos = puntosVerdes.reduce((sum, pv) => sum + (pv.litrosRecogidos || 0), 0);
   const mediaContenedor = totalContenedores > 0 ? (totalLitrosRecogidos / totalContenedores).toFixed(2) : "0";
@@ -392,24 +396,10 @@ const GestionClientes = () => {
       )}
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="border-l-4 border-l-asram hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Comunidades
-            </CardTitle>
-            <Building2 className="h-5 w-5 text-asram" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{comunidades}</div>
-            <p className="text-xs text-muted-foreground">
-              instalaciones registradas
-            </p>
-          </CardContent>
-        </Card>
         <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Viviendas
+              Total Viviendas
             </CardTitle>
             <Home className="h-5 w-5 text-blue-500" />
           </CardHeader>
@@ -423,9 +413,9 @@ const GestionClientes = () => {
         <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Contenedores
+              Total Contenedores
             </CardTitle>
-            <Container className="h-5 w-5 text-green-500" />
+            <Box className="h-5 w-5 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalContenedores}</div>
@@ -437,14 +427,28 @@ const GestionClientes = () => {
         <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Media/Contenedor
+              Total Clientes
             </CardTitle>
-            <DropletIcon className="h-5 w-5 text-purple-500" />
+            <Users className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mediaContenedor}L</div>
+            <div className="text-2xl font-bold">{totalClientes}</div>
             <p className="text-xs text-muted-foreground">
-              litros por contenedor
+              clientes registrados
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-cyan-500 hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Litros
+            </CardTitle>
+            <Droplet className="h-5 w-5 text-cyan-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalLitros}L</div>
+            <p className="text-xs text-muted-foreground">
+              litros recogidos
             </p>
           </CardContent>
         </Card>
