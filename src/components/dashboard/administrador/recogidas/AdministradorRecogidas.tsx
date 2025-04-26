@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
   CardDescription 
@@ -9,7 +9,7 @@ import { CalendarDays, FilePlus, Plus, TrendingUp } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RecogidasList from './RecogidasList';
 import RecogidaForm from './RecogidaForm';
-import RecogidasChart from './RecogidasChart';
+import RecogidasChart from '@/components/dashboard/admin/recogidas/RecogidasChart';
 import { StatsCard } from '@/components/dashboard/admin/stats/StatsCard';
 import { useRecogidas } from '@/hooks/useRecogidas';
 
@@ -18,6 +18,46 @@ const AdministradorRecogidas = () => {
   const [activeTab, setActiveTab] = useState('listado');
   const { recogidas, loading, completeRecogida, getTotalLitrosRecogidos } = useRecogidas();
 
+  // Generate chart data from recogidas
+  const generateChartData = () => {
+    // Get last 6 months
+    const labels = [];
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const currentDate = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(currentDate.getMonth() - i);
+      labels.push(months[date.getMonth()]);
+    }
+    
+    // Generate sample data for now - in a real app, this would process recogidas by month
+    const recogidasData = [450, 590, 800, 810, 560, 550];
+    const objetivoData = new Array(6).fill(600);
+    
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Litros Recogidos',
+          data: recogidasData,
+          backgroundColor: '#8B5CF6',
+          borderColor: '#7C3AED',
+          borderWidth: 2,
+        },
+        {
+          label: 'Objetivo',
+          data: objetivoData,
+          backgroundColor: '#D1D5DB',
+          borderColor: '#9CA3AF',
+          borderWidth: 2,
+        },
+      ],
+    };
+  };
+
+  const chartData = generateChartData();
+  
   const stats = [
     {
       title: "Total Recogidas",
@@ -82,11 +122,11 @@ const AdministradorRecogidas = () => {
           <CardDescription>Litros de aceite recogidos por mes</CardDescription>
         </CardHeader>
         <CardContent>
-          <RecogidasChart />
+          <RecogidasChart data={chartData} />
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="listado" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="pendientes" value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="pendientes">Pendientes</TabsTrigger>
           <TabsTrigger value="completadas">Completadas</TabsTrigger>

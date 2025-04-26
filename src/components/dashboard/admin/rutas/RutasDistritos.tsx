@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -23,7 +23,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,17 +35,18 @@ import {
 } from "@/components/ui/select";
 import { useRutas } from "@/hooks/useRutas";
 import { useUsuarios } from "@/hooks/useUsuarios";
+import { useRecogidas } from "@/hooks/useRecogidas";
 import type { Ruta } from "@/types";
 import { 
   Calendar, 
   Check, 
   Clock, 
-  FilePlus2, 
   FileSpreadsheet, 
   FileText, 
   Loader2, 
   MapPin, 
   PenLine, 
+  Plus, 
   Route, 
   Trash2, 
   Users 
@@ -65,7 +65,7 @@ type RutaFormData = {
   hora: string;
   recogedores: string;
   barrios: string[];
-  clientes: { id: string, nombre: string, direccion: string }[];
+  clientes: { id: string, nombre: string, direccion: string, litros?: number }[];
   completada: boolean;
   puntosRecogida: number;
   distanciaTotal: number;
@@ -83,7 +83,6 @@ const RutasDistritos = () => {
   const [currentTab, setCurrentTab] = useState("pendientes");
   const [filterDistrito, setFilterDistrito] = useState("");
   const [litrosTotales, setLitrosTotales] = useState<number>(0);
-  // Add missing state variables
   const [selectedClientes, setSelectedClientes] = useState<string[]>([]);
   
   const [formData, setFormData] = useState<RutaFormData>({
@@ -100,7 +99,9 @@ const RutasDistritos = () => {
     tiempoEstimado: 0,
     frecuencia: 'semanal'
   });
-  
+
+  const { recogidas, addRecogida: addRecogidaToHistory, getTotalLitrosRecogidos } = useRecogidas();
+
   const filteredRutas = currentTab === "pendientes"
     ? rutas.filter(r => !r.completada)
     : rutas.filter(r => r.completada);
@@ -187,7 +188,6 @@ const RutasDistritos = () => {
   };
   
   const handleAddCliente = () => {
-    // Get the clientes from usuarios filtered by distrito
     const clientesList = usuarios.filter(u => u.distrito === formData.distrito);
     const clientesFormateados = selectedClientes.map(id => {
       const cliente = clientesList.find(c => c.id === id);
@@ -246,43 +246,11 @@ const RutasDistritos = () => {
     resetForm();
   };
   
-  const handleCompleteRuta = async () => {
-    if (!selectedRuta) return;
-    
-    await completeRuta(selectedRuta.id, litrosTotales);
-    setIsCompletingRuta(false);
-    setLitrosTotales(0);
-    setSelectedRuta(null);
-  };
-  
-  const handleDeleteRuta = async (id: string) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta ruta?")) {
-      await deleteRuta(id);
-    }
-  };
-
-  const handleClientsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const clientesString = e.target.value;
-    // Convert the comma-separated client names to array of client objects
-    const clientNames = clientesString.split(",").map(name => name.trim()).filter(name => name !== "");
-    const clientesObjetos = clientNames.map((nombre, index) => ({
-      id: `temp-${index}`,
-      nombre,
-      direccion: ''
-    }));
-    
-    setFormData({
-      ...formData,
-      clientes: clientesObjetos
-    });
-  };
-
   const handleUpdateClienteLitros = async (rutaId: string, clienteId: string, litros: number) => {
     if (!selectedRuta) return;
     
     await updateRutaRecogida(rutaId, clienteId, litros);
     
-    // Update local state
     setSelectedRuta(prev => {
       if (!prev) return prev;
       return {
@@ -292,6 +260,47 @@ const RutasDistritos = () => {
         )
       };
     });
+    
+    const updatedClientes = selectedRuta.clientes?.map(c => 
+      c.id === clienteId ? { ...c, litros } : c
+    ) || [];
+    
+    const nuevoTotal = updatedClientes.reduce((total, c) => total + (c.litros || 0), 0);
+    setLitrosTotales(nuevoTotal);
+  };
+
+  const handleCompleteRuta = async () => {
+    if (!selectedRuta) return;
+    
+    const totalLitros = selectedRuta.clientes?.reduce(
+      (sum, cliente) => sum + (cliente.litros || 0), 
+      0
+    ) || litrosTotales;
+    
+    if (selectedRuta.clientes) {
+      for (const cliente of selectedRuta.clientes) {
+        if (cliente.litros && cliente.litros > 0) {
+          await addRecogidaToHistory({
+            clienteId: cliente.id,
+            nombreLugar: cliente.nombre,
+            direccion: cliente.direccion,
+            distrito: selectedRuta.distrito,
+            fecha: selectedRuta.fecha,
+            litrosRecogidos: cliente.litros,
+            rutaId: selectedRuta.id,
+            completada: true,
+            estado: 'completada'
+          });
+        }
+      }
+    }
+    
+    await completeRuta(selectedRuta.id, totalLitros);
+    setIsCompletingRuta(false);
+    setLitrosTotales(0);
+    setSelectedRuta(null);
+    
+    toast.success(`Ruta completada con ${totalLitros}L recogidos`);
   };
 
   return (
@@ -306,8 +315,8 @@ const RutasDistritos = () => {
         <div className="flex gap-2">
           <Dialog open={isAddingRuta} onOpenChange={setIsAddingRuta}>
             <DialogTrigger asChild>
-              <Button className="bg-asram hover:bg-asram-700">
-                <FilePlus2 className="mr-2 h-4 w-4" />
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Plus className="mr-2 h-4 w-4" />
                 Crear Ruta
               </Button>
             </DialogTrigger>
@@ -322,12 +331,12 @@ const RutasDistritos = () => {
               <div className="grid gap-6 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="distrito">Distrito</Label>
+                    <Label htmlFor="distrito" className="font-medium">Distrito</Label>
                     <Select
                       value={formData.distrito}
                       onValueChange={(value) => handleSelectChange("distrito", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Selecciona distrito" />
                       </SelectTrigger>
                       <SelectContent>
@@ -341,65 +350,148 @@ const RutasDistritos = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="fecha">Fecha de la ruta</Label>
+                    <Label htmlFor="fecha" className="font-medium">Fecha de la ruta</Label>
                     <Input
                       id="fecha"
                       name="fecha"
                       type="date"
                       value={formData.fecha}
                       onChange={handleInputChange}
+                      className="bg-white"
                     />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="hora">Hora de inicio</Label>
+                    <Label htmlFor="hora" className="font-medium">Hora de inicio</Label>
                     <Input
                       id="hora"
                       name="hora"
                       type="time"
                       value={formData.hora}
                       onChange={handleInputChange}
+                      className="bg-white"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="nombre">Nombre de la ruta</Label>
+                    <Label htmlFor="nombre" className="font-medium">Nombre de la ruta</Label>
                     <Input
                       id="nombre"
                       name="nombre"
                       value={formData.nombre}
                       onChange={handleInputChange}
                       placeholder="Ej: Ruta Centro - 15/05/2025"
+                      className="bg-white"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="recogedores">Personal asignado</Label>
+                  <Label htmlFor="recogedores" className="font-medium">Personal asignado</Label>
                   <Input
                     id="recogedores"
                     name="recogedores"
                     value={formData.recogedores}
                     onChange={handleInputChange}
                     placeholder="Ej: Juan Pérez, María López"
+                    className="bg-white"
                   />
                 </div>
                 
                 {formData.distrito && (
-                  <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-                    <Label>Clientes en el distrito ({clientesPorDistrito[formData.distrito] || 0})</Label>
-                    <ClientesRutaList
-                      clientes={usuarios
-                        .filter(u => u.distrito === formData.distrito)
-                        .map(u => ({
-                          id: u.id,
-                          nombre: u.nombre,
-                          direccion: u.direccion || ''
-                        }))}
-                      onUpdateLitros={() => {}}
-                    />
+                  <div className="border rounded-lg p-4 bg-slate-50">
+                    <div className="flex items-center justify-between mb-4">
+                      <Label className="text-lg font-semibold">Clientes en el distrito ({clientesPorDistrito[formData.distrito] || 0})</Label>
+                      <Badge className="bg-purple-100 text-purple-800">{selectedClientes.length} seleccionados</Badge>
+                    </div>
+                    
+                    <div className="max-h-[400px] overflow-y-auto border rounded bg-white">
+                      <Table>
+                        <TableHeader className="bg-slate-50 sticky top-0">
+                          <TableRow>
+                            <TableHead className="w-[50px]">✓</TableHead>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead>Dirección</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {usuarios
+                            .filter(u => u.distrito === formData.distrito)
+                            .map((cliente) => (
+                              <TableRow 
+                                key={cliente.id}
+                                className="cursor-pointer hover:bg-slate-50"
+                                onClick={() => {
+                                  const isSelected = selectedClientes.includes(cliente.id);
+                                  if (isSelected) {
+                                    setSelectedClientes(selectedClientes.filter(id => id !== cliente.id));
+                                  } else {
+                                    setSelectedClientes([...selectedClientes, cliente.id]);
+                                  }
+                                }}
+                              >
+                                <TableCell>
+                                  <div className={`h-4 w-4 rounded border ${
+                                    selectedClientes.includes(cliente.id) 
+                                      ? 'bg-purple-600 border-purple-600' 
+                                      : 'border-gray-300'
+                                  }`}>
+                                    {selectedClientes.includes(cliente.id) && (
+                                      <Check className="h-3 w-3 text-white" />
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="font-medium">{cliente.nombre}</TableCell>
+                                <TableCell>{cliente.direccion || 'Sin dirección'}</TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    
+                    <div className="mt-4 flex justify-end">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleAddCliente}
+                        disabled={selectedClientes.length === 0}
+                      >
+                        Añadir seleccionados
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                {formData.clientes.length > 0 && (
+                  <div className="border rounded-lg p-4 bg-slate-50">
+                    <Label className="text-lg font-semibold mb-4 block">Clientes seleccionados ({formData.clientes.length})</Label>
+                    <Table>
+                      <TableHeader className="bg-slate-50">
+                        <TableRow>
+                          <TableHead>Cliente</TableHead>
+                          <TableHead>Dirección</TableHead>
+                          <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {formData.clientes.map((cliente, index) => (
+                          <TableRow key={cliente.id}>
+                            <TableCell className="font-medium">{cliente.nombre}</TableCell>
+                            <TableCell>{cliente.direccion}</TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleRemoveCliente(index)}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 )}
               </div>
@@ -411,7 +503,11 @@ const RutasDistritos = () => {
                 }}>
                   Cancelar
                 </Button>
-                <Button onClick={handleSubmit} className="bg-asram hover:bg-asram-700">
+                <Button 
+                  onClick={handleSubmit} 
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  disabled={formData.clientes.length === 0}
+                >
                   Crear Ruta
                 </Button>
               </DialogFooter>
@@ -430,12 +526,12 @@ const RutasDistritos = () => {
       </div>
       
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Rutas Activas
             </CardTitle>
-            <Route className="h-4 w-4 text-muted-foreground" />
+            <Route className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{rutas.filter(r => !r.completada).length}</div>
@@ -444,12 +540,12 @@ const RutasDistritos = () => {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Distritos Cubiertos
             </CardTitle>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <MapPin className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -460,16 +556,16 @@ const RutasDistritos = () => {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Litros Totales Recogidos
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {rutas.reduce((total, ruta) => total + (ruta.litrosTotales || 0), 0)}L
+              {getTotalLitrosRecogidos()}L
             </div>
             <p className="text-xs text-muted-foreground">
               litros recogidos en todas las rutas
@@ -478,7 +574,7 @@ const RutasDistritos = () => {
         </Card>
       </div>
       
-      <Card>
+      <Card className="bg-white shadow-sm">
         <CardHeader>
           <CardTitle>Listado de Rutas</CardTitle>
           <CardDescription>
@@ -495,7 +591,7 @@ const RutasDistritos = () => {
             
             <div className="flex items-center gap-2">
               <Select value={filterDistrito} onValueChange={setFilterDistrito}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] bg-white">
                   <SelectValue placeholder="Filtrar por distrito" />
                 </SelectTrigger>
                 <SelectContent>
@@ -516,40 +612,55 @@ const RutasDistritos = () => {
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-slate-50">
                   <TableRow>
-                    <TableHead>Nombre de la ruta</TableHead>
-                    <TableHead>Distrito</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Hora</TableHead>
-                    <TableHead>Personal asignado</TableHead>
-                    <TableHead>Nº Clientes</TableHead>
-                    {currentTab === "completadas" && <TableHead>Litros recogidos</TableHead>}
-                    <TableHead>Acciones</TableHead>
+                    <TableHead className="font-medium">Nombre de la ruta</TableHead>
+                    <TableHead className="font-medium">Distrito</TableHead>
+                    <TableHead className="font-medium">Fecha</TableHead>
+                    <TableHead className="font-medium">Hora</TableHead>
+                    <TableHead className="font-medium">Personal asignado</TableHead>
+                    <TableHead className="font-medium">Nº Clientes</TableHead>
+                    {currentTab === "completadas" && <TableHead className="font-medium">Litros recogidos</TableHead>}
+                    <TableHead className="font-medium">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {displayedRutas.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={currentTab === "completadas" ? 8 : 7} className="text-center">
+                      <TableCell colSpan={currentTab === "completadas" ? 8 : 7} className="text-center py-8 text-muted-foreground">
                         No hay rutas {currentTab === "pendientes" ? "pendientes" : "completadas"}
                       </TableCell>
                     </TableRow>
                   ) : (
                     displayedRutas.map((ruta) => (
-                      <TableRow key={ruta.id}>
+                      <TableRow key={ruta.id} className="hover:bg-slate-50">
                         <TableCell className="font-medium">{ruta.nombre}</TableCell>
-                        <TableCell>{ruta.distrito}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="bg-slate-50">
+                            {ruta.distrito}
+                          </Badge>
+                        </TableCell>
                         <TableCell>
                           {ruta.fecha 
-                            ? new Date(ruta.fecha).toLocaleDateString() 
+                            ? format(new Date(ruta.fecha), "dd/MM/yyyy")
                             : "No programada"}
                         </TableCell>
-                        <TableCell>{ruta.hora}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-slate-400" />
+                            {ruta.hora || "N/A"}
+                          </div>
+                        </TableCell>
                         <TableCell>{ruta.recogedores}</TableCell>
-                        <TableCell>{ruta.clientes?.length || clientesPorDistrito[ruta.distrito] || 0}</TableCell>
+                        <TableCell className="font-medium">
+                          {ruta.clientes?.length || clientesPorDistrito[ruta.distrito] || 0}
+                        </TableCell>
                         {currentTab === "completadas" && (
-                          <TableCell>{ruta.litrosTotales || 0}L</TableCell>
+                          <TableCell>
+                            <Badge className="bg-purple-100 text-purple-800">
+                              {ruta.litrosTotales || 0}L
+                            </Badge>
+                          </TableCell>
                         )}
                         <TableCell>
                           <div className="flex gap-1">
@@ -557,26 +668,32 @@ const RutasDistritos = () => {
                               <>
                                 <Button 
                                   variant="outline" 
-                                  size="icon"
+                                  size="sm"
                                   onClick={() => handleOpenEditDialog(ruta)}
+                                  className="h-8 px-2"
                                 >
-                                  <PenLine className="h-4 w-4" />
+                                  <PenLine className="h-3.5 w-3.5" />
+                                  <span className="sr-only">Editar</span>
                                 </Button>
                                 <Button 
                                   variant="outline" 
-                                  size="icon"
+                                  size="sm"
                                   onClick={() => handleOpenCompleteDialog(ruta)}
+                                  className="h-8 px-2 bg-green-50 text-green-600 hover:bg-green-100 border-green-200"
                                 >
-                                  <Check className="h-4 w-4" />
+                                  <Check className="h-3.5 w-3.5" />
+                                  <span className="sr-only">Completar</span>
                                 </Button>
                               </>
                             ) : (
                               <Button 
                                 variant="outline" 
-                                size="icon"
+                                size="sm"
                                 onClick={() => handleDeleteRuta(ruta.id)}
+                                className="h-8 px-2 bg-red-50 text-red-600 hover:bg-red-100 border-red-200"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-3.5 w-3.5" />
+                                <span className="sr-only">Eliminar</span>
                               </Button>
                             )}
                           </div>
@@ -589,15 +706,6 @@ const RutasDistritos = () => {
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
-            Mostrando {displayedRutas.length} rutas {currentTab === "pendientes" ? "pendientes" : "completadas"}
-          </div>
-          <div className="space-x-2">
-            <Button variant="outline" size="sm">Anterior</Button>
-            <Button variant="outline" size="sm">Siguiente</Button>
-          </div>
-        </CardFooter>
       </Card>
       
       <Dialog open={isEditingRuta} onOpenChange={setIsEditingRuta}>
@@ -806,58 +914,4 @@ const RutasDistritos = () => {
             <Button
               variant="outline"
               onClick={() => {
-                setIsEditingRuta(false);
-                resetForm();
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              className="bg-asram hover:bg-asram-700"
-              onClick={handleSubmit}
-            >
-              Actualizar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Completar ruta</DialogTitle>
-            <DialogDescription>
-              Registra los litros recogidos en cada ubicación
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedRuta && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 pb-4">
-                <div>
-                  <p className="text-sm font-medium">Nombre de la ruta:</p>
-                  <p className="text-lg">{selectedRuta.nombre}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Distrito:</p>
-                  <p className="text-lg">{selectedRuta.distrito}</p>
-                </div>
-              </div>
-
-              <ClientesRutaList
-                clientes={selectedRuta.clientes || []}
-                onUpdateLitros={(clienteId, litros) => 
-                  handleUpdateClienteLitros(selectedRuta.id, clienteId, litros)
-                }
-                onComplete={() => handleCompleteRuta()}
-                showComplete={true}
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default RutasDistritos;
+                setIsEditing
