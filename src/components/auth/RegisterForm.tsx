@@ -21,7 +21,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import type { UserRole } from "@/types";
+import { UserRole } from "@/types";
 
 const RegisterForm = () => {
   const [email, setEmail] = useState("");

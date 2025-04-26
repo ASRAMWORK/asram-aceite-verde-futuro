@@ -100,8 +100,8 @@ const GestionRecogidas = () => {
   const [filteredClientes, setFilteredClientes] = useState(usuarios);
   
   const filteredRecogidas = currentTab === "pendientes"
-    ? recogidas.filter(r => !r.completada)
-    : recogidas.filter(r => r.completada);
+    ? recogidas.filter(r => r.estado === "pendiente")
+    : recogidas.filter(r => r.estado === "realizada");
   
   const displayedRecogidas = filterDistrito
     ? filteredRecogidas.filter(r => r.distrito === filterDistrito)
@@ -238,47 +238,92 @@ const GestionRecogidas = () => {
       return;
     }
     
-    const recogidaData = {
-      clienteId: formData.clienteId,
-      fechaSolicitud: new Date(formData.fecha).toISOString(),
-      fechaProgramada: new Date(formData.fecha).toISOString(),
-      fechaCompletada: null,
-      fecha: new Date(formData.fecha).toISOString(),
-      hora: formData.hora,
-      distrito: formData.distrito,
-      barrio: formData.barrio,
-      direccion: formData.distrito,
-      telefono: "",
-      tipo: formData.tipoBusqueda === "cliente" ? "individual" as const : "zona" as const,
-      estado: "programado",
-      litrosEstimados: 0,
-      litrosRecogidos: 0,
-      completada: false
-    };
-    
-    if (isEditingRecogida && selectedRecogida) {
-      await updateRecogida(selectedRecogida.id, recogidaData);
-      setIsEditingRecogida(false);
-    } else {
-      await addRecogida(recogidaData as Omit<Recogida, 'id'>);
+    try {
+      const fechaObj = new Date(formData.fecha);
+      
+      // Since we're using the updated Recogida interface, we format our data to match it
+      const recogidaData: Omit<Recogida, "id"> = {
+        clienteId: formData.clienteId,
+        fecha: fechaObj,
+        fechaSolicitud: fechaObj,
+        fechaProgramada: fechaObj,
+        fechaCompletada: null,
+        nombreLugar: formData.distrito,
+        direccion: formData.distrito,
+        distrito: formData.distrito,
+        barrio: formData.barrio,
+        hora: formData.hora,
+        horaInicio: formData.hora,
+        tipo: formData.tipoBusqueda,
+        estado: "pendiente",
+        litrosRecogidos: 0,
+        litrosEstimados: 0,
+        createdAt: new Date(),
+        telefono: "",
+      };
+      
+      await addRecogida(recogidaData);
+      
       setIsAddingRecogida(false);
+      resetForm();
+    } catch (error) {
+      console.error("Error al crear recogida:", error);
+      alert("Error al crear la recogida");
+    }
+  };
+  
+  const handleEdit = async () => {
+    if (!selectedRecogida) return;
+    if (!formData.fecha || !formData.hora || !formData.distrito) {
+      alert("Por favor completa todos los campos obligatorios");
+      return;
     }
     
-    resetForm();
+    try {
+      const fechaObj = new Date(formData.fecha);
+      
+      const updatedData: Partial<Recogida> = {
+        ...selectedRecogida,
+        fecha: fechaObj,
+        fechaProgramada: fechaObj,
+        clienteId: formData.clienteId,
+        distrito: formData.distrito,
+        barrio: formData.barrio,
+        hora: formData.hora,
+        horaInicio: formData.hora,
+      };
+      
+      await updateRecogida(selectedRecogida.id, updatedData);
+      
+      setIsEditingRecogida(false);
+      resetForm();
+    } catch (error) {
+      console.error("Error al actualizar recogida:", error);
+      alert("Error al actualizar la recogida");
+    }
   };
   
-  const handleCompleteRecogida = async () => {
+  const handleComplete = async () => {
     if (!selectedRecogida) return;
     
-    await completeRecogida(selectedRecogida.id, litrosRecogidos);
-    setIsCompletingRecogida(false);
-    setLitrosRecogidos(0);
-    setSelectedRecogida(null);
+    try {
+      await completeRecogida(selectedRecogida.id, litrosRecogidos);
+      setIsCompletingRecogida(false);
+      resetForm();
+    } catch (error) {
+      console.error("Error al completar recogida:", error);
+      alert("Error al completar la recogida");
+    }
   };
   
-  const handleDeleteRecogida = async (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar esta recogida?")) {
-      await deleteRecogida(id);
+      try {
+        await deleteRecogida(id);
+      } catch (error) {
+        console.error("Error al eliminar recogida:", error);
+        alert("Error al eliminar la recogida");
+      }
     }
   };
   
@@ -517,7 +562,7 @@ const GestionRecogidas = () => {
                       <TableRow key={recogida.id}>
                         <TableCell>
                           {recogida.tipo === "individual" 
-                            ? getClienteName(recogida.clienteId)
+                            ? getClienteName(recogida.clienteId || "")
                             : `Recogida por zona`}
                         </TableCell>
                         <TableCell>
@@ -558,7 +603,7 @@ const GestionRecogidas = () => {
                               <Button 
                                 variant="outline" 
                                 size="icon"
-                                onClick={() => handleDeleteRecogida(recogida.id)}
+                                onClick={() => handleDelete(recogida.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -640,7 +685,7 @@ const GestionRecogidas = () => {
             </Button>
             <Button 
               className="bg-asram hover:bg-asram-700"
-              onClick={handleCompleteRecogida}
+              onClick={handleComplete}
             >
               Completar
             </Button>
@@ -790,7 +835,7 @@ const GestionRecogidas = () => {
             </Button>
             <Button 
               className="bg-asram hover:bg-asram-700"
-              onClick={handleSubmit}
+              onClick={handleEdit}
             >
               Actualizar
             </Button>

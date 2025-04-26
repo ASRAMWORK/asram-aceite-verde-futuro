@@ -7,6 +7,8 @@ export interface User {
   emailVerified: boolean;
 }
 
+export type UserRole = 'user' | 'admin_finca' | 'superadmin' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'administrador';
+
 export interface UserProfile {
   id?: string;
   userId: string;
@@ -42,6 +44,11 @@ export interface Usuario {
   role?: 'user' | 'admin_finca' | 'superadmin';
   createdAt: Date;
   updatedAt?: Date;
+  // Add missing properties used in components
+  numViviendas?: number;
+  numContenedores?: number;
+  litrosRecogidos?: number;
+  litrosEstimados?: number;
 }
 
 export interface ComunidadVecinos {
@@ -82,9 +89,22 @@ export interface Recogida {
   tecnicoId?: string;
   nombreTecnico?: string;
   observaciones?: string;
-  estado: 'pendiente' | 'realizada' | 'cancelada';
+  estado: 'pendiente' | 'realizada' | 'cancelada' | 'programado';
   createdAt: any;
   updatedAt?: any;
+  // Add missing properties used in components
+  clienteId?: string;
+  hora?: string;
+  horaInicio?: string;
+  horaFin?: string;
+  notas?: string;
+  completada?: boolean;
+  fechaSolicitud?: Date;
+  fechaProgramada?: Date;
+  fechaCompletada?: Date | null;
+  tipo?: 'zona' | 'individual' | 'calendario';
+  telefono?: string;
+  litrosEstimados?: number;
 }
 
 export interface PuntoVerde {
@@ -135,6 +155,7 @@ export interface Trabajador {
   observaciones?: string;
   createdAt: any;
   updatedAt?: any;
+  vehiculoAsignado?: string;
 }
 
 export interface Instalacion {
@@ -146,6 +167,119 @@ export interface Instalacion {
   numContenedores: number;
   numPorteria: number;
   numViviendas: number;
+  createdAt: any;
+  updatedAt?: any;
+}
+
+// Add missing types referenced in other files
+export interface CalendarioRecogida {
+  id: string;
+  fecha: Date;
+  distrito: string;
+  horaInicio: string;
+  horaFin: string;
+  estado: 'programado' | 'completado' | 'cancelado';
+  notas?: string;
+}
+
+export interface Ruta {
+  id: string;
+  nombre: string;
+  distrito: string;
+  barrios: string[];
+  puntosRecogida: number;
+  distanciaTotal: number;
+  tiempoEstimado: number;
+  frecuencia: string;
+  tecnicoAsignado?: string;
+  vehiculoAsignado?: string;
+  createdAt: any;
+  updatedAt?: any;
+}
+
+export interface Turno {
+  id: string;
+  trabajadorId: string;
+  nombreTrabajador: string;
+  fecha: Date;
+  horaInicio: string;
+  horaFin: string;
+  distrito: string;
+  vehiculo?: string;
+  estado: 'programado' | 'completado' | 'cancelado';
+  createdAt: any;
+  updatedAt?: any;
+}
+
+export interface Ingreso {
+  id: string;
+  concepto: string;
+  cantidad: number;
+  fecha: Date;
+  cliente?: string;
+  categoria: string;
+  notas?: string;
+  createdAt: any;
+  updatedAt?: any;
+}
+
+export interface Gasto {
+  id: string;
+  concepto: string;
+  cantidad: number;
+  fecha: Date;
+  proveedor?: string;
+  categoria: string;
+  notas?: string;
+  createdAt: any;
+  updatedAt?: any;
+}
+
+export interface ChartConfig {
+  id: string;
+  title: string;
+  type: 'bar' | 'line' | 'pie' | 'doughnut';
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor?: string[];
+    borderColor?: string;
+    borderWidth?: number;
+  }[];
+  options?: any;
+}
+
+export interface AlianzaVerde {
+  id: string;
+  nombre: string;
+  tipo: 'escuela' | 'empresa' | 'institucion';
+  direccion: string;
+  distrito: string;
+  barrio: string;
+  contacto: string;
+  email: string;
+  telefono: string;
+  fechaInicio: Date;
+  estado: 'activa' | 'inactiva' | 'pendiente';
+  numParticipantes?: number;
+  litrosRecolectados: number;
+  createdAt: any;
+  updatedAt?: any;
+}
+
+export interface CalleApadrinada {
+  id: string;
+  nombre: string;
+  distrito: string;
+  barrio: string;
+  longitud: number;
+  padrino: string;
+  tipoCliente: string;
+  fechaInicio: Date;
+  fechaFin?: Date;
+  estado: 'activo' | 'inactivo' | 'pendiente';
+  numContenedores: number;
   createdAt: any;
   updatedAt?: any;
 }

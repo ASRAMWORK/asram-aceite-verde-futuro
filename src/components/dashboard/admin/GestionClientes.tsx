@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -86,8 +87,11 @@ const GestionClientes = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   
+  // Cast usuarios to include our extended type with numViviendas and numContenedores
+  const typedUsuarios = usuarios as (Usuario & { numViviendas?: number, numContenedores?: number })[];
+  
   // Calculate statistics for each type of client
-  const comunidades = usuarios.filter(u => u.tipo === "Comunidad de Vecinos");
+  const comunidades = typedUsuarios.filter(u => u.tipo === "Comunidad de Vecinos");
   const totalComunidades = comunidades.length;
   const totalViviendas = comunidades.reduce((sum, u) => sum + (u.numViviendas || 0), 0);
   const totalContenedores = comunidades.reduce((sum, u) => sum + (u.numContenedores || 0), 0);
@@ -116,8 +120,8 @@ const GestionClientes = () => {
   
   // Filter usuarios based on the current tab and search term
   const filteredByTab = currentTab === "todos" 
-    ? usuarios 
-    : usuarios.filter(u => u.tipo === currentTab);
+    ? typedUsuarios 
+    : typedUsuarios.filter(u => u.tipo === currentTab);
     
   const filteredBySearch = searchTerm 
     ? filteredByTab.filter(u => 
@@ -136,12 +140,14 @@ const GestionClientes = () => {
   
   const handleOpenEditDialog = (usuario: Usuario) => {
     setSelectedUsuario(usuario);
+    // Cast usuario to include our extended type with numViviendas and numContenedores
+    const typedUsuario = usuario as (Usuario & { numViviendas?: number, numContenedores?: number, litrosRecogidos?: number });
     setFormData({
-      ...usuario,
+      ...typedUsuario,
       // Ensure these values are numbers
-      numViviendas: usuario.numViviendas || 0,
-      numContenedores: usuario.numContenedores || 0,
-      litrosRecogidos: usuario.litrosRecogidos || 0
+      numViviendas: typedUsuario.numViviendas || 0,
+      numContenedores: typedUsuario.numContenedores || 0,
+      litrosRecogidos: typedUsuario.litrosRecogidos || 0
     });
     
     if (usuario.distrito) {
@@ -151,7 +157,11 @@ const GestionClientes = () => {
     setIsEditingUsuario(true);
   };
   
-  const [formData, setFormData] = useState<Partial<Usuario>>({});
+  const [formData, setFormData] = useState<Partial<Usuario> & { 
+    numViviendas?: number; 
+    numContenedores?: number;
+    litrosRecogidos?: number;
+  }>({});
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -199,7 +209,26 @@ const GestionClientes = () => {
   const handleSubmit = async () => {
     if (!selectedUsuario) return;
     
-    await updateUsuario(selectedUsuario.id, formData);
+    // Create a copy of formData without the extra properties
+    const { numViviendas, numContenedores, litrosRecogidos, ...basicFormData } = formData;
+    
+    // Use a type assertion to add the specialized fields back
+    const updateData: Partial<Usuario> = {
+      ...basicFormData
+    };
+    
+    // Now safely add back the specialized fields with type assertion
+    if (numViviendas !== undefined) {
+      (updateData as any).numViviendas = numViviendas;
+    }
+    if (numContenedores !== undefined) {
+      (updateData as any).numContenedores = numContenedores;
+    }
+    if (litrosRecogidos !== undefined) {
+      (updateData as any).litrosRecogidos = litrosRecogidos;
+    }
+    
+    await updateUsuario(selectedUsuario.id, updateData);
     
     // Si es una comunidad y cambiaron los datos relevantes para puntos verdes, actualizar/añadir punto verde
     if (selectedUsuario.tipo === "Comunidad de Vecinos") {
@@ -213,8 +242,12 @@ const GestionClientes = () => {
           if (formData.distrito) updateData.distrito = formData.distrito;
           if (formData.barrio) updateData.barrio = formData.barrio;
           if (formData.direccion) updateData.direccion = formData.direccion;
-          if (formData.numViviendas !== undefined) updateData.numViviendas = formData.numViviendas;
-          if (formData.numContenedores !== undefined) updateData.numContenedores = formData.numContenedores;
+          if (formData.numViviendas !== undefined) {
+            (updateData as any).numViviendas = formData.numViviendas;
+          }
+          if (formData.numContenedores !== undefined) {
+            (updateData as any).numContenedores = formData.numContenedores;
+          }
           if (formData.telefono) updateData.telefono = formData.telefono;
         } else if (formData.numContenedores && formData.numContenedores > 0) {
           // Crear nuevo punto verde
@@ -222,8 +255,8 @@ const GestionClientes = () => {
             distrito: formData.distrito || selectedUsuario.distrito || "",
             barrio: formData.barrio || selectedUsuario.barrio || "",
             direccion: formData.direccion || selectedUsuario.direccion || "",
-            numViviendas: formData.numViviendas || selectedUsuario.numViviendas || 0,
-            numContenedores: formData.numContenedores || selectedUsuario.numContenedores || 0,
+            numViviendas: formData.numViviendas || 0,
+            numContenedores: formData.numContenedores || 0,
             telefono: formData.telefono || selectedUsuario.telefono || "",
             litrosRecogidos: 0,
             administradorId: null // Adding the required field

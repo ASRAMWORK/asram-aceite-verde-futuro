@@ -28,7 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { distritos } from "@/data/madridDistritos";
-import { CalendarioRecogida } from "@/types";
+import { Recogida } from "@/types";
 import { useRecogidas } from "@/hooks/useRecogidas";
 import { format, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
@@ -64,18 +64,22 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
       fecha: selectedDate,
       horaInicio: newRecogida.horaInicio,
       horaFin: newRecogida.horaFin,
-      estado: "programado",
+      estado: "pendiente", // Changed from "programado" to "pendiente" to match the Recogida type
       notas: newRecogida.notas,
       // Include required fields for Recogida type
+      nombreLugar: newRecogida.distrito,
+      direccion: newRecogida.distrito,
+      barrio: "",
+      litrosRecogidos: 0,
+      createdAt: new Date(),
+      // Additional fields that might be needed
       fechaSolicitud: selectedDate,
       fechaProgramada: selectedDate,
       fechaCompletada: null,
       clienteId: "sistema",
-      direccion: newRecogida.distrito,
-      telefono: "",
       tipo: "calendario",
+      telefono: "",
       litrosEstimados: 0,
-      litrosRecogidos: 0,
       completada: false
     });
 
@@ -137,9 +141,9 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
                       <h4 className="font-medium">{recogida.distrito}</h4>
                       <Badge
                         variant={
-                          recogida.estado === "completado"
+                          recogida.estado === "realizada"
                             ? "default"
-                            : recogida.estado === "cancelado"
+                            : recogida.estado === "cancelada"
                             ? "destructive"
                             : "outline"
                         }
@@ -150,7 +154,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>
-                        {recogida.horaInicio} - {recogida.horaFin}
+                        {recogida.horaInicio || "09:00"} - {recogida.horaFin || "14:00"}
                       </span>
                     </div>
                     {recogida.notas && (

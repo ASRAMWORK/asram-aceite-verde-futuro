@@ -122,7 +122,8 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
         activo: true,
         numViviendas: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numViviendas?.toString() || "0") : undefined,
         numContenedores: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numContenedores?.toString() || "0") : undefined,
-        frecuenciaRecogida: formData.frecuenciaRecogida
+        frecuenciaRecogida: formData.frecuenciaRecogida,
+        createdAt: new Date()
       };
       
       const usuarioCreado = await addUsuario(nuevoUsuario);
@@ -137,6 +138,7 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
           telefono: data.telefono,
           litrosRecogidos: 0,
           administradorId: null,
+          createdAt: new Date()
         };
         
         await addPuntoVerde(nuevoPuntoVerde);
