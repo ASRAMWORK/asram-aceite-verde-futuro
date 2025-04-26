@@ -8,12 +8,14 @@ import ImpactMetrics from "@/components/home/ImpactMetrics";
 import ServiceInfo from "@/components/home/ServiceInfo";
 import ProgramHighlights from "@/components/home/ProgramHighlights";
 import Hero from "@/components/home/Hero";
+import NavBar from "@/components/home/NavBar";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <NavBar />
       <Hero />
       <main>
         <motion.div 
