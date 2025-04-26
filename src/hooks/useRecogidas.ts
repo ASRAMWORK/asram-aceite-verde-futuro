@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, increment } from 'firebase/firestore';
 import type { Recogida } from '@/types';
 import { toast } from 'sonner';
 
@@ -36,6 +35,10 @@ export function useRecogidas() {
     }
   };
   
+  const getTotalLitrosRecogidos = useCallback(() => {
+    return recogidas.reduce((acc, recogida) => acc + (recogida.litrosRecogidos || 0), 0);
+  }, [recogidas]);
+
   const addRecogida = async (nuevaRecogida: Partial<Omit<Recogida, 'id'>>) => {
     try {
       // Ensure all required fields are present
@@ -48,7 +51,16 @@ export function useRecogidas() {
         estado: nuevaRecogida.estado || "pendiente"
       };
       
-      await addDoc(collection(db, "recogidas"), recogidaData);
+      const docRef = await addDoc(collection(db, "recogidas"), recogidaData);
+      
+      // Update total litros in the user's record if clienteId exists
+      if (recogidaData.clienteId && recogidaData.litrosRecogidos) {
+        const userRef = doc(db, "usuarios", recogidaData.clienteId);
+        await updateDoc(userRef, {
+          litrosAportados: increment(recogidaData.litrosRecogidos)
+        });
+      }
+      
       toast.success("Recogida programada correctamente");
       await loadRecogidasData();
       return true;
@@ -133,6 +145,7 @@ export function useRecogidas() {
     deleteRecogida,
     getRecogidasByDistrito,
     getRecogidasByBarrio,
-    getRecogidasByCliente
+    getRecogidasByCliente,
+    getTotalLitrosRecogidos
   };
 }

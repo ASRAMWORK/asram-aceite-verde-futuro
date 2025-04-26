@@ -8,12 +8,13 @@ import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { useTrabajadores } from "@/hooks/useTrabajadores";
 import { useInstalaciones } from "@/hooks/useInstalaciones";
 import { useFacturacion } from "@/hooks/useFacturacion";
-import { Building, Briefcase, Users, Home, CalendarDays, User, FileText, Bell, AlertCircle } from "lucide-react";
+import { Building, Briefcase, Users, Home, CalendarDays, User, FileText, Bell, AlertCircle, Droplet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { useRecogidas } from "@/hooks/useRecogidas";
 
 const AdminDashboard = () => {
   const { puntosVerdes, loading: loadingPuntos } = usePuntosVerdes();
@@ -22,6 +23,7 @@ const AdminDashboard = () => {
   const { trabajadores, loading: loadingTrabajadores } = useTrabajadores();
   const { instalaciones, loading: loadingInstalaciones } = useInstalaciones();
   const { ingresos, gastos, loading: loadingFacturacion } = useFacturacion();
+  const { recogidas } = useRecogidas();
 
   // Calculate statistics - now counts all registered users plus active community clients
   const clientesActivos = usuarios.filter(u => u.activo).length;
@@ -35,7 +37,15 @@ const AdminDashboard = () => {
   const totalContenedores = instalaciones.reduce((acc, inst) => acc + (inst.numContenedores || 0), 0);
   
   // Calculate total litros recogidos from all puntos verdes
-  const totalLitrosRecogidos = puntosVerdes.reduce((acc, punto) => acc + (punto.litrosRecogidos || 0), 0);
+  const totalLitrosRecogidos = React.useMemo(() => {
+    const litrosFromRecogidas = recogidas.reduce((acc, recogida) => 
+      acc + (recogida.litrosRecogidos || 0), 0);
+      
+    const litrosFromUsuarios = usuarios.reduce((acc, usuario) => 
+      acc + (usuario.litrosAportados || 0), 0);
+      
+    return litrosFromRecogidas + litrosFromUsuarios;
+  }, [recogidas, usuarios]);
   
   // Notifications system
   const [notifications, setNotifications] = useState([
@@ -323,7 +333,7 @@ const AdminDashboard = () => {
         <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Litros Recogidos</CardTitle>
-            <Home className="h-5 w-5 text-purple-500" />
+            <Droplet className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
