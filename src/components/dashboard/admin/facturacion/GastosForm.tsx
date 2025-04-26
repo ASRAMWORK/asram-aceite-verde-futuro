@@ -63,11 +63,16 @@ const GastosForm = ({ isOpen, onClose, initialData }: GastosFormProps) => {
   const handleSubmit = async (data: FormData) => {
     setLoading(true);
     try {
+      // Pass all required data, addGasto will handle serverTimestamp internally
       await addGasto({
-        ...data,
+        concepto: data.concepto,
         cantidad: Number(data.cantidad),
         fecha: new Date(data.fecha),
         categoria: data.tipo,
+        tipo: data.tipo,
+        proveedor: data.proveedor,
+        numFactura: data.numFactura,
+        notas: data.notas,
       });
       onClose();
     } catch (error) {

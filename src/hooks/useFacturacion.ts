@@ -73,13 +73,13 @@ export function useFacturacion() {
     }
   };
 
-  const addIngreso = async (data: Omit<Ingreso, 'id'>) => {
+  const addIngreso = async (data: Partial<Omit<Ingreso, 'id'>>) => {
     try {
       // Make sure categoria is set, fallback to tipo if not provided
       const ingresoData = {
         ...data,
         categoria: data.categoria || data.tipo || '',
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp() // Ensure createdAt is always set
       };
       
       await addDoc(collection(db, "ingresos"), ingresoData);
@@ -122,13 +122,13 @@ export function useFacturacion() {
     }
   };
 
-  const addGasto = async (data: Omit<Gasto, 'id'>) => {
+  const addGasto = async (data: Partial<Omit<Gasto, 'id'>>) => {
     try {
       // Make sure categoria is set, fallback to tipo if not provided
       const gastoData = {
         ...data,
         categoria: data.categoria || data.tipo || '',
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp() // Ensure createdAt is always set
       };
       
       await addDoc(collection(db, "gastos"), gastoData);

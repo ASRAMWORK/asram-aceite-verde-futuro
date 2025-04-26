@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
   CardDescription 
@@ -13,47 +13,45 @@ import RecogidasChart from './RecogidasChart';
 import { Recogida } from '@/types';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { useRecogidas } from '@/hooks/useRecogidas';
 
 const AdministradorRecogidas = () => {
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('listado');
-  const [recogidas, setRecogidas] = useState<Recogida[]>([]);
+  const { recogidas, addRecogida } = useRecogidas();
   
-  const createRecogida = (formData: any) => {
+  const createRecogida = async (formData: any) => {
     try {
-      const nuevaRecogida: Omit<Recogida, 'id'> = {
+      const fecha = new Date(formData.fecha || formData.fechaProgramada || new Date());
+      
+      const nuevaRecogida: Partial<Omit<Recogida, 'id'>> = {
         clienteId: formData.clienteId,
         fechaSolicitud: new Date(),
-        fechaProgramada: new Date(formData.fechaProgramada),
+        fechaProgramada: new Date(formData.fechaProgramada || fecha),
         fechaCompletada: null,
-        fecha: new Date(formData.fecha),
+        fecha: fecha,
         hora: formData.hora,
         distrito: formData.distrito,
         barrio: formData.barrio,
         direccion: formData.direccion,
         telefono: formData.telefono,
-        nombreLugar: formData.nombreLugar || formData.direccion,
+        nombreLugar: formData.nombreLugar || formData.direccion || "Sin dirección especificada",
         tipo: formData.tipoBusqueda as "zona" | "individual" | "calendario",
         estado: "pendiente",
         litrosRecogidos: 0,
         litrosEstimados: formData.litrosEstimados || 0,
-        completada: false,
-        createdAt: new Date()
+        completada: false
       };
 
       console.log("Creating new recogida:", nuevaRecogida);
       
-      // Add to recogidas with a unique ID
-      setRecogidas([
-        ...recogidas,
-        {
-          ...nuevaRecogida,
-          id: `rec-${Date.now()}`,
-        } as Recogida,
-      ]);
+      // Use the useRecogidas hook to add the recogida
+      const success = await addRecogida(nuevaRecogida);
       
-      setShowForm(false);
-      toast.success(`Recogida programada para ${format(new Date(formData.fecha), 'dd/MM/yyyy')}`);
+      if (success) {
+        setShowForm(false);
+        toast.success(`Recogida programada para ${format(fecha, 'dd/MM/yyyy')}`);
+      }
     } catch (error) {
       console.error("Error creating recogida:", error);
       toast.error("Error al crear la recogida");

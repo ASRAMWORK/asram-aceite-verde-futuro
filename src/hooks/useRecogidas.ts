@@ -36,14 +36,16 @@ export function useRecogidas() {
     }
   };
   
-  const addRecogida = async (nuevaRecogida: Omit<Recogida, 'id'>) => {
+  const addRecogida = async (nuevaRecogida: Partial<Omit<Recogida, 'id'>>) => {
     try {
+      // Ensure all required fields are present
       const recogidaData = {
         ...nuevaRecogida,
         completada: false,
         createdAt: serverTimestamp(),
-        litrosRecogidos: 0,  // Add default value for missing required field
+        litrosRecogidos: nuevaRecogida.litrosRecogidos || 0,  // Set default if missing
         fecha: nuevaRecogida.fecha || nuevaRecogida.fechaSolicitud || new Date(),  // Ensure fecha is set
+        estado: nuevaRecogida.estado || "pendiente"
       };
       
       await addDoc(collection(db, "recogidas"), recogidaData);

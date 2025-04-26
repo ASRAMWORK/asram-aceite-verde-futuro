@@ -61,11 +61,17 @@ const IngresosForm = ({ isOpen, onClose, initialData }: IngresosFormProps) => {
   const handleSubmit = async (data: FormData) => {
     setLoading(true);
     try {
+      // Pass all required data, addIngreso will handle serverTimestamp internally
       await addIngreso({
-        ...data,
+        concepto: data.concepto,
         cantidad: Number(data.cantidad),
         fecha: new Date(data.fecha),
         categoria: data.tipo,
+        tipo: data.tipo,
+        cliente: data.cliente,
+        origen: data.origen,
+        numFactura: data.numFactura,
+        notas: data.notas,
       });
       onClose();
     } catch (error) {
