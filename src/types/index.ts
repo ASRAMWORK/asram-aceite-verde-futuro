@@ -64,6 +64,7 @@ export interface Usuario {
   numContenedores?: number;
   litrosRecogidos?: number;
   litrosEstimados?: number;
+  litrosAportados?: number;
 }
 
 export interface ComunidadVecinos {
