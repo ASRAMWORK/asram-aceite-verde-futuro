@@ -1,10 +1,9 @@
-
+import React, { useState } from 'react';
 import PageLayout from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Calendar, BookOpen, Users, Award } from "lucide-react";
-import { useState } from "react";
+import { ShoppingCart, Calendar, BookOpen, Users, Award, MapPin } from 'lucide-react';
 
 // Mock data for demo purposes
 const productos = [
