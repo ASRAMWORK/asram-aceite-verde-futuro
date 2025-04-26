@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -57,6 +58,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { distritos } from "@/data/madridDistritos";
 import { toast } from 'sonner';
 import { ClientesRutaList } from "./ClientesRutaList";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type RutaFormData = {
   nombre: string;
@@ -76,6 +87,7 @@ type RutaFormData = {
 const RutasDistritos = () => {
   const { rutas, loading, addRuta, updateRuta, deleteRuta, completeRuta, updateRutaRecogida } = useRutas();
   const { usuarios } = useUsuarios();
+  const { recogidas, addRecogida: addRecogidaToHistory, getTotalLitrosRecogidos } = useRecogidas();
   const [isAddingRuta, setIsAddingRuta] = useState(false);
   const [isEditingRuta, setIsEditingRuta] = useState(false);
   const [isCompletingRuta, setIsCompletingRuta] = useState(false);
@@ -99,8 +111,6 @@ const RutasDistritos = () => {
     tiempoEstimado: 0,
     frecuencia: 'semanal'
   });
-
-  const { recogidas, addRecogida: addRecogidaToHistory, getTotalLitrosRecogidos } = useRecogidas();
 
   const filteredRutas = currentTab === "pendientes"
     ? rutas.filter(r => !r.completada)
@@ -303,6 +313,28 @@ const RutasDistritos = () => {
     toast.success(`Ruta completada con ${totalLitros}L recogidos`);
   };
 
+  const handleDeleteRuta = async (id: string) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar esta ruta?")) {
+      await deleteRuta(id);
+      toast.success("Ruta eliminada correctamente");
+    }
+  };
+
+  const handleClientsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const clientesString = e.target.value;
+    const clientNames = clientesString.split(",").map(name => name.trim()).filter(name => name !== "");
+    const clientesObjetos = clientNames.map((nombre, index) => ({
+      id: `temp-${index}`,
+      nombre,
+      direccion: ''
+    }));
+    
+    setFormData({
+      ...formData,
+      clientes: clientesObjetos
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -314,12 +346,10 @@ const RutasDistritos = () => {
         </div>
         <div className="flex gap-2">
           <Dialog open={isAddingRuta} onOpenChange={setIsAddingRuta}>
-            <DialogTrigger asChild>
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                <Plus className="mr-2 h-4 w-4" />
-                Crear Ruta
-              </Button>
-            </DialogTrigger>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Plus className="mr-2 h-4 w-4" />
+              Crear Ruta
+            </Button>
             <DialogContent className="sm:max-w-[800px]">
               <DialogHeader>
                 <DialogTitle>Crear nueva ruta</DialogTitle>
@@ -914,4 +944,76 @@ const RutasDistritos = () => {
             <Button
               variant="outline"
               onClick={() => {
-                setIsEditing
+                setIsEditingRuta(false);
+                resetForm();
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Actualizar Ruta
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Completar ruta</DialogTitle>
+            <DialogDescription>
+              Registra los litros recogidos para cada cliente
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {selectedRuta && (
+              <>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <p className="text-sm font-medium mb-1">Nombre de la ruta:</p>
+                    <p className="font-semibold">{selectedRuta.nombre}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1">Distrito:</p>
+                    <p className="font-semibold">{selectedRuta.distrito}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1">Fecha:</p>
+                    <p className="font-semibold">
+                      {selectedRuta.fecha 
+                        ? format(new Date(selectedRuta.fecha), "dd/MM/yyyy") 
+                        : "No programada"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1">Puntos de recogida:</p>
+                    <p className="font-semibold">{selectedRuta.clientes?.length || 0}</p>
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  <p className="text-lg font-semibold mb-3">Registro de litros por cliente</p>
+                  
+                  <ClientesRutaList 
+                    clientes={selectedRuta.clientes || []}
+                    onUpdateLitros={(clienteId, litros) => 
+                      handleUpdateClienteLitros(selectedRuta.id, clienteId, litros)
+                    }
+                    onComplete={handleCompleteRuta}
+                    showComplete={true}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default RutasDistritos;
