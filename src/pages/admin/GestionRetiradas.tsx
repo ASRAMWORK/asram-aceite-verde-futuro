@@ -36,31 +36,31 @@ const GestionRetiradas = () => {
   const [retiradaACompletar, setRetiradaACompletar] = useState<string | null>(null);
   const [showCompletarDialog, setShowCompletarDialog] = useState(false);
   
-  const { rutas, loading, addRuta, completarRuta } = useRutas();
+  const { rutas, loading, addRuta, completeRuta } = useRutas();
 
-  // Filtrar rutas según estado, distrito y búsqueda
-  const filtrarRutas = (estado: 'pendiente' | 'completada' | 'todas') => {
+  // Filtrar rutas según estado (completada), distrito y búsqueda
+  const filtrarRutas = (completada: boolean) => {
     return rutas.filter(ruta => {
-      // Filtrar por estado
-      const matchEstado = estado === 'todas' ? true : ruta.estado === estado;
+      // Filtrar por estado de completitud
+      const matchCompletada = completada === ruta.completada;
       
       // Filtrar por distrito
       const matchDistrito = filtroDistrito === 'todos' ? true : ruta.distrito === filtroDistrito;
       
       // Filtrar por búsqueda (distrito o fecha)
-      const fechaFormateada = format(ruta.fecha, "dd/MM/yyyy");
+      const fechaFormateada = ruta.fecha ? format(ruta.fecha, "dd/MM/yyyy") : '';
       const matchBusqueda = busqueda 
         ? ruta.distrito.toLowerCase().includes(busqueda.toLowerCase()) || 
           fechaFormateada.includes(busqueda)
         : true;
       
-      return matchEstado && matchDistrito && matchBusqueda;
+      return matchCompletada && matchDistrito && matchBusqueda;
     });
   };
 
-  const rutasPendientes = filtrarRutas('pendiente');
-  const rutasCompletadas = filtrarRutas('completada');
-  const todasLasRutas = filtrarRutas('todas');
+  const rutasPendientes = filtrarRutas(false);
+  const rutasCompletadas = filtrarRutas(true);
+  const todasLasRutas = rutas;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,11 +72,19 @@ const GestionRetiradas = () => {
     
     // Crear nueva ruta
     const nuevaRuta = {
+      nombre: `Retirada ${distrito} ${format(date, "dd/MM/yyyy")}`,
       fecha: date,
       distrito: distrito,
-      contenedoresRecogidos: parseInt(contenedoresRecogidos),
-      notas: notas,
-      estado: 'pendiente' as const
+      barrios: [],
+      hora: "",
+      recogedores: "",
+      clientes: [],
+      puntosRecogida: parseInt(contenedoresRecogidos),
+      distanciaTotal: 0,
+      tiempoEstimado: 0,
+      frecuencia: "puntual",
+      completada: false,
+      litrosTotales: 0
     };
     
     addRuta(nuevaRuta);
@@ -95,7 +103,7 @@ const GestionRetiradas = () => {
 
   const confirmCompletar = async () => {
     if (retiradaACompletar) {
-      await completarRuta(retiradaACompletar);
+      await completeRuta(retiradaACompletar);
       setShowCompletarDialog(false);
       setRetiradaACompletar(null);
     }
@@ -264,9 +272,9 @@ const GestionRetiradas = () => {
                     rutasPendientes.map((ruta) => (
                       <TableRow key={ruta.id}>
                         <TableCell className="font-medium">{ruta.id.substring(0, 6)}</TableCell>
-                        <TableCell>{format(ruta.fecha, "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{ruta.fecha ? format(ruta.fecha, "dd/MM/yyyy") : 'N/A'}</TableCell>
                         <TableCell>{ruta.distrito}</TableCell>
-                        <TableCell>{ruta.contenedoresRecogidos}</TableCell>
+                        <TableCell>{ruta.puntosRecogida}</TableCell>
                         <TableCell>
                           <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
                             Pendiente
@@ -318,9 +326,9 @@ const GestionRetiradas = () => {
                     rutasCompletadas.map((ruta) => (
                       <TableRow key={ruta.id}>
                         <TableCell className="font-medium">{ruta.id.substring(0, 6)}</TableCell>
-                        <TableCell>{format(ruta.fecha, "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{ruta.fecha ? format(ruta.fecha, "dd/MM/yyyy") : 'N/A'}</TableCell>
                         <TableCell>{ruta.distrito}</TableCell>
-                        <TableCell>{ruta.contenedoresRecogidos}</TableCell>
+                        <TableCell>{ruta.puntosRecogida}</TableCell>
                         <TableCell>
                           <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
                             Completada
@@ -366,20 +374,20 @@ const GestionRetiradas = () => {
                     todasLasRutas.map((ruta) => (
                       <TableRow key={ruta.id}>
                         <TableCell className="font-medium">{ruta.id.substring(0, 6)}</TableCell>
-                        <TableCell>{format(ruta.fecha, "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{ruta.fecha ? format(ruta.fecha, "dd/MM/yyyy") : 'N/A'}</TableCell>
                         <TableCell>{ruta.distrito}</TableCell>
-                        <TableCell>{ruta.contenedoresRecogidos}</TableCell>
+                        <TableCell>{ruta.puntosRecogida}</TableCell>
                         <TableCell>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            ruta.estado === 'completada' 
+                            ruta.completada
                               ? 'bg-green-100 text-green-800' 
                               : 'bg-yellow-100 text-yellow-800'
                           }`}>
-                            {ruta.estado === 'completada' ? 'Completada' : 'Pendiente'}
+                            {ruta.completada ? 'Completada' : 'Pendiente'}
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          {ruta.estado === 'pendiente' ? (
+                          {!ruta.completada ? (
                             <Button 
                               variant="outline" 
                               size="sm"
