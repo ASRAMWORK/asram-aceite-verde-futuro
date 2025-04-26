@@ -40,10 +40,11 @@ type ClienteFormValues = z.infer<typeof clienteSchema>;
 
 interface ClienteFormProps {
   onCancel: () => void;
+  onSubmit: (data: ClienteFormValues) => Promise<void> | void;
   clienteId?: string;
 }
 
-const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
+const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId }) => {
   const { addUsuario, updateUsuario, usuarios } = useUsuarios();
   
   const defaultValues: ClienteFormValues = clienteId 
@@ -77,7 +78,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
     defaultValues,
   });
 
-  const onSubmit = async (data: ClienteFormValues) => {
+  const handleSubmit = async (data: ClienteFormValues) => {
     try {
       if (clienteId) {
         await updateUsuario(clienteId, {
@@ -105,7 +106,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
         });
         toast.success('Cliente añadido correctamente');
       }
-      onCancel();
+      onSubmit(data);
     } catch (error) {
       toast.error('Error al guardar el cliente');
     }
@@ -113,7 +114,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}

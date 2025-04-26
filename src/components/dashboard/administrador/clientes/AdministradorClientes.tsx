@@ -23,7 +23,7 @@ const AdministradorClientes = () => {
   const usuariosActivos = usuarios.filter(u => u.activo).length;
   const usuariosInactivos = usuarios.filter(u => !u.activo).length;
 
-  const handleClienteSubmit = async (data: any) => {
+  const handleClienteSubmit = async () => {
     // After successful client creation, refresh the list
     try {
       await loadUsuariosData();
