@@ -107,7 +107,7 @@ const RecogidasChart: React.FC<RecogidasChartProps> = ({ data }) => {
     },
     animation: {
       duration: 1000,
-      easing: 'easeInOutQuart'
+      easing: 'easeInOutQuart' as const // Fixed: using "as const" to specify this is a valid easing value
     },
     elements: {
       bar: {

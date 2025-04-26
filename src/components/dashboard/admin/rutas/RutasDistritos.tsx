@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -297,7 +296,6 @@ const RutasDistritos = () => {
             distrito: selectedRuta.distrito,
             fecha: selectedRuta.fecha,
             litrosRecogidos: cliente.litros,
-            rutaId: selectedRuta.id,
             completada: true,
             estado: 'programado'
           });
