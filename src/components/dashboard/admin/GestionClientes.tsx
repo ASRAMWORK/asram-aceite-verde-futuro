@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -29,7 +28,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUsuarios } from "@/hooks/useUsuarios";
 import { usePuntosVerdes } from "@/hooks/usePuntosVerdes";
+import { useInstalaciones } from "@/hooks/useInstalaciones";
 import {
+  AlertCircle,
+  Bell,
   Building2,
   Filter,
   FileSpreadsheet,
@@ -42,6 +44,9 @@ import {
   UserPlus,
   Download,
   Search,
+  DropletIcon,
+  Container,
+  ChevronRight
 } from "lucide-react";
 import {
   Select,
@@ -54,8 +59,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { AddClienteForm } from "./AddClienteForm";
-import type { Usuario, PuntoVerde } from "@/types";
+import type { Usuario, PuntoVerde, Instalacion } from "@/types";
 import { distritos, distritosConBarrios, getBarriosByDistrito } from "@/data/madridDistritos";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const tipos = [
   "Comunidad de Vecinos",
@@ -78,6 +84,7 @@ const frecuencias = [
 const GestionClientes = () => {
   const { usuarios, loading, error, updateUsuario, deleteUsuario, loadUsuariosData } = useUsuarios();
   const { puntosVerdes, loading: loadingPuntos, addPuntoVerde } = usePuntosVerdes();
+  const { instalaciones, loading: loadingInstalaciones } = useInstalaciones();
   
   const [isEditingUsuario, setIsEditingUsuario] = useState(false);
   const [isAddingUsuario, setIsAddingUsuario] = useState(false);
@@ -86,16 +93,29 @@ const GestionClientes = () => {
   const [filterDistrito, setFilterDistrito] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
+  const [showNewRegistrations, setShowNewRegistrations] = useState(false);
   
   // Cast usuarios to include our extended type with numViviendas and numContenedores
   const typedUsuarios = usuarios as (Usuario & { numViviendas?: number, numContenedores?: number })[];
   
-  // Calculate statistics for each type of client
-  const comunidades = typedUsuarios.filter(u => u.tipo === "Comunidad de Vecinos");
-  const totalComunidades = comunidades.length;
-  const totalViviendas = comunidades.reduce((sum, u) => sum + (u.numViviendas || 0), 0);
-  const totalContenedores = comunidades.reduce((sum, u) => sum + (u.numContenedores || 0), 0);
-  const mediaContenedor = totalViviendas > 0 ? (totalContenedores / totalViviendas).toFixed(2) : "0";
+  // New registrations (last 7 days)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  
+  const newRegistrations = typedUsuarios.filter(u => {
+    if (!u.createdAt) return false;
+    const creationDate = u.createdAt instanceof Date ? u.createdAt : new Date(u.createdAt);
+    return creationDate > sevenDaysAgo;
+  });
+  
+  // Calculate statistics for dashboard
+  const comunidades = instalaciones.length;
+  const totalViviendas = instalaciones.reduce((sum, i) => sum + (i.numViviendas || 0), 0);
+  const totalContenedores = instalaciones.reduce((sum, i) => sum + (i.numContenedores || 0), 0);
+  
+  // Calculate average litros per container
+  const totalLitrosRecogidos = puntosVerdes.reduce((sum, pv) => sum + (pv.litrosRecogidos || 0), 0);
+  const mediaContenedor = totalContenedores > 0 ? (totalLitrosRecogidos / totalContenedores).toFixed(2) : "0";
   
   // Mapear puntos verdes a sus usuarios correspondientes
   const [puntosByDireccion, setPuntosByDireccion] = useState<Record<string, PuntoVerde>>({});
@@ -304,6 +324,17 @@ const GestionClientes = () => {
             <UserPlus className="mr-2 h-4 w-4" />
             Nuevo cliente
           </Button>
+          <Button 
+            variant={showNewRegistrations ? "secondary" : "outline"} 
+            className={showNewRegistrations ? "bg-blue-100 text-blue-600 hover:bg-blue-200" : ""}
+            onClick={() => setShowNewRegistrations(!showNewRegistrations)}
+          >
+            <Bell className="mr-2 h-4 w-4" />
+            Nuevos registros
+            {newRegistrations.length > 0 && (
+              <Badge className="ml-2 bg-red-500">{newRegistrations.length}</Badge>
+            )}
+          </Button>
           <Button variant="outline" onClick={() => handleExportData('excel')}>
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Excel
@@ -315,42 +346,109 @@ const GestionClientes = () => {
         </div>
       </div>
 
-      {/* Dashboard Cards for Comunidades */}
+      {/* Panel de nuevos registros */}
+      {showNewRegistrations && (
+        <Card className="border-blue-200 bg-blue-50/50">
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-center">
+              <CardTitle>Nuevos Registros</CardTitle>
+              <Badge variant="outline" className="bg-blue-100 text-blue-600">
+                Últimos 7 días
+              </Badge>
+            </div>
+            <CardDescription>
+              Usuarios registrados recientemente en la plataforma
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {newRegistrations.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                No hay nuevos registros en los últimos 7 días
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nombre</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Teléfono</TableHead>
+                      <TableHead>Fecha registro</TableHead>
+                      <TableHead>Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {newRegistrations.map(usuario => (
+                      <TableRow key={usuario.id} className="bg-white">
+                        <TableCell className="font-medium">{usuario.nombre}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{usuario.tipo}</Badge>
+                        </TableCell>
+                        <TableCell>{usuario.email}</TableCell>
+                        <TableCell>{usuario.telefono}</TableCell>
+                        <TableCell>
+                          {usuario.createdAt instanceof Date 
+                            ? usuario.createdAt.toLocaleDateString() 
+                            : new Date(usuario.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleOpenEditDialog(usuario)}
+                            className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                          >
+                            <ChevronRight className="mr-1 h-4 w-4" />
+                            Ver detalles
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Dashboard Cards for Comunidades - Updated with real data */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="border-l-4 border-l-asram">
+        <Card className="border-l-4 border-l-asram hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Comunidades
             </CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <Building2 className="h-5 w-5 text-asram" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalComunidades}</div>
+            <div className="text-2xl font-bold">{comunidades}</div>
             <p className="text-xs text-muted-foreground">
-              comunidades de vecinos registradas
+              instalaciones registradas
             </p>
           </CardContent>
         </Card>
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Viviendas
             </CardTitle>
-            <Home className="h-4 w-4 text-muted-foreground" />
+            <Home className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalViviendas}</div>
             <p className="text-xs text-muted-foreground">
-              viviendas en comunidades
+              viviendas registradas
             </p>
           </CardContent>
         </Card>
-        <Card className="border-l-4 border-l-green-500">
+        <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Contenedores
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Container className="h-5 w-5 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalContenedores}</div>
@@ -359,42 +457,44 @@ const GestionClientes = () => {
             </p>
           </CardContent>
         </Card>
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Media/Contenedor
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <DropletIcon className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mediaContenedor}</div>
+            <div className="text-2xl font-bold">{mediaContenedor}L</div>
             <p className="text-xs text-muted-foreground">
-              viviendas por contenedor
+              litros por contenedor
             </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Cliente Tabs and Table */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-white sticky top-0 z-10 pb-2">
           <CardTitle>Listado de Clientes</CardTitle>
           <CardDescription>
             Visualiza y gestiona todos los clientes registrados
           </CardDescription>
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-4 gap-4">
-            <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full md:w-auto">
-              <TabsList className="w-full md:w-auto overflow-x-auto">
-                <TabsTrigger value="todos">Todos</TabsTrigger>
-                <TabsTrigger value="Comunidad de Vecinos">Comunidades</TabsTrigger>
-                <TabsTrigger value="Bar/Restaurante">Bares/Rest.</TabsTrigger>
-                <TabsTrigger value="Hotel">Hoteles</TabsTrigger>
-                <TabsTrigger value="Asociación/Entidad">Asociaciones</TabsTrigger>
-                <TabsTrigger value="Centro Escolar">Centros</TabsTrigger>
-                <TabsTrigger value="Usuario Particular">Particulares</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <ScrollArea className="w-full md:w-auto">
+              <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full md:w-auto">
+                <TabsList className="w-full md:w-auto overflow-x-auto">
+                  <TabsTrigger value="todos">Todos</TabsTrigger>
+                  <TabsTrigger value="Comunidad de Vecinos">Comunidades</TabsTrigger>
+                  <TabsTrigger value="Bar/Restaurante">Bares/Rest.</TabsTrigger>
+                  <TabsTrigger value="Hotel">Hoteles</TabsTrigger>
+                  <TabsTrigger value="Asociación/Entidad">Asociaciones</TabsTrigger>
+                  <TabsTrigger value="Centro Escolar">Centros</TabsTrigger>
+                  <TabsTrigger value="Usuario Particular">Particulares</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </ScrollArea>
             
             <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
               <div className="relative w-full md:w-auto">
@@ -443,7 +543,7 @@ const GestionClientes = () => {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-muted/50">
                     <TableHead>Nombre</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Dirección</TableHead>
@@ -451,7 +551,7 @@ const GestionClientes = () => {
                     <TableHead>Contacto</TableHead>
                     <TableHead>Frecuencia</TableHead>
                     <TableHead>Punto Verde</TableHead>
-                    <TableHead className="text-right">Litros Recogidos</TableHead>
+                    <TableHead className="text-right">Litros</TableHead>
                     <TableHead>Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -464,10 +564,18 @@ const GestionClientes = () => {
                     </TableRow>
                   ) : (
                     displayedUsuarios.map((usuario) => (
-                      <TableRow key={usuario.id} className={!usuario.activo ? "opacity-50" : ""}>
+                      <TableRow key={usuario.id} className={!usuario.activo ? "opacity-50 bg-gray-50" : "hover:bg-muted/20"}>
                         <TableCell className="font-medium">{usuario.nombre}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">{usuario.tipo}</Badge>
+                          <Badge variant="outline" className={
+                            usuario.tipo === "Comunidad de Vecinos" ? "border-asram text-asram" : 
+                            usuario.tipo === "Bar/Restaurante" ? "border-orange-500 text-orange-500" :
+                            usuario.tipo === "Hotel" ? "border-blue-500 text-blue-500" :
+                            usuario.tipo === "Centro Escolar" ? "border-green-500 text-green-500" :
+                            ""
+                          }>
+                            {usuario.tipo}
+                          </Badge>
                         </TableCell>
                         <TableCell>{usuario.direccion}</TableCell>
                         <TableCell>{usuario.distrito} / {usuario.barrio}</TableCell>
@@ -476,9 +584,9 @@ const GestionClientes = () => {
                         <TableCell>
                           {usuario.tipo === "Comunidad de Vecinos" ? (
                             tienePuntoVerde(usuario) ? (
-                              <Badge className="bg-green-500">Instalado</Badge>
+                              <Badge className="bg-green-100 text-green-700 hover:bg-green-200">Instalado</Badge>
                             ) : (
-                              <Badge variant="outline" className="text-red-500">No instalado</Badge>
+                              <Badge variant="outline" className="text-red-500 hover:bg-red-50">No instalado</Badge>
                             )
                           ) : (
                             <Badge variant="outline" className="text-gray-400">N/A</Badge>
@@ -491,6 +599,7 @@ const GestionClientes = () => {
                               variant="outline" 
                               size="icon"
                               onClick={() => handleOpenEditDialog(usuario)}
+                              className="hover:bg-blue-50 hover:text-blue-600"
                             >
                               <PenLine className="h-4 w-4" />
                             </Button>
@@ -499,7 +608,7 @@ const GestionClientes = () => {
                               size="icon"
                               onClick={() => handleDeleteUsuario(usuario.id)}
                               disabled={!usuario.activo}
-                              className={!usuario.activo ? "opacity-50 cursor-not-allowed" : ""}
+                              className={!usuario.activo ? "opacity-50 cursor-not-allowed" : "hover:bg-red-50 hover:text-red-600"}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -513,7 +622,7 @@ const GestionClientes = () => {
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between bg-white py-3 border-t">
           <div className="text-sm text-muted-foreground">
             Mostrando {displayedUsuarios.length} de {usuarios.length} clientes
           </div>
@@ -526,7 +635,7 @@ const GestionClientes = () => {
         </CardFooter>
       </Card>
 
-      {/* Edit usuario dialog */}
+      {/* Edit usuario dialog - keeping existing code */}
       <Dialog open={isEditingUsuario} onOpenChange={setIsEditingUsuario}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>

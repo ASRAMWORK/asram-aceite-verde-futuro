@@ -4,12 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Button } from "@/components/ui/button";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import AdminDashboard from "@/components/dashboard/admin/AdminDashboard";
 import PuntosVerdes from "@/components/dashboard/admin/PuntosVerdes";
@@ -23,6 +17,7 @@ import SimuladorImpacto from "@/components/dashboard/admin/simulador/SimuladorIm
 import FacturacionView from "@/components/dashboard/admin/facturacion/FacturacionView";
 import TrabajadoresView from "@/components/dashboard/admin/trabajadores/TrabajadoresView";
 import InstalacionesView from "@/components/dashboard/admin/instalaciones/InstalacionesView";
+import GestionRetiradas from "@/pages/admin/GestionRetiradas";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -36,8 +31,8 @@ import {
   User,
   Calculator, 
   Receipt,
-  UserRound,
-  Briefcase
+  Briefcase,
+  Container
 } from "lucide-react";
 
 const AdminDashboardPage = () => {
@@ -107,6 +102,8 @@ const AdminDashboardPage = () => {
         return <GestionClientes />;
       case "gestion-recogidas":
         return <GestionRecogidas />;
+      case "gestion-retiradas":
+        return <GestionRetiradas />;
       case "rutas-distritos":
         return <RutasDistritos />;
       case "trabajadores":
@@ -119,6 +116,12 @@ const AdminDashboardPage = () => {
         return <FacturacionView />;
       case "instalaciones":
         return <InstalacionesView />;
+      case "alianza-escolar":
+        return <AlianzaEscolar />;  
+      case "calles-apadrinadas":
+        return <CallesApadrinadas />;
+      case "puntos-verdes":
+        return <PuntosVerdes />;
       default:
         return <AdminDashboard />;
     }
@@ -131,7 +134,7 @@ const AdminDashboardPage = () => {
           <h1 className="text-2xl font-bold text-asram">ASRAM Admin</h1>
         </div>
         
-        <nav className="flex-1 px-4 pb-4 space-y-1">
+        <nav className="flex-1 px-4 pb-4 space-y-1 overflow-y-auto">
           <Button
             variant={activeTab === "panel-control" ? "default" : "ghost"}
             className={`w-full justify-start ${
@@ -163,6 +166,17 @@ const AdminDashboardPage = () => {
           >
             <Truck className="mr-2 h-4 w-4" />
             Gestión de Recogidas
+          </Button>
+          
+          <Button
+            variant={activeTab === "gestion-retiradas" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "gestion-retiradas" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("gestion-retiradas")}
+          >
+            <Container className="mr-2 h-4 w-4" />
+            Retiradas de Contenedores
           </Button>
           
           <Button
@@ -229,6 +243,41 @@ const AdminDashboardPage = () => {
           >
             <Receipt className="mr-2 h-4 w-4" />
             Facturación
+          </Button>
+          
+          <Separator className="my-4" />
+          
+          <Button
+            variant={activeTab === "alianza-escolar" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "alianza-escolar" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("alianza-escolar")}
+          >
+            <GraduationCap className="mr-2 h-4 w-4" />
+            Alianza Escolar
+          </Button>
+          
+          <Button
+            variant={activeTab === "calles-apadrinadas" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "calles-apadrinadas" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("calles-apadrinadas")}
+          >
+            <MapPin className="mr-2 h-4 w-4" />
+            Calles Apadrinadas
+          </Button>
+          
+          <Button
+            variant={activeTab === "puntos-verdes" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "puntos-verdes" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("puntos-verdes")}
+          >
+            <MapPin className="mr-2 h-4 w-4" />
+            Puntos Verdes
           </Button>
           
           <Separator className="my-4" />
