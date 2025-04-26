@@ -18,26 +18,6 @@ const AdministradorRecogidas = () => {
   const [activeTab, setActiveTab] = useState('listado');
   const { recogidas, loading, completeRecogida, getTotalLitrosRecogidos } = useRecogidas();
 
-  const chartData = {
-    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Litros Recogidos',
-        data: [450, 590, 800, 810, 560, 550],
-        backgroundColor: '#8B5CF6',
-        borderColor: '#7C3AED',
-        borderWidth: 2,
-      },
-      {
-        label: 'Objetivo',
-        data: [600, 600, 600, 600, 600, 600],
-        backgroundColor: '#D1D5DB',
-        borderColor: '#9CA3AF',
-        borderWidth: 2,
-      },
-    ],
-  };
-
   const stats = [
     {
       title: "Total Recogidas",
@@ -52,7 +32,7 @@ const AdministradorRecogidas = () => {
   ];
 
   const handleCompleteRecogida = async (id: string) => {
-    // Default to 0 liters but in a real implementation
+    // Default to 10 liters but in a real implementation
     // you would prompt for the amount or have it in the form
     const litrosRecogidos = 10; 
     await completeRecogida(id, litrosRecogidos);
