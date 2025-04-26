@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { 
   NavigationMenu,
   NavigationMenuContent,
@@ -19,7 +20,7 @@ const NavBar = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <a href="/" className="text-2xl font-bold text-asram">ASRAM</a>
+          <Link to="/" className="text-2xl font-bold text-asram">ASRAM</Link>
           
           <div className="hidden md:block">
             <NavigationMenu>
@@ -30,9 +31,9 @@ const NavBar = () => {
                     <ul className="grid w-[400px] gap-3 p-4">
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
-                          <a
+                          <Link
                             className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-asram/50 to-asram p-6 no-underline outline-none focus:shadow-md"
-                            href="/about"
+                            to="/about"
                           >
                             <div className="mb-2 mt-4 text-lg font-medium text-white">
                               ASRAM Madrid
@@ -40,7 +41,7 @@ const NavBar = () => {
                             <p className="text-sm leading-tight text-white/90">
                               Asociación para el Reciclaje de Aceite en Madrid
                             </p>
-                          </a>
+                          </Link>
                         </NavigationMenuLink>
                       </li>
                       <ListItem href="/mision" title="Misión y Visión">
@@ -94,8 +95,12 @@ const NavBar = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button variant="outline">Acceder</Button>
-            <Button>Colabora</Button>
+            <Button variant="outline" asChild>
+              <Link to="/login">Acceder</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/contacto">Colabora</Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -107,7 +112,7 @@ const ListItem = ({ className, title, children, ...props }: any) => {
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a
+        <Link
           className={cn(
             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             className
@@ -118,7 +123,7 @@ const ListItem = ({ className, title, children, ...props }: any) => {
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>
-        </a>
+        </Link>
       </NavigationMenuLink>
     </li>
   );

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,16 @@ import AdministradorDashboard from "./pages/administrador/Dashboard";
 import NotFound from "./pages/NotFound";
 import { doc, getDoc } from 'firebase/firestore';
 import { AuthProvider } from '@/contexts/AuthContext';
+import About from "./pages/About";
+import Mision from "./pages/Mision";
+import Modelo from "./pages/Modelo";
+import AlianzaVerde from "./pages/programas/AlianzaVerde";
+import AsramKids from "./pages/programas/AsramKids";
+import PuntosVerdes from "./pages/programas/PuntosVerdes";
+import AsramRural from "./pages/programas/AsramRural";
+import Apadrina from "./pages/colabora/Apadrina";
+import Detergente from "./pages/colabora/Detergente";
+import Contacto from "./pages/colabora/Contacto";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +38,6 @@ const ProtectedAdminRoute = () => {
       if (user && isAdminEmail(user.email)) {
         setIsAdmin(true);
       } else {
-        // Check if the user has superadmin role
         if (user) {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists() && userDoc.data().role === "superadmin") {
@@ -110,6 +118,20 @@ const App = () => (
             <Route path="/admin/dashboard" element={<ProtectedAdminRoute />} />
             <Route path="/user/dashboard" element={<UserDashboard />} />
             <Route path="/administrador/dashboard" element={<ProtectedAdministradorRoute />} />
+            
+            <Route path="/about" element={<About />} />
+            <Route path="/mision" element={<Mision />} />
+            <Route path="/modelo" element={<Modelo />} />
+            
+            <Route path="/alianza-verde" element={<AlianzaVerde />} />
+            <Route path="/asram-kids" element={<AsramKids />} />
+            <Route path="/puntos-verdes" element={<PuntosVerdes />} />
+            <Route path="/asram-rural" element={<AsramRural />} />
+            
+            <Route path="/apadrina" element={<Apadrina />} />
+            <Route path="/detergente" element={<Detergente />} />
+            <Route path="/contacto" element={<Contacto />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
