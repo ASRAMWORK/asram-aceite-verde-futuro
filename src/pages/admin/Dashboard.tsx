@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -18,6 +17,7 @@ import FacturacionView from "@/components/dashboard/admin/facturacion/Facturacio
 import TrabajadoresView from "@/components/dashboard/admin/trabajadores/TrabajadoresView";
 import InstalacionesView from "@/components/dashboard/admin/instalaciones/InstalacionesView";
 import GestionRetiradas from "@/pages/admin/GestionRetiradas";
+import TiendaAdmin from "@/components/dashboard/admin/tienda/TiendaAdmin";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -32,7 +32,8 @@ import {
   Calculator, 
   Receipt,
   Briefcase,
-  Container
+  Container,
+  ShoppingCart
 } from "lucide-react";
 
 const AdminDashboardPage = () => {
@@ -93,7 +94,6 @@ const AdminDashboardPage = () => {
     );
   }
 
-  // Render the correct content based on the active tab
   const renderContent = () => {
     switch (activeTab) {
       case "panel-control":
@@ -122,6 +122,8 @@ const AdminDashboardPage = () => {
         return <CallesApadrinadas />;
       case "puntos-verdes":
         return <PuntosVerdes />;
+      case "tienda":
+        return <TiendaAdmin />;
       default:
         return <AdminDashboard />;
     }
@@ -278,6 +280,17 @@ const AdminDashboardPage = () => {
           >
             <MapPin className="mr-2 h-4 w-4" />
             Puntos Verdes
+          </Button>
+          
+          <Button
+            variant={activeTab === "tienda" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "tienda" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("tienda")}
+          >
+            <ShoppingCart className="mr-2 h-4 w-4" />
+            Tienda
           </Button>
           
           <Separator className="my-4" />
