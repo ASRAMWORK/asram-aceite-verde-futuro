@@ -1,6 +1,6 @@
 
 import * as React from "react"
-import { addDays, format } from "date-fns"
+import { addDays, format, isValid } from "date-fns"
 import { es } from 'date-fns/locale'
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
@@ -45,6 +45,17 @@ export function DatePickerWithRange({
     }
   }
 
+  // Safe date formatting helper
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date || !isValid(date)) return '';
+    try {
+      return format(date, "PPP", { locale: es });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return '';
+    }
+  };
+
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -61,11 +72,11 @@ export function DatePickerWithRange({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "PPP", { locale: es })} -{" "}
-                  {format(date.to, "PPP", { locale: es })}
+                  {formatDate(date.from)} -{" "}
+                  {formatDate(date.to)}
                 </>
               ) : (
-                format(date.from, "PPP", { locale: es })
+                formatDate(date.from)
               )
             ) : (
               <span>Selecciona un rango</span>
@@ -81,6 +92,7 @@ export function DatePickerWithRange({
             onSelect={handleDateChange}
             numberOfMonths={2}
             locale={es}
+            className={cn("p-3 pointer-events-auto")}
           />
         </PopoverContent>
       </Popover>

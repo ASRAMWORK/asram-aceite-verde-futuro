@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -30,10 +29,11 @@ import { Label } from "@/components/ui/label";
 import { distritos } from "@/data/madridDistritos";
 import { Recogida } from "@/types";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, isValid } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock } from "lucide-react";
+import { toast } from "sonner";
 
 interface RecogidaCalendarProps {
   isAdmin?: boolean;
@@ -50,46 +50,82 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
     notas: "",
   });
 
-  const recogidasDelDia = (date: Date) => {
-    return recogidas.filter(r => 
-      r.fecha && isSameDay(new Date(r.fecha), date)
-    );
+  const formatDate = (date: Date | null | undefined, formatStr: string = "PPP") => {
+    if (!date || !isValid(date)) return '';
+    try {
+      return format(date, formatStr, { locale: es });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return '';
+    }
+  };
+
+  const checkSameDay = (date1: Date | null | undefined, date2: Date | null | undefined) => {
+    if (!date1 || !date2 || !isValid(date1) || !isValid(date2)) return false;
+    try {
+      return isSameDay(date1, date2);
+    } catch (error) {
+      console.error("Error comparing dates:", error);
+      return false;
+    }
+  };
+
+  const recogidasDelDia = (date: Date | undefined) => {
+    if (!date) return [];
+    
+    return recogidas.filter(r => {
+      try {
+        const recogidaFecha = r.fecha ? new Date(r.fecha) : null;
+        return recogidaFecha && checkSameDay(recogidaFecha, date);
+      } catch (error) {
+        console.error("Error processing recogida date:", error, r);
+        return false;
+      }
+    });
   };
 
   const handleAddRecogida = async () => {
-    if (!selectedDate || !newRecogida.distrito) return;
+    if (!selectedDate || !newRecogida.distrito) {
+      toast.error("Seleccione una fecha y un distrito");
+      return;
+    }
 
-    await addRecogida({
-      distrito: newRecogida.distrito,
-      fecha: selectedDate,
-      horaInicio: newRecogida.horaInicio,
-      horaFin: newRecogida.horaFin,
-      estado: "pendiente", // Changed from "programado" to "pendiente" to match the Recogida type
-      notas: newRecogida.notas,
-      // Include required fields for Recogida type
-      nombreLugar: newRecogida.distrito,
-      direccion: newRecogida.distrito,
-      barrio: "",
-      litrosRecogidos: 0,
-      createdAt: new Date(),
-      // Additional fields that might be needed
-      fechaSolicitud: selectedDate,
-      fechaProgramada: selectedDate,
-      fechaCompletada: null,
-      clienteId: "sistema",
-      tipo: "calendario",
-      telefono: "",
-      litrosEstimados: 0,
-      completada: false
-    });
+    try {
+      await addRecogida({
+        distrito: newRecogida.distrito,
+        fecha: selectedDate,
+        horaInicio: newRecogida.horaInicio,
+        horaFin: newRecogida.horaFin,
+        estado: "pendiente",
+        notas: newRecogida.notas,
+        nombreLugar: newRecogida.distrito,
+        direccion: newRecogida.distrito,
+        barrio: "",
+        litrosRecogidos: 0,
+        createdAt: new Date(),
+        fechaSolicitud: selectedDate,
+        fechaProgramada: selectedDate,
+        fechaCompletada: null,
+        clienteId: "sistema",
+        tipo: "calendario",
+        telefono: "",
+        litrosEstimados: 0,
+        completada: false
+      });
 
-    setShowAddDialog(false);
-    setNewRecogida({
-      distrito: "",
-      horaInicio: "09:00",
-      horaFin: "14:00",
-      notas: "",
-    });
+      setShowAddDialog(false);
+      setNewRecogida({
+        distrito: "",
+        horaInicio: "09:00",
+        horaFin: "14:00",
+        notas: "",
+      });
+      
+      toast.success("Recogida programada correctamente");
+    } catch (error) {
+      console.error("Error adding recogida:", error);
+      toast.error("Error al programar la recogida");
+    }
   };
 
   return (
@@ -122,17 +158,17 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
             <h3 className="font-semibold">
               Recogidas para{" "}
               {selectedDate
-                ? format(selectedDate, "d 'de' MMMM, yyyy", { locale: es })
+                ? formatDate(selectedDate)
                 : "hoy"}
             </h3>
 
-            {recogidasDelDia(selectedDate || new Date()).length === 0 ? (
+            {recogidasDelDia(selectedDate).length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No hay recogidas programadas para este día
               </p>
             ) : (
               <div className="space-y-2">
-                {recogidasDelDia(selectedDate || new Date()).map((recogida) => (
+                {recogidasDelDia(selectedDate).map((recogida) => (
                   <div
                     key={recogida.id}
                     className="p-3 border rounded-lg flex flex-col gap-2"
@@ -181,9 +217,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
                     <DialogDescription>
                       Añade una nueva recogida al calendario para el día{" "}
                       {selectedDate &&
-                        format(selectedDate, "d 'de' MMMM, yyyy", {
-                          locale: es,
-                        })}
+                        formatDate(selectedDate)}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">

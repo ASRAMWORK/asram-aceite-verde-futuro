@@ -9,7 +9,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { distritosConBarrios, getBarriosByDistrito } from '@/data/madridDistritos';
 
@@ -54,17 +54,35 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onSubmit, onCancel }) => {
   };
   
   const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
+    if (date && isValid(date)) {
       setFormData(prev => ({ ...prev, fecha: date }));
     }
   };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Make sure we have a valid date before submitting
+    if (!isValid(formData.fecha)) {
+      console.error('Invalid date value');
+      return;
+    }
+    
     onSubmit({
       ...formData,
       fechaProgramada: formData.fecha,
     });
+  };
+
+  // Safe date formatting helper
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date || !isValid(date)) return '';
+    try {
+      return format(date, "PPP", { locale: es });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return '';
+    }
   };
 
   return (
@@ -104,7 +122,10 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onSubmit, onCancel }) => {
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {formData.fecha ? format(formData.fecha, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                {formData.fecha && isValid(formData.fecha) ? 
+                  formatDate(formData.fecha) : 
+                  <span>Seleccionar fecha</span>
+                }
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 pointer-events-auto">

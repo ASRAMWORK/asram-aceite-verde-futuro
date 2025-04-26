@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -72,8 +73,25 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
     }
   });
 
+  // Safe date formatting helper
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date || !isValid(date)) return '';
+    try {
+      return format(date, "PPP");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return '';
+    }
+  };
+
   const onSubmit = async (data: RecogidaFormValues) => {
     try {
+      // Validate date before proceeding
+      if (!isValid(data.fechaRecogida)) {
+        toast.error('La fecha seleccionada no es válida');
+        return;
+      }
+      
       // Here you would normally save the recogida data to your database
       console.log('Datos de recogida:', data);
       
@@ -141,8 +159,8 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
                           !field.value && "text-muted-foreground"
                         )}
                       >
-                        {field.value ? (
-                          format(field.value, "PPP")
+                        {field.value && isValid(field.value) ? (
+                          formatDate(field.value)
                         ) : (
                           <span>Seleccionar fecha</span>
                         )}
@@ -154,7 +172,11 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(date) => {
+                        if (date && isValid(date)) {
+                          field.onChange(date);
+                        }
+                      }}
                       disabled={(date) => date > new Date()}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
