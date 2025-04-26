@@ -43,7 +43,7 @@ const RecogidasChart: React.FC<RecogidasChartProps> = ({ data }) => {
         labels: {
           font: {
             family: 'Inter',
-            weight: '500'
+            weight: 500 // Changed from string to number
           },
           color: '#64748b',
           usePointStyle: true,
@@ -107,7 +107,7 @@ const RecogidasChart: React.FC<RecogidasChartProps> = ({ data }) => {
     },
     animation: {
       duration: 1000,
-      easing: 'easeInOutQuart' as const,
+      easing: 'easeInOutQuart'
     },
     elements: {
       bar: {
