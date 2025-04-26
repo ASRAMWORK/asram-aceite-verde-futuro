@@ -22,6 +22,7 @@ import VoluntariosView from "@/components/dashboard/admin/voluntarios/Voluntario
 import SimuladorImpacto from "@/components/dashboard/admin/simulador/SimuladorImpacto";
 import FacturacionView from "@/components/dashboard/admin/facturacion/FacturacionView";
 import TrabajadoresView from "@/components/dashboard/admin/trabajadores/TrabajadoresView";
+import InstalacionesView from "@/components/dashboard/admin/instalaciones/InstalacionesView";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -32,10 +33,11 @@ import {
   MapPin, 
   Building, 
   GraduationCap, 
-  User,  // Replaced UserHard with User
+  User,
   Calculator, 
   Receipt,
-  UserRound  // Added another user icon option
+  UserRound,
+  Briefcase
 } from "lucide-react";
 
 const AdminDashboardPage = () => {
@@ -115,6 +117,8 @@ const AdminDashboardPage = () => {
         return <SimuladorImpacto />;
       case "facturacion":
         return <FacturacionView />;
+      case "instalaciones":
+        return <InstalacionesView />;
       default:
         return <AdminDashboard />;
     }
@@ -173,13 +177,24 @@ const AdminDashboardPage = () => {
           </Button>
           
           <Button
+            variant={activeTab === "instalaciones" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "instalaciones" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("instalaciones")}
+          >
+            <Building className="mr-2 h-4 w-4" />
+            Instalaciones
+          </Button>
+          
+          <Button
             variant={activeTab === "trabajadores" ? "default" : "ghost"}
             className={`w-full justify-start ${
               activeTab === "trabajadores" ? "bg-asram hover:bg-asram-700" : ""
             }`}
             onClick={() => setActiveTab("trabajadores")}
           >
-            <User className="mr-2 h-4 w-4" />
+            <Briefcase className="mr-2 h-4 w-4" />
             Trabajadores
           </Button>
           

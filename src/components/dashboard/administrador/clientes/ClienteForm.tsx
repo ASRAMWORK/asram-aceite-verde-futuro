@@ -15,6 +15,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useUsuarios } from '@/hooks/useUsuarios';
 import { toast } from 'sonner';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
@@ -84,6 +91,8 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
           ...data,
           tipo: 'comunidad',
           activo: true,
+          role: 'user',
+          createdAt: new Date(),
         });
         toast.success('Cliente añadido correctamente');
       }
@@ -213,6 +222,30 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, clienteId }) => {
             )}
           />
         </div>
+        
+        <FormField
+          control={form.control}
+          name="frecuenciaRecogida"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Frecuencia de Recogida</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione frecuencia" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="semanal">Semanal</SelectItem>
+                  <SelectItem value="quincenal">Quincenal</SelectItem>
+                  <SelectItem value="mensual">Mensual</SelectItem>
+                  <SelectItem value="bajo_demanda">Bajo demanda</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
           
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>

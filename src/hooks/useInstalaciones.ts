@@ -48,6 +48,35 @@ export function useInstalaciones() {
     }
   };
 
+  const updateInstalacion = async (id: string, data: Partial<Instalacion>) => {
+    try {
+      await updateDoc(doc(db, "instalaciones", id), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Instalación actualizada correctamente");
+      await loadInstalacionesData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando instalación:", err);
+      toast.error("Error al actualizar la instalación");
+      return false;
+    }
+  };
+
+  const deleteInstalacion = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "instalaciones", id));
+      toast.success("Instalación eliminada correctamente");
+      await loadInstalacionesData();
+      return true;
+    } catch (err) {
+      console.error("Error eliminando instalación:", err);
+      toast.error("Error al eliminar la instalación");
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadInstalacionesData();
   }, []);
@@ -57,6 +86,8 @@ export function useInstalaciones() {
     loading, 
     error, 
     loadInstalacionesData,
-    addInstalacion
+    addInstalacion,
+    updateInstalacion,
+    deleteInstalacion
   };
 }
