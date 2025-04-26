@@ -254,7 +254,7 @@ const GestionRecogidas = () => {
         barrio: formData.barrio,
         hora: formData.hora,
         horaInicio: formData.hora,
-        tipo: formData.tipoBusqueda,
+        tipo: formData.tipoBusqueda as "zona" | "individual" | "calendario",
         estado: "pendiente",
         litrosRecogidos: 0,
         litrosEstimados: 0,

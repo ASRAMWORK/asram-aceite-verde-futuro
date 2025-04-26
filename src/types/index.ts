@@ -1,4 +1,3 @@
-
 export interface User {
   uid: string;
   email: string | null;
@@ -44,7 +43,6 @@ export interface Usuario {
   role?: 'user' | 'admin_finca' | 'superadmin';
   createdAt: Date;
   updatedAt?: Date;
-  // Add missing properties used in components
   numViviendas?: number;
   numContenedores?: number;
   litrosRecogidos?: number;
@@ -92,7 +90,6 @@ export interface Recogida {
   estado: 'pendiente' | 'realizada' | 'cancelada' | 'programado';
   createdAt: any;
   updatedAt?: any;
-  // Add missing properties used in components
   clienteId?: string;
   hora?: string;
   horaInicio?: string;
@@ -171,7 +168,6 @@ export interface Instalacion {
   updatedAt?: any;
 }
 
-// Add missing types referenced in other files
 export interface CalendarioRecogida {
   id: string;
   fecha: Date;
@@ -195,6 +191,10 @@ export interface Ruta {
   vehiculoAsignado?: string;
   createdAt: any;
   updatedAt?: any;
+  fecha?: Date;
+  hora?: string;
+  recogedores?: string;
+  completada?: boolean;
 }
 
 export interface Turno {
@@ -266,6 +266,14 @@ export interface AlianzaVerde {
   litrosRecolectados: number;
   createdAt: any;
   updatedAt?: any;
+  numEstudiantes?: number;
+  talleresRealizados?: number;
+  certificaciones?: {
+    nivel1?: boolean;
+    nivel2?: boolean;
+    nivel3?: boolean;
+    ecosistema?: boolean;
+  };
 }
 
 export interface CalleApadrinada {
@@ -282,4 +290,7 @@ export interface CalleApadrinada {
   numContenedores: number;
   createdAt: any;
   updatedAt?: any;
+  descripcion?: string;
+  precio?: number;
+  fechaRenovacion?: Date;
 }

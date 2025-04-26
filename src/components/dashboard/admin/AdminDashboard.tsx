@@ -36,7 +36,7 @@ const AdminDashboard = () => {
   });
 
   // Prepare chart data for litros recogidos por distrito
-  const distritoData = {};
+  const distritoData: Record<string, number> = {};
   puntosVerdes.forEach(punto => {
     if (!distritoData[punto.distrito]) {
       distritoData[punto.distrito] = 0;
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
     datasets: [
       {
         label: 'Litros recogidos',
-        data: Object.values(distritoData),
+        data: Object.values(distritoData) as number[],
         backgroundColor: 'rgba(34, 197, 94, 0.6)',
         borderWidth: 1,
       },
@@ -57,19 +57,19 @@ const AdminDashboard = () => {
   };
   
   // Prepare data for users by type
-  const usersByType = usuarios.reduce((acc, user) => {
+  const usersByType: Record<string, number> = usuarios.reduce((acc, user) => {
     const type = user.tipo || 'otros';
     if (!acc[type]) acc[type] = 0;
     acc[type]++;
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
   
   const usersChartData = {
     labels: Object.keys(usersByType),
     datasets: [
       {
         label: 'Usuarios por tipo',
-        data: Object.values(usersByType),
+        data: Object.values(usersByType) as number[],
         backgroundColor: [
           'rgba(34, 197, 94, 0.6)',
           'rgba(59, 130, 246, 0.6)',
