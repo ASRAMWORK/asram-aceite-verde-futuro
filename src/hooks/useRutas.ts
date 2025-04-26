@@ -3,18 +3,7 @@ import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
-
-// Tipo para las rutas
-interface Ruta {
-  id: string;
-  fecha: Date;
-  distrito: string;
-  contenedoresRecogidos: number;
-  notas?: string;
-  estado: 'pendiente' | 'completada';
-  createdAt?: any;
-  updatedAt?: any;
-}
+import type { Ruta } from '@/types';
 
 export function useRutas() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
@@ -32,11 +21,19 @@ export function useRutas() {
         const data = doc.data();
         rutasData.push({
           id: doc.id,
-          fecha: data.fecha?.toDate() || new Date(),
+          nombre: data.nombre || '',
           distrito: data.distrito || '',
-          contenedoresRecogidos: data.contenedoresRecogidos || 0,
-          notas: data.notas || '',
-          estado: data.estado || 'pendiente',
+          barrios: data.barrios || [],
+          fecha: data.fecha?.toDate() || new Date(),
+          hora: data.hora || '',
+          recogedores: data.recogedores || '',
+          clientes: data.clientes || [],
+          puntosRecogida: data.puntosRecogida || 0,
+          distanciaTotal: data.distanciaTotal || 0,
+          tiempoEstimado: data.tiempoEstimado || 0,
+          frecuencia: data.frecuencia || 'semanal',
+          completada: data.completada || false,
+          litrosTotales: data.litrosTotales || 0,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
         });
@@ -85,18 +82,19 @@ export function useRutas() {
     }
   };
   
-  const completarRuta = async (id: string) => {
+  const completeRuta = async (id: string, litrosTotales: number = 0) => {
     try {
       await updateDoc(doc(db, "rutas", id), {
-        estado: 'completada',
+        completada: true,
+        litrosTotales,
         updatedAt: serverTimestamp()
       });
-      toast.success("Retirada completada correctamente");
+      toast.success("Ruta completada correctamente");
       await loadRutas();
       return true;
     } catch (err) {
       console.error("Error completando ruta:", err);
-      toast.error("Error al completar la retirada");
+      toast.error("Error al completar la ruta");
       return false;
     }
   };
@@ -125,7 +123,7 @@ export function useRutas() {
     loadRutas,
     addRuta,
     updateRuta,
-    completarRuta,
+    completeRuta,
     deleteRuta,
   };
 }
