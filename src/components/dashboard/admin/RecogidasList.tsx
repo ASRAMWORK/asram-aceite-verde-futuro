@@ -12,17 +12,29 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, Clock, User } from 'lucide-react';
 import { Recogida } from '@/types';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 interface RecogidasListProps {
   recogidas: Recogida[];
 }
 
 const RecogidasList: React.FC<RecogidasListProps> = ({ recogidas }) => {
-  const formatDate = (date: Date | string) => {
+  const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return "-";
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return format(dateObj, 'dd/MM/yyyy');
+    
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      
+      // Check if the date is valid before formatting
+      if (!dateObj || !isValid(dateObj)) {
+        return "-";
+      }
+      
+      return format(dateObj, 'dd/MM/yyyy');
+    } catch (error) {
+      console.error("Error formatting date:", error, date);
+      return "-";
+    }
   };
 
   const getBadgeColor = (estado: string) => {
