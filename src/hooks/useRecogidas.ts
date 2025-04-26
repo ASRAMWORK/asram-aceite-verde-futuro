@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
 import type { Recogida } from '@/types';
@@ -42,6 +42,8 @@ export function useRecogidas() {
         ...nuevaRecogida,
         completada: false,
         createdAt: serverTimestamp(),
+        litrosRecogidos: 0,  // Add default value for missing required field
+        fecha: nuevaRecogida.fecha || nuevaRecogida.fechaSolicitud || new Date(),  // Ensure fecha is set
       };
       
       await addDoc(collection(db, "recogidas"), recogidaData);

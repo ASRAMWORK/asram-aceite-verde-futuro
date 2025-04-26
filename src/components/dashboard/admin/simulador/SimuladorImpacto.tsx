@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -13,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Chart } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Droplet, ThermometerSun, Trees, WavesSine, Waves, Wind, Cloud, Droplets } from "lucide-react";
+import { Droplet, ThermometerSun, Trees, Waves, Wind, Cloud, Droplets } from "lucide-react";
 
 const SimuladorImpacto = () => {
   const [litros, setLitros] = useState<number>(100);

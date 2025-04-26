@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { distritos, getBarriosByDistrito } from "@/data/madridDistritos";
+import { serverTimestamp } from "firebase/firestore";
 
 interface InstalacionFormProps {
   isOpen: boolean;
@@ -85,7 +86,10 @@ const InstalacionForm = ({ isOpen, onClose, instalacion }: InstalacionFormProps)
         await updateInstalacion(instalacion.id, formData);
         toast.success("Instalación actualizada correctamente");
       } else {
-        await addInstalacion(formData as Omit<Instalacion, "id" | "createdAt">);
+        await addInstalacion({
+          ...formData,
+          createdAt: serverTimestamp()
+        } as Omit<Instalacion, "id">);
         toast.success("Instalación añadida correctamente");
       }
       

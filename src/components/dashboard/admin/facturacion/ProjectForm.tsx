@@ -21,6 +21,8 @@ interface ProjectFormProps {
   projectId: string | null;
 }
 
+type ProjectEstadoType = "activo" | "pendiente" | "completado" | "cancelado";
+
 export const ProjectForm = ({ isOpen, onClose, projectId }: ProjectFormProps) => {
   const { getProjectById, addProject, updateProject, loading } = useProjects();
   
@@ -32,7 +34,7 @@ export const ProjectForm = ({ isOpen, onClose, projectId }: ProjectFormProps) =>
     presupuesto: 0,
     fechaInicio: "",
     fechaFin: "",
-    estado: "activo"
+    estado: "activo" as ProjectEstadoType
   });
   
   useEffect(() => {
@@ -82,11 +84,18 @@ export const ProjectForm = ({ isOpen, onClose, projectId }: ProjectFormProps) =>
     }
     
     try {
+      const projectData = {
+        ...formData,
+        fechaInicio: formData.fechaInicio ? new Date(formData.fechaInicio) : undefined,
+        fechaFin: formData.fechaFin ? new Date(formData.fechaFin) : undefined,
+        estado: formData.estado as ProjectEstadoType
+      };
+      
       if (projectId) {
-        await updateProject(projectId, formData);
+        await updateProject(projectId, projectData);
         toast.success("Proyecto actualizado correctamente");
       } else {
-        await addProject(formData);
+        await addProject(projectData);
         toast.success("Proyecto creado correctamente");
       }
       onClose();
