@@ -199,6 +199,7 @@ export interface Vehiculo {
   estado: 'disponible' | 'en_ruta' | 'mantenimiento' | 'averiado';
   ultimaRevision?: Date;
   proximaRevision?: Date;
+  conductorAsignado?: string;
   createdAt: any;
   updatedAt?: any;
 }
