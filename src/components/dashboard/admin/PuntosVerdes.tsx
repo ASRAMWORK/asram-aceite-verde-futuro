@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -34,18 +35,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { 
-  collection, 
-  addDoc, 
-  serverTimestamp, 
-  query, 
-  getDocs, 
-  where, 
-  orderBy,
-  doc,
-  updateDoc 
-} from "firebase/firestore";
+  Edit, 
+  Trash2, 
+  Filter,
+  PlusCircle
+} from "lucide-react";
 import { db } from "@/lib/firebase";
 import { PuntoVerde } from "@/types";
 import { distritosConBarrios } from "@/data/madridDistritos";
@@ -58,13 +64,23 @@ const PuntosVerdes = () => {
     error, 
     loadPuntosVerdesData,
     addPuntoVerde,
-    updatePuntoVerde 
+    updatePuntoVerde,
+    deletePuntoVerde,
+    getDistritosUnicos,
+    getBarriosUnicos
   } = usePuntosVerdes();
   
+  // Estados para el formulario y la edición
   const [isAddingPoint, setIsAddingPoint] = useState(false);
   const [isEditingPoint, setIsEditingPoint] = useState(false);
   const [selectedDistrito, setSelectedDistrito] = useState("");
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
+  const [puntoToDelete, setPuntoToDelete] = useState<string | null>(null);
+  
+  // Estados para filtros
+  const [filtroDistrito, setFiltroDistrito] = useState<string>("");
+  const [filtroBarrio, setFiltroBarrio] = useState<string>("");
+  const [barriosFiltro, setBarriosFiltro] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     id: "",
@@ -77,6 +93,7 @@ const PuntosVerdes = () => {
     litrosRecogidos: 0
   });
   
+  // Manejar cambio de distrito en el formulario
   const handleDistritoChange = (value: string) => {
     setSelectedDistrito(value);
     const distrito = distritosConBarrios.find(d => d.distrito === value);
@@ -86,6 +103,19 @@ const PuntosVerdes = () => {
       distrito: value,
       barrio: "",
     });
+  };
+  
+  // Manejar cambio de distrito en el filtro
+  const handleFiltroDistritoChange = (value: string) => {
+    setFiltroDistrito(value);
+    setFiltroBarrio("");
+    
+    if (value) {
+      const distrito = distritosConBarrios.find(d => d.distrito === value);
+      setBarriosFiltro(distrito?.barrios || []);
+    } else {
+      setBarriosFiltro([]);
+    }
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,7 +152,7 @@ const PuntosVerdes = () => {
   
   const handleSubmit = async () => {
     if (!formData.distrito || !formData.direccion) {
-      alert("Por favor completa los campos requeridos");
+      toast.error("Por favor completa los campos requeridos");
       return;
     }
 
@@ -134,8 +164,8 @@ const PuntosVerdes = () => {
         numViviendas: Number(formData.numViviendas) || 0,
         numContenedores: Number(formData.numContenedores) || 0,
         telefono: formData.telefono || "",
-        litrosRecogidos: 0,
-        administradorId: null // Adding the missing required field
+        litrosRecogidos: Number(formData.litrosRecogidos) || 0,
+        administradorId: null
       };
 
       await addPuntoVerde(nuevoPunto);
@@ -192,13 +222,28 @@ const PuntosVerdes = () => {
       toast.error("Error al actualizar el punto verde");
     }
   };
+
+  const handleDeletePoint = async (id: string) => {
+    setPuntoToDelete(id);
+  };
   
-  useEffect(() => {
-    loadPuntosVerdesData();
-  }, []);
+  const confirmDeletePoint = async () => {
+    if (puntoToDelete) {
+      await deletePuntoVerde(puntoToDelete);
+      setPuntoToDelete(null);
+    }
+  };
   
+  // Filtrar los puntos verdes según los filtros aplicados
+  const filteredPuntos = puntosVerdes.filter(punto => {
+    const matchesDistrito = !filtroDistrito || punto.distrito === filtroDistrito;
+    const matchesBarrio = !filtroBarrio || punto.barrio === filtroBarrio;
+    return matchesDistrito && matchesBarrio;
+  });
+  
+  // Agrupar los puntos filtrados por distrito
   const puntosAgrupados: { [distrito: string]: PuntoVerde[] } = {};
-  puntosVerdes.forEach(punto => {
+  filteredPuntos.forEach(punto => {
     if (!puntosAgrupados[punto.distrito]) {
       puntosAgrupados[punto.distrito] = [];
     }
@@ -217,6 +262,7 @@ const PuntosVerdes = () => {
         <Dialog open={isAddingPoint} onOpenChange={setIsAddingPoint}>
           <DialogTrigger asChild>
             <Button className="bg-asram hover:bg-asram-700">
+              <PlusCircle className="mr-2 h-4 w-4" />
               Añadir Punto Verde
             </Button>
           </DialogTrigger>
@@ -457,6 +503,24 @@ const PuntosVerdes = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!puntoToDelete} onOpenChange={(open) => !open && setPuntoToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción eliminará el punto verde permanentemente. No podrás recuperarlo después.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDeletePoint} className="bg-red-600 hover:bg-red-700">
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <Card className="futuristic-card">
@@ -488,10 +552,63 @@ const PuntosVerdes = () => {
 
       <Card className="futuristic-card">
         <CardHeader>
-          <CardTitle>Listado de Puntos Verdes</CardTitle>
-          <CardDescription>
-            Puntos de recogida de aceite registrados en el sistema
-          </CardDescription>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <CardTitle>Listado de Puntos Verdes</CardTitle>
+              <CardDescription>
+                Puntos de recogida de aceite registrados en el sistema
+              </CardDescription>
+            </div>
+
+            {/* Filtros */}
+            <div className="flex flex-col md:flex-row gap-4 md:items-end">
+              <div className="w-full md:w-auto">
+                <Label htmlFor="filtroDistrito" className="text-sm">Filtrar por distrito</Label>
+                <Select value={filtroDistrito} onValueChange={handleFiltroDistritoChange}>
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="Todos los distritos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos los distritos</SelectItem>
+                    {getDistritosUnicos().map((distrito) => (
+                      <SelectItem key={distrito} value={distrito}>{distrito}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-full md:w-auto">
+                <Label htmlFor="filtroBarrio" className="text-sm">Filtrar por barrio</Label>
+                <Select 
+                  value={filtroBarrio} 
+                  onValueChange={setFiltroBarrio}
+                  disabled={!filtroDistrito}
+                >
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="Todos los barrios" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos los barrios</SelectItem>
+                    {barriosFiltro.map((barrio) => (
+                      <SelectItem key={barrio} value={barrio}>{barrio}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                className="h-10" 
+                onClick={() => {
+                  setFiltroDistrito("");
+                  setFiltroBarrio("");
+                }}
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Limpiar filtros
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -507,7 +624,9 @@ const PuntosVerdes = () => {
             </div>
           ) : Object.keys(puntosAgrupados).length === 0 ? (
             <div className="flex justify-center items-center h-32">
-              <p className="text-muted-foreground">No hay puntos verdes registrados</p>
+              <p className="text-muted-foreground">
+                {filtroDistrito || filtroBarrio ? "No se encontraron puntos verdes con los filtros aplicados" : "No hay puntos verdes registrados"}
+              </p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -538,9 +657,16 @@ const PuntosVerdes = () => {
                           <TableCell className="text-right">{punto.numContenedores}</TableCell>
                           <TableCell className="text-right">{punto.litrosRecogidos}L</TableCell>
                           <TableCell>
-                            <Button variant="outline" size="sm" onClick={() => handleEditPoint(punto)}>
-                              Editar
-                            </Button>
+                            <div className="flex space-x-2">
+                              <Button variant="outline" size="sm" onClick={() => handleEditPoint(punto)}>
+                                <Edit className="h-4 w-4 mr-1" />
+                                Editar
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeletePoint(punto.id)}>
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Eliminar
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

@@ -120,6 +120,14 @@ export function usePuntosVerdes(administradorId?: string) {
     return puntosVerdes.filter(punto => punto.barrio === barrio);
   };
 
+  const getDistritosUnicos = () => {
+    return Array.from(new Set(puntosVerdes.map(punto => punto.distrito))).sort();
+  };
+
+  const getBarriosUnicos = () => {
+    return Array.from(new Set(puntosVerdes.map(punto => punto.barrio))).sort();
+  };
+
   useEffect(() => {
     loadPuntosVerdesData();
   }, [administradorId]);
@@ -133,6 +141,8 @@ export function usePuntosVerdes(administradorId?: string) {
     updatePuntoVerde,
     deletePuntoVerde,
     getPuntosByDistrito,
-    getPuntosByBarrio
+    getPuntosByBarrio,
+    getDistritosUnicos,
+    getBarriosUnicos
   };
 }
