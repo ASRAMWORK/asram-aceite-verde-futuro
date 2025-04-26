@@ -33,8 +33,8 @@ import { useFacturacion } from "@/hooks/useFacturacion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { IngresosForm } from "./IngresosForm";
-import { GastosForm } from "./GastosForm";
+import IngresosForm from "./IngresosForm";
+import GastosForm from "./GastosForm";
 import { toast } from "sonner";
 
 interface ProjectsViewProps {
@@ -316,17 +316,32 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
       {/* Dialogs for adding financial transactions */}
       <Dialog open={isIngresoDialogOpen} onOpenChange={setIsIngresoDialogOpen}>
         <IngresosForm 
-          project={projects.find(p => p.id === selectedProjectId)}
-          onSave={handleAddIngreso}
-          onCancel={() => setIsIngresoDialogOpen(false)}
+          isOpen={isIngresoDialogOpen}
+          onClose={() => setIsIngresoDialogOpen(false)}
+          initialData={{
+            concepto: "",
+            cantidad: 0,
+            tipo: "",
+            fecha: new Date().toISOString().split("T")[0],
+            cliente: projects.find(p => p.id === selectedProjectId)?.cliente || "",
+            origen: selectedProjectId || ""
+          }}
         />
       </Dialog>
       
       <Dialog open={isGastoDialogOpen} onOpenChange={setIsGastoDialogOpen}>
         <GastosForm 
-          project={projects.find(p => p.id === selectedProjectId)}
-          onSave={handleAddGasto}
-          onCancel={() => setIsGastoDialogOpen(false)}
+          isOpen={isGastoDialogOpen}
+          onClose={() => setIsGastoDialogOpen(false)}
+          initialData={{
+            concepto: "",
+            cantidad: 0,
+            tipo: "",
+            fecha: new Date().toISOString().split("T")[0],
+            proveedor: "",
+            numFactura: "",
+            notas: ""
+          }}
         />
       </Dialog>
     </div>
