@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
@@ -18,47 +19,46 @@ const AdministradorRecogidas = () => {
   const [activeTab, setActiveTab] = useState('listado');
   const [recogidas, setRecogidas] = useState<Recogida[]>([]);
   
-  // Find the createRecogida function and fix the type conversion issue
-const createRecogida = (formData: any) => {
-  try {
-    const nuevaRecogida = {
-      clienteId: formData.clienteId,
-      fechaSolicitud: new Date(),
-      fechaProgramada: new Date(formData.fechaProgramada),
-      fechaCompletada: null,
-      fecha: new Date(formData.fecha),
-      hora: formData.hora,
-      distrito: formData.distrito,
-      barrio: formData.barrio,
-      direccion: formData.direccion,
-      telefono: formData.telefono,
-      nombreLugar: formData.nombreLugar || formData.direccion,
-      tipo: formData.tipoBusqueda as "zona" | "individual" | "calendario",
-      estado: "pendiente",
-      litrosRecogidos: 0,
-      litrosEstimados: formData.litrosEstimados || 0,
-      completada: false,
-      createdAt: new Date()
-    };
+  const createRecogida = (formData: any) => {
+    try {
+      const nuevaRecogida: Omit<Recogida, 'id'> = {
+        clienteId: formData.clienteId,
+        fechaSolicitud: new Date(),
+        fechaProgramada: new Date(formData.fechaProgramada),
+        fechaCompletada: null,
+        fecha: new Date(formData.fecha),
+        hora: formData.hora,
+        distrito: formData.distrito,
+        barrio: formData.barrio,
+        direccion: formData.direccion,
+        telefono: formData.telefono,
+        nombreLugar: formData.nombreLugar || formData.direccion,
+        tipo: formData.tipoBusqueda as "zona" | "individual" | "calendario",
+        estado: "pendiente",
+        litrosRecogidos: 0,
+        litrosEstimados: formData.litrosEstimados || 0,
+        completada: false,
+        createdAt: new Date()
+      };
 
-    console.log("Creating new recogida:", nuevaRecogida);
-    
-    // Add to recogidas with a unique ID and some defaults
-    setRecogidas([
-      ...recogidas,
-      {
-        ...nuevaRecogida,
-        id: `rec-${Date.now()}`,
-      },
-    ]);
-    
-    setShowForm(false);
-    toast.success(`Recogida programada para ${format(new Date(formData.fecha), 'dd/MM/yyyy')}`);
-  } catch (error) {
-    console.error("Error creating recogida:", error);
-    toast.error("Error al crear la recogida");
-  }
-};
+      console.log("Creating new recogida:", nuevaRecogida);
+      
+      // Add to recogidas with a unique ID
+      setRecogidas([
+        ...recogidas,
+        {
+          ...nuevaRecogida,
+          id: `rec-${Date.now()}`,
+        } as Recogida,
+      ]);
+      
+      setShowForm(false);
+      toast.success(`Recogida programada para ${format(new Date(formData.fecha), 'dd/MM/yyyy')}`);
+    } catch (error) {
+      console.error("Error creating recogida:", error);
+      toast.error("Error al crear la recogida");
+    }
+  };
 
   return (
     <div>

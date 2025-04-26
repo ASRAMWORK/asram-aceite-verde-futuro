@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -182,11 +181,29 @@ const AlianzaEscolar = () => {
       return;
     }
     
+    const dataToSubmit: Partial<AlianzaVerde> = {
+      nombre: formData.nombre,
+      tipo: formData.tipo,
+      direccion: formData.direccion,
+      distrito: formData.distrito,
+      barrio: formData.barrio,
+      contacto: formData.contacto,
+      telefono: formData.telefono,
+      email: formData.email,
+      numEstudiantes: formData.numEstudiantes,
+      talleresRealizados: formData.talleresRealizados,
+      certificaciones: formData.certificaciones,
+      fechaInicio: new Date(),
+      estado: 'activa',
+      litrosRecolectados: 0,
+      createdAt: new Date()
+    };
+    
     if (isEditingCentro && selectedCentro) {
-      await updateAlianzaVerde(selectedCentro.id, formData as Partial<AlianzaVerde>);
+      await updateAlianzaVerde(selectedCentro.id, dataToSubmit);
       setIsEditingCentro(false);
     } else {
-      await addAlianzaVerde(formData as Omit<AlianzaVerde, 'id'>);
+      await addAlianzaVerde(dataToSubmit as Omit<AlianzaVerde, 'id'>);
       setIsAddingCentro(false);
     }
     

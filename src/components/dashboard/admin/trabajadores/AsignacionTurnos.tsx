@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,12 +43,16 @@ const AsignacionTurnos: React.FC<AsignacionTurnosProps> = ({ trabajador, onClose
     try {
       const nuevoTurno: Omit<Turno, "id"> = {
         trabajadorId: trabajador.id,
+        nombreTrabajador: `${trabajador.nombre} ${trabajador.apellidos}`,
         trabajadorNombre: `${trabajador.nombre} ${trabajador.apellidos}`,
         dia,
         horaInicio,
         horaFin,
         rutaId: rutaId || undefined,
         vehiculoId: vehiculoId || undefined,
+        fecha: new Date(),
+        estado: 'programado',
+        distrito: '',
         createdAt: new Date()
       };
       

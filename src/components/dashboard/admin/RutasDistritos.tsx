@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -63,6 +62,13 @@ type RutaFormData = {
   fecha: string;
   hora: string;
   recogedores: string;
+  barrios: string[];
+  clientes: string[];
+  completada: boolean;
+  puntosRecogida: number;
+  distanciaTotal: number;
+  tiempoEstimado: number;
+  frecuencia: string;
 };
 
 const RutasDistritos = () => {
@@ -81,20 +87,24 @@ const RutasDistritos = () => {
     distrito: "",
     fecha: "",
     hora: "",
-    recogedores: ""
+    recogedores: "",
+    barrios: [],
+    clientes: [],
+    completada: false,
+    puntosRecogida: 0,
+    distanciaTotal: 0,
+    tiempoEstimado: 0,
+    frecuencia: 'semanal'
   });
   
-  // Filter rutas based on current tab
   const filteredRutas = currentTab === "pendientes"
     ? rutas.filter(r => !r.completada)
     : rutas.filter(r => r.completada);
   
-  // Apply distrito filter if selected
   const displayedRutas = filterDistrito
     ? filteredRutas.filter(r => r.distrito === filterDistrito)
     : filteredRutas;
   
-  // Calculate clients per district
   const clientesPorDistrito = distritos.reduce((acc, distrito) => {
     const count = usuarios.filter(u => u.distrito === distrito).length;
     acc[distrito] = count;
@@ -115,7 +125,6 @@ const RutasDistritos = () => {
       [name]: value
     });
     
-    // If selecting distrito, auto-generate a name
     if (name === "distrito") {
       setFormData({
         ...formData,
@@ -136,7 +145,14 @@ const RutasDistritos = () => {
       distrito: ruta.distrito || "",
       fecha: ruta.fecha ? format(new Date(ruta.fecha), "yyyy-MM-dd") : "",
       hora: ruta.hora || "",
-      recogedores: ruta.recogedores || ""
+      recogedores: ruta.recogedores || "",
+      barrios: ruta.barrios || [],
+      clientes: ruta.clientes || [],
+      completada: ruta.completada || false,
+      puntosRecogida: ruta.puntosRecogida || 0,
+      distanciaTotal: ruta.distanciaTotal || 0,
+      tiempoEstimado: ruta.tiempoEstimado || 0,
+      frecuencia: ruta.frecuencia || 'semanal'
     });
     
     setIsEditingRuta(true);
@@ -154,38 +170,45 @@ const RutasDistritos = () => {
       distrito: "",
       fecha: "",
       hora: "",
-      recogedores: ""
+      recogedores: "",
+      barrios: [],
+      clientes: [],
+      completada: false,
+      puntosRecogida: 0,
+      distanciaTotal: 0,
+      tiempoEstimado: 0,
+      frecuencia: 'semanal'
     });
     setSelectedRuta(null);
   };
   
   const handleSubmit = async () => {
-    // Basic validation
-    if (!formData.nombre || !formData.distrito || !formData.fecha) {
-      alert("Por favor completa todos los campos obligatorios");
+    if (!formData.nombre || !formData.distrito) {
+      toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
     
-    // Get all clients in the selected distrito
-    const clientesEnRuta = usuarios
-      .filter(u => u.distrito === formData.distrito)
-      .map(u => ({ id: u.id, nombre: u.nombre, direccion: u.direccion }));
-    
-    const rutaData = {
+    const dataToSubmit: Partial<Ruta> = {
       nombre: formData.nombre,
       distrito: formData.distrito,
-      fecha: new Date(formData.fecha).toISOString(),
-      hora: formData.hora,
-      recogedores: formData.recogedores,
-      clientes: clientesEnRuta,
-      completada: false
+      barrios: formData.barrios || [],
+      fecha: formData.fecha ? new Date(formData.fecha) : undefined,
+      hora: formData.hora || "",
+      recogedores: formData.recogedores || "",
+      clientes: formData.clientes || [],
+      completada: formData.completada || false,
+      puntosRecogida: 0,
+      distanciaTotal: 0,
+      tiempoEstimado: 0,
+      frecuencia: 'semanal',
+      createdAt: new Date()
     };
     
     if (isEditingRuta && selectedRuta) {
-      await updateRuta(selectedRuta.id, rutaData);
+      await updateRuta(selectedRuta.id, dataToSubmit);
       setIsEditingRuta(false);
     } else {
-      await addRuta(rutaData as Omit<Ruta, 'id'>);
+      await addRuta(dataToSubmit as Omit<Ruta, 'id'>);
       setIsAddingRuta(false);
     }
     
@@ -296,6 +319,124 @@ const RutasDistritos = () => {
                   />
                 </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="barrios">Barrios a recoger</Label>
+                  <Input
+                    id="barrios"
+                    name="barrios"
+                    value={formData.barrios.join(", ")}
+                    onChange={(e) => {
+                      const value = e.target.value.split(", ").map((barrio) => barrio.trim());
+                      setFormData({
+                        ...formData,
+                        barrios: value
+                      });
+                    }}
+                    placeholder="Ej: Barrio 1, Barrio 2"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="clientes">Clientes a recoger</Label>
+                  <Input
+                    id="clientes"
+                    name="clientes"
+                    value={formData.clientes.join(", ")}
+                    onChange={(e) => {
+                      const value = e.target.value.split(", ").map((cliente) => cliente.trim());
+                      setFormData({
+                        ...formData,
+                        clientes: value
+                      });
+                    }}
+                    placeholder="Ej: Cliente 1, Cliente 2"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="completada">Ruta completada</Label>
+                  <Input
+                    id="completada"
+                    name="completada"
+                    type="checkbox"
+                    checked={formData.completada}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        completada: e.target.checked
+                      });
+                    }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="puntosRecogida">Puntos de recogida</Label>
+                  <Input
+                    id="puntosRecogida"
+                    name="puntosRecogida"
+                    type="number"
+                    value={formData.puntosRecogida}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        puntosRecogida: parseInt(e.target.value) || 0
+                      });
+                    }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="distanciaTotal">Distancia total</Label>
+                  <Input
+                    id="distanciaTotal"
+                    name="distanciaTotal"
+                    type="number"
+                    value={formData.distanciaTotal}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        distanciaTotal: parseInt(e.target.value) || 0
+                      });
+                    }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="tiempoEstimado">Tiempo estimado</Label>
+                  <Input
+                    id="tiempoEstimado"
+                    name="tiempoEstimado"
+                    type="number"
+                    value={formData.tiempoEstimado}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        tiempoEstimado: parseInt(e.target.value) || 0
+                      });
+                    }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="frecuencia">Frecuencia</Label>
+                  <Select
+                    value={formData.frecuencia}
+                    onValueChange={(value) => setFormData({
+                      ...formData,
+                      frecuencia: value
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona frecuencia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="semanal">Semanal</SelectItem>
+                      <SelectItem value="mensual">Mensual</SelectItem>
+                      <SelectItem value="anual">Anual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 {formData.distrito && (
                   <div className="space-y-2">
                     <Label>Clientes en el distrito ({clientesPorDistrito[formData.distrito] || 0})</Label>
@@ -344,7 +485,6 @@ const RutasDistritos = () => {
         </div>
       </div>
       
-      {/* Dashboard Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -394,7 +534,6 @@ const RutasDistritos = () => {
         </Card>
       </div>
       
-      {/* Rutas Table */}
       <Card>
         <CardHeader>
           <CardTitle>Listado de Rutas</CardTitle>
@@ -517,7 +656,6 @@ const RutasDistritos = () => {
         </CardFooter>
       </Card>
       
-      {/* Edit ruta dialog - Similar to add dialog */}
       <Dialog open={isEditingRuta} onOpenChange={setIsEditingRuta}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -527,7 +665,6 @@ const RutasDistritos = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* Same form fields as for adding */}
             <div className="space-y-2">
               <Label htmlFor="distrito-edit">Distrito</Label>
               <Select
@@ -592,6 +729,124 @@ const RutasDistritos = () => {
               />
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="barrios-edit">Barrios a recoger</Label>
+              <Input
+                id="barrios-edit"
+                name="barrios"
+                value={formData.barrios.join(", ")}
+                onChange={(e) => {
+                  const value = e.target.value.split(", ").map((barrio) => barrio.trim());
+                  setFormData({
+                    ...formData,
+                    barrios: value
+                  });
+                }}
+                placeholder="Ej: Barrio 1, Barrio 2"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="clientes-edit">Clientes a recoger</Label>
+              <Input
+                id="clientes-edit"
+                name="clientes"
+                value={formData.clientes.join(", ")}
+                onChange={(e) => {
+                  const value = e.target.value.split(", ").map((cliente) => cliente.trim());
+                  setFormData({
+                    ...formData,
+                    clientes: value
+                  });
+                }}
+                placeholder="Ej: Cliente 1, Cliente 2"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="completada-edit">Ruta completada</Label>
+              <Input
+                id="completada-edit"
+                name="completada"
+                type="checkbox"
+                checked={formData.completada}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    completada: e.target.checked
+                  });
+                }}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="puntosRecogida-edit">Puntos de recogida</Label>
+              <Input
+                id="puntosRecogida-edit"
+                name="puntosRecogida"
+                type="number"
+                value={formData.puntosRecogida}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    puntosRecogida: parseInt(e.target.value) || 0
+                  });
+                }}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="distanciaTotal-edit">Distancia total</Label>
+              <Input
+                id="distanciaTotal-edit"
+                name="distanciaTotal"
+                type="number"
+                value={formData.distanciaTotal}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    distanciaTotal: parseInt(e.target.value) || 0
+                  });
+                }}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="tiempoEstimado-edit">Tiempo estimado</Label>
+              <Input
+                id="tiempoEstimado-edit"
+                name="tiempoEstimado"
+                type="number"
+                value={formData.tiempoEstimado}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    tiempoEstimado: parseInt(e.target.value) || 0
+                  });
+                }}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="frecuencia-edit">Frecuencia</Label>
+              <Select
+                value={formData.frecuencia}
+                onValueChange={(value) => setFormData({
+                  ...formData,
+                  frecuencia: value
+                })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona frecuencia" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="semanal">Semanal</SelectItem>
+                  <SelectItem value="mensual">Mensual</SelectItem>
+                  <SelectItem value="anual">Anual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
             {formData.distrito && (
               <div className="space-y-2">
                 <Label>Clientes en el distrito ({clientesPorDistrito[formData.distrito] || 0})</Label>
@@ -629,7 +884,6 @@ const RutasDistritos = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Dialog for completing a ruta */}
       <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>

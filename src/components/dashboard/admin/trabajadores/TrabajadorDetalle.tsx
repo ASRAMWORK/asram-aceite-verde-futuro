@@ -30,7 +30,16 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
   const incidenciasTrabajador = getIncidenciasPorTrabajador(trabajador.id);
   const vehiculoAsignado = vehiculos.find(v => v.id === trabajador.vehiculoAsignado);
   
-  const rutasAsignadas = rutas.filter(r => trabajador.rutasAsignadas?.includes(r.id));
+  let rutasAsignadasArray: string[] = [];
+  if (Array.isArray(trabajador.rutasAsignadas)) {
+    rutasAsignadasArray = trabajador.rutasAsignadas;
+  } else if (typeof trabajador.rutasAsignadas === 'string') {
+    rutasAsignadasArray = [trabajador.rutasAsignadas];
+  }
+  
+  const rutasAsignadas = rutas.filter(r => 
+    rutasAsignadasArray.includes(r.id)
+  );
 
   const formatDate = (date: any) => {
     if (!date) return "N/A";
@@ -38,7 +47,6 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
     return d.toLocaleDateString('es-ES');
   };
 
-  // Datos de ejemplo para gráficos
   const performanceData = [
     { mes: 'Ene', litros: 1200, incidencias: 2 },
     { mes: 'Feb', litros: 1500, incidencias: 1 },
@@ -73,7 +81,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
           </div>
           
           <div className="flex flex-wrap gap-2 mt-2">
-            {trabajador.roles.map((rol) => (
+            {trabajador.roles && trabajador.roles.map((rol) => (
               <Badge key={rol} variant="outline" className="bg-purple-100 text-purple-800 hover:bg-purple-200">
                 {rol.charAt(0).toUpperCase() + rol.slice(1)}
               </Badge>
@@ -91,7 +99,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <Calendar className="h-4 w-4" />
-              <span>Alta: {formatDate(trabajador.fechaAlta)}</span>
+              <span>Alta: {formatDate(trabajador.fechaAlta || trabajador.fechaContratacion)}</span>
             </div>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 export interface User {
   uid: string;
   email: string | null;
@@ -149,14 +148,19 @@ export interface Trabajador {
   puesto: string;
   departamento: string;
   fechaContratacion: Date;
+  fechaAlta?: Date;
+  fechaNacimiento?: Date;
   estado: 'activo' | 'inactivo' | 'permiso';
+  tipoContrato?: string;
+  tipoJornada?: string;
   observaciones?: string;
   createdAt: any;
   updatedAt?: any;
   vehiculoAsignado?: string;
   foto?: string;
   activo?: boolean;
-  rutasAsignadas?: number;
+  rutasAsignadas?: string[];
+  roles?: string[];
 }
 
 export interface Instalacion {
@@ -266,7 +270,7 @@ export interface ChartConfig {
 export interface AlianzaVerde {
   id: string;
   nombre: string;
-  tipo: 'escuela' | 'empresa' | 'institucion';
+  tipo: 'escuela' | 'empresa' | 'institucion' | string;
   direccion: string;
   distrito: string;
   barrio: string;
@@ -276,17 +280,17 @@ export interface AlianzaVerde {
   fechaInicio: Date;
   estado: 'activa' | 'inactiva' | 'pendiente';
   numParticipantes?: number;
+  numEstudiantes?: number;
+  talleresRealizados?: number;
   litrosRecolectados: number;
   createdAt: any;
   updatedAt?: any;
-  numEstudiantes?: number;
-  talleresRealizados?: number;
   certificaciones?: {
     nivel1?: boolean;
     nivel2?: boolean;
     nivel3?: boolean;
     ecosistema?: boolean;
-  };
+  } | number | string[];
 }
 
 export interface CalleApadrinada {

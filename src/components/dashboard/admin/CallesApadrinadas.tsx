@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -58,7 +57,7 @@ type CalleFormData = {
   distrito: string;
   barrio: string;
   descripcion: string;
-  padrinoId: string;
+  padrino: string;
   precio: number;
   fechaInicio: string;
   fechaRenovacion: string;
@@ -75,7 +74,7 @@ const CallesApadrinadas = () => {
     distrito: "",
     barrio: "",
     descripcion: "",
-    padrinoId: "",
+    padrino: "",
     precio: 0,
     fechaInicio: "",
     fechaRenovacion: ""
@@ -127,7 +126,7 @@ const CallesApadrinadas = () => {
       distrito: calle.distrito || "",
       barrio: calle.barrio || "",
       descripcion: calle.descripcion || "",
-      padrinoId: calle.padrinoId || "",
+      padrino: calle.padrino || "",
       precio: calle.precio || 0,
       fechaInicio: calle.fechaInicio ? new Date(calle.fechaInicio).toISOString().split('T')[0] : "",
       fechaRenovacion: calle.fechaRenovacion ? new Date(calle.fechaRenovacion).toISOString().split('T')[0] : ""
@@ -146,7 +145,7 @@ const CallesApadrinadas = () => {
       distrito: "",
       barrio: "",
       descripcion: "",
-      padrinoId: "",
+      padrino: "",
       precio: 0,
       fechaInicio: "",
       fechaRenovacion: ""
@@ -156,15 +155,20 @@ const CallesApadrinadas = () => {
   };
   
   const handleSubmit = async () => {
-    if (!formData.nombre || !formData.distrito || !formData.padrinoId) {
+    if (!formData.nombre || !formData.distrito || !formData.padrino) {
       alert("Por favor completa todos los campos obligatorios");
       return;
     }
     
-    const dataToSubmit = {
+    const dataToSubmit: Partial<CalleApadrinada> = {
       ...formData,
-      fechaInicio: formData.fechaInicio ? new Date(formData.fechaInicio).toISOString() : '',
-      fechaRenovacion: formData.fechaRenovacion ? new Date(formData.fechaRenovacion).toISOString() : ''
+      fechaInicio: formData.fechaInicio ? new Date(formData.fechaInicio) : undefined,
+      fechaRenovacion: formData.fechaRenovacion ? new Date(formData.fechaRenovacion) : undefined,
+      estado: 'activo',
+      numContenedores: 0,
+      longitud: 0,
+      tipoCliente: 'regular',
+      createdAt: new Date()
     };
     
     if (isEditingCalle && selectedCalle) {
@@ -188,9 +192,9 @@ const CallesApadrinadas = () => {
     alert(`Exportando datos en formato ${format}. Esta función estará disponible próximamente.`);
   };
   
-  const getPadrinoName = (padrinoId: string) => {
-    const padrino = usuarios.find(u => u.id === padrinoId);
-    return padrino ? padrino.nombre : "Desconocido";
+  const getPadrinoName = (padrino: string) => {
+    const padrinoUser = usuarios.find(u => u.id === padrino);
+    return padrinoUser ? padrinoUser.nombre : "Desconocido";
   };
   
   return (
@@ -276,10 +280,10 @@ const CallesApadrinadas = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="padrinoId">Padrino</Label>
+                  <Label htmlFor="padrino">Padrino</Label>
                   <Select
-                    value={formData.padrinoId}
-                    onValueChange={(value) => handleSelectChange("padrinoId", value)}
+                    value={formData.padrino}
+                    onValueChange={(value) => handleSelectChange("padrino", value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona padrino" />
@@ -413,10 +417,10 @@ const CallesApadrinadas = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="padrinoId-edit">Padrino</Label>
+                  <Label htmlFor="padrino-edit">Padrino</Label>
                   <Select
-                    value={formData.padrinoId}
-                    onValueChange={(value) => handleSelectChange("padrinoId", value)}
+                    value={formData.padrino}
+                    onValueChange={(value) => handleSelectChange("padrino", value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona padrino" />
@@ -591,7 +595,7 @@ const CallesApadrinadas = () => {
                       <TableRow key={calle.id}>
                         <TableCell className="font-medium">{calle.nombre}</TableCell>
                         <TableCell>{calle.distrito} / {calle.barrio}</TableCell>
-                        <TableCell>{getPadrinoName(calle.padrinoId)}</TableCell>
+                        <TableCell>{getPadrinoName(calle.padrino)}</TableCell>
                         <TableCell className="text-right">{calle.precio}€</TableCell>
                         <TableCell>
                           {calle.fechaInicio ? new Date(calle.fechaInicio).toLocaleDateString() : "-"}
