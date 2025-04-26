@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, onSnapshot } from 'firebase/firestore';
@@ -84,17 +83,13 @@ export function useUsuarios() {
 
   const deleteUsuario = async (id: string) => {
     try {
-      // Soft delete approach
-      await updateDoc(doc(db, "usuarios", id), {
-        activo: false,
-        updatedAt: serverTimestamp()
-      });
-      toast.success("Usuario desactivado correctamente");
+      await deleteDoc(doc(db, "usuarios", id));
+      toast.success("Usuario eliminado correctamente");
       await loadUsuariosData();
       return true;
     } catch (err) {
       console.error("Error eliminando usuario:", err);
-      toast.error("Error al desactivar el usuario");
+      toast.error("Error al eliminar el usuario");
       return false;
     }
   };
@@ -115,7 +110,6 @@ export function useUsuarios() {
     }
   };
 
-  // Listen for real-time updates to users
   useEffect(() => {
     if (!listeningForChanges) {
       const usuariosRef = collection(db, "usuarios");
@@ -139,7 +133,6 @@ export function useUsuarios() {
     }
   }, [listeningForChanges]);
 
-  // Initial load
   useEffect(() => {
     loadUsuariosData();
   }, []);

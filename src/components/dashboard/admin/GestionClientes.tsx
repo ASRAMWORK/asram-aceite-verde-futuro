@@ -95,10 +95,8 @@ const GestionClientes = () => {
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   const [showNewRegistrations, setShowNewRegistrations] = useState(false);
   
-  // Cast usuarios to include our extended type with numViviendas and numContenedores
   const typedUsuarios = usuarios as (Usuario & { numViviendas?: number, numContenedores?: number })[];
   
-  // New registrations (last 7 days)
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   
@@ -108,37 +106,30 @@ const GestionClientes = () => {
     return creationDate > sevenDaysAgo;
   });
   
-  // Calculate statistics for dashboard
   const comunidades = instalaciones.length;
   const totalViviendas = instalaciones.reduce((sum, i) => sum + (i.numViviendas || 0), 0);
   const totalContenedores = instalaciones.reduce((sum, i) => sum + (i.numContenedores || 0), 0);
   
-  // Calculate average litros per container
   const totalLitrosRecogidos = puntosVerdes.reduce((sum, pv) => sum + (pv.litrosRecogidos || 0), 0);
   const mediaContenedor = totalContenedores > 0 ? (totalLitrosRecogidos / totalContenedores).toFixed(2) : "0";
   
-  // Mapear puntos verdes a sus usuarios correspondientes
-  const [puntosByDireccion, setPuntosByDireccion] = useState<Record<string, PuntoVerde>>({});
+  const puntosByDireccion: Record<string, PuntoVerde> = {};
   
   useEffect(() => {
     if (!loadingPuntos && puntosVerdes.length > 0) {
-      const puntosMap: Record<string, PuntoVerde> = {};
       puntosVerdes.forEach(punto => {
         if (punto.direccion) {
-          puntosMap[punto.direccion.toLowerCase()] = punto;
+          puntosByDireccion[punto.direccion.toLowerCase()] = punto;
         }
       });
-      setPuntosByDireccion(puntosMap);
     }
   }, [loadingPuntos, puntosVerdes]);
   
-  // Función para verificar si un usuario tiene punto verde
   const tienePuntoVerde = (usuario: Usuario): boolean => {
     if (!usuario.direccion) return false;
     return !!puntosByDireccion[usuario.direccion.toLowerCase()];
   };
   
-  // Filter usuarios based on the current tab and search term
   const filteredByTab = currentTab === "todos" 
     ? typedUsuarios 
     : typedUsuarios.filter(u => u.tipo === currentTab);
@@ -153,18 +144,15 @@ const GestionClientes = () => {
       )
     : filteredByTab;
     
-  // Apply distrito filter if selected
   const displayedUsuarios = filterDistrito 
     ? filteredBySearch.filter(u => u.distrito === filterDistrito)
     : filteredBySearch;
   
   const handleOpenEditDialog = (usuario: Usuario) => {
     setSelectedUsuario(usuario);
-    // Cast usuario to include our extended type with numViviendas and numContenedores
     const typedUsuario = usuario as (Usuario & { numViviendas?: number, numContenedores?: number, litrosRecogidos?: number });
     setFormData({
       ...typedUsuario,
-      // Ensure these values are numbers
       numViviendas: typedUsuario.numViviendas || 0,
       numContenedores: typedUsuario.numContenedores || 0,
       litrosRecogidos: typedUsuario.litrosRecogidos || 0
@@ -199,12 +187,10 @@ const GestionClientes = () => {
       [name]: value,
     });
     
-    // If selecting distrito, update barrios
     if (name === "distrito") {
       const barriosDelDistrito = getBarriosByDistrito(value);
       setFilteredBarrios(barriosDelDistrito);
       
-      // Reset barrio if not in the new distrito
       if (formData.barrio && !barriosDelDistrito.includes(formData.barrio)) {
         setFormData({
           ...formData,
@@ -229,15 +215,12 @@ const GestionClientes = () => {
   const handleSubmit = async () => {
     if (!selectedUsuario) return;
     
-    // Create a copy of formData without the extra properties
     const { numViviendas, numContenedores, litrosRecogidos, ...basicFormData } = formData;
     
-    // Use a type assertion to add the specialized fields back
     const updateData: Partial<Usuario> = {
       ...basicFormData
     };
     
-    // Now safely add back the specialized fields with type assertion
     if (numViviendas !== undefined) {
       (updateData as any).numViviendas = numViviendas;
     }
@@ -250,14 +233,12 @@ const GestionClientes = () => {
     
     await updateUsuario(selectedUsuario.id, updateData);
     
-    // Si es una comunidad y cambiaron los datos relevantes para puntos verdes, actualizar/añadir punto verde
     if (selectedUsuario.tipo === "Comunidad de Vecinos") {
       const direccion = formData.direccion || selectedUsuario.direccion;
       if (direccion) {
         const puntoExistente = puntosByDireccion[direccion.toLowerCase()];
         
         if (puntoExistente) {
-          // Actualizar punto verde
           const updateData: Partial<PuntoVerde> = {};
           if (formData.distrito) updateData.distrito = formData.distrito;
           if (formData.barrio) updateData.barrio = formData.barrio;
@@ -270,7 +251,6 @@ const GestionClientes = () => {
           }
           if (formData.telefono) updateData.telefono = formData.telefono;
         } else if (formData.numContenedores && formData.numContenedores > 0) {
-          // Crear nuevo punto verde
           const nuevoPuntoVerde: Omit<PuntoVerde, "id"> = {
             distrito: formData.distrito || selectedUsuario.distrito || "",
             barrio: formData.barrio || selectedUsuario.barrio || "",
@@ -279,7 +259,7 @@ const GestionClientes = () => {
             numContenedores: formData.numContenedores || 0,
             telefono: formData.telefono || selectedUsuario.telefono || "",
             litrosRecogidos: 0,
-            administradorId: null // Adding the required field
+            administradorId: null
           };
           
           await addPuntoVerde(nuevoPuntoVerde);
@@ -292,13 +272,12 @@ const GestionClientes = () => {
   };
   
   const handleDeleteUsuario = async (id: string) => {
-    if (window.confirm("¿Estás seguro de que quieres desactivar este cliente?")) {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este cliente? Esta acción no se puede deshacer.")) {
       await deleteUsuario(id);
     }
   };
   
   const handleExportData = (format: 'pdf' | 'excel') => {
-    // This would be implemented with a PDF/Excel generation library
     alert(`Exportando datos en formato ${format}. Esta función estará disponible próximamente.`);
   };
 
@@ -346,7 +325,6 @@ const GestionClientes = () => {
         </div>
       </div>
 
-      {/* Panel de nuevos registros */}
       {showNewRegistrations && (
         <Card className="border-blue-200 bg-blue-50/50">
           <CardHeader className="pb-2">
@@ -413,7 +391,6 @@ const GestionClientes = () => {
         </Card>
       )}
 
-      {/* Dashboard Cards for Comunidades - Updated with real data */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card className="border-l-4 border-l-asram hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -473,7 +450,6 @@ const GestionClientes = () => {
         </Card>
       </div>
 
-      {/* Cliente Tabs and Table */}
       <Card className="overflow-hidden">
         <CardHeader className="bg-white sticky top-0 z-10 pb-2">
           <CardTitle>Listado de Clientes</CardTitle>
@@ -564,7 +540,7 @@ const GestionClientes = () => {
                     </TableRow>
                   ) : (
                     displayedUsuarios.map((usuario) => (
-                      <TableRow key={usuario.id} className={!usuario.activo ? "opacity-50 bg-gray-50" : "hover:bg-muted/20"}>
+                      <TableRow key={usuario.id}>
                         <TableCell className="font-medium">{usuario.nombre}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className={
@@ -607,8 +583,7 @@ const GestionClientes = () => {
                               variant="outline" 
                               size="icon"
                               onClick={() => handleDeleteUsuario(usuario.id)}
-                              disabled={!usuario.activo}
-                              className={!usuario.activo ? "opacity-50 cursor-not-allowed" : "hover:bg-red-50 hover:text-red-600"}
+                              className="hover:bg-red-50 hover:text-red-600"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -635,7 +610,6 @@ const GestionClientes = () => {
         </CardFooter>
       </Card>
 
-      {/* Edit usuario dialog - keeping existing code */}
       <Dialog open={isEditingUsuario} onOpenChange={setIsEditingUsuario}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -844,7 +818,6 @@ const GestionClientes = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Add Cliente Form */}
       {isAddingUsuario && (
         <AddClienteForm 
           isOpen={isAddingUsuario} 
