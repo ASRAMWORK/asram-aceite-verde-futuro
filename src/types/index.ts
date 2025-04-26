@@ -1,3 +1,4 @@
+
 export interface User {
   uid: string;
   email: string | null;
@@ -185,6 +186,13 @@ export interface Trabajador {
   activo?: boolean;
   rutasAsignadas?: string[];
   roles?: string[];
+  // Added payment-related fields
+  salarioBase?: number;
+  cuentaBancaria?: string;
+  metodoPago?: 'transferencia' | 'efectivo' | 'otro';
+  frecuenciaPago?: 'mensual' | 'quincenal' | 'semanal';
+  diaCobro?: number;
+  beneficios?: string[];
 }
 
 export type TipoContrato = 'indefinido' | 'temporal' | 'practicas' | 'formacion' | 'obra' | 'otro';
