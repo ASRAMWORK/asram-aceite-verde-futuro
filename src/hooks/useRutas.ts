@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, where } from 'firebase/firestore';
 import { toast } from 'sonner';
-import type { Ruta } from '@/types';
+import type { Ruta, Recogida } from '@/types';
 
 export function useRutas() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
@@ -52,10 +51,31 @@ export function useRutas() {
     try {
       const rutaData = {
         ...nuevaRuta,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        completada: false,
+        litrosTotales: 0
       };
       
-      await addDoc(collection(db, "rutas"), rutaData);
+      const docRef = await addDoc(collection(db, "rutas"), rutaData);
+      
+      if (nuevaRuta.clientes && nuevaRuta.clientes.length > 0) {
+        const recogidas = nuevaRuta.clientes.map(cliente => ({
+          rutaId: docRef.id,
+          clienteId: cliente.id,
+          nombreLugar: cliente.nombre,
+          direccion: cliente.direccion,
+          distrito: nuevaRuta.distrito,
+          fecha: nuevaRuta.fecha,
+          litrosRecogidos: 0,
+          estado: 'pendiente',
+          createdAt: serverTimestamp()
+        }));
+
+        for (const recogida of recogidas) {
+          await addDoc(collection(db, "recogidas"), recogida);
+        }
+      }
+      
       toast.success("Ruta añadida correctamente");
       await loadRutas();
       return true;
@@ -65,7 +85,32 @@ export function useRutas() {
       return false;
     }
   };
-  
+
+  const updateRutaRecogida = async (rutaId: string, clienteId: string, litros: number) => {
+    try {
+      const recogidasRef = collection(db, "recogidas");
+      const q = query(recogidasRef, 
+        where("rutaId", "==", rutaId),
+        where("clienteId", "==", clienteId)
+      );
+      
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const recogidaDoc = snapshot.docs[0];
+        await updateDoc(doc(db, "recogidas", recogidaDoc.id), {
+          litrosRecogidos: litros,
+          estado: 'completada',
+          fechaCompletada: serverTimestamp()
+        });
+      }
+      
+      return true;
+    } catch (err) {
+      console.error("Error actualizando recogida:", err);
+      return false;
+    }
+  };
+
   const updateRuta = async (id: string, data: Partial<Ruta>) => {
     try {
       await updateDoc(doc(db, "rutas", id), {
@@ -87,6 +132,7 @@ export function useRutas() {
       await updateDoc(doc(db, "rutas", id), {
         completada: true,
         litrosTotales,
+        fechaCompletada: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
       toast.success("Ruta completada correctamente");
@@ -125,5 +171,6 @@ export function useRutas() {
     updateRuta,
     completeRuta,
     deleteRuta,
+    updateRutaRecogida
   };
 }
