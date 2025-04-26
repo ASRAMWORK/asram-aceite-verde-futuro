@@ -2,23 +2,44 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import type { Ruta } from '@/types';
 import { toast } from 'sonner';
+
+// Tipo para las rutas
+interface Ruta {
+  id: string;
+  fecha: Date;
+  distrito: string;
+  contenedoresRecogidos: number;
+  notas?: string;
+  estado: 'pendiente' | 'completada';
+  createdAt?: any;
+  updatedAt?: any;
+}
 
 export function useRutas() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadRutasData = async () => {
+  const loadRutas = async () => {
     try {
       setLoading(true);
       const rutasRef = collection(db, "rutas");
-      const rutasSnap = await getDocs(query(rutasRef, orderBy("createdAt", "desc")));
+      const rutasSnap = await getDocs(query(rutasRef, orderBy("fecha", "desc")));
       
       const rutasData: Ruta[] = [];
       rutasSnap.forEach((doc) => {
-        rutasData.push({ id: doc.id, ...doc.data() } as Ruta);
+        const data = doc.data();
+        rutasData.push({
+          id: doc.id,
+          fecha: data.fecha?.toDate() || new Date(),
+          distrito: data.distrito || '',
+          contenedoresRecogidos: data.contenedoresRecogidos || 0,
+          notas: data.notas || '',
+          estado: data.estado || 'pendiente',
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
+        });
       });
       
       setRutas(rutasData);
@@ -30,24 +51,24 @@ export function useRutas() {
     }
   };
 
-  const addRuta = async (nuevaRuta: Omit<Ruta, 'id'>) => {
+  const addRuta = async (nuevaRuta: Omit<Ruta, "id">) => {
     try {
       const rutaData = {
         ...nuevaRuta,
-        createdAt: serverTimestamp(),
+        createdAt: serverTimestamp()
       };
       
       await addDoc(collection(db, "rutas"), rutaData);
-      toast.success("Ruta creada correctamente");
-      await loadRutasData();
+      toast.success("Ruta añadida correctamente");
+      await loadRutas();
       return true;
     } catch (err) {
       console.error("Error añadiendo ruta:", err);
-      toast.error("Error al crear la ruta");
+      toast.error("Error al añadir la ruta");
       return false;
     }
   };
-
+  
   const updateRuta = async (id: string, data: Partial<Ruta>) => {
     try {
       await updateDoc(doc(db, "rutas", id), {
@@ -55,7 +76,7 @@ export function useRutas() {
         updatedAt: serverTimestamp()
       });
       toast.success("Ruta actualizada correctamente");
-      await loadRutasData();
+      await loadRutas();
       return true;
     } catch (err) {
       console.error("Error actualizando ruta:", err);
@@ -64,11 +85,27 @@ export function useRutas() {
     }
   };
   
+  const completarRuta = async (id: string) => {
+    try {
+      await updateDoc(doc(db, "rutas", id), {
+        estado: 'completada',
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Retirada completada correctamente");
+      await loadRutas();
+      return true;
+    } catch (err) {
+      console.error("Error completando ruta:", err);
+      toast.error("Error al completar la retirada");
+      return false;
+    }
+  };
+  
   const deleteRuta = async (id: string) => {
     try {
       await deleteDoc(doc(db, "rutas", id));
       toast.success("Ruta eliminada correctamente");
-      await loadRutasData();
+      await loadRutas();
       return true;
     } catch (err) {
       console.error("Error eliminando ruta:", err);
@@ -76,47 +113,19 @@ export function useRutas() {
       return false;
     }
   };
-  
-  // Add the completeRuta function
-  const completeRuta = async (id: string, litrosTotales: number) => {
-    try {
-      await updateDoc(doc(db, "rutas", id), {
-        completada: true,
-        litrosTotales,
-        updatedAt: serverTimestamp()
-      });
-      toast.success("Ruta completada correctamente");
-      await loadRutasData();
-      return true;
-    } catch (err) {
-      console.error("Error completando ruta:", err);
-      toast.error("Error al completar la ruta");
-      return false;
-    }
-  };
-  
-  const getRutasPorDistrito = (distrito: string) => {
-    return rutas.filter(ruta => ruta.distrito === distrito);
-  };
-  
-  const getRutasActivas = () => {
-    return rutas.filter(ruta => !ruta.completada);
-  };
 
   useEffect(() => {
-    loadRutasData();
+    loadRutas();
   }, []);
 
   return {
     rutas,
     loading,
     error,
-    loadRutasData,
-    getRutasPorDistrito,
-    getRutasActivas,
+    loadRutas,
     addRuta,
     updateRuta,
+    completarRuta,
     deleteRuta,
-    completeRuta
   };
 }

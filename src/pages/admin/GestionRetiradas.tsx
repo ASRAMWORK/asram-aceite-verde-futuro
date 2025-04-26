@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRutas } from "@/hooks/useRutas";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const GestionRetiradas = () => {
   const [showForm, setShowForm] = useState(false);
@@ -19,7 +30,37 @@ const GestionRetiradas = () => {
   const [distrito, setDistrito] = useState<string | undefined>(undefined);
   const [contenedoresRecogidos, setContenedoresRecogidos] = useState("0");
   const [notas, setNotas] = useState("");
-  const { rutas, loading } = useRutas();
+  const [activeTab, setActiveTab] = useState("pendientes");
+  const [filtroDistrito, setFiltroDistrito] = useState("todos");
+  const [busqueda, setBusqueda] = useState("");
+  const [retiradaACompletar, setRetiradaACompletar] = useState<string | null>(null);
+  const [showCompletarDialog, setShowCompletarDialog] = useState(false);
+  
+  const { rutas, loading, addRuta, completarRuta } = useRutas();
+
+  // Filtrar rutas según estado, distrito y búsqueda
+  const filtrarRutas = (estado: 'pendiente' | 'completada' | 'todas') => {
+    return rutas.filter(ruta => {
+      // Filtrar por estado
+      const matchEstado = estado === 'todas' ? true : ruta.estado === estado;
+      
+      // Filtrar por distrito
+      const matchDistrito = filtroDistrito === 'todos' ? true : ruta.distrito === filtroDistrito;
+      
+      // Filtrar por búsqueda (distrito o fecha)
+      const fechaFormateada = format(ruta.fecha, "dd/MM/yyyy");
+      const matchBusqueda = busqueda 
+        ? ruta.distrito.toLowerCase().includes(busqueda.toLowerCase()) || 
+          fechaFormateada.includes(busqueda)
+        : true;
+      
+      return matchEstado && matchDistrito && matchBusqueda;
+    });
+  };
+
+  const rutasPendientes = filtrarRutas('pendiente');
+  const rutasCompletadas = filtrarRutas('completada');
+  const todasLasRutas = filtrarRutas('todas');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,21 +70,35 @@ const GestionRetiradas = () => {
       return;
     }
     
-    // Process form data here
-    console.log({
-      date,
-      distrito,
+    // Crear nueva ruta
+    const nuevaRuta = {
+      fecha: date,
+      distrito: distrito,
       contenedoresRecogidos: parseInt(contenedoresRecogidos),
-      notas
-    });
+      notas: notas,
+      estado: 'pendiente' as const
+    };
     
-    toast.success("Retirada registrada correctamente");
+    addRuta(nuevaRuta);
     
     // Reset form
     setShowForm(false);
     setDistrito(undefined);
     setContenedoresRecogidos("0");
     setNotas("");
+  };
+
+  const handleCompletarClick = (id: string) => {
+    setRetiradaACompletar(id);
+    setShowCompletarDialog(true);
+  };
+
+  const confirmCompletar = async () => {
+    if (retiradaACompletar) {
+      await completarRuta(retiradaACompletar);
+      setShowCompletarDialog(false);
+      setRetiradaACompletar(null);
+    }
   };
   
   return (
@@ -149,7 +204,7 @@ const GestionRetiradas = () => {
         </Card>
       )}
       
-      <Tabs defaultValue="pendientes">
+      <Tabs defaultValue="pendientes" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="pendientes">Pendientes</TabsTrigger>
           <TabsTrigger value="completadas">Completadas</TabsTrigger>
@@ -158,8 +213,13 @@ const GestionRetiradas = () => {
         
         <div className="flex items-center space-x-2 mb-4">
           <Search className="w-4 h-4 text-muted-foreground" />
-          <Input className="max-w-sm" placeholder="Buscar por distrito o fecha..." />
-          <Select>
+          <Input 
+            className="max-w-sm" 
+            placeholder="Buscar por distrito o fecha..." 
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+          <Select value={filtroDistrito} onValueChange={setFiltroDistrito}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por distrito" />
             </SelectTrigger>
@@ -192,34 +252,38 @@ const GestionRetiradas = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">RET-001</TableCell>
-                    <TableCell>{format(new Date(), "dd/MM/yyyy")}</TableCell>
-                    <TableCell>Centro</TableCell>
-                    <TableCell>15</TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-                        Pendiente
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm">Completar</Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">RET-002</TableCell>
-                    <TableCell>{format(new Date(), "dd/MM/yyyy")}</TableCell>
-                    <TableCell>Salamanca</TableCell>
-                    <TableCell>22</TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-                        Pendiente
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm">Completar</Button>
-                    </TableCell>
-                  </TableRow>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">Cargando...</TableCell>
+                    </TableRow>
+                  ) : rutasPendientes.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">No hay retiradas pendientes</TableCell>
+                    </TableRow>
+                  ) : (
+                    rutasPendientes.map((ruta) => (
+                      <TableRow key={ruta.id}>
+                        <TableCell className="font-medium">{ruta.id.substring(0, 6)}</TableCell>
+                        <TableCell>{format(ruta.fecha, "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{ruta.distrito}</TableCell>
+                        <TableCell>{ruta.contenedoresRecogidos}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                            Pendiente
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleCompletarClick(ruta.id)}
+                          >
+                            Completar
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -242,20 +306,32 @@ const GestionRetiradas = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">RET-003</TableCell>
-                    <TableCell>{format(new Date(Date.now() - 86400000), "dd/MM/yyyy")}</TableCell>
-                    <TableCell>Chamberí</TableCell>
-                    <TableCell>18</TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                        Completada
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm">Ver detalles</Button>
-                    </TableCell>
-                  </TableRow>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">Cargando...</TableCell>
+                    </TableRow>
+                  ) : rutasCompletadas.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">No hay retiradas completadas</TableCell>
+                    </TableRow>
+                  ) : (
+                    rutasCompletadas.map((ruta) => (
+                      <TableRow key={ruta.id}>
+                        <TableCell className="font-medium">{ruta.id.substring(0, 6)}</TableCell>
+                        <TableCell>{format(ruta.fecha, "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{ruta.distrito}</TableCell>
+                        <TableCell>{ruta.contenedoresRecogidos}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                            Completada
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="outline" size="sm">Ver detalles</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -278,13 +354,69 @@ const GestionRetiradas = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {/* All retiradas would be listed here */}
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">Cargando...</TableCell>
+                    </TableRow>
+                  ) : todasLasRutas.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">No hay retiradas registradas</TableCell>
+                    </TableRow>
+                  ) : (
+                    todasLasRutas.map((ruta) => (
+                      <TableRow key={ruta.id}>
+                        <TableCell className="font-medium">{ruta.id.substring(0, 6)}</TableCell>
+                        <TableCell>{format(ruta.fecha, "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{ruta.distrito}</TableCell>
+                        <TableCell>{ruta.contenedoresRecogidos}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            ruta.estado === 'completada' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {ruta.estado === 'completada' ? 'Completada' : 'Pendiente'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {ruta.estado === 'pendiente' ? (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleCompletarClick(ruta.id)}
+                            >
+                              Completar
+                            </Button>
+                          ) : (
+                            <Button variant="outline" size="sm">Ver detalles</Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Diálogo de confirmación para completar retirada */}
+      <AlertDialog open={showCompletarDialog} onOpenChange={setShowCompletarDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Completar retirada</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Está seguro de que desea marcar esta retirada como completada? 
+              Esta acción moverá el registro a la lista de retiradas completadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCompletar}>Completar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
