@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { ComunidadVecinos } from '@/types';
 import { useComunidadesVecinos } from './useComunidadesVecinos';
@@ -24,7 +25,9 @@ export const useComunidadForm = () => {
       co2: 0,
       agua: 0,
       energia: 0
-    }
+    },
+    createdAt: null, // Initialize with null
+    updatedAt: null // Initialize with null
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -43,7 +46,7 @@ export const useComunidadForm = () => {
       ...formData,
       numViviendas: Number(formData.numViviendas || 0),
       totalViviendas: Number(formData.totalViviendas || 0),
-      numeroPorteria: formData.numeroPorteria ? String(formData.numeroPorteria) : undefined
+      numeroPorteria: formData.numeroPorteria ? String(formData.numeroPorteria) : ''
     });
   };
 

@@ -1,4 +1,3 @@
-
 export interface User {
   uid: string;
   email: string | null;
@@ -25,6 +24,23 @@ export interface UserProfile {
   nombreAdministracion?: string;
   createdAt?: any;
   updatedAt?: any;
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
 }
 
 export interface Usuario {
@@ -136,7 +152,6 @@ export interface Voluntario {
   observaciones?: string;
   createdAt: any;
   updatedAt?: any;
-  // Added missing properties
   activo: boolean;
   diasDisponibles: string[];
   horasDisponibles: string;
@@ -171,7 +186,6 @@ export interface Trabajador {
   roles?: string[];
 }
 
-// Added missing types
 export type TipoContrato = 'indefinido' | 'temporal' | 'practicas' | 'formacion' | 'obra' | 'otro';
 export type TipoJornada = 'completa' | 'parcial';
 export type RolTrabajador = 'recolector' | 'conductor' | 'supervisor' | 'analista' | 'administrador' | 'gestor';
@@ -263,7 +277,7 @@ export interface Ingreso {
   updatedAt?: any;
   tipo?: string;
   origen?: string;
-  numFactura?: string; // Added missing property
+  numFactura?: string;
 }
 
 export interface Gasto {
@@ -277,7 +291,7 @@ export interface Gasto {
   createdAt: any;
   updatedAt?: any;
   tipo?: string;
-  numFactura?: string; // Added missing property
+  numFactura?: string;
 }
 
 export interface ChartConfig {
@@ -319,7 +333,7 @@ export interface AlianzaVerde {
     nivel3?: boolean;
     ecosistema?: boolean;
   } | number | string[];
-  nombreCentro?: string; // Added missing property
+  nombreCentro?: string;
 }
 
 export interface CalleApadrinada {
@@ -339,11 +353,10 @@ export interface CalleApadrinada {
   descripcion?: string;
   precio?: number;
   fechaRenovacion?: Date;
-  nombreCalle?: string; // Added missing property
-  nombrePadrino?: string; // Added missing property
+  nombreCalle?: string;
+  nombrePadrino?: string;
 }
 
-// Added missing types
 export interface Tarea {
   id: string;
   titulo: string;
@@ -394,4 +407,11 @@ export interface Reunion {
   participantes: string[];
   createdAt: any;
   updatedAt?: any;
+  tipo?: string;
+  tipoUsuario?: string;
+  nombreCentro?: string;
+  responsable?: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
 }

@@ -82,6 +82,8 @@ const RutasDistritos = () => {
   const [currentTab, setCurrentTab] = useState("pendientes");
   const [filterDistrito, setFilterDistrito] = useState("");
   const [litrosTotales, setLitrosTotales] = useState<number>(0);
+  // Add missing state variables
+  const [selectedClientes, setSelectedClientes] = useState<string[]>([]);
   
   const [formData, setFormData] = useState<RutaFormData>({
     nombre: "",
@@ -183,6 +185,33 @@ const RutasDistritos = () => {
     setSelectedRuta(null);
   };
   
+  const handleAddCliente = () => {
+    // Get the clientes from usuarios filtered by distrito
+    const clientes = usuarios.filter(u => u.distrito === formData.distrito);
+    const clientesFormateados = selectedClientes.map(id => {
+      const cliente = clientes.find(c => c.id === id);
+      return {
+        id: cliente?.id || '',
+        nombre: cliente?.nombre || '',
+        direccion: cliente?.direccion || ''
+      };
+    });
+
+    setFormData({
+      ...formData,
+      clientes: clientesFormateados
+    });
+  };
+
+  const handleRemoveCliente = (index: number) => {
+    const rutaClientes = [...(formData.clientes || [])];
+    rutaClientes.splice(index, 1);
+    setFormData({
+      ...formData,
+      clientes: rutaClientes
+    });
+  };
+  
   const handleSubmit = async () => {
     if (!formData.nombre || !formData.distrito) {
       toast.error("Por favor completa todos los campos obligatorios");
@@ -230,29 +259,20 @@ const RutasDistritos = () => {
       await deleteRuta(id);
     }
   };
-  
-  const handleAddCliente = () => {
-    const clientesFormateados = selectedClientes.map(id => {
-      const cliente = clientes.find(c => c.id === id);
-      return {
-        id: cliente?.id || '',
-        nombre: cliente?.nombre || '',
-        direccion: cliente?.direccion || ''
-      };
-    });
 
+  const handleClientsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const clientesString = e.target.value;
+    // Convert the comma-separated client names to array of client objects
+    const clientNames = clientesString.split(",").map(name => name.trim()).filter(name => name !== "");
+    const clientesObjetos = clientNames.map((nombre, index) => ({
+      id: `temp-${index}`,
+      nombre,
+      direccion: ''
+    }));
+    
     setFormData({
       ...formData,
-      clientes: clientesFormateados
-    });
-  };
-
-  const handleRemoveCliente = (index: number) => {
-    const rutaClientes = [...(formData.clientes || [])];
-    rutaClientes.splice(index, 1);
-    setFormData({
-      ...formData,
-      clientes: rutaClientes
+      clientes: clientesObjetos
     });
   };
 
@@ -367,14 +387,8 @@ const RutasDistritos = () => {
                   <Input
                     id="clientes"
                     name="clientes"
-                    value={formData.clientes.join(", ")}
-                    onChange={(e) => {
-                      const value = e.target.value.split(", ").map((cliente) => cliente.trim());
-                      setFormData({
-                        ...formData,
-                        clientes: value
-                      });
-                    }}
+                    value={formData.clientes.map(c => c.nombre).join(", ")}
+                    onChange={handleClientsInputChange}
                     placeholder="Ej: Cliente 1, Cliente 2"
                   />
                 </div>
@@ -777,14 +791,8 @@ const RutasDistritos = () => {
               <Input
                 id="clientes-edit"
                 name="clientes"
-                value={formData.clientes.join(", ")}
-                onChange={(e) => {
-                  const value = e.target.value.split(", ").map((cliente) => cliente.trim());
-                  setFormData({
-                    ...formData,
-                    clientes: value
-                  });
-                }}
+                value={formData.clientes.map(c => c.nombre).join(", ")}
+                onChange={handleClientsInputChange}
                 placeholder="Ej: Cliente 1, Cliente 2"
               />
             </div>
@@ -951,32 +959,4 @@ const RutasDistritos = () => {
                 id="litrosTotales"
                 name="litrosTotales"
                 type="number"
-                value={litrosTotales}
-                onChange={handleLitrosChange}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsCompletingRuta(false);
-                setLitrosTotales(0);
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              className="bg-asram hover:bg-asram-700"
-              onClick={handleCompleteRuta}
-            >
-              Completar Ruta
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default RutasDistritos;
+                value={litrosTot

@@ -28,6 +28,8 @@ const ReunionesView = () => {
   const [open, setOpen] = React.useState(false);
   const form = useForm({
     defaultValues: {
+      titulo: '',
+      descripcion: '',
       tipo: '',
       tipoUsuario: '',
       direccion: '',
@@ -36,6 +38,10 @@ const ReunionesView = () => {
       telefono: '',
       email: '',
       fecha: new Date(),
+      hora: '',
+      duracion: 60,
+      ubicacion: '',
+      participantes: [],
     }
   });
 
@@ -185,7 +191,7 @@ const ReunionesView = () => {
         {reuniones.map((reunion) => (
           <Card key={reunion.id}>
             <CardHeader>
-              <CardTitle>{reunion.tipo}</CardTitle>
+              <CardTitle>{reunion.titulo || reunion.tipo}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {reunion.tipoUsuario && <p><strong>Tipo de Usuario:</strong> {reunion.tipoUsuario}</p>}
@@ -194,7 +200,7 @@ const ReunionesView = () => {
               {reunion.direccion && <p><strong>Dirección:</strong> {reunion.direccion}</p>}
               {reunion.telefono && <p><strong>Teléfono:</strong> {reunion.telefono}</p>}
               {reunion.email && <p><strong>Email:</strong> {reunion.email}</p>}
-              <p><strong>Fecha:</strong> {reunion.fecha.toLocaleString()}</p>
+              <p><strong>Fecha:</strong> {reunion.fecha instanceof Date ? reunion.fecha.toLocaleString() : new Date(reunion.fecha).toLocaleString()}</p>
               <Button 
                 variant="destructive" 
                 size="sm" 
