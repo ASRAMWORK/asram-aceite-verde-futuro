@@ -84,7 +84,8 @@ const GestionRetiradas = () => {
       tiempoEstimado: 0,
       frecuencia: "puntual",
       completada: false,
-      litrosTotales: 0
+      litrosTotales: 0,
+      createdAt: new Date() // Added the missing createdAt property
     };
     
     addRuta(nuevaRuta);

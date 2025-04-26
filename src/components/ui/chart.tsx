@@ -2,7 +2,7 @@
 "use client"
 
 import React from 'react';
-import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
+import { Bar, Line, Pie, Doughnut, Scatter } from 'react-chartjs-2';
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -30,7 +30,7 @@ ChartJS.register(
 );
 
 interface ChartProps {
-  type: 'bar' | 'line' | 'pie' | 'doughnut';
+  type: 'bar' | 'line' | 'pie' | 'doughnut' | 'scatter';
   data: any;
   options?: any;
   className?: string;
@@ -51,6 +51,9 @@ export function Chart({ type, data, options, className }: ChartProps) {
       break;
     case 'doughnut':
       chartComponent = <Doughnut data={data} options={options} />;
+      break;
+    case 'scatter':
+      chartComponent = <Scatter data={data} options={options} />;
       break;
     default:
       chartComponent = <Bar data={data} options={options} />;
