@@ -10,16 +10,38 @@ import { Plus, Search, UserRound } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ClientesList from './ClientesList';
 import ClienteForm from './ClienteForm';
+import { useUsuarios } from '@/hooks/useUsuarios';
 
 const AdministradorClientes = () => {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('todos');
+  const { usuarios, loadUsuariosData } = useUsuarios();
+  
+  // Calculate statistics
+  const totalUsuarios = usuarios.length;
+  const usuariosActivos = usuarios.filter(u => u.activo).length;
+  const usuariosInactivos = usuarios.filter(u => !u.activo).length;
+
+  const handleClienteSubmit = async (data: any) => {
+    // After successful client creation, refresh the list
+    try {
+      await loadUsuariosData();
+      setShowForm(false);
+    } catch (error) {
+      console.error("Error loading usuarios data:", error);
+    }
+  };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Gestión de Clientes</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Gestión de Clientes</h2>
+          <p className="text-sm text-muted-foreground">
+            Total: {totalUsuarios} | Activos: {usuariosActivos} | Inactivos: {usuariosInactivos}
+          </p>
+        </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" /> Añadir Cliente
         </Button>
@@ -32,7 +54,7 @@ const AdministradorClientes = () => {
             <CardDescription>Ingrese los datos del cliente</CardDescription>
           </CardHeader>
           <CardContent>
-            <ClienteForm onCancel={() => setShowForm(false)} />
+            <ClienteForm onCancel={() => setShowForm(false)} onSubmit={handleClienteSubmit} />
           </CardContent>
         </Card>
       ) : null}

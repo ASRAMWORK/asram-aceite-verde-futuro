@@ -1,14 +1,16 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import type { Usuario } from '@/types';
 import { toast } from 'sonner';
+import { usePuntosVerdes } from '@/hooks/usePuntosVerdes';
 
 export function useUsuarios() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [listeningForChanges, setListeningForChanges] = useState(false);
 
   const loadUsuariosData = async () => {
     try {
@@ -113,6 +115,31 @@ export function useUsuarios() {
     }
   };
 
+  // Listen for real-time updates to users
+  useEffect(() => {
+    if (!listeningForChanges) {
+      const usuariosRef = collection(db, "usuarios");
+      const q = query(usuariosRef, orderBy("createdAt", "desc"));
+      
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const usuariosData: Usuario[] = [];
+        snapshot.forEach((doc) => {
+          usuariosData.push({ id: doc.id, ...doc.data() } as Usuario);
+        });
+        setUsuarios(usuariosData);
+        setLoading(false);
+      }, (err) => {
+        console.error("Error observing usuarios:", err);
+        setError("Error al observar cambios en usuarios");
+        setLoading(false);
+      });
+
+      setListeningForChanges(true);
+      return () => unsubscribe();
+    }
+  }, [listeningForChanges]);
+
+  // Initial load
   useEffect(() => {
     loadUsuariosData();
   }, []);

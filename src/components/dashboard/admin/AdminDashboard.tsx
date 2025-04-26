@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,14 +23,19 @@ const AdminDashboard = () => {
   const { instalaciones, loading: loadingInstalaciones } = useInstalaciones();
   const { ingresos, gastos, loading: loadingFacturacion } = useFacturacion();
 
-  // Calculate statistics
-  const clientesActivos = usuarios.filter(u => u.activo && u.tipo === 'comunidad').length;
+  // Calculate statistics - now counts all registered users plus active community clients
+  const clientesActivos = usuarios.filter(u => u.activo).length;
+  const clientesComunidad = usuarios.filter(u => u.activo && u.tipo === 'comunidad').length;
+  const totalUsuariosRegistrados = usuarios.length;
   const totalVoluntarios = voluntarios.length;
   const totalTrabajadores = trabajadores.length;
   
   // Total viviendas and containers using instalaciones data
   const totalViviendas = instalaciones.reduce((acc, inst) => acc + (inst.numViviendas || 0), 0);
   const totalContenedores = instalaciones.reduce((acc, inst) => acc + (inst.numContenedores || 0), 0);
+  
+  // Calculate total litros recogidos from all puntos verdes
+  const totalLitrosRecogidos = puntosVerdes.reduce((acc, punto) => acc + (punto.litrosRecogidos || 0), 0);
   
   // Notifications system
   const [notifications, setNotifications] = useState([
@@ -281,7 +285,7 @@ const AdminDashboard = () => {
               {isLoading ? "..." : clientesActivos}
             </div>
             <p className="text-xs text-muted-foreground">
-              Comunidades y establecimientos activos
+              Total usuarios registrados
             </p>
           </CardContent>
         </Card>
@@ -318,15 +322,15 @@ const AdminDashboard = () => {
 
         <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Viviendas</CardTitle>
+            <CardTitle className="text-sm font-medium">Litros Recogidos</CardTitle>
             <Home className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : totalViviendas}
+              {isLoading ? "..." : `${totalLitrosRecogidos}L`}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total viviendas registradas
+              Total litros de aceite recogidos
             </p>
           </CardContent>
         </Card>

@@ -24,6 +24,7 @@ const formSchema = z.object({
   descripcion: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
   precio: z.coerce.number().positive("El precio debe ser un número positivo"),
   stock: z.coerce.number().int().nonnegative("El stock debe ser un número positivo o cero"),
+  categoria: z.string().min(2, "Seleccione una categoría").optional(),
   imagen: z.string().optional(),
   activo: z.boolean().default(true),
 });
@@ -44,6 +45,7 @@ const ProductoForm = ({ initialData, onSubmit, onCancel }: ProductoFormProps) =>
       descripcion: "",
       precio: 0,
       stock: 0,
+      categoria: "",
       imagen: "",
       activo: true,
     },
@@ -92,6 +94,20 @@ const ProductoForm = ({ initialData, onSubmit, onCancel }: ProductoFormProps) =>
                   className="resize-none h-24" 
                   {...field} 
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="categoria"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoría</FormLabel>
+              <FormControl>
+                <Input placeholder="Hogar, Jardín, Reciclaje..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

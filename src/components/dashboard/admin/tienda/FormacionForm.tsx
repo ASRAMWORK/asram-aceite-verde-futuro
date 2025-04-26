@@ -170,6 +170,7 @@ const FormacionForm = ({ initialData, onSubmit, onCancel }: FormacionFormProps) 
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date()}
                     initialFocus
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
