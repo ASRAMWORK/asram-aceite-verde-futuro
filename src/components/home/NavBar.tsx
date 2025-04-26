@@ -11,11 +11,13 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, ShoppingCart, X } from "lucide-react";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b">
       <div className="container mx-auto px-4">
@@ -90,6 +92,18 @@ const NavBar = () => {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to="/tienda" 
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>Tienda</span>
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -101,9 +115,118 @@ const NavBar = () => {
             <Button asChild>
               <Link to="/contacto">Colabora</Link>
             </Button>
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu}>
+              {isMenuOpen ? <X /> : <Menu />}
+            </Button>
           </div>
         </div>
       </div>
+      
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-white border-t">
+          <div className="container mx-auto px-4 py-4 space-y-4">
+            <div>
+              <h3 className="font-medium text-gray-500 mb-2">Sobre Nosotros</h3>
+              <nav className="space-y-2">
+                <Link 
+                  to="/about"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ASRAM Madrid
+                </Link>
+                <Link 
+                  to="/mision"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Misión y Visión
+                </Link>
+                <Link 
+                  to="/modelo"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Modelo Circular
+                </Link>
+              </nav>
+            </div>
+            
+            <div>
+              <h3 className="font-medium text-gray-500 mb-2">Programas</h3>
+              <nav className="space-y-2">
+                <Link 
+                  to="/alianza-verde"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Alianza Verde Escolar
+                </Link>
+                <Link 
+                  to="/asram-kids"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ASRAM Kids
+                </Link>
+                <Link 
+                  to="/puntos-verdes"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Puntos Verdes
+                </Link>
+                <Link 
+                  to="/asram-rural"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ASRAM Rural
+                </Link>
+              </nav>
+            </div>
+            
+            <div>
+              <h3 className="font-medium text-gray-500 mb-2">Colabora</h3>
+              <nav className="space-y-2">
+                <Link 
+                  to="/apadrina"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Apadrina una Calle
+                </Link>
+                <Link 
+                  to="/detergente"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Detergente Solidario
+                </Link>
+                <Link 
+                  to="/contacto"
+                  className="block px-2 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Contacto
+                </Link>
+              </nav>
+            </div>
+            
+            <div>
+              <Link 
+                to="/tienda"
+                className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                <span>Tienda</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

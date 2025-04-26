@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,6 +26,7 @@ import AsramRural from "./pages/programas/AsramRural";
 import Apadrina from "./pages/colabora/Apadrina";
 import Detergente from "./pages/colabora/Detergente";
 import Contacto from "./pages/colabora/Contacto";
+import Tienda from "./pages/tienda/Tienda";
 
 const queryClient = new QueryClient();
 
@@ -131,6 +133,7 @@ const App = () => (
             <Route path="/apadrina" element={<Apadrina />} />
             <Route path="/detergente" element={<Detergente />} />
             <Route path="/contacto" element={<Contacto />} />
+            <Route path="/tienda" element={<Tienda />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

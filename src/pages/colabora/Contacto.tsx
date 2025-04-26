@@ -1,8 +1,19 @@
 
 import PageLayout from "@/components/layout/PageLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Send, 
+  Facebook, 
+  Instagram, 
+  Twitter, 
+  Youtube 
+} from "lucide-react";
 import { useState } from "react";
 
 const Contacto = () => {
@@ -11,129 +22,180 @@ const Contacto = () => {
     email: "",
     telefono: "",
     asunto: "",
-    mensaje: ""
+    mensaje: "",
   });
-
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
-
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Formulario enviado:", formData);
-    // Aquí iría la lógica para enviar el formulario
-    alert("Gracias por contactar con nosotros. Te responderemos lo antes posible.");
+    // Here would go the form submission logic
+    console.log("Form submitted:", formData);
+    // Reset form
+    setFormData({
+      nombre: "",
+      email: "",
+      telefono: "",
+      asunto: "",
+      mensaje: "",
+    });
+    // Show success message (would use a toast in a real app)
+    alert("Mensaje enviado correctamente. Nos pondremos en contacto contigo pronto.");
   };
-
+  
   return (
     <PageLayout 
       title="Contacto" 
-      subtitle="Estamos aquí para ayudarte. Contáctanos para cualquier consulta o colaboración"
+      subtitle="Únete a nosotros y forma parte del cambio"
     >
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
+      <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
         <div>
-          <h3 className="text-2xl font-bold text-asram-800 mb-6">
-            Envíanos un mensaje
-          </h3>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="nombre" className="text-sm font-medium">Nombre completo</label>
-              <Input 
-                id="nombre" 
-                name="nombre" 
-                value={formData.nombre} 
-                onChange={handleChange} 
-                required 
-                placeholder="Tu nombre completo" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">Correo electrónico</label>
-              <Input 
-                id="email" 
-                name="email" 
-                type="email" 
-                value={formData.email} 
-                onChange={handleChange} 
-                required 
-                placeholder="tu@email.com" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="telefono" className="text-sm font-medium">Teléfono</label>
-              <Input 
-                id="telefono" 
-                name="telefono" 
-                value={formData.telefono} 
-                onChange={handleChange} 
-                placeholder="Tu número de teléfono" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="asunto" className="text-sm font-medium">Asunto</label>
-              <Input 
-                id="asunto" 
-                name="asunto" 
-                value={formData.asunto} 
-                onChange={handleChange} 
-                required 
-                placeholder="Motivo de contacto" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="mensaje" className="text-sm font-medium">Mensaje</label>
-              <Textarea 
-                id="mensaje" 
-                name="mensaje" 
-                value={formData.mensaje} 
-                onChange={handleChange} 
-                required 
-                placeholder="Escribe tu mensaje aquí..." 
-                rows={5}
-              />
-            </div>
-            
-            <Button type="submit" className="w-full">
-              Enviar mensaje
-            </Button>
-          </form>
+          <Card className="bg-white/70 backdrop-blur-sm shadow-md h-full">
+            <CardHeader>
+              <CardTitle className="text-2xl text-asram-800">Información de contacto</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-asram mt-1" />
+                  <div>
+                    <h3 className="font-semibold">Dirección</h3>
+                    <p className="text-gray-600">Calle Genciana, 6 – 28039 Madrid</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Phone className="w-5 h-5 text-asram mt-1" />
+                  <div>
+                    <h3 className="font-semibold">Teléfono</h3>
+                    <p className="text-gray-600">‪+34 695 83 17 84‬ (llamadas)</p>
+                    <p className="text-gray-600">‪+34 666 66 36 59‬ (WhatsApp)</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-asram mt-1" />
+                  <div>
+                    <h3 className="font-semibold">Correo electrónico</h3>
+                    <p className="text-gray-600">info@asramadrid.com</p>
+                    <p className="text-gray-600">colabora@asramadrid.com</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-6 border-t border-gray-200">
+                <h3 className="font-semibold mb-4">Síguenos en redes sociales</h3>
+                <div className="flex gap-4">
+                  <Button variant="outline" size="icon" className="rounded-full">
+                    <Facebook className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="rounded-full">
+                    <Instagram className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="rounded-full">
+                    <Twitter className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="rounded-full">
+                    <Youtube className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
         
-        <div className="bg-white rounded-xl shadow-md p-8 h-fit">
-          <h3 className="text-2xl font-bold text-asram-800 mb-6">
-            Datos de contacto
-          </h3>
-          
-          <div className="space-y-6">
-            <div>
-              <h4 className="font-semibold">Dirección</h4>
-              <p>Calle Genciana, 6 – 28039 Madrid</p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold">Teléfono</h4>
-              <p>‪+34 695 83 17 84‬ (llamadas)</p>
-              <p>‪+34 666 66 36 59‬ (WhatsApp)</p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold">Correo</h4>
-              <p>info@asramadrid.com</p>
-              <p>colabora@asramadrid.com</p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold">Horario de atención</h4>
-              <p>Lunes a Viernes: 9:00 - 18:00</p>
-              <p>Fines de semana: Cerrado</p>
-            </div>
-          </div>
+        <div>
+          <Card className="bg-white/70 backdrop-blur-sm shadow-md">
+            <CardHeader>
+              <CardTitle className="text-2xl text-asram-800">Envíanos un mensaje</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre completo
+                  </label>
+                  <Input
+                    id="nombre"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    placeholder="Tu nombre"
+                    required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="tu@email.com"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">
+                      Teléfono
+                    </label>
+                    <Input
+                      id="telefono"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleChange}
+                      placeholder="Tu teléfono"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="asunto" className="block text-sm font-medium text-gray-700 mb-1">
+                    Asunto
+                  </label>
+                  <Input
+                    id="asunto"
+                    name="asunto"
+                    value={formData.asunto}
+                    onChange={handleChange}
+                    placeholder="Asunto del mensaje"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="mensaje" className="block text-sm font-medium text-gray-700 mb-1">
+                    Mensaje
+                  </label>
+                  <Textarea
+                    id="mensaje"
+                    name="mensaje"
+                    value={formData.mensaje}
+                    onChange={handleChange}
+                    placeholder="Escribe tu mensaje aquí..."
+                    rows={5}
+                    required
+                  />
+                </div>
+                
+                <Button type="submit" className="w-full flex items-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Enviar mensaje
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </PageLayout>
