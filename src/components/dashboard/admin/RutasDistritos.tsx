@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Card,
@@ -187,9 +188,9 @@ const RutasDistritos = () => {
   
   const handleAddCliente = () => {
     // Get the clientes from usuarios filtered by distrito
-    const clientes = usuarios.filter(u => u.distrito === formData.distrito);
+    const clientesList = usuarios.filter(u => u.distrito === formData.distrito);
     const clientesFormateados = selectedClientes.map(id => {
-      const cliente = clientes.find(c => c.id === id);
+      const cliente = clientesList.find(c => c.id === id);
       return {
         id: cliente?.id || '',
         nombre: cliente?.nombre || '',
@@ -959,4 +960,33 @@ const RutasDistritos = () => {
                 id="litrosTotales"
                 name="litrosTotales"
                 type="number"
-                value={litrosTot
+                value={litrosTotales}
+                onChange={handleLitrosChange}
+                placeholder="Introduce los litros recogidos"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsCompletingRuta(false);
+                setLitrosTotales(0);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              className="bg-green-600 hover:bg-green-700"
+              onClick={handleCompleteRuta}
+            >
+              Completar Ruta
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default RutasDistritos;
