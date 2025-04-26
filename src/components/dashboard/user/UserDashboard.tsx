@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -12,199 +12,145 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { Home, Users, RecycleIcon, Calendar, User, GraduationCap, MapPin, Droplet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-
-import UserProfileView from "./profile/UserProfileView";
-import RecursosView from "./recursos/RecursosView";
+import { motion } from "framer-motion";
+import HomeView from "./home/HomeView";
 import AlianzaVerdeView from "./alianza/AlianzaVerdeView";
 import ApadrinaCalleView from "./apadrina/ApadrinaCalleView";
-import PuntosVerdesView from "./puntos/PuntosVerdesView";
-import SolicitudRecogidaForm from "./solicitud/SolicitudRecogidaForm";
-import HomeView from "./home/HomeView";
-import { Activity, Home, UserCircle, BookOpen, School, MapPin, User } from "lucide-react";
-import RecogidaCalendar from "@/components/calendario/RecogidaCalendar";
+import RecogidaAceiteView from "./recogida/RecogidaAceiteView";
+import ReunionView from "./reunion/ReunionView";
+import { useAuth } from "@/contexts/AuthContext";
 
 const UserDashboard = () => {
-  const [currentTab, setCurrentTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("home");
+  const { profile, loading } = useUserProfile();
+  const { logout } = useAuth();
 
-  useEffect(() => {
-    setCurrentTab("home");
-  }, []);
-
-  // Mock data for the chart
-  const impactData = [
-    { name: "CO2 Evitado", value: 540, color: "#10B981" },
-    { name: "Agua Ahorrada", value: 360, color: "#3B82F6" },
-    { name: "Energía Ahorrada", value: 250, color: "#EE970D" },
-  ];
-
-  const COLORS = ["#10B981", "#3B82F6", "#EE970D"];
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-asram"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Panel de Usuario</h2>
-          <p className="text-muted-foreground">
-            Bienvenido de nuevo, gestiona tus recogidas de aceite
-          </p>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
+    >
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8 space-y-4">
+          <motion.div 
+            initial={{ y: -20 }}
+            animate={{ y: 0 }}
+            className="flex justify-between items-center"
+          >
+            <div>
+              <h1 className="text-4xl font-bold text-asram-800">
+                Panel de Usuario
+              </h1>
+              <p className="text-gray-600">
+                Bienvenido, {profile?.nombre || 'Usuario'}
+              </p>
+            </div>
+            <Button onClick={logout} variant="destructive">
+              Cerrar sesión
+            </Button>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <RecycleIcon className="h-6 w-6 text-green-600" />
+                  <span>Aceite Reciclado</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-700">25L</div>
+                <p className="text-sm text-green-600">Este mes</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <Droplet className="h-6 w-6 text-blue-600" />
+                  <span>Agua Ahorrada</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-700">25,000L</div>
+                <p className="text-sm text-blue-600">Impacto total</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <GraduationCap className="h-6 w-6 text-purple-600" />
+                  <span>Puntos Verdes</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-700">150</div>
+                <p className="text-sm text-purple-600">Puntos acumulados</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-        <Button className="bg-asram hover:bg-asram-700">
-          Solicitar Recogida
-        </Button>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="inline-flex h-auto p-1 bg-muted gap-2">
+            <TabsTrigger value="home" className="flex items-center gap-2 px-4 py-2">
+              <Home className="h-4 w-4" />
+              <span>Inicio</span>
+            </TabsTrigger>
+            <TabsTrigger value="alianza" className="flex items-center gap-2 px-4 py-2">
+              <Users className="h-4 w-4" />
+              <span>Alianza Verde</span>
+            </TabsTrigger>
+            <TabsTrigger value="apadrina" className="flex items-center gap-2 px-4 py-2">
+              <MapPin className="h-4 w-4" />
+              <span>Apadrina Calle</span>
+            </TabsTrigger>
+            <TabsTrigger value="recogida" className="flex items-center gap-2 px-4 py-2">
+              <RecycleIcon className="h-4 w-4" />
+              <span>Recogida</span>
+            </TabsTrigger>
+            <TabsTrigger value="reunion" className="flex items-center gap-2 px-4 py-2">
+              <Calendar className="h-4 w-4" />
+              <span>Reuniones</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="home" className="space-y-6">
+            <HomeView />
+          </TabsContent>
+
+          <TabsContent value="alianza" className="space-y-6">
+            <AlianzaVerdeView />
+          </TabsContent>
+
+          <TabsContent value="apadrina" className="space-y-6">
+            <ApadrinaCalleView />
+          </TabsContent>
+
+          <TabsContent value="recogida" className="space-y-6">
+            <RecogidaAceiteView />
+          </TabsContent>
+
+          <TabsContent value="reunion" className="space-y-6">
+            <ReunionView />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs value={currentTab} onValueChange={setCurrentTab}>
-        <TabsList className="grid grid-cols-7 h-auto p-1 max-w-3xl">
-          <TabsTrigger value="home" className="flex items-center gap-2 py-2">
-            <Home className="h-4 w-4" />
-            <span className="hidden md:inline">Home</span>
-          </TabsTrigger>
-          <TabsTrigger value="dashboard" className="flex items-center gap-2 py-2">
-            <Activity className="h-4 w-4" />
-            <span className="hidden md:inline">Dashboard</span>
-          </TabsTrigger>
-          <TabsTrigger value="perfil" className="flex items-center gap-2 py-2">
-            <UserCircle className="h-4 w-4" />
-            <span className="hidden md:inline">Perfil</span>
-          </TabsTrigger>
-          <TabsTrigger value="recursos" className="flex items-center gap-2 py-2">
-            <BookOpen className="h-4 w-4" />
-            <span className="hidden md:inline">Recursos</span>
-          </TabsTrigger>
-          <TabsTrigger value="alianza-verde" className="flex items-center gap-2 py-2">
-            <School className="h-4 w-4" />
-            <span className="hidden md:inline">Alianza</span>
-          </TabsTrigger>
-          <TabsTrigger value="apadrina" className="flex items-center gap-2 py-2">
-            <MapPin className="h-4 w-4" />
-            <span className="hidden md:inline">Apadrina</span>
-          </TabsTrigger>
-          <TabsTrigger value="puntos-verdes" className="flex items-center gap-2 py-2">
-            <User className="h-4 w-4" />
-            <span className="hidden md:inline">Puntos</span>
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="home" className="animate-fade-in">
-          <HomeView />
-        </TabsContent>
-        
-        <TabsContent value="dashboard" className="space-y-6 animate-fade-in">
-          <Card className="overflow-hidden border-green-100">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50">
-              <CardTitle>Tu Impacto Medioambiental</CardTitle>
-              <CardDescription>
-                Distribución del impacto positivo de tu reciclaje
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={impactData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {impactData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Legend />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          
-          <Card className="overflow-hidden border-green-100">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50">
-              <CardTitle>Historial de Recogidas</CardTitle>
-              <CardDescription>
-                Últimas recogidas de aceite realizadas
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <p className="font-medium">10 Mar 2025</p>
-                    <p className="text-sm text-muted-foreground">10L recogidos</p>
-                  </div>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700 border-green-200">
-                    Completado
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <p className="font-medium">15 Feb 2025</p>
-                    <p className="text-sm text-muted-foreground">8L recogidos</p>
-                  </div>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700 border-green-200">
-                    Completado
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <p className="font-medium">20 Ene 2025</p>
-                    <p className="text-sm text-muted-foreground">10L recogidos</p>
-                  </div>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700 border-green-200">
-                    Completado
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="perfil" className="animate-fade-in">
-          <UserProfileView />
-        </TabsContent>
-        
-        <TabsContent value="recursos" className="animate-fade-in">
-          <RecursosView />
-        </TabsContent>
-        
-        <TabsContent value="alianza-verde" className="animate-fade-in">
-          <AlianzaVerdeView />
-        </TabsContent>
-        
-        <TabsContent value="apadrina" className="animate-fade-in">
-          <ApadrinaCalleView />
-        </TabsContent>
-        
-        <TabsContent value="puntos-verdes" className="animate-fade-in">
-          <PuntosVerdesView />
-        </TabsContent>
-      </Tabs>
-
-      <RecogidaCalendar isAdmin={false} />
-
-      {/* Dialog Content for Solicitud de Recogida */}
-      <DialogContent className="sm:max-w-[550px]">
-        <DialogHeader>
-          <DialogTitle>Solicitar recogida de aceite</DialogTitle>
-          <DialogDescription>
-            Completa el formulario para programar una recogida de aceite usado
-          </DialogDescription>
-        </DialogHeader>
-        <SolicitudRecogidaForm />
-        <DialogFooter className="mt-4 gap-2">
-          <Button variant="outline">
-            Cancelar
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </div>
+    </motion.div>
   );
 };
 
