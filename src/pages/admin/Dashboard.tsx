@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -20,6 +19,7 @@ import InstalacionesView from "@/components/dashboard/admin/instalaciones/Instal
 import GestionRetiradas from "@/pages/admin/GestionRetiradas";
 import TiendaAdmin from "@/components/dashboard/admin/tienda/TiendaAdmin";
 import MiSitioWeb from "@/components/dashboard/admin/sitio-web/MiSitioWeb";
+import AdministradoresFincas from "@/components/dashboard/admin/administradores/AdministradoresFincas";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -128,6 +128,8 @@ const AdminDashboardPage = () => {
         return <TiendaAdmin />;
       case "mi-sitio-web":
         return <MiSitioWeb />;
+      case "administradores":
+        return <AdministradoresFincas />;
       default:
         return <AdminDashboard />;
     }
