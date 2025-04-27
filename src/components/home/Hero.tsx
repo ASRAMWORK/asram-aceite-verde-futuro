@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, RecycleIcon, Droplet, Award } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -51,17 +50,12 @@ const Hero = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative"
           >
-            <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-asram-400/20 to-asram-600/20 z-0" />
+            <div className="relative bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden p-8">
               <img 
-                src="https://images.unsplash.com/photo-1613585535485-26083eea6e33?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
-                alt="Reciclaje de aceite" 
-                className="w-full h-full object-cover rounded-2xl opacity-90"
+                src="/lovable-uploads/6ed9ed5f-1664-4fea-8130-f44cdedf4985.png"
+                alt="ASRAM Logo" 
+                className="w-full h-auto max-w-[400px] mx-auto"
               />
-              <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/70 via-black/30 to-transparent text-white">
-                <h3 className="text-xl font-bold">Impacto positivo</h3>
-                <p>Cada gota de aceite reciclado cuenta para nuestro planeta</p>
-              </div>
             </div>
             
             <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg border border-gray-100">
