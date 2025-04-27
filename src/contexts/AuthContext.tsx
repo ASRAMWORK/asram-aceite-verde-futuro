@@ -1,3 +1,4 @@
+
 import React, {
   useState,
   useEffect,
@@ -14,7 +15,7 @@ import {
   updateProfile,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { auth } from "@/config/firebase";
+import { auth } from "@/lib/firebase"; // Updated import path
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { UserRole } from "@/types";
