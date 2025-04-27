@@ -99,8 +99,78 @@ export interface Trabajador {
   cargo: string;
   departamento: string;
   fechaContratacion: any;
+  // Extended properties for TrabajadorForm
+  foto?: string;
+  fechaAlta?: Date;
+  tipoContrato?: string;
+  tipoJornada?: string;
+  roles?: string[];
+  vehiculoAsignado?: string;
+  rutasAsignadas?: string[];
+  salarioBase?: number;
+  cuentaBancaria?: string;
+  metodoPago?: string;
+  frecuenciaPago?: string;
+  diaCobro?: number;
+  beneficios?: string[];
   createdAt: any;
   updatedAt: any;
+}
+
+export interface Vehiculo {
+  id: string;
+  matricula: string;
+  modelo: string;
+  tipo: string;
+  estado: string;
+  capacidad?: number;
+  ultimaRevision?: Date;
+  proximaRevision?: Date;
+  kilometraje?: number;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Ruta {
+  id: string;
+  nombre: string;
+  distrito: string;
+  barrio?: string;
+  puntos: any[]; // Array of points/coordinates
+  distancia?: number;
+  tiempoEstimado?: number;
+  tipoRuta?: string;
+  estado?: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface TrabajadorPago {
+  id: string;
+  trabajadorId: string;
+  fecha: Date;
+  concepto: string;
+  cantidad: number;
+  tipo: string;
+  estado: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Turno {
+  id: string;
+  trabajadorId: string;
+  nombreTrabajador: string;
+  trabajadorNombre: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+  rutaId?: string;
+  vehiculoId?: string;
+  fecha: Date;
+  estado: string;
+  distrito: string;
+  createdAt: any;
 }
 
 export interface Instalacion {
@@ -237,7 +307,6 @@ export interface CalleApadrinadaType {
   fechaRenovacion?: any;
   estado?: string;
   numContenedores?: number;
-  longitud?: number;
   tipoCliente?: string;
   createdAt: any;
   updatedAt: any;
@@ -294,6 +363,11 @@ export interface Reunion {
   participantes: string[];
   tipo?: string;
   tipoUsuario?: string;
+  nombreCentro?: string;
+  responsable?: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
   createdAt: any;
   updatedAt: any;
 }

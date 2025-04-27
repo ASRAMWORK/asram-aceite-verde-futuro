@@ -53,9 +53,10 @@ type GastoFormProps = {
   initialData?: Partial<Gasto>;
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
+  isOpen?: boolean;
 };
 
-const GastosForm = ({ initialData, onSubmit, onCancel }: GastoFormProps) => {
+const GastosForm = ({ initialData, onSubmit, onCancel, isOpen }: GastoFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({

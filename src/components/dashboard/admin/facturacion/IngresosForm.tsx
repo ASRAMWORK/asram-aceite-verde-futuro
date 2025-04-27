@@ -32,9 +32,10 @@ type IngresosFormProps = {
   onSubmit: (data: Partial<Omit<Ingreso, "id">>) => void;
   onCancel: () => void;
   initialData?: Partial<Omit<Ingreso, "id">>;
+  isOpen?: boolean; // Add isOpen prop to match usage in FacturacionView
 };
 
-const IngresosForm = ({ onSubmit, onCancel, initialData }: IngresosFormProps) => {
+const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen }: IngresosFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<Partial<Omit<Ingreso, "id">>>({

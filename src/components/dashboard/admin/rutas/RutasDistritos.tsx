@@ -300,16 +300,25 @@ const RutasDistritos = () => {
     if (selectedRuta.clientes) {
       for (const cliente of selectedRuta.clientes) {
         if (cliente.litros && cliente.litros > 0) {
-          await addRecogidaToHistory({
-            clienteId: cliente.id,
-            nombreLugar: cliente.nombre,
-            direccion: cliente.direccion,
+          const nuevaRecogida: Partial<Omit<Recogida, "id">> = {
+            cliente: cliente.id,
+            direccionRecogida: cliente.direccion,
+            fechaRecogida: selectedRuta.fecha,
+            horaRecogida: selectedRuta.hora,
+            cantidadAproximada: cliente.litros,
+            tipoAceite: "usado",
+            nombreContacto: cliente.nombre,
+            telefonoContacto: cliente.telefono,
+            emailContacto: cliente.email,
+            notasAdicionales: "",
+            estadoRecogida: "pendiente",
             distrito: selectedRuta.distrito,
-            fecha: selectedRuta.fecha,
-            litrosRecogidos: cliente.litros,
-            completada: true,
-            estado: 'programado'
-          });
+            barrio: selectedRuta.barrios[0],
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          await addRecogidaToHistory(nuevaRecogida);
         }
       }
     }
