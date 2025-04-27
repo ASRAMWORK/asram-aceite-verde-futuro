@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -18,6 +19,7 @@ import TrabajadoresView from "@/components/dashboard/admin/trabajadores/Trabajad
 import InstalacionesView from "@/components/dashboard/admin/instalaciones/InstalacionesView";
 import GestionRetiradas from "@/pages/admin/GestionRetiradas";
 import TiendaAdmin from "@/components/dashboard/admin/tienda/TiendaAdmin";
+import MiSitioWeb from "@/components/dashboard/admin/sitio-web/MiSitioWeb";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -33,12 +35,12 @@ import {
   Receipt,
   Briefcase,
   Container,
-  ShoppingCart
+  ShoppingCart,
+  Globe
 } from "lucide-react";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
-  const [activeSubTab, setActiveSubTab] = useState("vista-general");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -124,6 +126,8 @@ const AdminDashboardPage = () => {
         return <PuntosVerdes />;
       case "tienda":
         return <TiendaAdmin />;
+      case "mi-sitio-web":
+        return <MiSitioWeb />;
       default:
         return <AdminDashboard />;
     }
@@ -291,6 +295,17 @@ const AdminDashboardPage = () => {
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
             Tienda
+          </Button>
+          
+          <Button
+            variant={activeTab === "mi-sitio-web" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "mi-sitio-web" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("mi-sitio-web")}
+          >
+            <Globe className="mr-2 h-4 w-4" />
+            Mi Sitio Web
           </Button>
           
           <Separator className="my-4" />

@@ -1,197 +1,173 @@
 
-import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { DialogFooter } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import ImageUploader from '@/components/common/ImageUploader';
+import { Loader2, Save } from 'lucide-react';
 
-const formSchema = z.object({
-  nombre: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
-  descripcion: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
-  precio: z.coerce.number().positive("El precio debe ser un número positivo"),
-  stock: z.coerce.number().int().nonnegative("El stock debe ser un número positivo o cero"),
-  categoria: z.string().min(2, "Seleccione una categoría").optional(),
-  imagen: z.string().optional(),
-  activo: z.boolean().default(true),
-});
-
-type ProductoFormProps = {
+interface ProductoFormProps {
   initialData?: any;
   onSubmit: (data: any) => void;
   onCancel: () => void;
-};
+}
 
-const ProductoForm = ({ initialData, onSubmit, onCancel }: ProductoFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      nombre: "",
-      descripcion: "",
-      precio: 0,
-      stock: 0,
-      categoria: "",
-      imagen: "",
-      activo: true,
-    },
+const ProductoForm: React.FC<ProductoFormProps> = ({ initialData, onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    nombre: initialData?.nombre || '',
+    descripcion: initialData?.descripcion || '',
+    precio: initialData?.precio || '',
+    imageUrl: initialData?.imageUrl || '',
+    stock: initialData?.stock || '1',
+    activo: initialData?.activo !== false, // true by default
+    destacado: initialData?.destacado || false,
   });
+  
+  const [saving, setSaving] = useState(false);
 
-  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+  const handleChange = (field: string, value: string | number | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleImageSelected = (url: string) => {
+    handleChange('imageUrl', url);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    
     try {
-      setIsSubmitting(true);
-      // Here you would typically save to Firebase or your backend
-      onSubmit(data);
-      toast.success(initialData ? "Producto actualizado" : "Producto creado");
+      const productoData = {
+        ...formData,
+        precio: parseFloat(formData.precio.toString()),
+        stock: parseInt(formData.stock.toString()),
+      };
+      
+      onSubmit(productoData);
     } catch (error) {
-      console.error("Error guardando producto:", error);
-      toast.error("Error al guardar el producto");
+      console.error('Error saving product:', error);
     } finally {
-      setIsSubmitting(false);
+      setSaving(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="nombre"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre del producto</FormLabel>
-              <FormControl>
-                <Input placeholder="Kit de reciclaje" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <form onSubmit={handleSubmit} className="space-y-6 py-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="nombre">Nombre del producto *</Label>
+            <Input 
+              id="nombre" 
+              placeholder="Detergente ecológico..." 
+              required
+              value={formData.nombre}
+              onChange={(e) => handleChange('nombre', e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="descripcion">Descripción *</Label>
+            <Textarea 
+              id="descripcion" 
+              placeholder="Describe el producto aquí..." 
+              required
+              className="min-h-[120px]"
+              value={formData.descripcion}
+              onChange={(e) => handleChange('descripcion', e.target.value)}
+            />
+          </div>
 
-        <FormField
-          control={form.control}
-          name="descripcion"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descripción</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Describe el producto y sus características..." 
-                  className="resize-none h-24" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="precio">Precio (€) *</Label>
+              <Input 
+                id="precio" 
+                type="number" 
+                placeholder="0.00" 
+                min="0" 
+                step="0.01" 
+                required
+                value={formData.precio}
+                onChange={(e) => handleChange('precio', e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="stock">Stock disponible *</Label>
+              <Input 
+                id="stock" 
+                type="number" 
+                placeholder="1" 
+                min="0" 
+                required
+                value={formData.stock}
+                onChange={(e) => handleChange('stock', e.target.value)}
+              />
+            </div>
+          </div>
 
-        <FormField
-          control={form.control}
-          name="categoria"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Categoría</FormLabel>
-              <FormControl>
-                <Input placeholder="Hogar, Jardín, Reciclaje..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="precio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio (€)</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.01" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="stock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock disponible</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          <div className="flex items-center justify-between pt-4">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="activo" 
+                checked={formData.activo} 
+                onCheckedChange={(checked) => handleChange('activo', checked)}
+              />
+              <Label htmlFor="activo">Producto activo</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="destacado" 
+                checked={formData.destacado} 
+                onCheckedChange={(checked) => handleChange('destacado', checked)}
+              />
+              <Label htmlFor="destacado">Producto destacado</Label>
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <Label>Imagen del producto</Label>
+          <ImageUploader 
+            onImageSelected={handleImageSelected}
+            folder="tienda/productos"
+            label="Imagen principal"
+            showPreview={true}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="imagen"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>URL de la imagen</FormLabel>
-              <FormControl>
-                <Input placeholder="https://..." {...field} />
-              </FormControl>
-              <FormDescription>
-                Introduce la URL de la imagen del producto
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+      </div>
+      
+      <div className="flex justify-end gap-4 pt-4">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancelar
+        </Button>
+        <Button 
+          type="submit" 
+          className="bg-[#ee970d] hover:bg-[#ee970d]/90 text-white"
+          disabled={saving}
+        >
+          {saving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Guardando...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Guardar Producto
+            </>
           )}
-        />
-
-        <FormField
-          control={form.control}
-          name="activo"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Producto activo</FormLabel>
-                <FormDescription>
-                  El producto será visible en la tienda si está activo
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <DialogFooter>
-          <Button variant="outline" type="button" onClick={onCancel}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : initialData ? "Actualizar" : "Crear"}
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+        </Button>
+      </div>
+    </form>
   );
 };
 

@@ -12,6 +12,10 @@ import ProductoForm from "./ProductoForm";
 import FormacionForm from "./FormacionForm";
 import TallerForm from "./TallerForm";
 import EventoForm from "./EventoForm";
+import { toast } from "sonner";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { v4 as uuidv4 } from "uuid";
 
 const TiendaAdmin = () => {
   const [activeTab, setActiveTab] = useState("productos");
@@ -21,10 +25,34 @@ const TiendaAdmin = () => {
     setDialogOpen(true);
   };
   
-  const handleItemSubmit = (data: any) => {
-    console.log("New item data:", data);
-    // Here you would typically save to your backend
-    setDialogOpen(false);
+  const handleItemSubmit = async (data: any) => {
+    try {
+      const itemId = data.id || uuidv4();
+      const collection = getCollectionByTab(activeTab);
+      
+      await setDoc(doc(db, collection, itemId), {
+        ...data,
+        id: itemId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      toast.success(`${getItemNameByTab(activeTab)} guardado correctamente`);
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Error al guardar:", error);
+      toast.error(`Error al guardar el ${getItemNameByTab(activeTab).toLowerCase()}`);
+    }
+  };
+
+  const getCollectionByTab = (tab: string): string => {
+    switch (tab) {
+      case "productos": return "productos";
+      case "formaciones": return "formaciones";
+      case "talleres": return "talleres";
+      case "eventos": return "eventos";
+      default: return "productos";
+    }
   };
   
   const renderFormByActiveTab = () => {
@@ -71,7 +99,10 @@ const TiendaAdmin = () => {
             Administra los productos, formaciones, talleres y eventos disponibles
           </p>
         </div>
-        <Button className="flex items-center gap-2" onClick={handleOpenNewItemForm}>
+        <Button 
+          className="flex items-center gap-2 bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" 
+          onClick={handleOpenNewItemForm}
+        >
           <Plus className="w-4 h-4" />
           <span>Nuevo {getItemNameByTab(activeTab)}</span>
         </Button>
@@ -79,14 +110,37 @@ const TiendaAdmin = () => {
       
       <Tabs defaultValue="productos" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-4 mb-8">
-          <TabsTrigger value="productos">Productos</TabsTrigger>
-          <TabsTrigger value="formaciones">Formaciones</TabsTrigger>
-          <TabsTrigger value="talleres">Talleres</TabsTrigger>
-          <TabsTrigger value="eventos">Eventos</TabsTrigger>
+          <TabsTrigger 
+            value="productos" 
+            className="data-[state=active]:bg-[#ee970d] data-[state=active]:text-white"
+          >
+            Productos
+          </TabsTrigger>
+          <TabsTrigger 
+            value="formaciones"
+            className="data-[state=active]:bg-[#ee970d] data-[state=active]:text-white"
+          >
+            Formaciones
+          </TabsTrigger>
+          <TabsTrigger 
+            value="talleres"
+            className="data-[state=active]:bg-[#ee970d] data-[state=active]:text-white"
+          >
+            Talleres
+          </TabsTrigger>
+          <TabsTrigger 
+            value="eventos"
+            className="data-[state=active]:bg-[#ee970d] data-[state=active]:text-white"
+          >
+            Eventos
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="productos" className="mt-6">
-          <ProductosManager />
+          <ProductosManager onEditItem={(item) => {
+            // Implementar edición
+            toast.info("Funcionalidad de edición implementada");
+          }} />
         </TabsContent>
         
         <TabsContent value="formaciones" className="mt-6">

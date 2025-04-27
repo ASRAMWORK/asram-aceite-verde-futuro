@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -53,6 +53,39 @@ export const ensureAdminUser = async () => {
     } else {
       console.error("Unexpected error:", error);
     }
+  }
+};
+
+// Helper function to upload image to Firebase Storage
+export const uploadImage = async (file: File, path: string): Promise<string> => {
+  const storageRef = ref(storage, `${path}/${file.name}`);
+  
+  try {
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // Track progress if needed
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+        },
+        (error) => {
+          // Handle errors
+          console.error("Upload error:", error);
+          reject(error);
+        },
+        async () => {
+          // Handle successful upload
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadURL);
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error;
   }
 };
 
