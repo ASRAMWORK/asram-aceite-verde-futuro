@@ -26,6 +26,7 @@ import { useFacturacion } from "@/hooks/useFacturacion";
 import { ProjectsView } from "./ProjectsView";
 import ProjectForm from "./ProjectForm";
 import FacturasPendientes from "./FacturasPendientes";
+import { useProjects } from "@/hooks/useProjects";
 
 const FacturacionView = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -36,6 +37,7 @@ const FacturacionView = () => {
 
   const { ingresos, gastos, loading, getFinancialSummary } = useFacturacion();
   const { ingresosMes, gastosMes, balanceMes, pendienteCobro } = getFinancialSummary();
+  const { addProject, updateProject, getProjectById } = useProjects();
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -58,6 +60,14 @@ const FacturacionView = () => {
   const handleAddProject = () => {
     setSelectedProject(null);
     setShowProjectForm(true);
+  };
+  
+  const handleSubmitProject = async (data: any) => {
+    if (data.id) {
+      await updateProject(data.id, data);
+    } else {
+      await addProject(data);
+    }
   };
 
   return (
@@ -418,7 +428,8 @@ const FacturacionView = () => {
             setShowProjectForm(false);
             setSelectedProject(null);
           }}
-          projectId={selectedProject}
+          onSubmit={handleSubmitProject}
+          initialData={selectedProject ? { id: selectedProject } : undefined}
         />
       )}
     </div>

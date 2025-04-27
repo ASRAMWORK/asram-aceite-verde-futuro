@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Project } from "@/hooks/useProjects";
+import { Project, useProjects } from "@/hooks/useProjects";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useFacturacion } from "@/hooks/useFacturacion";
 import InformeFinanciero from "./InformeFinanciero";
@@ -40,33 +39,54 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
   const [loading, setLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const { ingresos, gastos } = useFacturacion();
+  const { getProjectById } = useProjects();
+  const [project, setProject] = useState<Partial<Project> | null>(null);
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nombre: initialData?.nombre || "",
-      descripcion: initialData?.descripcion || "",
-      cliente: initialData?.cliente || "",
-      responsable: initialData?.responsable || "",
-      presupuesto: initialData?.presupuesto || 0,
-      fechaInicio: initialData?.fechaInicio || undefined,
-      fechaFin: initialData?.fechaFin || undefined,
-      estado: initialData?.estado || "activo",
+      nombre: "",
+      descripcion: "",
+      cliente: "",
+      responsable: "",
+      presupuesto: 0,
+      fechaInicio: undefined,
+      fechaFin: undefined,
+      estado: "activo",
     }
   });
 
   useEffect(() => {
-    // Reset the form with initial data when it changes
-    if (initialData) {
+    const fetchProject = async () => {
+      if (initialData?.id) {
+        try {
+          const projectData = await getProjectById(initialData.id);
+          if (projectData) {
+            setProject(projectData);
+          }
+        } catch (error) {
+          console.error("Error fetching project:", error);
+          toast.error("No se pudo cargar el proyecto");
+        }
+      } else {
+        setProject(initialData || null);
+      }
+    };
+    
+    fetchProject();
+  }, [initialData, getProjectById]);
+
+  useEffect(() => {
+    if (project) {
       form.reset({
-        nombre: initialData.nombre || "",
-        descripcion: initialData.descripcion || "",
-        cliente: initialData.cliente || "",
-        responsable: initialData.responsable || "",
-        presupuesto: initialData.presupuesto || 0,
-        fechaInicio: initialData.fechaInicio || undefined,
-        fechaFin: initialData.fechaFin || undefined,
-        estado: initialData.estado || "activo",
+        nombre: project.nombre || "",
+        descripcion: project.descripcion || "",
+        cliente: project.cliente || "",
+        responsable: project.responsable || "",
+        presupuesto: project.presupuesto || 0,
+        fechaInicio: project.fechaInicio || undefined,
+        fechaFin: project.fechaFin || undefined,
+        estado: project.estado || "activo",
       });
     } else {
       form.reset({
@@ -80,16 +100,16 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         estado: "activo",
       });
     }
-  }, [initialData, form]);
+  }, [project, form]);
 
   const handleSubmit = async (data: FormData) => {
     setLoading(true);
     try {
       await onSubmit({
         ...data,
-        id: initialData?.id || undefined,
+        id: project?.id || undefined,
       });
-      onClose(); // Close the form after successful submission
+      onClose();
     } catch (error) {
       console.error("Error al guardar el proyecto:", error);
       toast.error("Error al guardar el proyecto");
@@ -99,7 +119,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
   };
 
   const handleViewDetails = () => {
-    if (initialData?.id) {
+    if (project?.id) {
       setShowDetails(true);
     }
   };
@@ -109,9 +129,9 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>{initialData?.id ? "Editar proyecto" : "Nuevo proyecto"}</DialogTitle>
+            <DialogTitle>{project?.id ? "Editar proyecto" : "Nuevo proyecto"}</DialogTitle>
             <DialogDescription>
-              {initialData?.id ? "Actualiza los datos del proyecto" : "Crea un nuevo proyecto en el sistema"}
+              {project?.id ? "Actualiza los datos del proyecto" : "Crea un nuevo proyecto en el sistema"}
             </DialogDescription>
           </DialogHeader>
           
@@ -264,7 +284,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
                 />
               </div>
               
-              {initialData?.id && (
+              {project?.id && (
                 <div className="pt-4">
                   <Button
                     type="button"
@@ -282,7 +302,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
                   Cancelar
                 </Button>
                 <Button type="submit" className="bg-asram hover:bg-asram-700" disabled={loading}>
-                  {loading ? "Guardando..." : initialData?.id ? "Actualizar" : "Crear proyecto"}
+                  {loading ? "Guardando..." : project?.id ? "Actualizar" : "Crear proyecto"}
                 </Button>
               </DialogFooter>
             </form>
@@ -290,21 +310,20 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         </DialogContent>
       </Dialog>
       
-      {/* Use Sheet instead of Dialog for financial details to avoid nesting problems */}
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent className="w-[90%] md:w-[75%] sm:max-w-none overflow-y-auto">
           <SheetHeader className="pb-4">
-            <SheetTitle>Detalles financieros: {initialData?.nombre}</SheetTitle>
+            <SheetTitle>Detalles financieros: {project?.nombre}</SheetTitle>
             <SheetDescription>
               Resumen financiero del proyecto
             </SheetDescription>
           </SheetHeader>
           
-          {initialData?.id && (
+          {project?.id && (
             <InformeFinanciero 
               ingresos={ingresos} 
               gastos={gastos}
-              proyectoId={initialData.id}
+              proyectoId={project.id}
               onClose={() => setShowDetails(false)}
             />
           )}
