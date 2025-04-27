@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface PuntoLimpio {
   title: string;
@@ -26,28 +27,53 @@ const PuntosLimpiosSection = () => {
   const [puntosLimpios, setPuntosLimpios] = useState<PuntoLimpio[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchPuntosLimpios = async () => {
       try {
-        const response = await fetch('https://datos.madrid.es/egob/catalogo/200284-0-puntos-limpios-fijos.json');
+        // Usar un proxy o servidor alternativo si hay problemas de CORS
+        const response = await fetch('https://cors-anywhere.herokuapp.com/https://datos.madrid.es/egob/catalogo/200284-0-puntos-limpios-fijos.json', {
+          headers: {
+            'Origin': window.location.origin
+          },
+        });
+        
         if (!response.ok) throw new Error('Error al cargar los datos');
         
         const data = await response.json();
-        setPuntosLimpios(data['@graph'] || []);
+        if (data && data['@graph'] && Array.isArray(data['@graph'])) {
+          setPuntosLimpios(data['@graph']);
+          console.log("Puntos limpios cargados:", data['@graph'].length);
+        } else {
+          // Si no encontramos los datos en el formato esperado, usamos datos estáticos
+          setPuntosLimpios(puntosLimpiosMock);
+          toast({
+            title: "Usando datos locales",
+            description: "No se pudieron cargar datos de la API. Mostrando información local.",
+            variant: "warning"
+          });
+        }
       } catch (err) {
+        console.error("Error al cargar puntos limpios:", err);
         setError("Error al cargar los puntos limpios");
-        console.error(err);
+        // Usamos datos mock en caso de error
+        setPuntosLimpios(puntosLimpiosMock);
+        toast({
+          title: "Error de conexión",
+          description: "No se pudo conectar con la API de datos. Mostrando información local.",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchPuntosLimpios();
-  }, []);
+  }, [toast]);
 
   if (loading) return <div className="text-center py-8">Cargando puntos limpios...</div>;
-  if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
+  if (error && puntosLimpios.length === 0) return <div className="text-center py-8 text-red-500">{error}</div>;
 
   return (
     <section className="py-16 bg-gray-50">
@@ -67,9 +93,9 @@ const PuntosLimpiosSection = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p><strong>Dirección:</strong> {punto.address["street-address"]}</p>
-                  <p><strong>Código Postal:</strong> {punto.address["postal-code"]}</p>
-                  <p><strong>Distrito:</strong> {punto.address.district?.title}</p>
+                  <p><strong>Dirección:</strong> {punto.address && punto.address["street-address"]}</p>
+                  <p><strong>Código Postal:</strong> {punto.address && punto.address["postal-code"]}</p>
+                  <p><strong>Distrito:</strong> {punto.address && punto.address.district?.title}</p>
                   <p><strong>Horario:</strong> {punto.organization?.schedule}</p>
                 </div>
               </CardContent>
@@ -80,5 +106,63 @@ const PuntosLimpiosSection = () => {
     </section>
   );
 };
+
+// Datos mock para casos en que la API falle
+const puntosLimpiosMock = [
+  {
+    title: "Punto Limpio Las Dehesillas",
+    address: {
+      "street-address": "Calle Las Dehesillas s/n",
+      "postal-code": "28032",
+      district: {
+        id: "20",
+        title: "San Blas-Canillejas"
+      }
+    },
+    organization: {
+      schedule: "Lunes a Sábado: 08:00 a 20:00, Domingos: 09:00 a 14:00"
+    },
+    location: {
+      latitude: 40.4378693,
+      longitude: -3.6214156
+    }
+  },
+  {
+    title: "Punto Limpio Vallecas",
+    address: {
+      "street-address": "Calle Arroyo del Olivar, 57",
+      "postal-code": "28038",
+      district: {
+        id: "13",
+        title: "Puente de Vallecas"
+      }
+    },
+    organization: {
+      schedule: "Lunes a Sábado: 08:00 a 20:00, Domingos: 09:00 a 14:00"
+    },
+    location: {
+      latitude: 40.387975,
+      longitude: -3.6557905
+    }
+  },
+  {
+    title: "Punto Limpio Vicálvaro",
+    address: {
+      "street-address": "Calle Villablanca, 75",
+      "postal-code": "28032",
+      district: {
+        id: "19",
+        title: "Vicálvaro"
+      }
+    },
+    organization: {
+      schedule: "Lunes a Sábado: 08:00 a 20:00, Domingos: 09:00 a 14:00"
+    },
+    location: {
+      latitude: 40.4022638,
+      longitude: -3.6121118
+    }
+  }
+];
 
 export default PuntosLimpiosSection;
