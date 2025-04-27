@@ -37,8 +37,11 @@ import {
   Briefcase,
   Container,
   ShoppingCart,
-  Globe
+  Globe,
+  Box
 } from "lucide-react";
+
+import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
@@ -133,6 +136,8 @@ const AdminDashboardPage = () => {
         return <AdministradoresFincas />;
       case "comerciales":
         return <ComercialView />;
+      case "inventario":
+        return <InventarioView />;
       default:
         return <AdminDashboard />;
     }
@@ -336,6 +341,18 @@ const AdminDashboardPage = () => {
             <User className="mr-2 h-4 w-4" />
             Comerciales
           </Button>
+          
+        <Button
+          variant={activeTab === "inventario" ? "default" : "ghost"}
+          className={`w-full justify-start ${
+            activeTab === "inventario" ? "bg-asram hover:bg-asram-700" : ""
+          }`}
+          onClick={() => setActiveTab("inventario")}
+        >
+          <Box className="mr-2 h-4 w-4" />
+          Control de Inventario
+        </Button>
+        
           
           <Button
             variant="ghost"
