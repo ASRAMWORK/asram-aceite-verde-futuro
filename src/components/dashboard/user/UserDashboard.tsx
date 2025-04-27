@@ -45,7 +45,7 @@ const UserDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#ee970d]"></div>
       </div>
     );
@@ -59,102 +59,130 @@ const UserDashboard = () => {
       className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
     >
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 space-y-4">
+        <div className="mb-8 space-y-6">
           <motion.div 
             initial={{ y: -20 }}
             animate={{ y: 0 }}
-            className="flex justify-between items-center"
+            className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-xl shadow-sm"
           >
             <div>
-              <h1 className="text-4xl font-bold text-[#ee970d]">
+              <h1 className="text-4xl font-bold text-[#ee970d] mb-2">
                 Panel de Usuario
               </h1>
               <p className="text-gray-600">
                 Bienvenido, {profile?.nombre || 'Usuario'}
               </p>
             </div>
-            <Button onClick={handleLogout} variant="destructive">
+            <Button 
+              onClick={handleLogout} 
+              variant="destructive"
+              className="w-full md:w-auto"
+            >
               Cerrar sesión
             </Button>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <RecycleIcon className="h-6 w-6 text-[#ee970d]" />
-                  <span>Aceite Reciclado</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-[#ee970d]">{profile?.litrosAportados || 0}L</div>
-                <p className="text-sm text-green-600">Tu contribución</p>
-              </CardContent>
-            </Card>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-shadow">
+                <CardHeader className="space-y-1">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <RecycleIcon className="h-6 w-6 text-[#ee970d]" />
+                    <span>Aceite Reciclado</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-[#ee970d]">{profile?.litrosAportados || 0}L</div>
+                  <p className="text-sm text-green-600">Tu contribución</p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <Droplet className="h-6 w-6 text-[#ee970d]" />
-                  <span>Agua Ahorrada</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-[#ee970d]">{(profile?.litrosAportados || 0) * 1000}L</div>
-                <p className="text-sm text-blue-600">Impacto total</p>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-shadow">
+                <CardHeader className="space-y-1">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <Droplet className="h-6 w-6 text-[#ee970d]" />
+                    <span>Agua Ahorrada</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-[#ee970d]">{(profile?.litrosAportados || 0) * 1000}L</div>
+                  <p className="text-sm text-blue-600">Impacto total</p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <GraduationCap className="h-6 w-6 text-[#ee970d]" />
-                  <span>Puntos Verdes</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-[#ee970d]">{profile?.puntosVerdes || 0}</div>
-                <p className="text-sm text-purple-600">Puntos acumulados</p>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-shadow">
+                <CardHeader className="space-y-1">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <GraduationCap className="h-6 w-6 text-[#ee970d]" />
+                    <span>Puntos Verdes</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-[#ee970d]">{profile?.puntosVerdes || 0}</div>
+                  <p className="text-sm text-purple-600">Puntos acumulados</p>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="inline-flex h-auto p-1 bg-muted gap-2">
-            <TabsTrigger value="home" className="flex items-center gap-2 px-4 py-2">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab} 
+          className="space-y-6"
+        >
+          <TabsList className="inline-flex h-auto p-1 bg-white shadow-sm rounded-lg gap-2 w-full md:w-auto overflow-x-auto">
+            <TabsTrigger value="home" className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-[#ee970d] data-[state=active]:text-white">
               <Home className="h-4 w-4" />
               <span>Inicio</span>
             </TabsTrigger>
-            <TabsTrigger value="alianza" className="flex items-center gap-2 px-4 py-2">
+            <TabsTrigger value="alianza" className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-[#ee970d] data-[state=active]:text-white">
               <Users className="h-4 w-4" />
               <span>Alianza Verde</span>
             </TabsTrigger>
-            <TabsTrigger value="apadrina" className="flex items-center gap-2 px-4 py-2">
+            <TabsTrigger value="apadrina" className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-[#ee970d] data-[state=active]:text-white">
               <MapPin className="h-4 w-4" />
               <span>Apadrina Calle</span>
             </TabsTrigger>
-            <TabsTrigger value="recogida" className="flex items-center gap-2 px-4 py-2">
+            <TabsTrigger value="recogida" className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-[#ee970d] data-[state=active]:text-white">
               <RecycleIcon className="h-4 w-4" />
               <span>Recogida</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="home" className="space-y-6">
-            <HomeView />
-          </TabsContent>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <TabsContent value="home" className="space-y-6">
+              <HomeView />
+            </TabsContent>
 
-          <TabsContent value="alianza" className="space-y-6">
-            <AlianzaVerdeView />
-          </TabsContent>
+            <TabsContent value="alianza" className="space-y-6">
+              <AlianzaVerdeView />
+            </TabsContent>
 
-          <TabsContent value="apadrina" className="space-y-6">
-            <ApadrinaCalleView />
-          </TabsContent>
+            <TabsContent value="apadrina" className="space-y-6">
+              <ApadrinaCalleView />
+            </TabsContent>
 
-          <TabsContent value="recogida" className="space-y-6">
-            <RecogidaAceiteView />
-          </TabsContent>
+            <TabsContent value="recogida" className="space-y-6">
+              <RecogidaAceiteView />
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
     </motion.div>
