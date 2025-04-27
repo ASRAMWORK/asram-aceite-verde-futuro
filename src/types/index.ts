@@ -1,3 +1,15 @@
+
+export type UserRole = 
+  | "admin" 
+  | "user" 
+  | "comunidad" 
+  | "restaurante" 
+  | "hotel" 
+  | "asociacion" 
+  | "escolar" 
+  | "usuario" 
+  | "administrador";
+
 export interface Usuario {
   id: string;
   email: string;
@@ -13,6 +25,12 @@ export interface Usuario {
   tipo: string;
   role: string;
   litrosAportados?: number;
+  litrosRecogidos?: number;
+  distrito?: string;
+  barrio?: string;
+  frecuenciaRecogida?: string;
+  numViviendas?: number;
+  numContenedores?: number;
   createdAt: any;
   updatedAt: any;
 }
@@ -35,7 +53,11 @@ export interface PuntoVerde {
   contacto: string;
   activo: boolean;
   litrosRecogidos?: number;
-  distrito: string;
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  administradorId?: string | null;
   createdAt: any;
   updatedAt: any;
 }
@@ -166,6 +188,8 @@ export interface AlianzaEscolarType {
   updatedAt: any;
 }
 
+export type AlianzaVerde = AlianzaEscolarType;
+
 export interface CalleApadrinadaType {
   id: string;
   nombre: string;
@@ -187,6 +211,8 @@ export interface CalleApadrinadaType {
   updatedAt: any;
 }
 
+export type CalleApadrinada = CalleApadrinadaType;
+
 export interface Recogida {
   id: string;
   cliente: string;
@@ -201,6 +227,11 @@ export interface Recogida {
   notasAdicionales: string;
   estadoRecogida: string;
   litrosRecogidos?: number;
+  fecha?: any;
+  distrito?: string;
+  barrio?: string;
+  horaInicio?: string;
+  completada?: boolean;
   createdAt: any;
   updatedAt: any;
 }
@@ -229,6 +260,16 @@ export interface Reunion {
   duracion: number;
   ubicacion: string;
   participantes: string[];
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Producto {
+  id: string;
+  nombre: string;
+  categoria: string;
+  stockActual: number;
+  stockMinimo: number;
   createdAt: any;
   updatedAt: any;
 }
