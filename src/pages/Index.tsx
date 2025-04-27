@@ -6,6 +6,7 @@ import Hero from "@/components/home/Hero";
 import NavBar from "@/components/home/NavBar";
 import ProgramHighlights from "@/components/home/ProgramHighlights";
 import StatsSection from "@/components/home/StatsSection";
+import RecogidaCalendar from "@/components/calendario/RecogidaCalendar";
 
 const Index = () => {
   return (
@@ -22,6 +23,10 @@ const Index = () => {
             <HowItWorks />
             <Benefits />
             <OilDestination />
+            <section className="py-16">
+              <h2 className="text-3xl font-bold text-center mb-12">Calendario de Recogidas</h2>
+              <RecogidaCalendar />
+            </section>
             <ProgramHighlights />
           </div>
         </div>
