@@ -64,7 +64,11 @@ const productos = [
   },
 ];
 
-const ProductosManager = () => {
+interface ProductosManagerProps {
+  onEditItem?: (item: any) => void;
+}
+
+const ProductosManager = ({ onEditItem }: ProductosManagerProps) => {
   const [page, setPage] = useState(1);
   const productsPerPage = 10;
   
@@ -109,7 +113,11 @@ const ProductosManager = () => {
                     <Button variant="ghost" size="icon">
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => onEditItem && onEditItem(producto)}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon">
