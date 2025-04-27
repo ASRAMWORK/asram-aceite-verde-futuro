@@ -110,6 +110,8 @@ const RutasPersonalizadas = () => {
       return;
     }
     
+    // The fix: removing the createdAt property as it's handled by the hook
+    // and adding any missing properties required by the Ruta type
     const nuevaRuta = {
       nombre: nombreRuta,
       distrito: puntosSeleccionados[0]?.distrito || 'Varios',
@@ -121,8 +123,6 @@ const RutasPersonalizadas = () => {
         direccion: p.direccion,
         litros: 0
       })),
-      litrosTotales: 0,
-      completada: false,
       puntosRecogida: puntosSeleccionados.length,
       distanciaTotal: 0,
       tiempoEstimado: 0,
