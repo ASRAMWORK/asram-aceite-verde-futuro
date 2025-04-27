@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { School, ExternalLink, Map, Calendar, Users, Award, Leaf, Lightbulb, CheckCircle } from 'lucide-react';
+import { School, ExternalLink, Map, Calendar, Users, Award, Leaf, Lightbulb, CheckCircle, FileText, ArrowRight } from 'lucide-react';
 
 const AlianzaVerdeView = () => {
   const { alianzas, loading, error } = useAlianzaVerde();
