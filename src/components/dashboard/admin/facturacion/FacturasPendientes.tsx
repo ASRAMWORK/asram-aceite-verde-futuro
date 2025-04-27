@@ -323,7 +323,8 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
           </Tabs>
         </CardContent>
       </Card>
-
+      
+      {/* Put the Dialog outside of any nested components to avoid context issues */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
