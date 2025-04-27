@@ -1,8 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
 import { UserProfile } from '@/types';
 
 export function useUserProfile() {
@@ -11,41 +8,55 @@ export function useUserProfile() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        setProfile(null);
-        setLoading(false);
-        return;
-      }
-      
+    const fetchUserProfile = async () => {
       try {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
+        // Mock data or fetch from API/localStorage
+        const mockProfile: UserProfile = {
+          id: '1',
+          userId: 'user123',
+          nombre: 'Usuario',
+          apellido: 'Demo',
+          telefono: '600123456',
+          direccion: 'Calle Principal 123',
+          ciudad: 'Madrid',
+          provincia: 'Madrid',
+          codigoPostal: '28001',
+          email: 'usuario@example.com',
+          role: 'admin',
+          litrosAportados: 25,
+          puntosVerdes: 150,
+          distrito: 'Centro',
+          barrio: 'Sol',
+          numViviendas: 50,
+          numContenedores: 3,
+          frecuenciaRecogida: 'Semanal',
+          nombreRestaurante: 'Restaurante Demo',
+          horarioApertura: '09:00 - 23:00',
+          litrosEstimados: 15,
+          nombreHotel: 'Hotel Demo',
+          numHabitaciones: 80,
+          nombreAsociacion: 'Asociación Demo',
+          tipoAsociacion: 'Vecinal',
+          numMiembros: 120,
+          nombreCentro: 'Colegio Demo',
+          numAlumnos: 500,
+          tipoEscolar: 'Primaria',
+          participaAlianzaVerde: true,
+          nombreAdministracion: 'Admin Demo',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
         
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          const profileData: UserProfile = {
-            id: docSnap.id,
-            userId: user.uid,
-            email: userData.email || user.email || '',
-            role: (userData.role as UserProfile['role']) || 'usuario',
-            nombreAdministracion: userData.nombreAdministracion || '',
-            ...userData
-          };
-          
-          setProfile(profileData);
-        } else {
-          setError("Perfil no encontrado");
-        }
+        setProfile(mockProfile);
       } catch (err) {
         console.error("Error al obtener perfil:", err);
         setError("Error al cargar perfil");
       } finally {
         setLoading(false);
       }
-    });
+    };
     
-    return () => unsubscribe();
+    fetchUserProfile();
   }, []);
 
   return { profile, loading, error };

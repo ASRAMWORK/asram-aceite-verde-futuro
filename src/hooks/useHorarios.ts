@@ -1,110 +1,93 @@
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
+import { v4 as uuidv4 } from 'uuid';
 import { HorarioVoluntario } from '@/types';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/use-toast';
 
-export function useHorarios() {
+export const useHorarios = () => {
   const [horarios, setHorarios] = useState<HorarioVoluntario[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadHorariosData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const horariosRef = collection(db, "horariosVoluntarios");
-      const horariosQuery = query(horariosRef, orderBy("dia"));
-      const horariosSnap = await getDocs(horariosQuery);
-      
-      const horariosData: HorarioVoluntario[] = [];
-      horariosSnap.forEach((doc) => {
-        const data = doc.data() as Record<string, any>;
-        horariosData.push({ 
-          id: doc.id, 
-          voluntarioId: data.voluntarioId || '',
-          voluntarioNombre: data.voluntarioNombre || '',
-          actividad: data.actividad || '',
-          dia: data.dia || '',
-          horaInicio: data.horaInicio || '',
-          horaFin: data.horaFin || '',
-          ubicacion: data.ubicacion || '',
-          createdAt: data.createdAt,
-        });
-      });
-      
-      setHorarios(horariosData);
-    } catch (err) {
-      console.error("Error cargando horarios:", err);
-      setError("Error al cargar datos de Horarios");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addHorario = async (nuevoHorario: Omit<HorarioVoluntario, 'id'>) => {
-    try {
-      const horarioData = {
-        ...nuevoHorario,
-        createdAt: serverTimestamp(),
-      };
-      
-      await addDoc(collection(db, "horariosVoluntarios"), horarioData);
-      toast.success("Horario añadido correctamente");
-      await loadHorariosData();
-      return true;
-    } catch (err) {
-      console.error("Error añadiendo horario:", err);
-      toast.error("Error al añadir el horario");
-      return false;
-    }
-  };
-
-  const updateHorario = async (id: string, data: Partial<HorarioVoluntario>) => {
-    try {
-      await updateDoc(doc(db, "horariosVoluntarios", id), {
-        ...data,
-        updatedAt: serverTimestamp()
-      });
-      toast.success("Horario actualizado correctamente");
-      await loadHorariosData();
-      return true;
-    } catch (err) {
-      console.error("Error actualizando horario:", err);
-      toast.error("Error al actualizar el horario");
-      return false;
-    }
-  };
-
-  const deleteHorario = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, "horariosVoluntarios", id));
-      toast.success("Horario eliminado correctamente");
-      await loadHorariosData();
-      return true;
-    } catch (err) {
-      console.error("Error eliminando horario:", err);
-      toast.error("Error al eliminar el horario");
-      return false;
-    }
-  };
-
-  const getHorariosByVoluntarioId = (voluntarioId: string) => {
-    return horarios.filter(horario => horario.voluntarioId === voluntarioId);
-  };
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadHorariosData();
   }, []);
 
-  return { 
-    horarios, 
-    loading, 
-    error, 
-    loadHorariosData,
+  const loadHorariosData = async () => {
+    setLoading(true);
+    try {
+      const storedData = localStorage.getItem('horarios');
+      if (storedData) {
+        setHorarios(JSON.parse(storedData));
+      }
+    } catch (error) {
+      console.error('Error loading horarios:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addHorario = async (data: Omit<HorarioVoluntario, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newHorario: HorarioVoluntario = {
+      id: uuidv4(),
+      voluntarioId: data.voluntarioId,
+      dia: data.dia,
+      horaInicio: data.horaInicio,
+      horaFin: data.horaFin,
+      actividad: data.actividad,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    setHorarios(prev => [...prev, newHorario]);
+    localStorage.setItem('horarios', JSON.stringify([...horarios, newHorario]));
+    
+    toast({
+      title: "Horario añadido",
+      description: "El horario ha sido añadido correctamente."
+    });
+    return newHorario;
+  };
+
+  const updateHorario = async (id: string, data: Partial<HorarioVoluntario>) => {
+    try {
+      setHorarios(horarios.map(horario => horario.id === id ? { ...horario, ...data, updatedAt: new Date() } : horario));
+      localStorage.setItem('horarios', JSON.stringify(horarios));
+      toast({
+        title: "Horario actualizado",
+        description: "El horario ha sido actualizado correctamente."
+      });
+    } catch (error) {
+      console.error('Error updating horario:', error);
+      toast({
+        title: "Error",
+        description: "Hubo un error al actualizar el horario."
+      });
+    }
+  };
+
+  const deleteHorario = async (id: string) => {
+    try {
+      setHorarios(horarios.filter(horario => horario.id !== id));
+      localStorage.setItem('horarios', JSON.stringify(horarios));
+      toast({
+        title: "Horario eliminado",
+        description: "El horario ha sido eliminado correctamente."
+      });
+    } catch (error) {
+      console.error('Error deleting horario:', error);
+      toast({
+        title: "Error",
+        description: "Hubo un error al eliminar el horario."
+      });
+    }
+  };
+
+  return {
+    horarios,
+    loading,
     addHorario,
     updateHorario,
     deleteHorario,
-    getHorariosByVoluntarioId
+    loadHorariosData
   };
-}
+};

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
@@ -54,7 +53,11 @@ const AdministradorClientes = () => {
             <CardDescription>Ingrese los datos del cliente</CardDescription>
           </CardHeader>
           <CardContent>
-            <ClienteForm onCancel={() => setShowForm(false)} onSubmit={handleClienteSubmit} />
+            <ClienteForm 
+              onSubmit={handleClienteSubmit} 
+              onCancel={() => setShowForm(false)} 
+              initialData={{}}
+            />
           </CardContent>
         </Card>
       ) : null}

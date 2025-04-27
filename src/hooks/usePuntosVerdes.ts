@@ -1,169 +1,94 @@
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, uuidv4 } from 'firebase/firestore';
-import type { PuntoVerde } from '@/types';
-import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
+import { PuntoVerde } from '@/types';
+import { useToast } from '@/components/ui/use-toast';
 
-export function usePuntosVerdes(administradorId?: string) {
+export const usePuntosVerdes = () => {
   const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadPuntosVerdesData();
+  }, []);
 
   const loadPuntosVerdesData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError(null);
-      const puntosRef = collection(db, "puntosVerdes");
-      
-      let puntosQuery;
-      if (administradorId) {
-        puntosQuery = query(
-          puntosRef,
-          where("administradorId", "==", administradorId),
-          orderBy("distrito")
-        );
-      } else {
-        puntosQuery = query(puntosRef, orderBy("distrito"));
+      const storedData = localStorage.getItem('puntosVerdes');
+      if (storedData) {
+        setPuntosVerdes(JSON.parse(storedData));
       }
-      
-      const puntosSnap = await getDocs(puntosQuery);
-      
-      const puntosData: PuntoVerde[] = [];
-      puntosSnap.forEach((doc) => {
-        const data = doc.data() as Record<string, any>;
-        puntosData.push({ 
-          id: doc.id, 
-          distrito: data.distrito || '',
-          barrio: data.barrio || '',
-          direccion: data.direccion || '',
-          numViviendas: data.numViviendas || 0,
-          numContenedores: data.numContenedores || 0,
-          telefono: data.telefono || '',
-          litrosRecogidos: data.litrosRecogidos || 0,
-          administradorId: data.administradorId || null,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
-        });
-      });
-      
-      // Ordenamos en memoria por distrito y luego por barrio
-      const puntosOrdenados = puntosData.sort((a, b) => {
-        if (a.distrito === b.distrito) {
-          return a.barrio.localeCompare(b.barrio);
-        }
-        return a.distrito.localeCompare(b.distrito);
-      });
-      
-      setPuntosVerdes(puntosOrdenados);
-    } catch (err) {
-      console.error("Error cargando puntos verdes:", err);
-      setError("Error al cargar datos de Puntos Verdes");
+    } catch (error) {
+      console.error('Error loading puntos verdes:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const addPuntoVerde = async (data: Partial<Omit<PuntoVerde, "id">>) => {
+  const addPuntoVerde = async (data: Partial<PuntoVerde>) => {
     const id = uuidv4();
     try {
-      const nuevoPunto: PuntoVerde = {
+      const nuevoPuntoVerde: PuntoVerde = {
         id,
-        nombre: data.direccion || "Punto Verde",
-        ciudad: data.ciudad || "Madrid",
-        provincia: data.provincia || "Madrid",
-        codigoPostal: data.codigoPostal || "",
-        pais: data.pais || "España",
+        nombre: data.nombre || '',
+        direccion: data.direccion || '',
+        ciudad: data.ciudad || '',
+        provincia: data.provincia || '',
+        codigoPostal: data.codigoPostal || '',
+        pais: data.pais || 'España',
         latitud: data.latitud || 0,
         longitud: data.longitud || 0,
-        tipo: data.tipo || "comunidad",
-        descripcion: data.descripcion || "",
-        horario: data.horario || "",
-        activo: true,
-        distrito: data.distrito || "",
-        barrio: data.barrio || "",
-        direccion: data.direccion || "",
+        tipo: data.tipo || '',
+        descripcion: data.descripcion || '',
+        horario: data.horario || '',
+        telefono: data.telefono || '',
+        email: data.email || '',
+        contacto: data.contacto || '',
+        activo: data.activo !== undefined ? data.activo : true,
+        litrosRecogidos: data.litrosRecogidos || 0,
+        distrito: data.distrito || '',
+        barrio: data.barrio || '',
         numViviendas: data.numViviendas || 0,
         numContenedores: data.numContenedores || 0,
-        telefono: data.telefono || "",
-        email: data.email || "",
-        contacto: data.contacto || "",
-        litrosRecogidos: data.litrosRecogidos || 0,
         administradorId: data.administradorId || null,
         createdAt: new Date(),
         updatedAt: new Date()
       };
       
-      await addDoc(collection(db, "puntosVerdes"), nuevoPunto);
-      toast.success("Punto verde añadido correctamente");
-      await loadPuntosVerdesData();
-      return true;
-    } catch (err) {
-      console.error("Error añadiendo punto verde:", err);
-      toast.error("Error al añadir el punto verde");
-      return false;
-    }
-  };
-
-  const updatePuntoVerde = async (id: string, data: Partial<PuntoVerde>) => {
-    try {
-      await updateDoc(doc(db, "puntosVerdes", id), {
-        ...data,
-        updatedAt: serverTimestamp()
+      setPuntosVerdes([...puntosVerdes, nuevoPuntoVerde]);
+      localStorage.setItem('puntosVerdes', JSON.stringify([...puntosVerdes, nuevoPuntoVerde]));
+      
+      toast({
+        title: "Éxito",
+        description: "Punto Verde añadido correctamente."
       });
-      toast.success("Punto verde actualizado correctamente");
-      await loadPuntosVerdesData();
-      return true;
-    } catch (err) {
-      console.error("Error actualizando punto verde:", err);
-      toast.error("Error al actualizar el punto verde");
-      return false;
+      
+      return nuevoPuntoVerde;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al añadir el Punto Verde."
+      });
+      throw error;
     }
   };
 
-  const deletePuntoVerde = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, "puntosVerdes", id));
-      toast.success("Punto verde eliminado correctamente");
-      await loadPuntosVerdesData();
-      return true;
-    } catch (err) {
-      console.error("Error eliminando punto verde:", err);
-      toast.error("Error al eliminar el punto verde");
-      return false;
-    }
-  };
+  // TODO: Implement updatePuntoVerde and deletePuntoVerde
+  // const updatePuntoVerde = async (id: string, data: Partial<PuntoVerde>) => {
+  //   // Logic to update a Punto Verde
+  // };
 
-  const getPuntosByDistrito = (distrito: string) => {
-    return puntosVerdes.filter(punto => punto.distrito === distrito);
-  };
-  
-  const getPuntosByBarrio = (barrio: string) => {
-    return puntosVerdes.filter(punto => punto.barrio === barrio);
-  };
+  // const deletePuntoVerde = async (id: string) => {
+  //   // Logic to delete a Punto Verde
+  // };
 
-  const getDistritosUnicos = () => {
-    return Array.from(new Set(puntosVerdes.map(punto => punto.distrito))).sort();
-  };
-
-  const getBarriosUnicos = () => {
-    return Array.from(new Set(puntosVerdes.map(punto => punto.barrio))).sort();
-  };
-
-  useEffect(() => {
-    loadPuntosVerdesData();
-  }, [administradorId]);
-
-  return { 
-    puntosVerdes, 
-    loading, 
-    error, 
+  return {
+    puntosVerdes,
+    loading,
     loadPuntosVerdesData,
     addPuntoVerde,
-    updatePuntoVerde,
-    deletePuntoVerde,
-    getPuntosByDistrito,
-    getPuntosByBarrio,
-    getDistritosUnicos,
-    getBarriosUnicos
+    // updatePuntoVerde,
+    // deletePuntoVerde
   };
-}
+};

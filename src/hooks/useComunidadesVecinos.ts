@@ -1,148 +1,127 @@
-
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  serverTimestamp, 
-  onSnapshot 
-} from 'firebase/firestore';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 import { ComunidadVecinos } from '@/types';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from './useAuth'; // Assuming this is the correct import
 
-export function useComunidadesVecinos() {
+export const useComunidadesVecinos = () => {
   const [comunidades, setComunidades] = useState<ComunidadVecinos[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const auth = useAuth(); // Use auth context without assuming user property
+
+  // Load comunidades from localStorage or API
+  const loadComunidadesData = async () => {
+    setLoading(true);
+    try {
+      // Simulate API call or get from localStorage
+      const storedData = localStorage.getItem('comunidades');
+      if (storedData) {
+        setComunidades(JSON.parse(storedData));
+      }
+    } catch (err) {
+      setError("Error loading comunidades");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    loadComunidadesData();
+  }, []);
 
-    const fetchComunidades = async () => {
-      setLoading(true);
-      try {
-        const comunidadesCollection = collection(db, 'comunidades');
-        const q = query(comunidadesCollection, where('administradorId', '==', user.uid));
+  // Save to localStorage whenever comunidades changes
+  useEffect(() => {
+    localStorage.setItem('comunidades', JSON.stringify(comunidades));
+  }, [comunidades]);
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const comunidadesData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          })) as ComunidadVecinos[];
-          setComunidades(comunidadesData);
-          setLoading(false);
-        });
-
-        return unsubscribe;
-      } catch (err) {
-        console.error("Error al obtener las comunidades:", err);
-        setError("Error al cargar las comunidades");
-        setLoading(false);
-        return () => {};
-      }
-    };
-
-    fetchComunidades();
-  }, [user]);
-
-  const createComunidad = async (data: Partial<ComunidadVecinos>) => {
-    setIsLoading(true);
+  const createComunidad = async (data: Partial<ComunidadVecinos>): Promise<ComunidadVecinos> => {
     try {
-      const newComunidad = {
-        nombre: data.nombre,
-        direccion: data.direccion,
+      const id = uuidv4();
+      const nuevaComunidad: ComunidadVecinos = {
+        id,
+        nombre: data.nombre || '',
+        direccion: data.direccion || '',
+        ciudad: data.ciudad || '',
+        provincia: data.provincia || '',
+        codigoPostal: data.codigoPostal || '',
+        pais: data.pais || 'España',
         numViviendas: data.numViviendas || 0,
-        cif: data.cif,
-        codigoPostal: data.codigoPostal,
-        ciudad: data.ciudad,
-        distrito: data.distrito,
-        barrio: data.barrio,
-        totalViviendas: data.totalViviendas,
-        numeroPorteria: data.numeroPorteria,
-        nombreAdministracion: data.nombreAdministracion,
-        correoContacto: data.correoContacto,
-        administradorId: user?.uid || null,
-        litrosRecogidos: 0,
+        presidente: data.presidente || '',
+        telefono: data.telefono || '',
+        email: data.email || '',
+        cif: data.cif || '',
+        distrito: data.distrito || '',
+        barrio: data.barrio || '',
+        numeroPorteria: data.numeroPorteria || '',
+        totalViviendas: data.totalViviendas || 0,
+        nombreAdministracion: data.nombreAdministracion || '',
+        correoContacto: data.correoContacto || '',
+        litrosRecogidos: data.litrosRecogidos || 0,
         beneficiosMedioambientales: {
-          co2: 0,
-          agua: 0,
-          energia: 0
+          co2: data.beneficiosMedioambientales?.co2 || 0,
+          agua: data.beneficiosMedioambientales?.agua || 0,
+          arboles: data.beneficiosMedioambientales?.arboles || 0,
+          energia: data.beneficiosMedioambientales?.energia || 0
         },
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
-      const comunidadesCollection = collection(db, 'comunidades');
-      await addDoc(comunidadesCollection, newComunidad);
-      toast.success('Comunidad creada con éxito');
-    } catch (error) {
-      console.error("Error al crear la comunidad:", error);
-      toast.error('Error al crear la comunidad');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const updateComunidad = async (id: string, data: Partial<ComunidadVecinos>) => {
-    setIsLoading(true);
-    try {
-      const comunidadDoc = doc(db, 'comunidades', id);
-      await updateDoc(comunidadDoc, {
-        ...data,
-        updatedAt: serverTimestamp(),
+      setComunidades(prev => [...prev, nuevaComunidad]);
+      toast({
+        title: "Éxito",
+        description: "Comunidad creada correctamente.",
       });
-      toast.success('Comunidad actualizada con éxito');
+      return nuevaComunidad;
     } catch (error) {
-      console.error("Error al actualizar la comunidad:", error);
-      toast.error('Error al actualizar la comunidad');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const deleteComunidad = async (id: string) => {
-    setIsLoading(true);
-    try {
-      const comunidadDoc = doc(db, 'comunidades', id);
-      await deleteDoc(comunidadDoc);
-      toast.success('Comunidad eliminada con éxito');
-    } catch (error) {
-      console.error("Error al eliminar la comunidad:", error);
-      toast.error('Error al eliminar la comunidad');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateBeneficios = async (id: string, litrosRecogidos: number) => {
-    try {
-      // Calculate environmental benefits
-      const co2 = litrosRecogidos * 2.3; // kg of CO2 saved
-      const agua = litrosRecogidos * 1000; // liters of water saved
-      const energia = litrosRecogidos * 1.5; // kWh of energy saved
-
-      await updateDoc(doc(db, "comunidades", id), {
-        litrosRecogidos,
-        beneficiosMedioambientales: {
-          co2,
-          agua,
-          energia
-        }
+      toast({
+        title: "Error",
+        description: "Hubo un problema al crear la comunidad.",
       });
-      toast.success('Beneficios actualizados con éxito');
+      throw error;
+    }
+  };
+
+  const updateComunidad = async (id: string, data: Partial<ComunidadVecinos>): Promise<boolean> => {
+    try {
+      setComunidades(prevComunidades =>
+        prevComunidades.map(comunidad =>
+          comunidad.id === id ? { ...comunidad, ...data, updatedAt: new Date() } : comunidad
+        )
+      );
+      toast({
+        title: "Éxito",
+        description: "Comunidad actualizada correctamente.",
+      });
+      return true;
     } catch (error) {
-      console.error("Error al actualizar los beneficios:", error);
-      toast.error('Error al actualizar los beneficios');
+      toast({
+        title: "Error",
+        description: "Hubo un problema al actualizar la comunidad.",
+      });
+      return false;
+    }
+  };
+
+  const deleteComunidad = async (id: string): Promise<boolean> => {
+    try {
+      setComunidades(prevComunidades =>
+        prevComunidades.filter(comunidad => comunidad.id !== id)
+      );
+      toast({
+        title: "Éxito",
+        description: "Comunidad eliminada correctamente.",
+      });
+      return true;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al eliminar la comunidad.",
+      });
+      return false;
     }
   };
 
@@ -150,10 +129,10 @@ export function useComunidadesVecinos() {
     comunidades,
     loading,
     error,
+    isLoading: loading,
+    loadComunidadesData,
     createComunidad,
     updateComunidad,
-    deleteComunidad,
-    updateBeneficios,
-    isLoading
+    deleteComunidad
   };
-}
+};

@@ -14,16 +14,16 @@ export const useComunidadForm = () => {
     ciudad: '',
     distrito: '',
     barrio: '',
-    numViviendas: 0,
-    totalViviendas: 0,
+    numViviendas: 0, // Ensure this is a number
+    totalViviendas: 0, // Ensure this is a number
     numeroPorteria: '',
     nombreAdministracion: '',
     correoContacto: '',
     litrosRecogidos: 0,
-    administradorId: null,
     beneficiosMedioambientales: {
       co2: 0,
       agua: 0,
+      arboles: 0,
       energia: 0
     },
     createdAt: null, // Initialize with null

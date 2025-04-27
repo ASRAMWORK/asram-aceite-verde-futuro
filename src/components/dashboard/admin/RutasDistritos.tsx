@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -5,6 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { useRutas } from "@/hooks/useRutas";
 import { Ruta } from "@/types";
-import { Plus, Pencil, Trash2, Search, MapPin } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, MapPin, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -247,6 +249,7 @@ const RutasDistritos = () => {
                       onSelect={setFechaRecogida}
                       disabled={(date) => date < new Date()}
                       initialFocus
+                      className={cn("p-3 pointer-events-auto")}
                     />
                   </PopoverContent>
                 </Popover>
