@@ -7,6 +7,7 @@ import { ShoppingCart, Calendar, BookOpen, Users, Award, MapPin, Search } from '
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import FreepikImage from '@/components/common/FreepikImage';
+import UnsplashImage from '@/components/common/UnsplashImage';
 
 const productos = [
   {
@@ -157,8 +158,8 @@ const Tienda = () => {
               {filterItems(productos).map(producto => (
                 <Card key={producto.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <FreepikImage 
-                      query={`${producto.nombre} eco friendly`}
+                    <UnsplashImage 
+                      query={`${producto.nombre} eco sustainable recycling`}
                       className="w-full h-full object-cover"
                       alt={producto.nombre}
                     />
@@ -186,8 +187,8 @@ const Tienda = () => {
               {filterItems(formaciones).map(formacion => (
                 <Card key={formacion.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <FreepikImage 
-                      query={`${formacion.nombre} education training`}
+                    <UnsplashImage 
+                      query={`${formacion.nombre} education sustainability workshop`}
                       className="w-full h-full object-cover"
                       alt={formacion.nombre}
                     />
@@ -219,8 +220,8 @@ const Tienda = () => {
               {filterItems(talleres).map(taller => (
                 <Card key={taller.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <FreepikImage 
-                      query={`${taller.nombre} workshop activity`}
+                    <UnsplashImage 
+                      query={`${taller.nombre} workshop activity sustainability`}
                       className="w-full h-full object-cover"
                       alt={taller.nombre}
                     />
@@ -256,8 +257,8 @@ const Tienda = () => {
               {filterItems(eventos).map(evento => (
                 <Card key={evento.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <FreepikImage 
-                      query={`${evento.nombre} event sustainable`}
+                    <UnsplashImage 
+                      query={`${evento.nombre} event sustainable environment`}
                       className="w-full h-full object-cover"
                       alt={evento.nombre}
                     />

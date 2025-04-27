@@ -1,19 +1,19 @@
 
 import { useEffect, useState } from 'react';
-import { searchFreepikImages } from '@/utils/freepikAPI';
+import { searchUnsplashImages } from '@/utils/unsplashAPI';
 
-interface FreepikImageProps {
+interface UnsplashImageProps {
   query: string;
   className?: string;
   alt?: string;
 }
 
-const FreepikImage = ({ query, className = '', alt = '' }: FreepikImageProps) => {
+const UnsplashImage = ({ query, className = '', alt = '' }: UnsplashImageProps) => {
   const [imageUrl, setImageUrl] = useState<string>('');
 
   useEffect(() => {
     const fetchImage = async () => {
-      const images = await searchFreepikImages(query);
+      const images = await searchUnsplashImages(query);
       if (images.length > 0) {
         setImageUrl(images[0].url);
       }
@@ -35,5 +35,4 @@ const FreepikImage = ({ query, className = '', alt = '' }: FreepikImageProps) =>
   );
 };
 
-export default FreepikImage;
-
+export default UnsplashImage;
