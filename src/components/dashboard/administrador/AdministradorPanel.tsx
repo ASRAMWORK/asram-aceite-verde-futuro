@@ -2,19 +2,12 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import MisComunidades from './MisComunidades';
-import GestionarComunidad from './GestionarComunidad';
-import AdministradorClientes from './clientes/AdministradorClientes';
-import AdministradorRecogidas from './recogidas/AdministradorRecogidas';
-import AdministradorEstadisticas from './estadisticas/AdministradorEstadisticas';
-import AdministradorPerfil from './perfil/AdministradorPerfil';
+import PanelControl from './panel/PanelControl';
+import GestionComunidades from './comunidades/GestionComunidades';
+import InformesPanel from './informes/InformesPanel';
 
-/**
- * Panel principal para Administradores de Fincas
- * Integra todos los módulos solicitados en la especificación
- */
 const AdministradorPanel = () => {
-  const [activeTab, setActiveTab] = useState("comunidades");
+  const [activeTab, setActiveTab] = useState("panel");
   const { profile, loading } = useUserProfile();
   
   if (loading) {
@@ -28,44 +21,44 @@ const AdministradorPanel = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-purple-600">Panel de Administrador de Fincas</h1>
+        <h1 className="text-3xl font-bold text-[#ee970d]">Panel de Administrador de Fincas</h1>
         <p className="text-gray-600">
           Bienvenido, {profile?.nombreAdministracion || 'Administrador'}
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="comunidades">Mis Comunidades</TabsTrigger>
-          <TabsTrigger value="nueva-comunidad">Nueva Comunidad</TabsTrigger>
-          <TabsTrigger value="clientes">Gestión de Clientes</TabsTrigger>
-          <TabsTrigger value="recogidas">Recogidas</TabsTrigger>
-          <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
-          <TabsTrigger value="perfil">Mi Perfil</TabsTrigger>
+        <TabsList className="mb-6 bg-white border">
+          <TabsTrigger 
+            value="panel"
+            className="data-[state=active]:bg-[#ee970d] data-[state=active]:text-white"
+          >
+            Panel de Control
+          </TabsTrigger>
+          <TabsTrigger 
+            value="comunidades"
+            className="data-[state=active]:bg-[#ee970d] data-[state=active]:text-white"
+          >
+            Gestión de Comunidades
+          </TabsTrigger>
+          <TabsTrigger 
+            value="informes"
+            className="data-[state=active]:bg-[#ee970d] data-[state=active]:text-white"
+          >
+            Informes
+          </TabsTrigger>
         </TabsList>
         
+        <TabsContent value="panel" className="mt-6">
+          <PanelControl />
+        </TabsContent>
+        
         <TabsContent value="comunidades" className="mt-6">
-          <MisComunidades />
+          <GestionComunidades />
         </TabsContent>
         
-        <TabsContent value="nueva-comunidad" className="mt-6">
-          <GestionarComunidad />
-        </TabsContent>
-        
-        <TabsContent value="clientes" className="mt-6">
-          <AdministradorClientes />
-        </TabsContent>
-        
-        <TabsContent value="recogidas" className="mt-6">
-          <AdministradorRecogidas />
-        </TabsContent>
-        
-        <TabsContent value="estadisticas" className="mt-6">
-          <AdministradorEstadisticas />
-        </TabsContent>
-        
-        <TabsContent value="perfil" className="mt-6">
-          <AdministradorPerfil />
+        <TabsContent value="informes" className="mt-6">
+          <InformesPanel />
         </TabsContent>
       </Tabs>
     </div>
