@@ -45,7 +45,7 @@ const HowItWorks = () => {
                 Se recoge aceite vegetal usado de cocina (girasol, oliva…) siempre que esté libre de restos sólidos, agua o contaminantes.
               </p>
             </CardContent>
-            </Card>
+          </Card>
         </div>
       </div>
     </section>
