@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { TallerProgramado } from "@/types";
+import { TallerProgramado } from "@/types";
 import TallerForm from './TallerForm';
 import { useAlianzaVerde } from "@/hooks/useAlianzaVerde";
 
@@ -42,6 +42,7 @@ const TalleresProgramados = () => {
       materiales: ["Material 1", "Material 2"],
       instructor: "María García",
       estado: "programado",
+      // Compatible fields
       direccion: "Calle del Colegio 1, Madrid",
       nombreCentro: "CEIP García Lorca",
       contacto: "María García",
@@ -60,6 +61,7 @@ const TalleresProgramados = () => {
       materiales: ["Material 1", "Material 2"],
       instructor: "Juan Pérez",
       estado: "programado",
+      // Compatible fields
       direccion: "Calle de Serrano 127, Madrid",
       nombreCentro: "IES Ramiro de Maeztu",
       contacto: "Juan Pérez",

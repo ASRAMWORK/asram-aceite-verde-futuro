@@ -122,6 +122,9 @@ export interface Instalacion {
   activo: boolean;
   numViviendas?: number;
   numContenedores?: number;
+  distrito?: string;
+  barrio?: string;
+  numPorteria?: number;
   createdAt: any;
   updatedAt: any;
 }
@@ -289,6 +292,8 @@ export interface Reunion {
   duracion: number;
   ubicacion: string;
   participantes: string[];
+  tipo?: string;
+  tipoUsuario?: string;
   createdAt: any;
   updatedAt: any;
 }

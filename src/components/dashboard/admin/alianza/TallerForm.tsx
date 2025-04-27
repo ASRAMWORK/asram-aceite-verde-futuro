@@ -142,4 +142,3 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
 };
 
 export default TallerForm;
-

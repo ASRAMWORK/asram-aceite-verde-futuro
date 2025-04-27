@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -62,7 +63,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData }: IngresosFormProps) =>
         cantidad: parseFloat(data.cantidad),
         iva: parseFloat(data.iva),
         total: parseFloat(data.total),
-        estado: "pendiente",
+        estado: data.estado || "pendiente",
         tipo: data.tipo || 'general',
         createdAt: new Date(),
         updatedAt: new Date()

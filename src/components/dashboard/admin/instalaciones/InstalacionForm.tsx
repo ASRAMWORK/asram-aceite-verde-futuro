@@ -86,10 +86,32 @@ const InstalacionForm = ({ isOpen, onClose, instalacion }: InstalacionFormProps)
         await updateInstalacion(instalacion.id, formData);
         toast.success("Instalación actualizada correctamente");
       } else {
-        await addInstalacion({
-          ...formData,
-          createdAt: serverTimestamp()
-        } as Omit<Instalacion, "id">);
+        const newInstalacion: Omit<Instalacion, "id"> = {
+          nombre: formData.nombre || "",
+          direccion: formData.direccion || "",
+          ciudad: "Madrid",
+          provincia: "Madrid",
+          codigoPostal: "",
+          pais: "España",
+          latitud: 0,
+          longitud: 0,
+          tipo: "comunidad",
+          descripcion: "",
+          horario: "",
+          telefono: "",
+          email: "",
+          contacto: "",
+          activo: true,
+          numViviendas: formData.numViviendas || 0,
+          numContenedores: formData.numContenedores || 1,
+          numPorteria: formData.numPorteria || 0,
+          distrito: formData.distrito || "",
+          barrio: formData.barrio || "",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+        
+        await addInstalacion(newInstalacion);
         toast.success("Instalación añadida correctamente");
       }
       
