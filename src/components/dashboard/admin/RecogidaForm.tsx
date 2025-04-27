@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -128,14 +127,14 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onSubmit, onCancel }) => {
                 }
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 pointer-events-auto">
+            <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
                 selected={formData.fecha}
                 onSelect={handleDateSelect}
                 initialFocus
                 locale={es}
-                className="p-3"
+                className="p-3 pointer-events-auto"
               />
             </PopoverContent>
           </Popover>

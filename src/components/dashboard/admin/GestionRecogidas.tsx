@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { toast } from 'sonner';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import RecogidasList from './RecogidasList';
@@ -17,6 +17,20 @@ const GestionRecogidas = () => {
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('pendientes');
   const { recogidas, addRecogida, completeRecogida } = useRecogidas();
+  
+  // Safe date formatting helper function
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) return "N/A";
+    
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      if (!dateObj || !isValid(dateObj)) return "N/A";
+      return format(dateObj, 'dd/MM/yyyy');
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "N/A";
+    }
+  };
   
   const handleCompleteRecogida = async (id: string) => {
     // Default litros for this example
@@ -64,6 +78,7 @@ const GestionRecogidas = () => {
                 recogidas={recogidas.filter(r => !r.completada)}
                 onCompleteRecogida={handleCompleteRecogida}
                 showActions={true}
+                formatDate={formatDate}
               />
             </CardContent>
           </Card>
@@ -75,6 +90,7 @@ const GestionRecogidas = () => {
               <RecogidasList 
                 recogidas={recogidas.filter(r => r.completada)}
                 showActions={false}
+                formatDate={formatDate}
               />
             </CardContent>
           </Card>

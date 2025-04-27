@@ -17,7 +17,7 @@ interface CalendarDayProps {
     distrito: string;
     barrio?: string;
     hora: string;
-  };
+  } | null;
 }
 
 const CalendarDay = ({ 

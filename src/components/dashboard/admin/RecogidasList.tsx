@@ -11,7 +11,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, Eye } from 'lucide-react';
-import { format } from 'date-fns';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,9 +26,15 @@ interface RecogidasListProps {
   recogidas: any[];
   onCompleteRecogida?: (id: string) => void;
   showActions?: boolean;
+  formatDate?: (date: Date | string | null | undefined) => string;
 }
 
-const RecogidasList = ({ recogidas, onCompleteRecogida, showActions = true }: RecogidasListProps) => {
+const RecogidasList = ({ 
+  recogidas, 
+  onCompleteRecogida, 
+  showActions = true,
+  formatDate = (date) => date ? String(date) : "N/A"
+}: RecogidasListProps) => {
   const [selectedRecogidaId, setSelectedRecogidaId] = React.useState<string | null>(null);
 
   const handleCompleteClick = (id: string) => {
@@ -70,7 +75,7 @@ const RecogidasList = ({ recogidas, onCompleteRecogida, showActions = true }: Re
                   {recogida.id.substring(0, 6)}
                 </TableCell>
                 <TableCell>
-                  {recogida.fecha ? format(new Date(recogida.fecha), 'dd/MM/yyyy') : 'N/A'}
+                  {formatDate(recogida.fecha)}
                 </TableCell>
                 <TableCell>{recogida.distrito}</TableCell>
                 <TableCell>{recogida.direccion}</TableCell>

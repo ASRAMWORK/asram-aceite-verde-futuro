@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import DistritoBarrioFilter from "./filters/DistritoBarrioFilter";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import { format, isSameDay, isWeekend } from "date-fns";
+import { format, isSameDay, isWeekend, isValid } from "date-fns";
 import { es } from "date-fns/locale";
 import CalendarDay from "./calendar/CalendarDay";
 
@@ -52,15 +52,33 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
       setShowNoRecogidasMessage(false);
     }
   }, [recogidas]);
+  
+  // Safe date conversion helper
+  const safeDate = (date: any): Date | null => {
+    if (!date) return null;
+    
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      return isValid(dateObj) ? dateObj : null;
+    } catch (error) {
+      console.error("Error converting date:", error);
+      return null;
+    }
+  };
 
   // Función para verificar si hay recogida en una fecha
   const hasRecogidaOnDate = (date: Date) => {
     // Primero verificamos si hay recogidas reales
-    const hasRealRecogida = recogidas.some(recogida => 
-      recogida.fecha && isSameDay(new Date(recogida.fecha), date)
-      && (!selectedDistrito || recogida.distrito === selectedDistrito)
-      && (!selectedBarrio || recogida.barrio === selectedBarrio)
-    );
+    const hasRealRecogida = recogidas.some(recogida => {
+      if (!recogida.fecha) return false;
+      
+      const recogidaDate = safeDate(recogida.fecha);
+      if (!recogidaDate) return false;
+      
+      return isSameDay(recogidaDate, date) &&
+        (!selectedDistrito || recogida.distrito === selectedDistrito) &&
+        (!selectedBarrio || recogida.barrio === selectedBarrio);
+    });
 
     if (hasRealRecogida) return true;
 
@@ -87,11 +105,16 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
 
   const getRecogidaDetails = (date: Date) => {
     // Buscar primero en las recogidas reales
-    const recogida = recogidas.find(r => 
-      r.fecha && isSameDay(new Date(r.fecha), date)
-      && (!selectedDistrito || r.distrito === selectedDistrito)
-      && (!selectedBarrio || r.barrio === selectedBarrio)
-    );
+    const recogida = recogidas.find(r => {
+      if (!r.fecha) return false;
+      
+      const recogidaDate = safeDate(r.fecha);
+      if (!recogidaDate) return false;
+      
+      return isSameDay(recogidaDate, date) &&
+        (!selectedDistrito || r.distrito === selectedDistrito) &&
+        (!selectedBarrio || r.barrio === selectedBarrio);
+    });
     
     if (recogida) {
       return {
