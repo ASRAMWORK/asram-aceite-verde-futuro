@@ -1,3 +1,4 @@
+
 export interface User {
   uid: string;
   email: string | null;
@@ -320,6 +321,16 @@ export interface ChartConfig {
   options?: any;
 }
 
+// Improved type for certifications
+export type CertificacionNivel = 'nivel1' | 'nivel2' | 'nivel3' | 'ecosistema';
+
+export interface Certificaciones {
+  nivel1?: boolean;
+  nivel2?: boolean;
+  nivel3?: boolean;
+  ecosistema?: boolean;
+}
+
 export interface AlianzaVerde {
   id: string;
   nombre: string;
@@ -338,13 +349,9 @@ export interface AlianzaVerde {
   litrosRecolectados: number;
   createdAt: any;
   updatedAt?: any;
-  certificaciones?: {
-    nivel1?: boolean;
-    nivel2?: boolean;
-    nivel3?: boolean;
-    ecosistema?: boolean;
-  } | number | string[];
+  certificaciones?: Certificaciones | number | string[];
   nombreCentro?: string;
+  activo?: boolean;
 }
 
 export interface CalleApadrinada {
