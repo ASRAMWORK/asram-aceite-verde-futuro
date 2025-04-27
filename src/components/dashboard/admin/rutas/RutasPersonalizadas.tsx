@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -70,13 +69,11 @@ const RutasPersonalizadas = () => {
   const [rutaActual, setRutaActual] = useState<RutaPersonalizada | null>(null);
   const [isCompletingRuta, setIsCompletingRuta] = useState(false);
 
-  // Filtrado de rutas por estado
   const rutasPendientes = rutas.filter(r => !r.completada);
   const rutasCompletadas = rutas.filter(r => r.completada);
   
   const rutasMostradas = currentTab === 'pendientes' ? rutasPendientes : rutasCompletadas;
   
-  // Obtener distritos y barrios únicos para los filtros
   const distritos = Array.from(new Set(puntosVerdes.map(p => p.distrito))).sort();
   const barrios = distritoFiltro 
     ? Array.from(new Set(puntosVerdes
@@ -84,7 +81,6 @@ const RutasPersonalizadas = () => {
         .map(p => p.barrio))).sort()
     : [];
   
-  // Puntos verdes filtrados
   const puntosFiltrados = puntosVerdes.filter(p => 
     (!distritoFiltro || p.distrito === distritoFiltro) &&
     (!barrioFiltro || p.barrio === barrioFiltro)
@@ -110,8 +106,6 @@ const RutasPersonalizadas = () => {
       return;
     }
     
-    // The fix: removing the createdAt property as it's handled by the hook
-    // and adding any missing properties required by the Ruta type
     const nuevaRuta = {
       nombre: nombreRuta,
       distrito: puntosSeleccionados[0]?.distrito || 'Varios',
@@ -126,7 +120,8 @@ const RutasPersonalizadas = () => {
       puntosRecogida: puntosSeleccionados.length,
       distanciaTotal: 0,
       tiempoEstimado: 0,
-      frecuencia: 'unica'
+      frecuencia: 'unica',
+      createdAt: new Date()
     };
     
     await addRuta(nuevaRuta);
@@ -177,7 +172,6 @@ const RutasPersonalizadas = () => {
   const handleFinalizarRuta = async () => {
     if (!rutaActual || !rutaActual.id) return;
     
-    // Actualizar los litros recogidos por cliente
     for (const punto of rutaActual.puntosVerdes) {
       if (punto.id && punto.litrosRecogidos) {
         await updateRuta(rutaActual.id, {
@@ -191,7 +185,6 @@ const RutasPersonalizadas = () => {
       }
     }
     
-    // Marcar la ruta como completada
     await completeRuta(rutaActual.id, rutaActual.litrosTotales);
     
     setIsCompletingRuta(false);
@@ -349,7 +342,6 @@ const RutasPersonalizadas = () => {
         </CardContent>
       </Card>
       
-      {/* Modal de creación de ruta */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
@@ -513,7 +505,6 @@ const RutasPersonalizadas = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Modal de registro de litros */}
       <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
