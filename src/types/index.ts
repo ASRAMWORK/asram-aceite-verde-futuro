@@ -67,6 +67,8 @@ export interface Usuario {
   litrosRecogidos?: number;
   litrosEstimados?: number;
   litrosAportados?: number;
+  nombreAdministracion?: string;
+  ciudad?: string;
 }
 
 export interface ComunidadVecinos {
