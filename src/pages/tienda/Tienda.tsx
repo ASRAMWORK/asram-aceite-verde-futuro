@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import PageLayout from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Calendar, BookOpen, Users, Award, MapPin, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import FreepikImage from '@/components/common/FreepikImage';
 import UnsplashImage from '@/components/common/UnsplashImage';
 
 const productos = [
