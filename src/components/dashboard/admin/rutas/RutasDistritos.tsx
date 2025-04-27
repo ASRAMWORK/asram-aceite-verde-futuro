@@ -104,6 +104,10 @@ const RutasDistritos = () => {
   const [filterDistrito, setFilterDistrito] = useState("");
   const [litrosTotales, setLitrosTotales] = useState<number>(0);
   const [selectedClientes, setSelectedClientes] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [nombreRuta, setNombreRuta] = useState("");
+  const [fechaRecogida, setFechaRecogida] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [puntosSeleccionados, setPuntosSeleccionados] = useState<any[]>([]);
   
   const [formData, setFormData] = useState<RutaFormData>({
     nombre: "",

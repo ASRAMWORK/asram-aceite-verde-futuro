@@ -10,7 +10,6 @@ const useFacturacion = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load initial data from localStorage or API
     setLoading(true);
     const storedIngresos = localStorage.getItem('ingresos');
     if (storedIngresos) {
@@ -25,12 +24,10 @@ const useFacturacion = () => {
   }, []);
 
   useEffect(() => {
-    // Guarda los datos en localStorage cada vez que cambian
     localStorage.setItem('ingresos', JSON.stringify(ingresos));
   }, [ingresos]);
 
   useEffect(() => {
-    // Guarda los datos en localStorage cada vez que cambian
     localStorage.setItem('gastos', JSON.stringify(gastos));
   }, [gastos]);
 
@@ -60,11 +57,13 @@ const useFacturacion = () => {
         title: "Éxito",
         description: "Ingreso añadido correctamente.",
       });
+      return nuevoIngreso;
     } catch (error) {
       toast({
         title: "Error",
         description: "Hubo un problema al añadir el ingreso.",
       });
+      throw error;
     }
   };
 
@@ -123,11 +122,13 @@ const useFacturacion = () => {
         title: "Éxito",
         description: "Gasto añadido correctamente.",
       });
+      return nuevoGasto;
     } catch (error) {
       toast({
         title: "Error",
         description: "Hubo un problema al añadir el gasto.",
       });
+      throw error;
     }
   };
 

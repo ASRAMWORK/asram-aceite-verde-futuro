@@ -1,4 +1,3 @@
-
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -440,7 +439,6 @@ export interface ComunidadVecinos {
   email: string;
   createdAt: any;
   updatedAt: any;
-  // Additional fields for TypeScript errors
   cif?: string;
   distrito?: string;
   barrio?: string;
@@ -453,6 +451,7 @@ export interface ComunidadVecinos {
     co2?: number;
     agua?: number;
     arboles?: number;
+    energia?: number;
   };
 }
 
@@ -468,6 +467,7 @@ export interface Tarea {
   asignadoA?: string;
   voluntarioNombre?: string;
   completada?: boolean;
+  fechaCompletada?: Date;
   createdAt: any;
   updatedAt: any;
 }
@@ -508,7 +508,6 @@ export interface UserProfile {
   codigoPostal: string;
   createdAt: any;
   updatedAt: any;
-  // Additional fields for TypeScript errors
   nombreAdministracion?: string;
   email?: string;
   litrosAportados?: number;
@@ -518,6 +517,12 @@ export interface UserProfile {
   barrio?: string;
   numViviendas?: number;
   numContenedores?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  nombreHotel?: string;
+  numHabitaciones?: number;
 }
 
 export interface TrabajadorFormProps {

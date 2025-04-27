@@ -74,7 +74,6 @@ const TrabajadoresView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTrabajador, setSelectedTrabajador] = useState<Trabajador | null>(null);
 
-  // Fix the vehiculosAsignados and rutasAsignadas props types
   const [formOpen, setFormOpen] = useState(false);
   const [editingTrabajador, setEditingTrabajador] = useState<Trabajador | null>(null);
   const [vehiculosAsignados, setVehiculosAsignados] = useState<Vehiculo[]>([]);
@@ -111,7 +110,13 @@ const TrabajadoresView = () => {
   };
 
   const handleAddTrabajador = async (data: Partial<Trabajador>) => {
-    await addTrabajador(data);
+    const completeData = {
+      ...data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      activo: data.activo || true
+    };
+    await addTrabajador(completeData as any);
     setFormOpen(false);
   };
 
@@ -286,6 +291,8 @@ const TrabajadoresView = () => {
             (data) => handleUpdateTrabajador(editingTrabajador.id, data) : 
             handleAddTrabajador}
           onCancel={() => setFormOpen(false)}
+          vehiculos={vehiculos as any}
+          rutas={rutas as any}
         />
       )}
       
@@ -294,6 +301,8 @@ const TrabajadoresView = () => {
           initialData={selectedTrabajador}
           onSubmit={(data) => handleUpdateTrabajador(selectedTrabajador.id, data)}
           onCancel={() => setSelectedTrabajador(null)}
+          vehiculos={vehiculos as any}
+          rutas={rutas as any}
         />
       )}
     </div>

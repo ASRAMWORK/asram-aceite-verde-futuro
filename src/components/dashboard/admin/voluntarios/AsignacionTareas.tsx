@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, Clock, FileText } from "lucide-react";
 import { useTareas } from "@/hooks/useTareas";
 import type { Voluntario, Tarea } from "@/types";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface AsignacionTareasProps {
   voluntarios: Voluntario[];
@@ -21,7 +21,7 @@ interface AsignacionTareasProps {
 const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
   const [open, setOpen] = useState(false);
   const [selectedVoluntario, setSelectedVoluntario] = useState("");
-  const { tareas, loading, addTarea, updateTarea, deleteTarea, loadTareas } = useTareas();
+  const { tareas, loading, addTarea, updateTarea, deleteTarea, loadTareasData } = useTareas();
   const form = useForm();
 
   const handleAddTarea = (data: any) => {
@@ -43,7 +43,7 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
   const handleToggleCompletada = (id: string, completada: boolean) => {
     updateTarea(id, {
       completada,
-      fechaCompletada: completada ? new Date() : null
+      fechaFin: completada ? new Date() : null
     });
   };
 
@@ -55,7 +55,7 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
         fechaFin: new Date()
       });
       toast.success("Tarea completada correctamente");
-      loadTareas();
+      loadTareasData();
     } catch (error) {
       toast.error("Error al completar la tarea");
     }

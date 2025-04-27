@@ -416,15 +416,9 @@ const FacturacionView = () => {
             try {
               await addIngreso(data);
               setShowIngresosForm(false);
-              toast({
-                title: "Éxito",
-                description: "Ingreso añadido correctamente.",
-              });
+              toast.success("Ingreso añadido correctamente");
             } catch (error) {
-              toast({
-                title: "Error",
-                description: "Hubo un problema al añadir el ingreso.",
-              });
+              toast.error("Hubo un problema al añadir el ingreso");
             }
           }}
           onCancel={() => setShowIngresosForm(false)}
@@ -439,15 +433,9 @@ const FacturacionView = () => {
             try {
               await addGasto(data);
               setShowGastosForm(false);
-              toast({
-                title: "Éxito",
-                description: "Gasto añadido correctamente.",
-              });
+              toast.success("Gasto añadido correctamente");
             } catch (error) {
-              toast({
-                title: "Error",
-                description: "Hubo un problema al añadir el gasto.",
-              });
+              toast.error("Hubo un problema al añadir el gasto");
             }
           }}
           onCancel={() => setShowGastosForm(false)}
