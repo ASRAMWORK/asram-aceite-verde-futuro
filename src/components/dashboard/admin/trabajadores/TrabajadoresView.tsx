@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { PlusCircle, Search, Filter, User, X, Edit, Trash2, Truck, Calendar, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -71,7 +70,7 @@ const TrabajadoresView = () => {
     const matchesSearch = 
       searchTerm === "" ||
       trabajador.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      trabajador.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trabajador.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
       trabajador.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
       trabajador.email.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -266,15 +265,18 @@ const TrabajadoresView = () => {
                       paginatedTrabajadores.map((trabajador) => (
                         <TableRow key={trabajador.id}>
                           <TableCell>
-                            <Avatar className="h-9 w-9">
-                              <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellidos}`} />
-                              <AvatarFallback>
-                                {trabajador.nombre.charAt(0)}{trabajador.apellidos.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
+                            <div className="flex items-center space-x-4">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="uppercase">{trabajador.nombre[0]}{trabajador.apellido[0]}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="text-sm font-medium leading-none">{trabajador.nombre} {trabajador.apellido}</p>
+                                <p className="text-sm text-muted-foreground">{trabajador.email}</p>
+                              </div>
+                            </div>
                           </TableCell>
                           <TableCell className="font-medium">
-                            {trabajador.nombre} {trabajador.apellidos}
+                            {trabajador.nombre} {trabajador.apellido}
                           </TableCell>
                           <TableCell>{trabajador.dni}</TableCell>
                           <TableCell>
@@ -356,7 +358,7 @@ const TrabajadoresView = () => {
                 <div className="flex justify-between items-center mt-4">
                   <div className="text-sm text-gray-500">
                     Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1} a {" "}
-                    {Math.min(currentPage * ITEMS_PER_PAGE, filteredTrabajadores.length)} de {" "}
+                    {Math.min(currentPage * ITEMS_PAGE, filteredTrabajadores.length)} de {" "}
                     {filteredTrabajadores.length} registros
                   </div>
                   <div className="flex space-x-1">

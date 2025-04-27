@@ -1,93 +1,127 @@
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  createContext,
+  ReactNode,
+} from "react";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { auth } from "@/config/firebase";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { UserRole } from "@/types";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db } from '@/lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { UserRole } from '@/types';
-
-type AuthContextType = {
-  user: User | null;
-  userRole: UserRole | null;
+interface AuthContextProps {
+  currentUser: any;
+  loading: boolean;
+  signUp: (email: string, pass: string, displayName: string) => Promise<any>;
+  login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
-  checkUserPermission: (permission: string) => boolean;
-  userPermissions: string[];
-};
+  resetPassword: (email: string) => Promise<void>;
+  isAdmin: () => boolean;
+}
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  userRole: null,
+const AuthContext = createContext<AuthContextProps>({
+  currentUser: null,
+  loading: false,
+  signUp: async () => {},
+  login: async () => {},
   logout: async () => {},
-  checkUserPermission: () => false,
-  userPermissions: [],
+  resetPassword: async () => {},
+  isAdmin: () => false,
 });
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
-  const [userPermissions, setUserPermissions] = useState<string[]>([]);
+export const useAuth = () => useContext(AuthContext);
+
+interface Props {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: Props) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      
-      if (currentUser) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUserRole(userData.role as UserRole || 'user');
-            setUserPermissions(userData.permisos || []);
-          }
-        } catch (error) {
-          console.error("Error fetching user role:", error);
-        }
-      } else {
-        setUserRole(null);
-        setUserPermissions([]);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return unsubscribe;
   }, []);
 
-  const logout = async () => {
+  const signUp = async (email: string, pass: string, displayName: string) => {
     try {
-      await auth.signOut();
-      setUserRole(null);
-      setUserPermissions([]);
-    } catch (error) {
-      console.error('Error logging out:', error);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        pass
+      );
+      await updateProfile(userCredential.user, {
+        displayName: displayName,
+      });
+      setCurrentUser(userCredential.user);
+      toast.success("Usuario creado correctamente");
+      navigate("/dashboard");
+      return userCredential.user;
+    } catch (error: any) {
+      toast.error("Error al crear usuario: " + error.message);
+      return null;
     }
   };
 
-  // Check if user has a specific permission
-  const checkUserPermission = (permission: string): boolean => {
-    if (!user) return false;
-    
-    // Superadmin has all permissions
-    if (userRole === 'superadmin') return true;
-    
-    // Check in user permissions array
-    return userPermissions.includes(permission);
+  const login = async (email: string, pass: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      toast.success("Sesión iniciada correctamente");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error("Error al iniciar sesión: " + error.message);
+    }
   };
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      userRole, 
-      logout, 
-      checkUserPermission, 
-      userPermissions 
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      toast.success("Sesión cerrada correctamente");
+      navigate("/login");
+    } catch (error: any) {
+      toast.error("Error al cerrar sesión: " + error.message);
+    }
+  };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Se ha enviado un correo para restablecer la contraseña");
+    } catch (error: any) {
+      toast.error("Error al enviar correo: " + error.message);
+    }
+  };
+
+  const isAdmin = () => {
+    // Fixed comparison by checking against the UserRole type
+    return currentUser?.role === "admin" || currentUser?.role === "superadmin";
+  };
+
+  const value = {
+    currentUser,
+    loading,
+    signUp,
+    login,
+    logout,
+    resetPassword,
+    isAdmin,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

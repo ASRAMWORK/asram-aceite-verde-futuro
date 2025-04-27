@@ -37,7 +37,7 @@ import {
 import { useRutas } from "@/hooks/useRutas";
 import { useUsuarios } from "@/hooks/useUsuarios";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import type { Ruta } from "@/types";
+import type { Ruta, Recogida } from "@/types";
 import { 
   Calendar, 
   Check, 
@@ -239,11 +239,11 @@ const RutasDistritos = () => {
       return;
     }
     
-    const dataToSubmit: Partial<Ruta> = {
+    const nuevaRuta: Omit<Ruta, "id"> = {
       nombre: formData.nombre,
       distrito: formData.distrito,
       barrios: formData.barrios || [],
-      fecha: formData.fecha ? new Date(formData.fecha) : undefined,
+      fecha: formData.fecha ? new Date(formData.fecha) : new Date(),
       hora: formData.hora || "",
       recogedores: formData.recogedores || "",
       clientes: formData.clientes || [],
@@ -252,14 +252,16 @@ const RutasDistritos = () => {
       distanciaTotal: 0,
       tiempoEstimado: 0,
       frecuencia: 'semanal',
-      createdAt: new Date()
+      puntos: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     
     if (isEditingRuta && selectedRuta) {
-      await updateRuta(selectedRuta.id, dataToSubmit);
+      await updateRuta(selectedRuta.id, nuevaRuta);
       setIsEditingRuta(false);
     } else {
-      await addRuta(dataToSubmit as Omit<Ruta, 'id'>);
+      await addRuta(nuevaRuta as Omit<Ruta, 'id'>);
       setIsAddingRuta(false);
     }
     
@@ -304,16 +306,16 @@ const RutasDistritos = () => {
             cliente: cliente.id,
             direccionRecogida: cliente.direccion,
             fechaRecogida: selectedRuta.fecha,
-            horaRecogida: selectedRuta.hora,
+            horaRecogida: selectedRuta.hora || "",
             cantidadAproximada: cliente.litros,
             tipoAceite: "usado",
             nombreContacto: cliente.nombre,
-            telefonoContacto: cliente.telefono,
-            emailContacto: cliente.email,
+            telefonoContacto: cliente.telefono || "",
+            emailContacto: cliente.email || "",
             notasAdicionales: "",
             estadoRecogida: "pendiente",
             distrito: selectedRuta.distrito,
-            barrio: selectedRuta.barrios[0],
+            barrio: selectedRuta.barrios ? selectedRuta.barrios[0] : "",
             createdAt: new Date(),
             updatedAt: new Date()
           };

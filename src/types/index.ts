@@ -9,7 +9,8 @@ export type UserRole =
   | "escolar" 
   | "usuario" 
   | "administrador"
-  | "comercial";
+  | "comercial"
+  | "superadmin";
 
 export interface Usuario {
   id: string;
@@ -78,6 +79,8 @@ export interface Voluntario {
   activo: boolean;
   dni: string;
   fechaNacimiento: any;
+  diasDisponibles?: string[];
+  horasDisponibles?: string[];
   createdAt: any;
   updatedAt: any;
 }
@@ -109,8 +112,8 @@ export interface Trabajador {
   rutasAsignadas?: string[];
   salarioBase?: number;
   cuentaBancaria?: string;
-  metodoPago?: string;
-  frecuenciaPago?: string;
+  metodoPago?: "efectivo" | "transferencia" | "otro";
+  frecuenciaPago?: "mensual" | "semanal" | "quincenal";
   diaCobro?: number;
   beneficios?: string[];
   createdAt: any;
@@ -287,6 +290,7 @@ export interface AlianzaEscolarType {
   fechaInicio?: Date;
   estado?: string;
   litrosRecolectados?: number;
+  numParticipantes?: number;
   createdAt: any;
   updatedAt: any;
 }
@@ -342,8 +346,13 @@ export interface Recogida {
   fecha?: any;
   distrito?: string;
   barrio?: string;
+  hora?: string;
   horaInicio?: string;
   completada?: boolean;
+  nombreLugar?: string;
+  direccion?: string;
+  estado?: string;
+  fechaSolicitud?: Date;
   createdAt: any;
   updatedAt: any;
 }
@@ -416,4 +425,84 @@ export interface TallerProgramado {
   email?: string;
   createdAt: any;
   updatedAt: any;
+}
+
+export interface ComunidadVecinos {
+  id: string;
+  nombre: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  numViviendas: number;
+  presidente: string;
+  telefono: string;
+  email: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Tarea {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fechaInicio: Date;
+  fechaFin?: Date;
+  estado: string;
+  prioridad: string;
+  asignadoA?: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface HorarioVoluntario {
+  id: string;
+  voluntarioId: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+  actividad: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Incidencia {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  estado: string;
+  prioridad: string;
+  asignadoA?: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface UserProfile {
+  id: string;
+  userId: string;
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+// Add this for typing Project in useProjects hook
+export interface Project {
+  id: string;
+  nombre: string;
+  cliente: string;
+  descripcion: string;
+  fechaInicio: Date;
+  fechaFinalizacion?: Date;
+  presupuesto: number;
+  estado: string;
+  responsable: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

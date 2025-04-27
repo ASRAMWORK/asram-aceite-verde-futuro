@@ -31,9 +31,9 @@ import { Ingreso } from "@/types";
 type IngresosFormProps = {
   onSubmit: (data: Partial<Omit<Ingreso, "id">>) => void;
   onCancel: () => void;
-  onClose?: () => void; // Add onClose prop to match usage
+  onClose?: () => void; // Add onClose prop for compatibility
   initialData?: Partial<Omit<Ingreso, "id">>;
-  isOpen?: boolean; // Add isOpen prop to match usage
+  isOpen?: boolean; // Add isOpen prop for compatibility
 };
 
 const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: IngresosFormProps) => {

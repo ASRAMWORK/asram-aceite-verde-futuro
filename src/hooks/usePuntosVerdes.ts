@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, uuidv4 } from 'firebase/firestore';
 import type { PuntoVerde } from '@/types';
 import { toast } from 'sonner';
 
@@ -64,15 +63,37 @@ export function usePuntosVerdes(administradorId?: string) {
     }
   };
 
-  const addPuntoVerde = async (nuevoPunto: Omit<PuntoVerde, 'id'>) => {
+  const addPuntoVerde = async (data: Partial<Omit<PuntoVerde, "id">>) => {
+    const id = uuidv4();
     try {
-      const puntoData = {
-        ...nuevoPunto,
-        litrosRecogidos: nuevoPunto.litrosRecogidos || 0,
-        createdAt: serverTimestamp(),
+      const nuevoPunto: PuntoVerde = {
+        id,
+        nombre: data.direccion || "Punto Verde",
+        ciudad: data.ciudad || "Madrid",
+        provincia: data.provincia || "Madrid",
+        codigoPostal: data.codigoPostal || "",
+        pais: data.pais || "España",
+        latitud: data.latitud || 0,
+        longitud: data.longitud || 0,
+        tipo: data.tipo || "comunidad",
+        descripcion: data.descripcion || "",
+        horario: data.horario || "",
+        activo: true,
+        distrito: data.distrito || "",
+        barrio: data.barrio || "",
+        direccion: data.direccion || "",
+        numViviendas: data.numViviendas || 0,
+        numContenedores: data.numContenedores || 0,
+        telefono: data.telefono || "",
+        email: data.email || "",
+        contacto: data.contacto || "",
+        litrosRecogidos: data.litrosRecogidos || 0,
+        administradorId: data.administradorId || null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
-      await addDoc(collection(db, "puntosVerdes"), puntoData);
+      await addDoc(collection(db, "puntosVerdes"), nuevoPunto);
       toast.success("Punto verde añadido correctamente");
       await loadPuntosVerdesData();
       return true;

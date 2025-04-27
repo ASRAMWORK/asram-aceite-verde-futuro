@@ -106,7 +106,7 @@ const RutasPersonalizadas = () => {
       return;
     }
     
-    const nuevaRuta = {
+    const nuevaRuta: Omit<Ruta, "id"> = {
       nombre: nombreRuta,
       distrito: puntosSeleccionados[0]?.distrito || 'Varios',
       barrios: Array.from(new Set(puntosSeleccionados.map(p => p.barrio))),
@@ -121,7 +121,9 @@ const RutasPersonalizadas = () => {
       distanciaTotal: 0,
       tiempoEstimado: 0,
       frecuencia: 'unica',
-      createdAt: new Date()
+      puntos: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     
     await addRuta(nuevaRuta);
