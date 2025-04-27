@@ -1,18 +1,19 @@
+
 import { Button } from "@/components/ui/button";
-import { ArrowRight, RecycleIcon, Droplet, Award } from "lucide-react";
+import { ArrowRight, RecycleIcon, Droplet, Award, MapPin, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const Hero = () => {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16">
-      {/* Background elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-asram-50 to-white opacity-70 z-0" />
+      {/* Background elements with improved gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-asram-50 to-white opacity-80 z-0" />
       <div className="absolute -bottom-32 -left-32 w-64 h-64 rounded-full bg-asram-100 filter blur-3xl opacity-70" />
       <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-asram-200 filter blur-3xl opacity-50" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -29,8 +30,8 @@ const Hero = () => {
               impulsando la economía circular y protegiendo el medio ambiente.
             </p>
             
-            <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="bg-asram hover:bg-asram-700 group" asChild>
+            <div className="pt-4 flex flex-col sm:flex-row flex-wrap gap-4">
+              <Button size="lg" className="bg-asram hover:bg-asram-700 group shadow-lg" asChild>
                 <Link to="/contacto">
                   Solicitar Recogida 
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -41,6 +42,32 @@ const Hero = () => {
                   Conocer más
                 </Link>
               </Button>
+            </div>
+            
+            {/* Añado nuevos badges con métricas destacadas */}
+            <div className="flex flex-wrap gap-4 pt-2">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="bg-white/80 backdrop-blur-sm shadow-sm px-4 py-2 rounded-full flex items-center gap-2"
+              >
+                <div className="bg-green-100 p-1 rounded-full">
+                  <Droplet className="h-4 w-4 text-green-600" />
+                </div>
+                <span className="text-sm font-medium">1L de aceite evita contaminar 1000L de agua</span>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="bg-white/80 backdrop-blur-sm shadow-sm px-4 py-2 rounded-full flex items-center gap-2"
+              >
+                <div className="bg-blue-100 p-1 rounded-full">
+                  <MapPin className="h-4 w-4 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium">Presencia en 21 distritos de Madrid</span>
+              </motion.div>
             </div>
           </motion.div>
           
@@ -64,6 +91,14 @@ const Hero = () => {
                 <span>+2500 L reciclados este mes</span>
               </div>
             </div>
+            
+            {/* Nuevo elemento flotante para destacar premios */}
+            <div className="absolute -top-4 -left-4 bg-white p-3 rounded-xl shadow-lg border border-gray-100 rotate-[-5deg]">
+              <div className="flex items-center space-x-2 text-amber-600 font-semibold">
+                <Star className="h-5 w-5 text-amber-500" />
+                <span>Premio Innovación 2024</span>
+              </div>
+            </div>
           </motion.div>
         </div>
         
@@ -73,7 +108,7 @@ const Hero = () => {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-20"
         >
-          <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm flex items-start space-x-4">
+          <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm flex items-start space-x-4 hover:shadow-md transition-shadow">
             <div className="bg-asram/10 p-3 rounded-lg">
               <RecycleIcon className="h-6 w-6 text-asram" />
             </div>
@@ -83,7 +118,7 @@ const Hero = () => {
             </div>
           </div>
           
-          <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm flex items-start space-x-4">
+          <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm flex items-start space-x-4 hover:shadow-md transition-shadow">
             <div className="bg-asram/10 p-3 rounded-lg">
               <Droplet className="h-6 w-6 text-asram" />
             </div>
@@ -93,7 +128,7 @@ const Hero = () => {
             </div>
           </div>
           
-          <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm flex items-start space-x-4">
+          <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm flex items-start space-x-4 hover:shadow-md transition-shadow">
             <div className="bg-asram/10 p-3 rounded-lg">
               <Award className="h-6 w-6 text-asram" />
             </div>
