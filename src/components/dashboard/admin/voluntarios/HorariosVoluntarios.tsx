@@ -27,7 +27,7 @@ const HorariosVoluntarios = ({ voluntarios }: HorariosVoluntariosProps) => {
     if (selectedVoluntario) {
       addHorario({
         voluntarioId: selectedVoluntario.id,
-        voluntarioNombre: `${selectedVoluntario.nombre} ${selectedVoluntario.apellidos}`,
+        voluntarioNombre: `${selectedVoluntario.nombre} ${selectedVoluntario.apellido}`,
         ...data,
         createdAt: new Date()
       });
@@ -102,7 +102,7 @@ const HorariosVoluntarios = ({ voluntarios }: HorariosVoluntariosProps) => {
                               .filter(v => v.activo)
                               .map((vol) => (
                                 <SelectItem key={vol.id} value={vol.id}>
-                                  {vol.nombre} {vol.apellidos}
+                                  {vol.nombre} {vol.apellido}
                                 </SelectItem>
                               ))}
                           </SelectContent>
@@ -206,7 +206,9 @@ const HorariosVoluntarios = ({ voluntarios }: HorariosVoluntariosProps) => {
             <div className="space-y-6">
               {voluntarios.filter(v => v.activo).map((voluntario) => (
                 <div key={voluntario.id} className="border rounded-lg p-4">
-                  <h3 className="font-medium text-lg mb-2">{voluntario.nombre} {voluntario.apellidos}</h3>
+                  <div>
+                    <span className="font-medium">{voluntario.nombre} {voluntario.apellido}</span>
+                  </div>
                   <Table>
                     <TableHeader>
                       <TableRow>

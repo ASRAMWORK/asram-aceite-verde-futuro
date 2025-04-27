@@ -138,7 +138,7 @@ const TrabajadoresView = () => {
     return currentItems.map((trabajador) => (
       <tr key={trabajador.id} className="hover:bg-muted/50 cursor-pointer">
         <td className="p-4" onClick={() => handleOpenDetalle(trabajador)}>{trabajador.nombre}</td>
-        <td className="p-4" onClick={() => handleOpenDetalle(trabajador)}>{trabajador.apellido}</td>  {/* Changed from apellidos to apellido */}
+        <td className="p-4" onClick={() => handleOpenDetalle(trabajador)}>{trabajador.apellido}</td>
         <td className="p-4" onClick={() => handleOpenDetalle(trabajador)}>{trabajador.email}</td>
         <td className="p-4" onClick={() => handleOpenDetalle(trabajador)}>{trabajador.telefono}</td>
         <td className="p-4">
@@ -163,7 +163,6 @@ const TrabajadoresView = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header section */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Trabajadores</h2>
@@ -177,7 +176,6 @@ const TrabajadoresView = () => {
         </Button>
       </div>
 
-      {/* Cards section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -195,7 +193,6 @@ const TrabajadoresView = () => {
         </Card>
       </div>
 
-      {/* Main content */}
       <Card>
         <CardHeader>
           <CardTitle>Lista de Trabajadores</CardTitle>
@@ -232,7 +229,6 @@ const TrabajadoresView = () => {
               )}
             </TableBody>
           </Table>
-          {/* Pagination controls */}
           <div className="flex justify-between items-center mt-4">
             <Button
               variant="outline"
@@ -255,20 +251,19 @@ const TrabajadoresView = () => {
         </CardContent>
       </Card>
 
-      {/* Forms and Dialogs */}
       {showForm && (
         <TrabajadorForm 
-          onSubmit={handleAddTrabajador}
+          onSubmit={(data) => handleAddTrabajador(data)}
           onCancel={() => setShowForm(false)}
           vehiculos={vehiculos}
           rutas={rutas}
         />
       )}
-      
+
       {showEditForm && selectedTrabajador && (
         <TrabajadorForm
           initialData={selectedTrabajador}
-          onSubmit={handleUpdateTrabajador}
+          onSubmit={(data) => handleUpdateTrabajador(selectedTrabajador.id, data)}
           onCancel={() => setShowEditForm(false)}
           vehiculos={vehiculos}
           rutas={rutas}

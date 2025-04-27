@@ -37,7 +37,7 @@ const FacturacionView = () => {
 
   const { ingresos, gastos, loading, getFinancialSummary } = useFacturacion();
   const { ingresosMes, gastosMes, balanceMes, pendienteCobro } = getFinancialSummary();
-  const { addProject, updateProject, getProjectById } = useProjects();
+  const { addProject, updateProject, getProjectById, addIngreso, addGasto } = useProjects();
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -411,6 +411,22 @@ const FacturacionView = () => {
         <IngresosForm 
           isOpen={showIngresosForm} 
           onClose={() => setShowIngresosForm(false)} 
+          onSubmit={async (data) => {
+            try {
+              await addIngreso(data);
+              setShowIngresosForm(false);
+              toast({
+                title: "Éxito",
+                description: "Ingreso añadido correctamente.",
+              });
+            } catch (error) {
+              toast({
+                title: "Error",
+                description: "Hubo un problema al añadir el ingreso.",
+              });
+            }
+          }}
+          onCancel={() => setShowIngresosForm(false)}
         />
       )}
 
@@ -418,6 +434,22 @@ const FacturacionView = () => {
         <GastosForm 
           isOpen={showGastosForm} 
           onClose={() => setShowGastosForm(false)} 
+          onSubmit={async (data) => {
+            try {
+              await addGasto(data);
+              setShowGastosForm(false);
+              toast({
+                title: "Éxito",
+                description: "Gasto añadido correctamente.",
+              });
+            } catch (error) {
+              toast({
+                title: "Error",
+                description: "Hubo un problema al añadir el gasto.",
+              });
+            }
+          }}
+          onCancel={() => setShowGastosForm(false)}
         />
       )}
 

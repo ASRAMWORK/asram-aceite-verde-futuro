@@ -109,8 +109,8 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   const isAdmin = () => {
-    return currentUser?.role === "admin" || 
-           currentUser?.role === "superadmin" as UserRole;
+    const adminRoles: UserRole[] = ["admin", "superadmin"];
+    return currentUser?.role && adminRoles.includes(currentUser.role as UserRole);
   };
 
   const value = {

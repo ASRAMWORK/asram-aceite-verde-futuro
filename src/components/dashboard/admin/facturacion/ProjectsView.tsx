@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -495,6 +494,8 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
         <IngresosForm 
           isOpen={isIngresoDialogOpen}
           onClose={() => setIsIngresoDialogOpen(false)}
+          onSubmit={handleAddIngreso}
+          onCancel={() => setIsIngresoDialogOpen(false)}
           initialData={{
             concepto: "",
             cantidad: 0,
@@ -510,6 +511,8 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
         <GastosForm 
           isOpen={isGastoDialogOpen}
           onClose={() => setIsGastoDialogOpen(false)}
+          onSubmit={handleAddGasto}
+          onCancel={() => setIsGastoDialogOpen(false)}
           initialData={{
             concepto: "",
             cantidad: 0,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -69,6 +68,24 @@ interface PuntoVerdeSeleccionado {
   orden: number;
 }
 
+interface Ruta {
+  id: string;
+  nombre: string;
+  distrito: string;
+  fecha: Date;
+  hora: string;
+  recogedores: string;
+  clientes: { id: string, nombre: string, direccion: string, barrio: string, orden: number, litrosEstimados: number }[];
+  puntosRecogida: number;
+  distanciaTotal: number;
+  tiempoEstimado: number;
+  frecuencia: string;
+  puntos: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  completada: boolean;
+}
+
 const RutasDistritos = () => {
   const { rutas, loading: loadingRutas, addRuta, updateRuta, deleteRuta, completeRuta } = useRutas();
   const { puntosVerdes, loading: loadingPuntos, getDistritosUnicos, getPuntosByDistrito } = usePuntosVerdes();
@@ -94,7 +111,6 @@ const RutasDistritos = () => {
     frecuencia: "semanal"
   });
   
-  // Filter displayed routes based on current tab and district filter
   const filteredRutas = currentTab === "pendientes"
     ? rutas.filter(r => !r.completada)
     : rutas.filter(r => r.completada);
@@ -103,7 +119,6 @@ const RutasDistritos = () => {
     ? filteredRutas.filter(r => r.distrito === filterDistrito)
     : filteredRutas;
 
-  // Handle district change in form
   const handleDistritoChange = (distrito: string) => {
     setFormData({
       ...formData,
@@ -135,17 +150,13 @@ const RutasDistritos = () => {
   };
 
   const handlePuntoVerdeSelect = (punto: any) => {
-    // Check if punto is already selected
     const isAlreadySelected = puntosSeleccionados.some(p => p.id === punto.id);
     
     if (isAlreadySelected) {
-      // Remove from selection
       setPuntosSeleccionados(puntosSeleccionados.filter(p => p.id !== punto.id));
     } else {
-      // Add to selection with the next order number
       const orden = puntosSeleccionados.length + 1;
-      // Estimate liters based on containers (adjust formula as needed)
-      const litrosEstimados = punto.numContenedores * 5; // Assuming 5L per container on average
+      const litrosEstimados = punto.numContenedores * 5;
       
       setPuntosSeleccionados([
         ...puntosSeleccionados,
@@ -168,14 +179,11 @@ const RutasDistritos = () => {
     const index = newPuntos.findIndex(p => p.id === id);
     
     if (direction === "up" && index > 0) {
-      // Swap with previous element
       [newPuntos[index - 1], newPuntos[index]] = [newPuntos[index], newPuntos[index - 1]];
     } else if (direction === "down" && index < newPuntos.length - 1) {
-      // Swap with next element
       [newPuntos[index], newPuntos[index + 1]] = [newPuntos[index + 1], newPuntos[index]];
     }
     
-    // Re-number the order
     newPuntos.forEach((punto, idx) => {
       punto.orden = idx + 1;
     });
@@ -186,7 +194,6 @@ const RutasDistritos = () => {
   const handleRemovePunto = (id: string) => {
     const newPuntos = puntosSeleccionados.filter(p => p.id !== id);
     
-    // Re-number the order
     newPuntos.forEach((punto, idx) => {
       punto.orden = idx + 1;
     });
@@ -194,7 +201,7 @@ const RutasDistritos = () => {
     setPuntosSeleccionados(newPuntos);
   };
   
-  const handleCreateRuta = async () => {
+  const handleCrearRuta = async () => {
     if (!formData.nombre || !formData.distrito || !formData.fecha || !formData.hora || !formData.recogedores) {
       toast.error("Por favor completa todos los campos obligatorios");
       return;
@@ -205,34 +212,33 @@ const RutasDistritos = () => {
       return;
     }
     
-    // Calculate total liters estimate
-    const litrosEstimados = puntosSeleccionados.reduce((sum, punto) => sum + punto.litrosEstimados, 0);
+    const nombreRuta = formData.nombre;
+    const distritoSeleccionado = formData.distrito;
+    const fechaSeleccionada = formData.fecha;
+    const horaSeleccionada = formData.hora;
+    const recogedorSeleccionado = formData.recogedores;
     
-    // Format points for storage
-    const clientesRuta = puntosSeleccionados.map(punto => ({
-      id: punto.id,
-      nombre: punto.direccion,
-      direccion: punto.direccion,
-      barrio: punto.barrio,
-      orden: punto.orden,
-      litrosEstimados: punto.litrosEstimados
-    }));
-    
-    // Create route data
-    const nuevaRuta = {
-      nombre: formData.nombre,
-      distrito: formData.distrito,
-      fecha: new Date(formData.fecha),
-      hora: formData.hora,
-      recogedores: formData.recogedores,
-      clientes: clientesRuta,
-      barrios: Array.from(new Set(puntosSeleccionados.map(p => p.barrio))),
-      puntosRecogida: puntosSeleccionados.length,
-      distanciaTotal: formData.distanciaTotal || Math.round(puntosSeleccionados.length * 0.5), // Simple estimate
-      tiempoEstimado: formData.tiempoEstimado || Math.round(puntosSeleccionados.length * 10), // Simple estimate: 10 min per point
-      frecuencia: formData.frecuencia,
-      completada: false,
-      createdAt: new Date() // Added missing required property
+    const nuevaRuta: Omit<Ruta, "id"> = {
+      nombre: nombreRuta,
+      distrito: distritoSeleccionado,
+      fecha: new Date(fechaSeleccionada),
+      hora: horaSeleccionada,
+      recogedores: recogedorSeleccionado,
+      clientes: puntosFiltrados.map((punto, index) => ({
+        id: punto.id,
+        nombre: `${punto.direccion} (${punto.barrio})`,
+        direccion: punto.direccion,
+        barrio: punto.barrio,
+        orden: index + 1,
+        litrosEstimados: 0
+      })),
+      puntosRecogida: puntosFiltrados.length,
+      distanciaTotal: 0,
+      tiempoEstimado: 0,
+      frecuencia: 'semanal',
+      puntos: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     
     try {
@@ -300,7 +306,6 @@ const RutasDistritos = () => {
 
   const handleOpenCompleteDialog = (ruta: any) => {
     setSelectedRuta(ruta);
-    // Initialize with litrosTotales from the route if available, otherwise use 0
     setLitrosTotales(0);
     setIsCompletingRuta(true);
   };
@@ -336,7 +341,6 @@ const RutasDistritos = () => {
               </DialogHeader>
               
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 py-4">
-                {/* Form Column */}
                 <div className="md:col-span-4 space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="distrito" className="text-sm font-medium">
@@ -472,7 +476,6 @@ const RutasDistritos = () => {
                   </div>
                 </div>
                 
-                {/* Points Selection Column */}
                 <div className="md:col-span-8 space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-medium">Puntos verdes disponibles</h3>
@@ -642,7 +645,7 @@ const RutasDistritos = () => {
                 </Button>
                 <Button 
                   className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
-                  onClick={handleCreateRuta}
+                  onClick={handleCrearRuta}
                   disabled={puntosSeleccionados.length === 0 || !formData.nombre || !formData.distrito || !formData.fecha || !formData.hora || !formData.recogedores}
                 >
                   Crear Ruta
@@ -866,7 +869,6 @@ const RutasDistritos = () => {
         </CardContent>
       </Card>
       
-      {/* View Route Dialog */}
       <Dialog open={isViewingRuta} onOpenChange={setIsViewingRuta}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
@@ -967,7 +969,6 @@ const RutasDistritos = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Complete Route Dialog */}
       <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>

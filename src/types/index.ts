@@ -79,7 +79,9 @@ export interface Voluntario {
   dni: string;
   fechaNacimiento: any;
   diasDisponibles?: string[];
-  horasDisponibles?: string[];
+  horasDisponibles?: string;
+  habilidades?: string[];
+  experiencia?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -137,8 +139,8 @@ export interface Ruta {
   nombre: string;
   distrito: string;
   barrio?: string;
-  barrios?: string[]; // Some components use 'barrios' (plural) instead of 'barrio'
-  puntos: any[]; // Array of points/coordinates
+  barrios?: string[];
+  puntos: any[];
   distancia?: number;
   tiempoEstimado?: number;
   tipoRuta?: string;
@@ -445,9 +447,12 @@ export interface Tarea {
   descripcion: string;
   fechaInicio: Date;
   fechaFin?: Date;
+  fechaLimite?: Date;
   estado: string;
   prioridad: string;
   asignadoA?: string;
+  voluntarioNombre?: string;
+  completada?: boolean;
   createdAt: any;
   updatedAt: any;
 }
@@ -491,11 +496,27 @@ export interface UserProfile {
 }
 
 export interface TrabajadorFormProps {
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: Partial<Trabajador>) => Promise<void>;
   onCancel: () => void;
+  initialData?: Partial<Trabajador>;
+  vehiculos?: Vehiculo[];
+  rutas?: Ruta[];
+}
+
+export interface IngresosFormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit?: (data: any) => Promise<void>;
+  onCancel?: () => void;
   initialData?: any;
-  vehiculos?: any[];
-  rutas?: any[];
+}
+
+export interface GastoFormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit?: (data: any) => Promise<void>;
+  onCancel?: () => void;
+  initialData?: any;
 }
 
 export interface Project {
