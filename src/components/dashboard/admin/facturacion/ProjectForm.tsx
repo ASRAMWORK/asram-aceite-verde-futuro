@@ -15,6 +15,8 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { useFacturacion } from "@/hooks/useFacturacion";
 import InformeFinanciero from "./InformeFinanciero";
 import { toast } from "sonner";
+import { Calendar, User, Building, BadgeDollarSign, LineChart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es obligatorio" }),
@@ -110,7 +112,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         ...data,
         id: project?.id || undefined,
       });
-      onClose();
+      handleDialogClose();
     } catch (error) {
       console.error("Error al guardar el proyecto:", error);
       toast.error("Error al guardar el proyecto");
@@ -127,234 +129,319 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
 
   // Función para manejar el cierre del diálogo principal asegurando que también se cierre el Sheet
   const handleDialogClose = () => {
+    // Primero cerramos el Sheet si está abierto
     setShowDetails(false);
-    onClose();
+    
+    // Esperamos un momento antes de cerrar el Dialog principal para evitar conflictos
+    setTimeout(() => {
+      onClose();
+    }, 150);
+  };
+
+  // Maneja el estado financiero para mostrar el color adecuado
+  const getFinancialStatusColor = () => {
+    if (!project?.id) return "";
+    
+    const financials = ingresos
+      .filter(i => i.origen === project.id)
+      .reduce((sum, i) => sum + i.cantidad, 0);
+      
+    const expenses = gastos
+      .filter(g => g.tipo === project.id)
+      .reduce((sum, g) => sum + g.cantidad, 0);
+      
+    if (financials === 0) return "bg-gray-100";
+    if (financials > expenses) return "bg-green-100";
+    if (financials < expenses) return "bg-red-100";
+    return "bg-amber-100";
   };
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={(open) => {
-        if (!open) {
-          // Asegurar que el Sheet también se cierre antes de cerrar el Dialog principal
-          setShowDetails(false);
-          setTimeout(() => {
-            onClose();
-          }, 100);
-        }
-      }}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>{project?.id ? "Editar proyecto" : "Nuevo proyecto"}</DialogTitle>
-            <DialogDescription>
+      <Dialog 
+        open={isOpen} 
+        onOpenChange={(open) => {
+          if (!open) {
+            handleDialogClose();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden">
+          <DialogHeader className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 border-b">
+            <DialogTitle className="text-2xl font-semibold text-[#EE970D]">
+              {project?.id ? "Editar proyecto" : "Nuevo proyecto"}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               {project?.id ? "Actualiza los datos del proyecto" : "Crea un nuevo proyecto en el sistema"}
             </DialogDescription>
           </DialogHeader>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="nombre"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre del proyecto</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nombre del proyecto" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="cliente"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cliente</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nombre del cliente" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="descripcion"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descripción</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe brevemente el proyecto" 
-                        rows={3} 
-                        {...field} 
-                        value={field.value || ""} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="responsable"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Responsable</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Persona responsable" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="presupuesto"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Presupuesto (€)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01" 
-                          placeholder="0.00" 
-                          {...field} 
-                          onChange={e => field.onChange(parseFloat(e.target.value) || 0)} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  control={form.control}
-                  name="fechaInicio"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fecha de inicio</FormLabel>
-                      <FormControl>
-                        <DatePicker 
-                          date={field.value} 
-                          setDate={field.onChange}
-                          placeholder="Selecciona fecha"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="fechaFin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fecha de fin</FormLabel>
-                      <FormControl>
-                        <DatePicker 
-                          date={field.value} 
-                          setDate={field.onChange}
-                          placeholder="Selecciona fecha"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="estado"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estado</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <div className="p-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="nombre"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Nombre del proyecto</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Estado" />
-                          </SelectTrigger>
+                          <Input 
+                            placeholder="Nombre del proyecto" 
+                            {...field} 
+                            className="border-orange-200 focus-visible:ring-[#EE970D]" 
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="activo">Activo</SelectItem>
-                          <SelectItem value="pendiente">Pendiente</SelectItem>
-                          <SelectItem value="completado">Completado</SelectItem>
-                          <SelectItem value="cancelado">Cancelado</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="cliente"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Cliente</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Nombre del cliente" 
+                            {...field} 
+                            className="border-orange-200 focus-visible:ring-[#EE970D]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="descripcion"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-medium">Descripción</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Describe brevemente el proyecto" 
+                          rows={3} 
+                          {...field} 
+                          value={field.value || ""} 
+                          className="resize-none border-orange-200 focus-visible:ring-[#EE970D]"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-              
-              {project?.id && (
-                <div className="pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleViewDetails}
-                  >
-                    Ver datos financieros
-                  </Button>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="responsable"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Responsable</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Persona responsable" 
+                            {...field} 
+                            value={field.value || ""} 
+                            className="border-orange-200 focus-visible:ring-[#EE970D]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="presupuesto"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Presupuesto (€)</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input 
+                              type="number" 
+                              step="0.01" 
+                              placeholder="0.00" 
+                              {...field} 
+                              onChange={e => field.onChange(parseFloat(e.target.value) || 0)} 
+                              className="pl-8 border-orange-200 focus-visible:ring-[#EE970D]"
+                            />
+                            <span className="absolute left-3 top-2.5 text-muted-foreground">
+                              €
+                            </span>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              )}
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleDialogClose} disabled={loading}>
-                  Cancelar
-                </Button>
-                <Button type="submit" className="bg-asram hover:bg-asram-700" disabled={loading}>
-                  {loading ? "Guardando..." : project?.id ? "Actualizar" : "Crear proyecto"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="fechaInicio"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Fecha de inicio</FormLabel>
+                        <FormControl>
+                          <DatePicker 
+                            date={field.value} 
+                            setDate={field.onChange}
+                            placeholder="Selecciona fecha"
+                            className="border-orange-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="fechaFin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Fecha de fin</FormLabel>
+                        <FormControl>
+                          <DatePicker 
+                            date={field.value} 
+                            setDate={field.onChange}
+                            placeholder="Selecciona fecha"
+                            className="border-orange-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="estado"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Estado</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border-orange-200 focus:ring-[#EE970D]">
+                              <SelectValue placeholder="Estado" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="activo">Activo</SelectItem>
+                            <SelectItem value="pendiente">Pendiente</SelectItem>
+                            <SelectItem value="completado">Completado</SelectItem>
+                            <SelectItem value="cancelado">Cancelado</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                {project?.id && (
+                  <div className={`mt-4 p-4 rounded-lg ${getFinancialStatusColor()}`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="font-semibold flex items-center">
+                        <LineChart className="h-4 w-4 mr-2 text-[#EE970D]"/>
+                        Información financiera
+                      </div>
+                      {project.rentabilidad !== undefined && (
+                        <Badge 
+                          className={
+                            project.rentabilidad > 20 ? 'bg-green-100 text-green-800 hover:bg-green-200' : 
+                            project.rentabilidad > 0 ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                            'bg-red-100 text-red-800 hover:bg-red-200'
+                          }
+                        >
+                          Rentabilidad: {project.rentabilidad}%
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full bg-white border-[#EE970D] text-[#EE970D] hover:bg-[#EE970D] hover:text-white"
+                      onClick={handleViewDetails}
+                    >
+                      Ver datos financieros detallados
+                    </Button>
+                  </div>
+                )}
+                
+                <DialogFooter className="pt-4 gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={handleDialogClose} 
+                    disabled={loading}
+                    className="border-gray-300"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-[#EE970D] hover:bg-[#D98609] text-white" 
+                    disabled={loading}
+                  >
+                    {loading ? "Guardando..." : project?.id ? "Actualizar proyecto" : "Crear proyecto"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </div>
         </DialogContent>
       </Dialog>
       
-      {/* Separamos completamente este Sheet del Dialog para evitar conflictos */}
-      <Sheet open={showDetails} onOpenChange={setShowDetails}>
-        <SheetContent className="w-[90%] md:w-[75%] sm:max-w-none overflow-y-auto">
-          <SheetHeader className="pb-4">
-            <SheetTitle>Detalles financieros: {project?.nombre}</SheetTitle>
-            <SheetDescription>
-              Resumen financiero del proyecto
-            </SheetDescription>
-          </SheetHeader>
-          
-          {project?.id && (
-            <InformeFinanciero 
-              ingresos={ingresos} 
-              gastos={gastos}
-              proyectoId={project.id}
-              onClose={() => setShowDetails(false)}
-            />
-          )}
-          
-          <div className="mt-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowDetails(false)} 
-              className="w-full"
-            >
-              Cerrar
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Sheet completamente separado del Dialog principal para evitar conflictos */}
+      {isOpen && (
+        <Sheet 
+          open={showDetails} 
+          onOpenChange={(open) => {
+            setShowDetails(open);
+          }}
+        >
+          <SheetContent className="w-[90%] md:w-[75%] sm:max-w-none overflow-y-auto border-l-[#EE970D]">
+            <SheetHeader className="pb-4">
+              <SheetTitle className="text-xl text-[#EE970D]">
+                Detalles financieros: {project?.nombre}
+              </SheetTitle>
+              <SheetDescription>
+                Resumen financiero detallado del proyecto
+              </SheetDescription>
+            </SheetHeader>
+            
+            {project?.id && (
+              <InformeFinanciero 
+                ingresos={ingresos} 
+                gastos={gastos}
+                proyectoId={project.id}
+                onClose={() => setShowDetails(false)}
+              />
+            )}
+            
+            <div className="mt-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDetails(false)} 
+                className="w-full border-[#EE970D] text-[#EE970D] hover:bg-[#EE970D] hover:text-white"
+              >
+                Cerrar informe
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
     </>
   );
 };
