@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -17,7 +17,8 @@ import {
   Building,
   FolderPlus,
   BadgeDollarSign,
-  CalendarRange
+  CalendarRange,
+  FileText,
 } from "lucide-react";
 import IngresosForm from "./IngresosForm";
 import GastosForm from "./GastosForm";
@@ -25,6 +26,7 @@ import InformeFinanciero from "./InformeFinanciero";
 import { useFacturacion } from "@/hooks/useFacturacion";
 import { ProjectsView } from "./ProjectsView";
 import { ProjectForm } from "./ProjectForm";
+import FacturasPendientes from "./FacturasPendientes";
 
 const FacturacionView = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -33,27 +35,19 @@ const FacturacionView = () => {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
-  const { ingresos, gastos, loading } = useFacturacion();
+  const { ingresos, gastos, loading, getFinancialSummary } = useFacturacion();
+  const { ingresosMes, gastosMes, balanceMes, pendienteCobro } = getFinancialSummary();
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
-
-  // Calculate total ingresos and gastos for the current month
-  const ingresosDelMes = ingresos
-    .filter((ingreso) => {
-      const fecha = ingreso.fecha instanceof Date ? ingreso.fecha : new Date(ingreso.fecha);
-      return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
-    })
-    .reduce((total, ingreso) => total + ingreso.cantidad, 0);
-
-  const gastosDelMes = gastos
-    .filter((gasto) => {
-      const fecha = gasto.fecha instanceof Date ? gasto.fecha : new Date(gasto.fecha);
-      return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
-    })
-    .reduce((total, gasto) => total + gasto.cantidad, 0);
-
-  const balance = ingresosDelMes - gastosDelMes;
+  
+  // Ensure the dialogs are closed and state is reset when changing tabs
+  useEffect(() => {
+    setShowIngresosForm(false);
+    setShowGastosForm(false);
+    setShowProjectForm(false);
+    setSelectedProject(null);
+  }, [activeTab]);
 
   const handleAddIngreso = () => {
     setShowIngresosForm(true);
@@ -105,7 +99,7 @@ const FacturacionView = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-green-50 to-white">
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
@@ -117,7 +111,7 @@ const FacturacionView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">
-              {loading ? "..." : `${ingresosDelMes.toLocaleString()}€`}
+              {loading ? "..." : `${ingresosMes.toLocaleString('es-ES')}€`}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {ingresos.filter((i) => {
@@ -139,7 +133,7 @@ const FacturacionView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-red-600">
-              {loading ? "..." : `${gastosDelMes.toLocaleString()}€`}
+              {loading ? "..." : `${gastosMes.toLocaleString('es-ES')}€`}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {gastos.filter((g) => {
@@ -150,7 +144,7 @@ const FacturacionView = () => {
           </CardContent>
         </Card>
 
-        <Card className={`bg-gradient-to-br ${balance >= 0 ? 'from-blue-50 to-white' : 'from-amber-50 to-white'}`}>
+        <Card className={`bg-gradient-to-br ${balanceMes >= 0 ? 'from-blue-50 to-white' : 'from-amber-50 to-white'}`}>
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
               <CardTitle className="text-sm font-medium text-blue-800">
@@ -160,18 +154,37 @@ const FacturacionView = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className={`text-3xl font-bold ${balance >= 0 ? 'text-blue-600' : 'text-amber-600'}`}>
-              {loading ? "..." : `${balance.toLocaleString()}€`}
+            <div className={`text-3xl font-bold ${balanceMes >= 0 ? 'text-blue-600' : 'text-amber-600'}`}>
+              {loading ? "..." : `${balanceMes.toLocaleString('es-ES')}€`}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {balance >= 0 ? "Balance positivo" : "Balance negativo"}
+              {balanceMes >= 0 ? "Balance positivo" : "Balance negativo"}
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-amber-50 to-white">
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-sm font-medium text-amber-800">
+                Pendiente de Cobro
+              </CardTitle>
+              <FileText className="h-4 w-4 text-amber-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-amber-600">
+              {loading ? "..." : `${pendienteCobro.toLocaleString('es-ES')}€`}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {ingresos.filter(i => i.estado === 'pendiente').length} facturas pendientes
             </p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dashboard">
             <CalendarRange className="h-4 w-4 mr-2" />
             Resumen
@@ -188,6 +201,10 @@ const FacturacionView = () => {
             <Building className="h-4 w-4 mr-2 text-blue-600" />
             Proyectos
           </TabsTrigger>
+          <TabsTrigger value="pendientes">
+            <FileText className="h-4 w-4 mr-2 text-amber-600" />
+            Pendientes
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="mt-6">
@@ -199,7 +216,14 @@ const FacturacionView = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <InformeFinanciero />
+              <InformeFinanciero 
+                ingresos={ingresos}
+                gastos={gastos}
+                ingresosMes={ingresosMes}
+                gastosMes={gastosMes}
+                diasEnMes={30}
+                pendienteCobro={pendienteCobro}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -224,6 +248,7 @@ const FacturacionView = () => {
                         <th className="h-12 px-4 text-left align-middle font-medium">Proyecto</th>
                         <th className="h-12 px-4 text-left align-middle font-medium">Fecha</th>
                         <th className="h-12 px-4 text-left align-middle font-medium">Cliente</th>
+                        <th className="h-12 px-4 text-left align-middle font-medium">Estado</th>
                         <th className="h-12 px-4 text-right align-middle font-medium">Cantidad</th>
                       </tr>
                     </thead>
@@ -249,6 +274,15 @@ const FacturacionView = () => {
                                 : new Date(ingreso.fecha).toLocaleDateString()}
                             </td>
                             <td className="p-4 align-middle">{ingreso.cliente || "-"}</td>
+                            <td className="p-4 align-middle">
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold 
+                                ${ingreso.estado === 'pendiente' 
+                                  ? 'bg-amber-50 text-amber-700' 
+                                  : 'bg-green-50 text-green-700'}`}
+                              >
+                                {ingreso.estado === 'pendiente' ? 'Pendiente' : 'Cobrado'}
+                              </span>
+                            </td>
                             <td className="p-4 align-middle text-right font-medium">
                               {ingreso.cantidad.toLocaleString()}€
                             </td>
@@ -256,7 +290,7 @@ const FacturacionView = () => {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                          <td colSpan={7} className="p-8 text-center text-muted-foreground">
                             {loading
                               ? "Cargando ingresos..."
                               : "No hay ingresos registrados."}
@@ -291,6 +325,7 @@ const FacturacionView = () => {
                         <th className="h-12 px-4 text-left align-middle font-medium">Proyecto</th>
                         <th className="h-12 px-4 text-left align-middle font-medium">Fecha</th>
                         <th className="h-12 px-4 text-left align-middle font-medium">Proveedor</th>
+                        <th className="h-12 px-4 text-left align-middle font-medium">Estado</th>
                         <th className="h-12 px-4 text-right align-middle font-medium">Cantidad</th>
                       </tr>
                     </thead>
@@ -316,6 +351,15 @@ const FacturacionView = () => {
                                 : new Date(gasto.fecha).toLocaleDateString()}
                             </td>
                             <td className="p-4 align-middle">{gasto.proveedor || "-"}</td>
+                            <td className="p-4 align-middle">
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold 
+                                ${gasto.estado === 'pendiente' 
+                                  ? 'bg-amber-50 text-amber-700' 
+                                  : 'bg-green-50 text-green-700'}`}
+                              >
+                                {gasto.estado === 'pendiente' ? 'Pendiente' : 'Pagado'}
+                              </span>
+                            </td>
                             <td className="p-4 align-middle text-right font-medium">
                               {gasto.cantidad.toLocaleString()}€
                             </td>
@@ -323,7 +367,7 @@ const FacturacionView = () => {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                          <td colSpan={7} className="p-8 text-center text-muted-foreground">
                             {loading
                               ? "Cargando gastos..."
                               : "No hay gastos registrados."}
@@ -346,6 +390,13 @@ const FacturacionView = () => {
             }}
           />
         </TabsContent>
+        
+        <TabsContent value="pendientes" className="mt-6">
+          <FacturasPendientes 
+            ingresos={ingresos}
+            gastos={gastos}
+          />
+        </TabsContent>
       </Tabs>
 
       {showIngresosForm && (
@@ -365,7 +416,10 @@ const FacturacionView = () => {
       {showProjectForm && (
         <ProjectForm
           isOpen={showProjectForm}
-          onClose={() => setShowProjectForm(false)}
+          onClose={() => {
+            setShowProjectForm(false);
+            setSelectedProject(null);
+          }}
           projectId={selectedProject}
         />
       )}

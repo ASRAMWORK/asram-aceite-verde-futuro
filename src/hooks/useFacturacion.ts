@@ -36,6 +36,7 @@ export function useFacturacion() {
           notas: data.notas || '',
           createdAt: data.createdAt,
           categoria: data.categoria || data.tipo || '', // Use tipo as fallback
+          estado: data.estado || 'cobrada', // Nuevo campo para estado de factura
         });
       });
       
@@ -60,6 +61,7 @@ export function useFacturacion() {
           notas: data.notas || '',
           createdAt: data.createdAt,
           categoria: data.categoria || data.tipo || '', // Use tipo as fallback
+          estado: data.estado || 'pagada', // Nuevo campo para estado de factura
         });
       });
       
@@ -81,7 +83,8 @@ export function useFacturacion() {
         categoria: data.categoria || data.tipo || '',
         origen: data.origen || '', // ProjectId
         fecha: data.fecha || new Date(),
-        createdAt: serverTimestamp() // Ensure createdAt is always set
+        createdAt: serverTimestamp(), // Ensure createdAt is always set
+        estado: data.estado || 'cobrada' // Asegurar que siempre tiene un estado
       };
       
       await addDoc(collection(db, "ingresos"), ingresoData);
@@ -132,7 +135,8 @@ export function useFacturacion() {
         categoria: data.categoria || data.tipo || '',
         tipo: data.tipo || '', // ProjectId if associated with a project
         fecha: data.fecha || new Date(),
-        createdAt: serverTimestamp() // Ensure createdAt is always set
+        createdAt: serverTimestamp(), // Ensure createdAt is always set
+        estado: data.estado || 'pagada' // Asegurar que siempre tiene un estado
       };
       
       await addDoc(collection(db, "gastos"), gastoData);
@@ -171,6 +175,24 @@ export function useFacturacion() {
     } catch (err) {
       console.error("Error eliminando gasto:", err);
       toast.error("Error al eliminar el gasto");
+      return false;
+    }
+  };
+
+  // Actualizar el estado de una factura
+  const updateFacturaEstado = async (id: string, tipo: 'ingreso' | 'gasto', nuevoEstado: string) => {
+    try {
+      const collectionName = tipo === 'ingreso' ? 'ingresos' : 'gastos';
+      await updateDoc(doc(db, collectionName, id), {
+        estado: nuevoEstado,
+        updatedAt: serverTimestamp()
+      });
+      toast.success(`${tipo === 'ingreso' ? 'Ingreso' : 'Gasto'} actualizado correctamente`);
+      await loadFacturacionData();
+      return true;
+    } catch (err) {
+      console.error(`Error actualizando ${tipo}:`, err);
+      toast.error(`Error al actualizar el ${tipo}`);
       return false;
     }
   };
@@ -219,7 +241,7 @@ export function useFacturacion() {
     
     // Calcular pendiente de cobro (facturas marcadas como pendientes)
     const pendienteCobro = ingresos
-      .filter(i => (i.notas?.toLowerCase().includes('pendiente') || i.concepto?.toLowerCase().includes('pendiente')))
+      .filter(i => i.estado === 'pendiente')
       .reduce((sum, i) => sum + i.cantidad, 0);
     
     return {
@@ -250,6 +272,7 @@ export function useFacturacion() {
     addGasto,
     updateGasto,
     deleteGasto,
+    updateFacturaEstado,
     getFinancialSummary
   };
 }

@@ -26,7 +26,7 @@ export function useProjects() {
   const [error, setError] = useState<string | null>(null);
   const { ingresos, gastos } = useFacturacion();
 
-  const loadProjectsData = async () => {
+  const loadProjectsData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -45,8 +45,8 @@ export function useProjects() {
           cliente: data.cliente || '',
           responsable: data.responsable || '',
           presupuesto: data.presupuesto || 0,
-          fechaInicio: data.fechaInicio,
-          fechaFin: data.fechaFin,
+          fechaInicio: data.fechaInicio ? new Date(data.fechaInicio.seconds * 1000) : undefined,
+          fechaFin: data.fechaFin ? new Date(data.fechaFin.seconds * 1000) : undefined,
           estado: data.estado || 'activo',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -65,8 +65,8 @@ export function useProjects() {
         
         // Calcular rentabilidad
         const balance = projectIngresos - projectGastos;
-        const rentabilidad = project.presupuesto && project.presupuesto > 0 
-          ? (balance / project.presupuesto) * 100 
+        const rentabilidad = projectIngresos > 0 
+          ? (balance / projectIngresos) * 100 
           : 0;
         
         return {
@@ -82,11 +82,11 @@ export function useProjects() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [ingresos, gastos]);
 
   useEffect(() => {
     loadProjectsData();
-  }, [ingresos, gastos]);
+  }, [loadProjectsData]);
 
   const getProjectById = useCallback(async (id: string): Promise<Project | null> => {
     try {
@@ -101,8 +101,8 @@ export function useProjects() {
           cliente: data.cliente || '',
           responsable: data.responsable || '',
           presupuesto: data.presupuesto || 0,
-          fechaInicio: data.fechaInicio,
-          fechaFin: data.fechaFin,
+          fechaInicio: data.fechaInicio ? new Date(data.fechaInicio.seconds * 1000) : undefined,
+          fechaFin: data.fechaFin ? new Date(data.fechaFin.seconds * 1000) : undefined,
           estado: data.estado || 'activo',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -117,8 +117,8 @@ export function useProjects() {
           .reduce((sum, g) => sum + g.cantidad, 0);
         
         const balance = projectIngresos - projectGastos;
-        const rentabilidad = project.presupuesto && project.presupuesto > 0 
-          ? (balance / project.presupuesto) * 100 
+        const rentabilidad = projectIngresos > 0
+          ? (balance / projectIngresos) * 100 
           : 0;
         
         return {
@@ -129,7 +129,7 @@ export function useProjects() {
       return null;
     } catch (err) {
       console.error("Error obteniendo proyecto:", err);
-      throw err;
+      return null; // Return null instead of throwing an error
     }
   }, [ingresos, gastos]);
 

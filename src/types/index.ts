@@ -1,4 +1,3 @@
-
 export interface User {
   uid: string;
   email: string | null;
@@ -297,6 +296,7 @@ export interface Ingreso {
   tipo?: string;
   origen?: string;
   numFactura?: string;
+  estado?: 'pendiente' | 'cobrada';
 }
 
 export interface Gasto {
@@ -311,6 +311,7 @@ export interface Gasto {
   updatedAt?: any;
   tipo?: string;
   numFactura?: string;
+  estado?: 'pendiente' | 'pagada';
 }
 
 export interface ChartConfig {
