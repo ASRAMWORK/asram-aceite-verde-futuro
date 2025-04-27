@@ -1,8 +1,7 @@
-
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Award, Hearts, Leaf, Users, Lightbulb, Globe } from "lucide-react";
+import { Award, Heart, Leaf, Users, Lightbulb, Globe } from "lucide-react";
 import { useEffect } from "react";
 
 const Mision = () => {
