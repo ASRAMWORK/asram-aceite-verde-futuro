@@ -10,7 +10,7 @@ const useFacturacion = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Aquí puedes cargar los datos iniciales desde localStorage o una API
+    // Load initial data from localStorage or API
     setLoading(true);
     const storedIngresos = localStorage.getItem('ingresos');
     if (storedIngresos) {
@@ -160,8 +160,7 @@ const useFacturacion = () => {
       });
     }
   };
-  
-  // Add missing function for FacturasPendientes component
+
   const updateFacturaEstado = async (id: string, tipo: 'ingreso' | 'gasto', estado: string) => {
     try {
       if (tipo === 'ingreso') {
@@ -180,14 +179,12 @@ const useFacturacion = () => {
       });
     }
   };
-  
-  // Add financial summary function
+
   const getFinancialSummary = () => {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     
-    // Filter items for the current month
     const ingresosMesFiltrados = ingresos.filter(item => {
       const fecha = item.fecha instanceof Date ? item.fecha : new Date(item.fecha);
       return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
@@ -198,12 +195,10 @@ const useFacturacion = () => {
       return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
     });
     
-    // Calculate totals
     const ingresosMes = ingresosMesFiltrados.reduce((sum, item) => sum + item.cantidad, 0);
     const gastosMes = gastosMesFiltrados.reduce((sum, item) => sum + item.cantidad, 0);
     const balanceMes = ingresosMes - gastosMes;
     
-    // Calculate pending amounts
     const pendienteCobro = ingresos
       .filter(item => item.estado === 'pendiente')
       .reduce((sum, item) => sum + item.cantidad, 0);

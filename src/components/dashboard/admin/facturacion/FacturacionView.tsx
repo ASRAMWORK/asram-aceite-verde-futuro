@@ -27,6 +27,7 @@ import { ProjectsView } from "./ProjectsView";
 import ProjectForm from "./ProjectForm";
 import FacturasPendientes from "./FacturasPendientes";
 import { useProjects } from "@/hooks/useProjects";
+import { toast } from "sonner";
 
 const FacturacionView = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -35,9 +36,9 @@ const FacturacionView = () => {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
-  const { ingresos, gastos, loading, getFinancialSummary } = useFacturacion();
+  const { ingresos, gastos, loading, getFinancialSummary, addIngreso, addGasto } = useFacturacion();
   const { ingresosMes, gastosMes, balanceMes, pendienteCobro } = getFinancialSummary();
-  const { addProject, updateProject, getProjectById, addIngreso, addGasto } = useProjects();
+  const { addProject, updateProject, getProjectById } = useProjects();
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();

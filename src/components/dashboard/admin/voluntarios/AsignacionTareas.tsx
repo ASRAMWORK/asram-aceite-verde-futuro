@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, Clock, FileText } from "lucide-react";
 import { useTareas } from "@/hooks/useTareas";
 import type { Voluntario, Tarea } from "@/types";
+import { toast } from "react-toastify";
 
 interface AsignacionTareasProps {
   voluntarios: Voluntario[];
@@ -20,7 +21,7 @@ interface AsignacionTareasProps {
 const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
   const [open, setOpen] = useState(false);
   const [selectedVoluntario, setSelectedVoluntario] = useState("");
-  const { tareas, loading, addTarea, updateTarea, deleteTarea } = useTareas();
+  const { tareas, loading, addTarea, updateTarea, deleteTarea, loadTareas } = useTareas();
   const form = useForm();
 
   const handleAddTarea = (data: any) => {
@@ -44,6 +45,20 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
       completada,
       fechaCompletada: completada ? new Date() : null
     });
+  };
+
+  const handleCompletarTarea = async (tareaId: string) => {
+    try {
+      await updateTarea(tareaId, {
+        estado: "completada",
+        completada: true,
+        fechaFin: new Date()
+      });
+      toast.success("Tarea completada correctamente");
+      loadTareas();
+    } catch (error) {
+      toast.error("Error al completar la tarea");
+    }
   };
 
   const prioridadClass = (prioridad: string) => {
@@ -238,6 +253,14 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
                         className="text-red-500 hover:text-red-700"
                       >
                         Eliminar
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleCompletarTarea(tarea.id)}
+                        className="text-green-500 hover:text-green-700"
+                      >
+                        Completar
                       </Button>
                     </TableCell>
                   </TableRow>

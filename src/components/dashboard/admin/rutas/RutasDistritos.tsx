@@ -355,6 +355,46 @@ const RutasDistritos = () => {
     });
   };
 
+  const handleCrearRuta = async () => {
+    if (!nombreRuta) {
+      toast.error('Debe asignar un nombre a la ruta');
+      return;
+    }
+    
+    if (puntosSeleccionados.length === 0) {
+      toast.error('Debe seleccionar al menos un punto verde');
+      return;
+    }
+    
+    const nuevaRuta: Omit<Ruta, "id"> = {
+      nombre: nombreRuta,
+      distrito: puntosSeleccionados[0]?.distrito || 'Varios',
+      barrios: Array.from(new Set(puntosSeleccionados.map(p => p.barrio))),
+      fecha: new Date(fechaRecogida),
+      clientes: puntosSeleccionados.map(p => ({
+        id: p.id,
+        nombre: `${p.direccion} (${p.barrio})`,
+        direccion: p.direccion,
+        litros: 0
+      })),
+      puntosRecogida: puntosSeleccionados.length,
+      distanciaTotal: 0,
+      tiempoEstimado: 0,
+      frecuencia: 'unica',
+      puntos: [],
+      completada: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await addRuta(nuevaRuta);
+    setIsOpen(false);
+    setNombreRuta("");
+    setFechaRecogida(format(new Date(), "yyyy-MM-dd"));
+    setPuntosSeleccionados([]);
+    toast.success('Ruta creada correctamente');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">

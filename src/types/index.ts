@@ -1,3 +1,4 @@
+
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -439,6 +440,20 @@ export interface ComunidadVecinos {
   email: string;
   createdAt: any;
   updatedAt: any;
+  // Additional fields for TypeScript errors
+  cif?: string;
+  distrito?: string;
+  barrio?: string;
+  numeroPorteria?: number;
+  totalViviendas?: number;
+  nombreAdministracion?: string;
+  correoContacto?: string;
+  litrosRecogidos?: number;
+  beneficiosMedioambientales?: {
+    co2?: number;
+    agua?: number;
+    arboles?: number;
+  };
 }
 
 export interface Tarea {
@@ -493,6 +508,16 @@ export interface UserProfile {
   codigoPostal: string;
   createdAt: any;
   updatedAt: any;
+  // Additional fields for TypeScript errors
+  nombreAdministracion?: string;
+  email?: string;
+  litrosAportados?: number;
+  puntosVerdes?: number;
+  role?: string;
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
 }
 
 export interface TrabajadorFormProps {
@@ -506,15 +531,21 @@ export interface TrabajadorFormProps {
 export interface IngresosFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit?: (data: any) => Promise<void>;
-  onCancel?: () => void;
+  onSubmit: (data: any) => Promise<void>;
+  onCancel: () => void;
   initialData?: any;
 }
 
 export interface GastoFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit?: (data: any) => Promise<void>;
+  onSubmit: (data: any) => Promise<void>;
+  onCancel: () => void;
+  initialData?: any;
+}
+
+export interface ClienteFormProps {
+  onSubmit: (data: any) => Promise<void>;
   onCancel?: () => void;
   initialData?: any;
 }
