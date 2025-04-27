@@ -42,7 +42,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
   const [loading, setLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const { ingresos, gastos } = useFacturacion();
-  const { getProjectById } = useProjects();
+  const { getProjectById, addProject, updateProject } = useProjects();
   const [project, setProject] = useState<Partial<Project> | null>(null);
   
   const form = useForm<FormData>({
@@ -87,8 +87,8 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         cliente: project.cliente || "",
         responsable: project.responsable || "",
         presupuesto: project.presupuesto || 0,
-        fechaInicio: project.fechaInicio || undefined,
-        fechaFin: project.fechaFin || undefined,
+        fechaInicio: project.fechaInicio,
+        fechaFin: project.fechaFin,
         estado: project.estado || "activo",
       });
     } else {
@@ -108,10 +108,15 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
   const handleSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      await onSubmit({
-        ...data,
-        id: project?.id || undefined,
-      });
+      if (project?.id) {
+        // Update existing project
+        await updateProject(project.id, data);
+        toast.success("Proyecto actualizado correctamente");
+      } else {
+        // Create new project
+        await addProject(data);
+        toast.success("Proyecto creado correctamente");
+      }
       handleDialogClose();
     } catch (error) {
       console.error("Error al guardar el proyecto:", error);
@@ -379,7 +384,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
                   </div>
                 )}
                 
-                <DialogFooter className="pt-4 gap-2">
+                <DialogFooter className="pt-4 gap-2 flex flex-row justify-end">
                   <Button 
                     type="button" 
                     variant="outline"
