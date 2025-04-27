@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, where, increment } from 'firebase/firestore';
 import { toast } from 'sonner';
 import type { Ruta, Recogida } from '@/types';
 

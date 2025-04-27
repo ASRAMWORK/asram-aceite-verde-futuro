@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -517,10 +518,6 @@ const RutasDistritos = () => {
       </Card>
 
       <Dialog open={isAddingRuta} onOpenChange={setIsAddingRuta}>
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-          <Plus className="mr-2 h-4 w-4" />
-          Crear Ruta
-        </Button>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Crear nueva ruta</DialogTitle>
@@ -715,16 +712,16 @@ const RutasDistritos = () => {
         </DialogContent>
       </Dialog>
       
-      <Button variant="outline" onClick={() => alert("Exportando rutas a Excel. Esta función estará disponible próximamente.")}>
-        <FileSpreadsheet className="mr-2 h-4 w-4" />
-        Excel
-      </Button>
-      <Button variant="outline" onClick={() => alert("Exportando rutas a PDF. Esta función estará disponible próximamente.")}>
-        <FileText className="mr-2 h-4 w-4" />
-        PDF
-      </Button>
-    </div>
-      
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={() => alert("Exportando rutas a Excel. Esta función estará disponible próximamente.")}>
+          <FileSpreadsheet className="mr-2 h-4 w-4" />
+          Excel
+        </Button>
+        <Button variant="outline" onClick={() => alert("Exportando rutas a PDF. Esta función estará disponible próximamente.")}>
+          <FileText className="mr-2 h-4 w-4" />
+          PDF
+        </Button>
+      </div>
       
       <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
         <DialogContent className="sm:max-w-[800px]">
