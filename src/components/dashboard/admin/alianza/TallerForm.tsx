@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AlianzaVerde, TallerProgramado } from "@/types";
+import { format } from "date-fns";
 
 interface TallerFormProps {
   centros: AlianzaVerde[];
@@ -103,7 +104,14 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
               <FormItem>
                 <FormLabel>Fecha del Taller</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input 
+                    type="date" 
+                    {...field}
+                    value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
+                    onChange={(e) => {
+                      field.onChange(e.target.value ? new Date(e.target.value) : null);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
