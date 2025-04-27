@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -124,9 +125,23 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
     }
   };
 
+  // Función para manejar el cierre del diálogo principal asegurando que también se cierre el Sheet
+  const handleDialogClose = () => {
+    setShowDetails(false);
+    onClose();
+  };
+
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => {
+        if (!open) {
+          // Asegurar que el Sheet también se cierre antes de cerrar el Dialog principal
+          setShowDetails(false);
+          setTimeout(() => {
+            onClose();
+          }, 100);
+        }
+      }}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{project?.id ? "Editar proyecto" : "Nuevo proyecto"}</DialogTitle>
@@ -298,7 +313,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
               )}
               
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+                <Button type="button" variant="outline" onClick={handleDialogClose} disabled={loading}>
                   Cancelar
                 </Button>
                 <Button type="submit" className="bg-asram hover:bg-asram-700" disabled={loading}>
@@ -310,6 +325,7 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         </DialogContent>
       </Dialog>
       
+      {/* Separamos completamente este Sheet del Dialog para evitar conflictos */}
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent className="w-[90%] md:w-[75%] sm:max-w-none overflow-y-auto">
           <SheetHeader className="pb-4">
