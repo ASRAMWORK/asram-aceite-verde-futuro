@@ -89,12 +89,24 @@ export function useRecogidas() {
   
   const completeRecogida = async (id: string, litrosRecogidos: number) => {
     try {
+      const recogida = recogidas.find(r => r.id === id);
+      if (!recogida) throw new Error('Recogida no encontrada');
+
       await updateDoc(doc(db, "recogidas", id), {
         completada: true,
         litrosRecogidos,
         fechaCompletada: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
+
+      // Update district statistics
+      const statsRef = doc(db, "estadisticas", recogida.distrito || 'general');
+      await updateDoc(statsRef, {
+        litrosTotales: increment(litrosRecogidos),
+        recogidasCompletadas: increment(1),
+        updatedAt: serverTimestamp()
+      });
+
       toast.success("Recogida completada correctamente");
       await loadRecogidasData();
       return true;

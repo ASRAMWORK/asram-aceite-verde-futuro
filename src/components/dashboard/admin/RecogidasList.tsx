@@ -10,108 +10,129 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Calendar, Clock, User } from 'lucide-react';
-import { Recogida } from '@/types';
-import { format, isValid } from 'date-fns';
+import { Check, Eye } from 'lucide-react';
+import { format } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RecogidasListProps {
-  recogidas: Recogida[];
+  recogidas: any[];
+  onCompleteRecogida?: (id: string) => void;
+  showActions?: boolean;
 }
 
-const RecogidasList: React.FC<RecogidasListProps> = ({ recogidas }) => {
-  const formatDate = (date: Date | string | null | undefined) => {
-    if (!date) return "-";
-    
-    try {
-      const dateObj = typeof date === 'string' ? new Date(date) : date;
-      
-      // Check if the date is valid before formatting
-      if (!dateObj || !isValid(dateObj)) {
-        return "-";
-      }
-      
-      return format(dateObj, 'dd/MM/yyyy');
-    } catch (error) {
-      console.error("Error formatting date:", error, date);
-      return "-";
-    }
+const RecogidasList = ({ recogidas, onCompleteRecogida, showActions = true }: RecogidasListProps) => {
+  const [selectedRecogidaId, setSelectedRecogidaId] = React.useState<string | null>(null);
+
+  const handleCompleteClick = (id: string) => {
+    setSelectedRecogidaId(id);
   };
 
-  const getBadgeColor = (estado: string) => {
-    switch (estado) {
-      case 'pendiente':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'realizada':
-        return 'bg-green-100 text-green-800';
-      case 'cancelada':
-        return 'bg-red-100 text-red-800';
-      case 'programado':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const confirmComplete = () => {
+    if (selectedRecogidaId && onCompleteRecogida) {
+      onCompleteRecogida(selectedRecogidaId);
     }
+    setSelectedRecogidaId(null);
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Dirección</TableHead>
-          <TableHead>Fecha</TableHead>
-          <TableHead>Hora</TableHead>
-          <TableHead>Distrito</TableHead>
-          <TableHead>Estado</TableHead>
-          <TableHead>Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {recogidas.length === 0 ? (
+    <>
+      <Table>
+        <TableHeader className="bg-slate-50">
           <TableRow>
-            <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-              No hay recogidas programadas
-            </TableCell>
+            <TableHead>ID</TableHead>
+            <TableHead>Fecha</TableHead>
+            <TableHead>Distrito</TableHead>
+            <TableHead>Dirección</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
-        ) : (
-          recogidas.map((recogida) => (
-            <TableRow key={recogida.id}>
-              <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-medium">{recogida.nombreLugar}</span>
-                  <span className="text-sm text-gray-500 flex items-center">
-                    <MapPin className="h-3 w-3 mr-1" /> {recogida.direccion}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 text-gray-500 mr-2" />
-                  {formatDate(recogida.fecha)}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 text-gray-500 mr-2" />
-                  {recogida.hora || recogida.horaInicio || "-"}
-                </div>
-              </TableCell>
-              <TableCell>
-                {recogida.distrito} / {recogida.barrio}
-              </TableCell>
-              <TableCell>
-                <Badge className={getBadgeColor(recogida.estado)}>
-                  {recogida.estado.charAt(0).toUpperCase() + recogida.estado.slice(1)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Button variant="outline" size="sm">
-                  Ver detalle
-                </Button>
+        </TableHeader>
+        <TableBody>
+          {recogidas.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                No hay recogidas {showActions ? 'pendientes' : 'completadas'}
               </TableCell>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          ) : (
+            recogidas.map((recogida) => (
+              <TableRow key={recogida.id} className="hover:bg-slate-50">
+                <TableCell className="font-medium">
+                  {recogida.id.substring(0, 6)}
+                </TableCell>
+                <TableCell>
+                  {recogida.fecha ? format(new Date(recogida.fecha), 'dd/MM/yyyy') : 'N/A'}
+                </TableCell>
+                <TableCell>{recogida.distrito}</TableCell>
+                <TableCell>{recogida.direccion}</TableCell>
+                <TableCell>
+                  <Badge 
+                    className={
+                      recogida.completada 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-yellow-100 text-yellow-800"
+                    }
+                  >
+                    {recogida.completada ? 'Completada' : 'Pendiente'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-[#ee970d] border-[#ee970d]/30 hover:bg-[#ee970d]/10"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Detalles
+                    </Button>
+                    
+                    {showActions && !recogida.completada && (
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="text-green-600 border-green-300 hover:bg-green-50"
+                        onClick={() => handleCompleteClick(recogida.id)}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Completar
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+
+      <AlertDialog open={!!selectedRecogidaId} onOpenChange={() => setSelectedRecogidaId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar recogida</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Está seguro de que desea marcar esta recogida como completada?
+              Esta acción moverá el registro a recogidas realizadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmComplete}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
