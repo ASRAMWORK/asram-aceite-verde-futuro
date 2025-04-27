@@ -1,4 +1,5 @@
 
+
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -31,6 +32,7 @@ export interface Usuario {
   frecuenciaRecogida?: string;
   numViviendas?: number;
   numContenedores?: number;
+  nombreAdministracion?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -149,6 +151,9 @@ export interface Ingreso {
   total: number;
   metodoPago: string;
   notas: string;
+  estado?: string;
+  categoria?: string;
+  origen?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -163,6 +168,8 @@ export interface Gasto {
   total: number;
   metodoPago: string;
   notas: string;
+  estado?: string;
+  categoria?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -184,6 +191,14 @@ export interface AlianzaEscolarType {
   email: string;
   contacto: string;
   activo: boolean;
+  distrito?: string;
+  barrio?: string;
+  numEstudiantes?: number;
+  talleresRealizados?: number;
+  certificaciones?: number | string[];
+  fechaInicio?: Date;
+  estado?: string;
+  litrosRecolectados?: number;
   createdAt: any;
   updatedAt: any;
 }
@@ -207,6 +222,16 @@ export interface CalleApadrinadaType {
   email: string;
   contacto: string;
   activo: boolean;
+  distrito?: string;
+  barrio?: string;
+  padrino?: string;
+  precio?: number;
+  fechaInicio?: any;
+  fechaRenovacion?: any;
+  estado?: string;
+  numContenedores?: number;
+  longitud?: number;
+  tipoCliente?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -273,3 +298,19 @@ export interface Producto {
   createdAt: any;
   updatedAt: any;
 }
+
+export interface TallerProgramado {
+  id: string;
+  titulo: string;
+  centro: string;
+  fechaHora: Date;
+  duracion: number;
+  numAsistentes: number;
+  materiales: string[];
+  instructor: string;
+  estado: "programado" | "completado" | "cancelado";
+  observaciones?: string;
+  createdAt: any;
+  updatedAt: any;
+}
+

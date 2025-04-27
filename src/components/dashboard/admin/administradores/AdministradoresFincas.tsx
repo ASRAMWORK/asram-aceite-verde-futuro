@@ -54,11 +54,11 @@ const AdministradoresFincas = () => {
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                           <Building className="h-4 w-4 text-gray-500" />
-                          {admin.nombreAdministracion || "Sin nombre"}
+                          {admin.nombreAdministracion || "No especificado"}
                         </div>
                       </TableCell>
                       <TableCell>
-                        {admin.nombre} {admin.apellidos}
+                        {admin.nombre} {admin.apellido}
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -128,7 +129,8 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
         numViviendas: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numViviendas?.toString() || "0") : undefined,
         numContenedores: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numContenedores?.toString() || "0") : undefined,
         frecuenciaRecogida: formData.frecuenciaRecogida,
-        createdAt: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       const usuarioCreado = await addUsuario(nuevoUsuario);
@@ -156,7 +158,8 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
           numContenedores: data.numContenedores || 0,
           litrosRecogidos: 0,
           administradorId: null,
-          createdAt: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
         
         await addPuntoVerde(nuevoPuntoVerde);

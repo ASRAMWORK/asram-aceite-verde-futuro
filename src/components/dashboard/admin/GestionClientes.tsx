@@ -256,14 +256,29 @@ const GestionClientes = () => {
           if (formData.telefono) updateData.telefono = formData.telefono;
         } else if (formData.numContenedores && formData.numContenedores > 0) {
           const nuevoPuntoVerde: Omit<PuntoVerde, "id"> = {
+            nombre: selectedUsuario.nombre || formData.nombre || "",
+            direccion: formData.direccion || selectedUsuario.direccion || "",
+            ciudad: "",
+            provincia: "",
+            codigoPostal: "",
+            pais: "España",
+            latitud: 0,
+            longitud: 0,
+            tipo: "comunidad",
+            descripcion: "",
+            horario: "",
+            telefono: formData.telefono || selectedUsuario.telefono || "",
+            email: selectedUsuario.email || "",
+            contacto: selectedUsuario.nombre || "",
+            activo: true,
             distrito: formData.distrito || selectedUsuario.distrito || "",
             barrio: formData.barrio || selectedUsuario.barrio || "",
-            direccion: formData.direccion || selectedUsuario.direccion || "",
             numViviendas: formData.numViviendas || 0,
             numContenedores: formData.numContenedores || 0,
-            telefono: formData.telefono || selectedUsuario.telefono || "",
             litrosRecogidos: 0,
-            administradorId: null
+            administradorId: null,
+            createdAt: new Date(),
+            updatedAt: new Date()
           };
           
           await addPuntoVerde(nuevoPuntoVerde);

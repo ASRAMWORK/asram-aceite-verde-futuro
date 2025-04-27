@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -157,18 +156,33 @@ const PuntosVerdes = () => {
     }
 
     try {
-      const nuevoPunto: Omit<PuntoVerde, 'id'> = {
-        distrito: formData.distrito,
-        barrio: formData.barrio || "",
-        direccion: formData.direccion,
-        numViviendas: Number(formData.numViviendas) || 0,
-        numContenedores: Number(formData.numContenedores) || 0,
+      const nuevoPuntoVerde: Omit<PuntoVerde, "id"> = {
+        nombre: formData.nombre || "",
+        direccion: formData.direccion || "",
+        ciudad: formData.ciudad || "",
+        provincia: formData.provincia || "",
+        codigoPostal: formData.codigoPostal || "",
+        pais: formData.pais || "España",
+        latitud: formData.latitud || 0,
+        longitud: formData.longitud || 0,
+        tipo: formData.tipo || "comunidad",
+        descripcion: formData.descripcion || "",
+        horario: formData.horario || "",
         telefono: formData.telefono || "",
-        litrosRecogidos: Number(formData.litrosRecogidos) || 0,
-        administradorId: null
+        email: formData.email || "",
+        contacto: formData.contacto || "",
+        activo: true,
+        distrito: formData.distrito || "",
+        barrio: formData.barrio || "",
+        numViviendas: formData.numViviendas || 0,
+        numContenedores: formData.numContenedores || 0,
+        litrosRecogidos: 0,
+        administradorId: formData.administradorId || null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
-      await addPuntoVerde(nuevoPunto);
+      await addPuntoVerde(nuevoPuntoVerde);
       
       setIsAddingPoint(false);
       resetForm();

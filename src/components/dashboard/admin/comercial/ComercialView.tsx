@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Table,
@@ -50,7 +49,7 @@ const ComercialView = () => {
             <TableBody>
               {comerciales.map((comercial) => (
                 <TableRow key={comercial.id}>
-                  <TableCell>{comercial.nombre} {comercial.apellidos}</TableCell>
+                  <TableCell>{comercial.nombre} {comercial.apellido}</TableCell>
                   <TableCell>{comercial.email}</TableCell>
                   <TableCell>{comercial.telefono}</TableCell>
                   <TableCell>
