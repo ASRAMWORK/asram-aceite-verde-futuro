@@ -14,6 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,7 +50,8 @@ import {
   Plus, 
   Route, 
   Trash2, 
-  Users 
+  Users,
+  Eye
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -75,7 +77,7 @@ type RutaFormData = {
   hora: string;
   recogedores: string;
   barrios: string[];
-  clientes: { id: string, nombre: string, direccion: string, litros?: number }[];
+  clientes: { id: string, nombre: string, direccion: string, litros?: number, numViviendas?: number, numContenedores?: number }[];
   completada: boolean;
   puntosRecogida: number;
   distanciaTotal: number;
@@ -260,6 +262,7 @@ const RutasDistritos = () => {
     
     await updateRutaRecogida(rutaId, clienteId, litros);
     
+    // Update the local state with new litros value
     setSelectedRuta(prev => {
       if (!prev) return prev;
       return {
@@ -270,11 +273,12 @@ const RutasDistritos = () => {
       };
     });
     
-    const updatedClientes = selectedRuta.clientes?.map(c => 
-      c.id === clienteId ? { ...c, litros } : c
-    ) || [];
+    // Calculate new total
+    const nuevoTotal = selectedRuta.clientes?.reduce(
+      (total, c) => total + (c.id === clienteId ? litros : (c.litros || 0)), 
+      0
+    ) || 0;
     
-    const nuevoTotal = updatedClientes.reduce((total, c) => total + (c.litros || 0), 0);
     setLitrosTotales(nuevoTotal);
   };
 
@@ -342,224 +346,21 @@ const RutasDistritos = () => {
             Organiza y gestiona las rutas de recogida por distritos
           </p>
         </div>
-        <div className="flex gap-2">
-          <Dialog open={isAddingRuta} onOpenChange={setIsAddingRuta}>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-              <Plus className="mr-2 h-4 w-4" />
-              Crear Ruta
-            </Button>
-            <DialogContent className="sm:max-w-[800px]">
-              <DialogHeader>
-                <DialogTitle>Crear nueva ruta</DialogTitle>
-                <DialogDescription>
-                  Programa una ruta de recogida para un distrito
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="grid gap-6 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="distrito" className="font-medium">Distrito</Label>
-                    <Select
-                      value={formData.distrito}
-                      onValueChange={(value) => handleSelectChange("distrito", value)}
-                    >
-                      <SelectTrigger className="bg-white">
-                        <SelectValue placeholder="Selecciona distrito" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {distritos.map((distrito) => (
-                          <SelectItem key={distrito} value={distrito}>
-                            {distrito} ({clientesPorDistrito[distrito] || 0} clientes)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="fecha" className="font-medium">Fecha de la ruta</Label>
-                    <Input
-                      id="fecha"
-                      name="fecha"
-                      type="date"
-                      value={formData.fecha}
-                      onChange={handleInputChange}
-                      className="bg-white"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="hora" className="font-medium">Hora de inicio</Label>
-                    <Input
-                      id="hora"
-                      name="hora"
-                      type="time"
-                      value={formData.hora}
-                      onChange={handleInputChange}
-                      className="bg-white"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="nombre" className="font-medium">Nombre de la ruta</Label>
-                    <Input
-                      id="nombre"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleInputChange}
-                      placeholder="Ej: Ruta Centro - 15/05/2025"
-                      className="bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="recogedores" className="font-medium">Personal asignado</Label>
-                  <Input
-                    id="recogedores"
-                    name="recogedores"
-                    value={formData.recogedores}
-                    onChange={handleInputChange}
-                    placeholder="Ej: Juan Pérez, María López"
-                    className="bg-white"
-                  />
-                </div>
-                
-                {formData.distrito && (
-                  <div className="border rounded-lg p-4 bg-slate-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <Label className="text-lg font-semibold">Clientes en el distrito ({clientesPorDistrito[formData.distrito] || 0})</Label>
-                      <Badge className="bg-purple-100 text-purple-800">{selectedClientes.length} seleccionados</Badge>
-                    </div>
-                    
-                    <div className="max-h-[400px] overflow-y-auto border rounded bg-white">
-                      <Table>
-                        <TableHeader className="bg-slate-50 sticky top-0">
-                          <TableRow>
-                            <TableHead className="w-[50px]">✓</TableHead>
-                            <TableHead>Cliente</TableHead>
-                            <TableHead>Dirección</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {usuarios
-                            .filter(u => u.distrito === formData.distrito)
-                            .map((cliente) => (
-                              <TableRow 
-                                key={cliente.id}
-                                className="cursor-pointer hover:bg-slate-50"
-                                onClick={() => {
-                                  const isSelected = selectedClientes.includes(cliente.id);
-                                  if (isSelected) {
-                                    setSelectedClientes(selectedClientes.filter(id => id !== cliente.id));
-                                  } else {
-                                    setSelectedClientes([...selectedClientes, cliente.id]);
-                                  }
-                                }}
-                              >
-                                <TableCell>
-                                  <div className={`h-4 w-4 rounded border ${
-                                    selectedClientes.includes(cliente.id) 
-                                      ? 'bg-purple-600 border-purple-600' 
-                                      : 'border-gray-300'
-                                  }`}>
-                                    {selectedClientes.includes(cliente.id) && (
-                                      <Check className="h-3 w-3 text-white" />
-                                    )}
-                                  </div>
-                                </TableCell>
-                                <TableCell className="font-medium">{cliente.nombre}</TableCell>
-                                <TableCell>{cliente.direccion || 'Sin dirección'}</TableCell>
-                              </TableRow>
-                            ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                    
-                    <div className="mt-4 flex justify-end">
-                      <Button 
-                        variant="outline" 
-                        onClick={handleAddCliente}
-                        disabled={selectedClientes.length === 0}
-                      >
-                        Añadir seleccionados
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                
-                {formData.clientes.length > 0 && (
-                  <div className="border rounded-lg p-4 bg-slate-50">
-                    <Label className="text-lg font-semibold mb-4 block">Clientes seleccionados ({formData.clientes.length})</Label>
-                    <Table>
-                      <TableHeader className="bg-slate-50">
-                        <TableRow>
-                          <TableHead>Cliente</TableHead>
-                          <TableHead>Dirección</TableHead>
-                          <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {formData.clientes.map((cliente, index) => (
-                          <TableRow key={cliente.id}>
-                            <TableCell className="font-medium">{cliente.nombre}</TableCell>
-                            <TableCell>{cliente.direccion}</TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleRemoveCliente(index)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </div>
-
-              <DialogFooter>
-                <Button variant="outline" onClick={() => {
-                  setIsAddingRuta(false);
-                  resetForm();
-                }}>
-                  Cancelar
-                </Button>
-                <Button 
-                  onClick={handleSubmit} 
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
-                  disabled={formData.clientes.length === 0}
-                >
-                  Crear Ruta
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          
-          <Button variant="outline" onClick={() => alert("Exportando rutas a Excel. Esta función estará disponible próximamente.")}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" />
-            Excel
-          </Button>
-          <Button variant="outline" onClick={() => alert("Exportando rutas a PDF. Esta función estará disponible próximamente.")}>
-            <FileText className="mr-2 h-4 w-4" />
-            PDF
-          </Button>
-        </div>
+        <Button 
+          onClick={() => setIsAddingRuta(true)}
+          className="bg-[#ee970d] hover:bg-[#e08500] text-white"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Crear Ruta
+        </Button>
       </div>
-      
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-white shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-white shadow-sm border-l-4 border-l-[#ee970d]">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
               Rutas Activas
             </CardTitle>
-            <Route className="h-4 w-4 text-purple-500" />
+            <Route className="h-4 w-4 text-[#ee970d]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{rutas.filter(r => !r.completada).length}</div>
@@ -568,12 +369,13 @@ const RutasDistritos = () => {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-white shadow-sm">
+
+        <Card className="bg-white shadow-sm border-l-4 border-l-[#ee970d]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Distritos Cubiertos
             </CardTitle>
-            <MapPin className="h-4 w-4 text-purple-500" />
+            <MapPin className="h-4 w-4 text-[#ee970d]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -584,12 +386,12 @@ const RutasDistritos = () => {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-white shadow-sm">
+        <Card className="bg-white shadow-sm border-l-4 border-l-[#ee970d]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Litros Totales Recogidos
             </CardTitle>
-            <Users className="h-4 w-4 text-purple-500" />
+            <Users className="h-4 w-4 text-[#ee970d]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -633,320 +435,303 @@ const RutasDistritos = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-6">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-slate-50">
-                  <TableRow>
-                    <TableHead className="font-medium">Nombre de la ruta</TableHead>
-                    <TableHead className="font-medium">Distrito</TableHead>
-                    <TableHead className="font-medium">Fecha</TableHead>
-                    <TableHead className="font-medium">Hora</TableHead>
-                    <TableHead className="font-medium">Personal asignado</TableHead>
-                    <TableHead className="font-medium">Nº Clientes</TableHead>
-                    {currentTab === "completadas" && <TableHead className="font-medium">Litros recogidos</TableHead>}
-                    <TableHead className="font-medium">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {displayedRutas.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={currentTab === "completadas" ? 8 : 7} className="text-center py-8 text-muted-foreground">
-                        No hay rutas {currentTab === "pendientes" ? "pendientes" : "completadas"}
+          <Table>
+            <TableHeader className="bg-slate-50">
+              <TableRow>
+                <TableHead className="font-medium">Nombre de la ruta</TableHead>
+                <TableHead className="font-medium">Distrito</TableHead>
+                <TableHead className="font-medium">Fecha</TableHead>
+                <TableHead className="font-medium">Total Viviendas</TableHead>
+                <TableHead className="font-medium">Total Contenedores</TableHead>
+                <TableHead className="font-medium">Nº Clientes</TableHead>
+                {currentTab === "completadas" && (
+                  <TableHead className="font-medium">Litros recogidos</TableHead>
+                )}
+                <TableHead className="font-medium">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {displayedRutas.length === 0 ? (
+                <TableRow>
+                  <TableCell 
+                    colSpan={currentTab === "completadas" ? 8 : 7} 
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    No hay rutas {currentTab === "pendientes" ? "pendientes" : "completadas"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                displayedRutas.map((ruta) => (
+                  <TableRow key={ruta.id} className="hover:bg-slate-50">
+                    <TableCell className="font-medium">{ruta.nombre}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-[#ee970d]/10 text-[#ee970d] border-[#ee970d]">
+                        {ruta.distrito}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{format(new Date(ruta.fecha), "dd/MM/yyyy")}</TableCell>
+                    <TableCell className="font-medium">
+                      {ruta.clientes?.reduce((sum, c) => sum + (c.numViviendas || 0), 0)}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {ruta.clientes?.reduce((sum, c) => sum + (c.numContenedores || 0), 0)}
+                    </TableCell>
+                    <TableCell>{ruta.clientes?.length || 0}</TableCell>
+                    {currentTab === "completadas" && (
+                      <TableCell>
+                        <Badge className="bg-[#ee970d]">
+                          {ruta.litrosTotales || 0}L
+                        </Badge>
                       </TableCell>
-                    </TableRow>
-                  ) : (
-                    displayedRutas.map((ruta) => (
-                      <TableRow key={ruta.id} className="hover:bg-slate-50">
-                        <TableCell className="font-medium">{ruta.nombre}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-slate-50">
-                            {ruta.distrito}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {ruta.fecha 
-                            ? format(new Date(ruta.fecha), "dd/MM/yyyy")
-                            : "No programada"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3 text-slate-400" />
-                            {ruta.hora || "N/A"}
-                          </div>
-                        </TableCell>
-                        <TableCell>{ruta.recogedores}</TableCell>
-                        <TableCell className="font-medium">
-                          {ruta.clientes?.length || clientesPorDistrito[ruta.distrito] || 0}
-                        </TableCell>
-                        {currentTab === "completadas" && (
-                          <TableCell>
-                            <Badge className="bg-purple-100 text-purple-800">
-                              {ruta.litrosTotales || 0}L
-                            </Badge>
-                          </TableCell>
+                    )}
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleOpenEditDialog(ruta)}
+                          className="h-8 px-2 text-[#ee970d] border-[#ee970d]/30 hover:bg-[#ee970d]/10"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          <span className="ml-2">Ver detalles</span>
+                        </Button>
+                        {currentTab === "pendientes" && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleOpenCompleteDialog(ruta)}
+                            className="h-8 px-2 bg-green-50 text-green-600 hover:bg-green-100 border-green-200"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            <span className="ml-2">Completar</span>
+                          </Button>
                         )}
-                        <TableCell>
-                          <div className="flex gap-1">
-                            {currentTab === "pendientes" ? (
-                              <>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleOpenEditDialog(ruta)}
-                                  className="h-8 px-2"
-                                >
-                                  <PenLine className="h-3.5 w-3.5" />
-                                  <span className="sr-only">Editar</span>
-                                </Button>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleOpenCompleteDialog(ruta)}
-                                  className="h-8 px-2 bg-green-50 text-green-600 hover:bg-green-100 border-green-200"
-                                >
-                                  <Check className="h-3.5 w-3.5" />
-                                  <span className="sr-only">Completar</span>
-                                </Button>
-                              </>
-                            ) : (
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleDeleteRuta(ruta.id)}
-                                className="h-8 px-2 bg-red-50 text-red-600 hover:bg-red-100 border-red-200"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                <span className="sr-only">Eliminar</span>
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
-      
-      <Dialog open={isEditingRuta} onOpenChange={setIsEditingRuta}>
-        <DialogContent className="sm:max-w-[600px]">
+
+      <Dialog open={isAddingRuta} onOpenChange={setIsAddingRuta}>
+        <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+          <Plus className="mr-2 h-4 w-4" />
+          Crear Ruta
+        </Button>
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
-            <DialogTitle>Editar ruta</DialogTitle>
+            <DialogTitle>Crear nueva ruta</DialogTitle>
             <DialogDescription>
-              Modifica los datos de la ruta programada
+              Programa una ruta de recogida para un distrito
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="distrito-edit">Distrito</Label>
-              <Select
-                value={formData.distrito}
-                onValueChange={(value) => handleSelectChange("distrito", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona distrito" />
-                </SelectTrigger>
-                <SelectContent>
-                  {distritos.map((distrito) => (
-                    <SelectItem key={distrito} value={distrito}>
-                      {distrito} ({clientesPorDistrito[distrito] || 0} clientes)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="nombre-edit">Nombre de la ruta</Label>
-              <Input
-                id="nombre-edit"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleInputChange}
-                placeholder="Ej: Ruta Centro - 15/05/2025"
-              />
-            </div>
-            
+          
+          <div className="grid gap-6 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="fecha-edit">Fecha de la ruta</Label>
+                <Label htmlFor="distrito" className="font-medium">Distrito</Label>
+                <Select
+                  value={formData.distrito}
+                  onValueChange={(value) => handleSelectChange("distrito", value)}
+                >
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="Selecciona distrito" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {distritos.map((distrito) => (
+                      <SelectItem key={distrito} value={distrito}>
+                        {distrito} ({clientesPorDistrito[distrito] || 0} clientes)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="fecha" className="font-medium">Fecha de la ruta</Label>
                 <Input
-                  id="fecha-edit"
+                  id="fecha"
                   name="fecha"
                   type="date"
                   value={formData.fecha}
                   onChange={handleInputChange}
+                  className="bg-white"
                 />
               </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="hora-edit">Hora de inicio</Label>
+                <Label htmlFor="hora" className="font-medium">Hora de inicio</Label>
                 <Input
-                  id="hora-edit"
+                  id="hora"
                   name="hora"
                   type="time"
                   value={formData.hora}
                   onChange={handleInputChange}
+                  className="bg-white"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="nombre" className="font-medium">Nombre de la ruta</Label>
+                <Input
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleInputChange}
+                  placeholder="Ej: Ruta Centro - 15/05/2025"
+                  className="bg-white"
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="recogedores-edit">Personal asignado</Label>
+              <Label htmlFor="recogedores" className="font-medium">Personal asignado</Label>
               <Input
-                id="recogedores-edit"
+                id="recogedores"
                 name="recogedores"
                 value={formData.recogedores}
                 onChange={handleInputChange}
                 placeholder="Ej: Juan Pérez, María López"
+                className="bg-white"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="barrios-edit">Barrios a recoger</Label>
-              <Input
-                id="barrios-edit"
-                name="barrios"
-                value={formData.barrios.join(", ")}
-                onChange={(e) => {
-                  const value = e.target.value.split(", ").map((barrio) => barrio.trim());
-                  setFormData({
-                    ...formData,
-                    barrios: value
-                  });
-                }}
-                placeholder="Ej: Barrio 1, Barrio 2"
-              />
-            </div>
+            {formData.distrito && (
+              <div className="border rounded-lg p-4 bg-slate-50">
+                <div className="flex items-center justify-between mb-4">
+                  <Label className="text-lg font-semibold">Clientes en el distrito ({clientesPorDistrito[formData.distrito] || 0})</Label>
+                  <Badge className="bg-purple-100 text-purple-800">{selectedClientes.length} seleccionados</Badge>
+                </div>
+                
+                <div className="max-h-[400px] overflow-y-auto border rounded bg-white">
+                  <Table>
+                    <TableHeader className="bg-slate-50 sticky top-0">
+                      <TableRow>
+                        <TableHead className="w-[50px]">✓</TableHead>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead>Dirección</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {usuarios
+                        .filter(u => u.distrito === formData.distrito)
+                        .map((cliente) => (
+                          <TableRow 
+                            key={cliente.id}
+                            className="cursor-pointer hover:bg-slate-50"
+                            onClick={() => {
+                              const isSelected = selectedClientes.includes(cliente.id);
+                              if (isSelected) {
+                                setSelectedClientes(selectedClientes.filter(id => id !== cliente.id));
+                              } else {
+                                setSelectedClientes([...selectedClientes, cliente.id]);
+                              }
+                            }}
+                          >
+                            <TableCell>
+                              <div className={`h-4 w-4 rounded border ${
+                                selectedClientes.includes(cliente.id) 
+                                  ? 'bg-purple-600 border-purple-600' 
+                                  : 'border-gray-300'
+                              }`}>
+                                {selectedClientes.includes(cliente.id) && (
+                                  <Check className="h-3 w-3 text-white" />
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium">{cliente.nombre}</TableCell>
+                            <TableCell>{cliente.direccion || 'Sin dirección'}</TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleAddCliente}
+                    disabled={selectedClientes.length === 0}
+                  >
+                    Añadir seleccionados
+                  </Button>
+                </div>
+              </div>
+            )}
             
-            <div className="space-y-2">
-              <Label htmlFor="clientes-edit">Clientes a recoger</Label>
-              <Input
-                id="clientes-edit"
-                name="clientes"
-                value={formData.clientes.map(c => c.nombre).join(", ")}
-                onChange={handleClientsInputChange}
-                placeholder="Ej: Cliente 1, Cliente 2"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="completada-edit">Ruta completada</Label>
-              <Input
-                id="completada-edit"
-                name="completada"
-                type="checkbox"
-                checked={formData.completada}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    completada: e.target.checked
-                  });
-                }}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="puntosRecogida-edit">Puntos de recogida</Label>
-              <Input
-                id="puntosRecogida-edit"
-                name="puntosRecogida"
-                type="number"
-                value={formData.puntosRecogida}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    puntosRecogida: parseInt(e.target.value) || 0
-                  });
-                }}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="distanciaTotal-edit">Distancia total</Label>
-              <Input
-                id="distanciaTotal-edit"
-                name="distanciaTotal"
-                type="number"
-                value={formData.distanciaTotal}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    distanciaTotal: parseInt(e.target.value) || 0
-                  });
-                }}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="tiempoEstimado-edit">Tiempo estimado</Label>
-              <Input
-                id="tiempoEstimado-edit"
-                name="tiempoEstimado"
-                type="number"
-                value={formData.tiempoEstimado}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    tiempoEstimado: parseInt(e.target.value) || 0
-                  });
-                }}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="frecuencia-edit">Frecuencia</Label>
-              <Select
-                value={formData.frecuencia}
-                onValueChange={(value) => setFormData({
-                  ...formData,
-                  frecuencia: value
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona frecuencia" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="semanal">Semanal</SelectItem>
-                  <SelectItem value="mensual">Mensual</SelectItem>
-                  <SelectItem value="anual">Anual</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {formData.clientes.length > 0 && (
+              <div className="border rounded-lg p-4 bg-slate-50">
+                <Label className="text-lg font-semibold mb-4 block">Clientes seleccionados ({formData.clientes.length})</Label>
+                <Table>
+                  <TableHeader className="bg-slate-50">
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Dirección</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {formData.clientes.map((cliente, index) => (
+                      <TableRow key={cliente.id}>
+                        <TableCell className="font-medium">{cliente.nombre}</TableCell>
+                        <TableCell>{cliente.direccion}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleRemoveCliente(index)}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </div>
+
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsEditingRuta(false);
-                resetForm();
-              }}
-            >
+            <Button variant="outline" onClick={() => {
+              setIsAddingRuta(false);
+              resetForm();
+            }}>
               Cancelar
             </Button>
             <Button 
-              onClick={handleSubmit}
+              onClick={handleSubmit} 
               className="bg-purple-600 hover:bg-purple-700 text-white"
+              disabled={formData.clientes.length === 0}
             >
-              Actualizar
+              Crear Ruta
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
       
+      <Button variant="outline" onClick={() => alert("Exportando rutas a Excel. Esta función estará disponible próximamente.")}>
+        <FileSpreadsheet className="mr-2 h-4 w-4" />
+        Excel
+      </Button>
+      <Button variant="outline" onClick={() => alert("Exportando rutas a PDF. Esta función estará disponible próximamente.")}>
+        <FileText className="mr-2 h-4 w-4" />
+        PDF
+      </Button>
+    </div>
+      
+      
       <Dialog open={isCompletingRuta} onOpenChange={setIsCompletingRuta}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Completar Ruta</DialogTitle>
             <DialogDescription>
-              Registra las cantidades recogidas para cada cliente antes de finalizar la ruta
+              Registra las cantidades recogidas para cada cliente
             </DialogDescription>
           </DialogHeader>
           
@@ -963,7 +748,7 @@ const RutasDistritos = () => {
                 </div>
                 <div>
                   <h3 className="font-medium text-sm text-muted-foreground">Fecha:</h3>
-                  <p>{selectedRuta.fecha ? format(new Date(selectedRuta.fecha), "dd/MM/yyyy") : "No programada"}</p>
+                  <p>{format(new Date(selectedRuta.fecha), "dd/MM/yyyy")}</p>
                 </div>
                 <div>
                   <h3 className="font-medium text-sm text-muted-foreground">Personal asignado:</h3>
@@ -971,36 +756,71 @@ const RutasDistritos = () => {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <h3 className="font-medium mb-2">Clientes en la ruta</h3>
-                
-                {selectedRuta.clientes && selectedRuta.clientes.length > 0 ? (
-                  <ClientesRutaList
-                    clientes={selectedRuta.clientes}
-                    onUpdateLitros={(clienteId, litros) => 
-                      handleUpdateClienteLitros(selectedRuta.id, clienteId, litros)
-                    }
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground">No hay clientes asignados a esta ruta</p>
-                )}
-                
-                <div className="border-t pt-4 mt-6">
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <h3 className="font-medium">Total litros recogidos:</h3>
-                      <p className="text-2xl font-bold">{litrosTotales}L</p>
-                    </div>
-                    <Button
-                      onClick={handleCompleteRuta}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <Check className="mr-2 h-5 w-5" />
-                      Finalizar Ruta
-                    </Button>
-                  </div>
-                </div>
+              <div className="border rounded-lg p-4">
+                <h3 className="font-medium mb-4">Clientes en la ruta</h3>
+                <Table>
+                  <TableHeader className="bg-slate-50">
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Dirección</TableHead>
+                      <TableHead>Viviendas</TableHead>
+                      <TableHead>Contenedores</TableHead>
+                      <TableHead className="text-right">Litros Recogidos</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedRuta.clientes?.map((cliente) => (
+                      <TableRow key={cliente.id}>
+                        <TableCell className="font-medium">{cliente.nombre}</TableCell>
+                        <TableCell>{cliente.direccion}</TableCell>
+                        <TableCell>{cliente.numViviendas || 0}</TableCell>
+                        <TableCell>{cliente.numContenedores || 0}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Input
+                              type="number"
+                              value={cliente.litros || 0}
+                              onChange={(e) => handleUpdateClienteLitros(
+                                selectedRuta.id,
+                                cliente.id,
+                                Number(e.target.value)
+                              )}
+                              className="w-24 text-right"
+                              min={0}
+                            />
+                            <span className="text-sm font-medium">L</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                  <TableFooter>
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-right font-medium">
+                        Total litros recogidos:
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="text-lg font-bold text-[#ee970d]">
+                          {litrosTotales}L
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  </TableFooter>
+                </Table>
               </div>
+              
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCompletingRuta(false)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleCompleteRuta}
+                  className="bg-[#ee970d] hover:bg-[#e08500] text-white"
+                >
+                  <Check className="mr-2 h-4 w-4" />
+                  Finalizar Ruta
+                </Button>
+              </DialogFooter>
             </div>
           )}
         </DialogContent>

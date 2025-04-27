@@ -129,13 +129,25 @@ export function useRutas() {
   
   const completeRuta = async (id: string, litrosTotales: number = 0) => {
     try {
+      const ruta = rutas.find(r => r.id === id);
+      if (!ruta) throw new Error('Ruta no encontrada');
+
       await updateDoc(doc(db, "rutas", id), {
         completada: true,
         litrosTotales,
         fechaCompletada: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
-      toast.success("Ruta completada correctamente");
+
+      // Update district statistics
+      const statsRef = doc(db, "estadisticas", ruta.distrito);
+      await updateDoc(statsRef, {
+        litrosTotales: increment(litrosTotales),
+        rutasCompletadas: increment(1),
+        updatedAt: serverTimestamp()
+      });
+
+      toast.success(`Ruta completada con éxito - ${litrosTotales}L recogidos`);
       await loadRutas();
       return true;
     } catch (err) {
