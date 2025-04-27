@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -25,7 +24,7 @@ import GastosForm from "./GastosForm";
 import InformeFinanciero from "./InformeFinanciero";
 import { useFacturacion } from "@/hooks/useFacturacion";
 import { ProjectsView } from "./ProjectsView";
-import { ProjectForm } from "./ProjectForm";
+import ProjectForm from "./ProjectForm";
 import FacturasPendientes from "./FacturasPendientes";
 
 const FacturacionView = () => {
@@ -41,7 +40,6 @@ const FacturacionView = () => {
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   
-  // Ensure the dialogs are closed and state is reset when changing tabs
   useEffect(() => {
     setShowIngresosForm(false);
     setShowGastosForm(false);
