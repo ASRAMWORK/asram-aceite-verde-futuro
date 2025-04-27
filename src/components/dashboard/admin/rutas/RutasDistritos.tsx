@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -78,7 +77,14 @@ type RutaFormData = {
   hora: string;
   recogedores: string;
   barrios: string[];
-  clientes: { id: string, nombre: string, direccion: string, litros?: number, numViviendas?: number, numContenedores?: number }[];
+  clientes: { 
+    id: string; 
+    nombre: string; 
+    direccion: string; 
+    litros?: number;
+    numViviendas?: number;
+    numContenedores?: number;
+  }[];
   completada: boolean;
   puntosRecogida: number;
   distanciaTotal: number;
@@ -206,7 +212,9 @@ const RutasDistritos = () => {
       return {
         id: cliente?.id || '',
         nombre: cliente?.nombre || '',
-        direccion: cliente?.direccion || ''
+        direccion: cliente?.direccion || '',
+        numViviendas: cliente?.numViviendas || 0,
+        numContenedores: cliente?.numContenedores || 0
       };
     });
 
@@ -263,7 +271,6 @@ const RutasDistritos = () => {
     
     await updateRutaRecogida(rutaId, clienteId, litros);
     
-    // Update the local state with new litros value
     setSelectedRuta(prev => {
       if (!prev) return prev;
       return {
@@ -274,7 +281,6 @@ const RutasDistritos = () => {
       };
     });
     
-    // Calculate new total
     const nuevoTotal = selectedRuta.clientes?.reduce(
       (total, c) => total + (c.id === clienteId ? litros : (c.litros || 0)), 
       0

@@ -254,7 +254,14 @@ export interface Ruta {
   hora?: string;
   recogedores?: string;
   completada?: boolean;
-  clientes?: { id: string; nombre: string; direccion: string; litros?: number }[];
+  clientes?: { 
+    id: string; 
+    nombre: string; 
+    direccion: string; 
+    litros?: number;
+    numViviendas?: number;
+    numContenedores?: number;
+  }[];
   litrosTotales?: number;
   litrosEstimados?: number;
 }
