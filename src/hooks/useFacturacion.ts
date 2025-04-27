@@ -77,15 +77,22 @@ export function useFacturacion() {
 
   const addIngreso = async (data: Partial<Omit<Ingreso, 'id'>>) => {
     try {
-      // Make sure categoria is set, fallback to tipo if not provided
-      const ingresoData = {
-        ...data,
-        categoria: data.categoria || data.tipo || '',
-        origen: data.origen || '', // ProjectId
-        fecha: data.fecha || new Date(),
-        createdAt: serverTimestamp(), // Ensure createdAt is always set
-        estado: data.estado || 'cobrada' // Asegurar que siempre tiene un estado
-      };
+      // Preparamos los datos eliminando campos undefined que Firebase no puede manejar
+      const ingresoData: Record<string, any> = {};
+      
+      // Solo incluimos campos que no sean undefined
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          ingresoData[key] = value;
+        }
+      });
+      
+      // Asegurarnos que los campos obligatorios estén presentes
+      ingresoData.categoria = ingresoData.categoria || ingresoData.tipo || '';
+      ingresoData.origen = ingresoData.origen || '';
+      ingresoData.fecha = ingresoData.fecha || new Date();
+      ingresoData.createdAt = serverTimestamp();
+      ingresoData.estado = ingresoData.estado || 'cobrada';
       
       await addDoc(collection(db, "ingresos"), ingresoData);
       toast.success("Ingreso registrado correctamente");
@@ -100,10 +107,18 @@ export function useFacturacion() {
 
   const updateIngreso = async (id: string, data: Partial<Ingreso>) => {
     try {
-      await updateDoc(doc(db, "ingresos", id), {
-        ...data,
-        updatedAt: serverTimestamp()
+      // Preparamos los datos eliminando campos undefined
+      const updateData: Record<string, any> = {};
+      
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          updateData[key] = value;
+        }
       });
+      
+      updateData.updatedAt = serverTimestamp();
+      
+      await updateDoc(doc(db, "ingresos", id), updateData);
       toast.success("Ingreso actualizado correctamente");
       await loadFacturacionData();
       return true;
@@ -129,15 +144,22 @@ export function useFacturacion() {
 
   const addGasto = async (data: Partial<Omit<Gasto, 'id'>>) => {
     try {
-      // Make sure categoria is set, fallback to tipo if not provided
-      const gastoData = {
-        ...data,
-        categoria: data.categoria || data.tipo || '',
-        tipo: data.tipo || '', // ProjectId if associated with a project
-        fecha: data.fecha || new Date(),
-        createdAt: serverTimestamp(), // Ensure createdAt is always set
-        estado: data.estado || 'pagada' // Asegurar que siempre tiene un estado
-      };
+      // Preparamos los datos eliminando campos undefined que Firebase no puede manejar
+      const gastoData: Record<string, any> = {};
+      
+      // Solo incluimos campos que no sean undefined
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          gastoData[key] = value;
+        }
+      });
+      
+      // Asegurar que los campos obligatorios estén presentes
+      gastoData.categoria = gastoData.categoria || gastoData.tipo || '';
+      gastoData.tipo = gastoData.tipo || '';
+      gastoData.fecha = gastoData.fecha || new Date();
+      gastoData.createdAt = serverTimestamp();
+      gastoData.estado = gastoData.estado || 'pagada';
       
       await addDoc(collection(db, "gastos"), gastoData);
       toast.success("Gasto registrado correctamente");
@@ -152,10 +174,18 @@ export function useFacturacion() {
 
   const updateGasto = async (id: string, data: Partial<Gasto>) => {
     try {
-      await updateDoc(doc(db, "gastos", id), {
-        ...data,
-        updatedAt: serverTimestamp()
+      // Preparamos los datos eliminando campos undefined
+      const updateData: Record<string, any> = {};
+      
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          updateData[key] = value;
+        }
       });
+      
+      updateData.updatedAt = serverTimestamp();
+      
+      await updateDoc(doc(db, "gastos", id), updateData);
       toast.success("Gasto actualizado correctamente");
       await loadFacturacionData();
       return true;

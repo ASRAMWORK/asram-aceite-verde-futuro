@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useFacturacion } from "@/hooks/useFacturacion";
+import { toast } from "sonner";
 
 const tiposIngreso = [
   "Recogida de aceite",
@@ -43,6 +44,7 @@ interface IngresosFormProps {
 const IngresosForm = ({ isOpen, onClose, initialData }: IngresosFormProps) => {
   const { addIngreso } = useFacturacion();
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -59,8 +61,20 @@ const IngresosForm = ({ isOpen, onClose, initialData }: IngresosFormProps) => {
   });
 
   const handleSubmit = async (data: FormData) => {
+    if (isSubmitting) return; // Prevenir envíos múltiples
+    
+    setIsSubmitting(true);
     setLoading(true);
     try {
+      // Limpiar valores undefined y null antes de enviar
+      const cleanedData: Record<string, any> = {};
+      
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          cleanedData[key] = value;
+        }
+      });
+      
       // Pass all required data, addIngreso will handle serverTimestamp internally
       await addIngreso({
         concepto: data.concepto,
@@ -68,21 +82,34 @@ const IngresosForm = ({ isOpen, onClose, initialData }: IngresosFormProps) => {
         fecha: new Date(data.fecha),
         categoria: data.tipo,
         tipo: data.tipo,
-        cliente: data.cliente,
-        origen: data.origen,
-        numFactura: data.numFactura,
-        notas: data.notas,
+        cliente: cleanedData.cliente,
+        origen: cleanedData.origen,
+        numFactura: cleanedData.numFactura,
+        notas: cleanedData.notas,
       });
-      onClose();
+      
+      // Usar un timeout para dar tiempo a que Firebase complete la operación
+      setTimeout(() => {
+        onClose();
+      }, 200);
     } catch (error) {
       console.error("Error al registrar el ingreso:", error);
+      toast.error("Error al registrar ingreso");
     } finally {
       setLoading(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  // Manejar cierre de diálogo de forma segura
+  const handleDialogClose = () => {
+    if (!isSubmitting) {
+      onClose();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Nuevo Ingreso</DialogTitle>
@@ -213,10 +240,19 @@ const IngresosForm = ({ isOpen, onClose, initialData }: IngresosFormProps) => {
             />
             
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleDialogClose} 
+                disabled={loading || isSubmitting}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-asram hover:bg-asram-700" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="bg-asram hover:bg-asram-700" 
+                disabled={loading || isSubmitting}
+              >
                 {loading ? "Guardando..." : "Guardar ingreso"}
               </Button>
             </DialogFooter>
