@@ -38,10 +38,12 @@ import {
   Container,
   ShoppingCart,
   Globe,
-  Box
+  Box,
+  CalendarDays
 } from "lucide-react";
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
+import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
@@ -138,6 +140,8 @@ const AdminDashboardPage = () => {
         return <ComercialView />;
       case "inventario":
         return <InventarioView />;
+      case "reuniones":
+        return <ReunionesView />;
       default:
         return <AdminDashboard />;
     }
@@ -342,17 +346,27 @@ const AdminDashboardPage = () => {
             Comerciales
           </Button>
           
-        <Button
-          variant={activeTab === "inventario" ? "default" : "ghost"}
-          className={`w-full justify-start ${
-            activeTab === "inventario" ? "bg-asram hover:bg-asram-700" : ""
-          }`}
-          onClick={() => setActiveTab("inventario")}
-        >
-          <Box className="mr-2 h-4 w-4" />
-          Control de Inventario
-        </Button>
-        
+          <Button
+            variant={activeTab === "inventario" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "inventario" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("inventario")}
+          >
+            <Box className="mr-2 h-4 w-4" />
+            Control de Inventario
+          </Button>
+          
+          <Button
+            variant={activeTab === "reuniones" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "reuniones" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("reuniones")}
+          >
+            <CalendarDays className="mr-2 h-4 w-4" />
+            Reuniones y Eventos
+          </Button>
           
           <Button
             variant="ghost"

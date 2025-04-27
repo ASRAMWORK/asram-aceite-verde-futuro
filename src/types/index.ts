@@ -1,427 +1,223 @@
-export interface User {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  photoURL: string | null;
-  emailVerified: boolean;
-}
-
-export type UserRole = 'user' | 'admin_finca' | 'superadmin' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'administrador' | 'comercial';
-
-export interface UserProfile {
-  id?: string;
-  userId: string;
-  nombre?: string;
-  apellidos?: string;
-  telefono?: string;
-  email?: string;
-  direccion?: string;
-  ciudad?: string;
-  codigoPostal?: string;
-  role?: UserRole;
-  tipo?: 'particular' | 'comunidad' | 'empresa' | 'admin';
-  activo?: boolean;
-  nombreAdministracion?: string;
-  createdAt?: any;
-  updatedAt?: any;
-  distrito?: string;
-  barrio?: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  frecuenciaRecogida?: string;
-  nombreRestaurante?: string;
-  horarioApertura?: string;
-  litrosEstimados?: number;
-  nombreHotel?: string;
-  numHabitaciones?: number;
-  nombreAsociacion?: string;
-  tipoAsociacion?: string;
-  numMiembros?: number;
-  nombreCentro?: string;
-  numAlumnos?: number;
-  tipoEscolar?: string;
-  participaAlianzaVerde?: boolean;
-  litrosAportados?: number;
-  puntosVerdes?: number;
-}
-
 export interface Usuario {
   id: string;
-  nombre: string;
-  apellidos: string;
-  telefono: string;
   email: string;
-  direccion?: string;
-  distrito?: string;
-  barrio?: string;
-  codigoPostal?: string;
-  frecuenciaRecogida?: string;
-  notas?: string;
-  tipo: string;
-  activo: boolean;
-  role?: UserRole;
-  createdAt: Date;
-  updatedAt?: Date;
-  numViviendas?: number;
-  numContenedores?: number;
-  litrosRecogidos?: number;
-  litrosEstimados?: number;
-  litrosAportados?: number;
-  nombreAdministracion?: string;
-  ciudad?: string;
-}
-
-export interface ComunidadVecinos {
-  id: string;
   nombre: string;
+  apellido: string;
+  telefono: string;
   direccion: string;
-  numViviendas: number;
-  cif: string;
-  codigoPostal: string;
   ciudad: string;
-  distrito: string;
-  barrio: string;
-  totalViviendas?: number;
-  numeroPorteria?: string;
-  nombreAdministracion?: string;
-  correoContacto?: string;
-  administradorId: string | null;
-  litrosRecogidos: number;
-  beneficiosMedioambientales: {
-    co2: number;
-    agua: number;
-    energia: number;
-  };
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  activo: boolean;
+  tipo: string;
+  role: string;
+  litrosAportados?: number;
   createdAt: any;
   updatedAt: any;
 }
 
-export interface Recogida {
-  id: string;
-  fecha: Date;
-  comunidadId?: string;
-  puntoVerdeId?: string;
-  nombreLugar: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  litrosRecogidos: number;
-  tecnicoId?: string;
-  nombreTecnico?: string;
-  observaciones?: string;
-  estado: 'pendiente' | 'realizada' | 'cancelada' | 'programado';
-  createdAt: any;
-  updatedAt?: any;
-  clienteId?: string;
-  hora?: string;
-  horaInicio?: string;
-  horaFin?: string;
-  notas?: string;
-  completada?: boolean;
-  fechaSolicitud?: Date;
-  fechaProgramada?: Date;
-  fechaCompletada?: Date | null;
-  tipo?: 'zona' | 'individual' | 'calendario';
-  telefono?: string;
-  litrosEstimados?: number;
-}
-
 export interface PuntoVerde {
   id: string;
-  distrito: string;
-  barrio: string;
+  nombre: string;
   direccion: string;
-  numViviendas: number;
-  numContenedores: number;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  latitud: number;
+  longitud: number;
+  tipo: string;
+  descripcion: string;
+  horario: string;
   telefono: string;
-  litrosRecogidos: number;
-  administradorId: string | null;
-  createdAt?: any;
-  updatedAt?: any;
+  email: string;
+  contacto: string;
+  activo: boolean;
+  litrosRecogidos?: number;
+  distrito: string;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export interface Voluntario {
   id: string;
-  nombre: string;
-  apellidos: string;
   email: string;
+  nombre: string;
+  apellido: string;
   telefono: string;
-  direccion?: string;
-  distrito?: string;
-  barrio?: string;
-  disponibilidad?: string[];
-  horasTotales?: number;
-  fechaAlta: Date;
-  estado: 'activo' | 'inactivo' | 'pendiente';
-  tipoActividad?: string[];
-  observaciones?: string;
-  createdAt: any;
-  updatedAt?: any;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
   activo: boolean;
-  diasDisponibles: string[];
-  horasDisponibles: string;
-  experiencia?: string;
-  habilidades?: string[];
-  codigoPostal?: string;
+  dni: string;
+  fechaNacimiento: any;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export interface Trabajador {
   id: string;
-  nombre: string;
-  apellidos: string;
-  dni: string;
   email: string;
+  nombre: string;
+  apellido: string;
   telefono: string;
-  direccion?: string;
-  puesto: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  activo: boolean;
+  dni: string;
+  fechaNacimiento: any;
+  cargo: string;
   departamento: string;
-  fechaContratacion: Date;
-  fechaAlta?: Date;
-  fechaNacimiento?: Date;
-  estado: 'activo' | 'inactivo' | 'permiso';
-  tipoContrato?: string;
-  tipoJornada?: string;
-  observaciones?: string;
+  fechaContratacion: any;
   createdAt: any;
-  updatedAt?: any;
-  vehiculoAsignado?: string;
-  foto?: string;
-  activo?: boolean;
-  rutasAsignadas?: string[];
-  roles?: string[];
-  salarioBase?: number;
-  cuentaBancaria?: string;
-  metodoPago?: 'transferencia' | 'efectivo' | 'otro';
-  frecuenciaPago?: 'mensual' | 'quincenal' | 'semanal';
-  diaCobro?: number;
-  beneficios?: string[];
-}
-
-export type TipoContrato = 'indefinido' | 'temporal' | 'practicas' | 'formacion' | 'obra' | 'otro';
-export type TipoJornada = 'completa' | 'parcial';
-export type RolTrabajador = 'recolector' | 'conductor' | 'supervisor' | 'analista' | 'administrador' | 'gestor';
-
-export interface Vehiculo {
-  id: string;
-  matricula: string;
-  modelo: string;
-  tipo: string;
-  capacidad?: number;
-  estado: 'disponible' | 'en_ruta' | 'mantenimiento' | 'averiado';
-  ultimaRevision?: Date;
-  proximaRevision?: Date;
-  conductorAsignado?: string;
-  createdAt: any;
-  updatedAt?: any;
+  updatedAt: any;
 }
 
 export interface Instalacion {
   id: string;
   nombre: string;
   direccion: string;
-  distrito: string;
-  barrio: string;
-  numContenedores: number;
-  numPorteria: number;
-  numViviendas: number;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  latitud: number;
+  longitud: number;
+  tipo: string;
+  descripcion: string;
+  horario: string;
+  telefono: string;
+  email: string;
+  contacto: string;
+  activo: boolean;
+  numViviendas?: number;
+  numContenedores?: number;
   createdAt: any;
-  updatedAt?: any;
+  updatedAt: any;
 }
 
-export interface CalendarioRecogida {
+export interface Factura {
   id: string;
-  fecha: Date;
-  distrito: string;
-  horaInicio: string;
-  horaFin: string;
-  estado: 'programado' | 'completado' | 'cancelado';
-  notas?: string;
-}
-
-export interface Ruta {
-  id: string;
-  nombre: string;
-  distrito: string;
-  barrios: string[];
-  puntosRecogida: number;
-  distanciaTotal: number;
-  tiempoEstimado: number;
-  frecuencia: string;
-  tecnicoAsignado?: string;
-  vehiculoAsignado?: string;
+  cliente: string;
+  fecha: any;
+  concepto: string;
+  cantidad: number;
+  iva: number;
+  total: number;
+  metodoPago: string;
+  notas: string;
+  tipo: string;
   createdAt: any;
-  updatedAt?: any;
-  fecha?: Date;
-  hora?: string;
-  recogedores?: string;
-  completada?: boolean;
-  clientes?: { 
-    id: string; 
-    nombre: string; 
-    direccion: string; 
-    litros?: number;
-    numViviendas?: number;
-    numContenedores?: number;
-  }[];
-  litrosTotales?: number;
-  litrosEstimados?: number;
-}
-
-export interface Turno {
-  id: string;
-  trabajadorId: string;
-  nombreTrabajador: string;
-  fecha: Date;
-  horaInicio: string;
-  horaFin: string;
-  distrito: string;
-  vehiculo?: string;
-  estado: 'programado' | 'completado' | 'cancelado';
-  createdAt: any;
-  updatedAt?: any;
-  dia?: string;
-  rutaId?: string;
-  vehiculoId?: string;
-  trabajadorNombre?: string;
+  updatedAt: any;
 }
 
 export interface Ingreso {
   id: string;
+  cliente: string;
+  fecha: any;
   concepto: string;
   cantidad: number;
-  fecha: Date;
-  cliente?: string;
-  categoria: string;
-  notas?: string;
+  iva: number;
+  total: number;
+  metodoPago: string;
+  notas: string;
   createdAt: any;
-  updatedAt?: any;
-  tipo?: string;
-  origen?: string;
-  numFactura?: string;
-  estado?: 'pendiente' | 'cobrada';
+  updatedAt: any;
 }
 
 export interface Gasto {
   id: string;
+  proveedor: string;
+  fecha: any;
   concepto: string;
   cantidad: number;
-  fecha: Date;
-  proveedor?: string;
-  categoria: string;
-  notas?: string;
+  iva: number;
+  total: number;
+  metodoPago: string;
+  notas: string;
   createdAt: any;
-  updatedAt?: any;
-  tipo?: string;
-  numFactura?: string;
-  estado?: 'pendiente' | 'pagada';
+  updatedAt: any;
 }
 
-export interface ChartConfig {
-  id: string;
-  title: string;
-  type: 'bar' | 'line' | 'pie' | 'doughnut';
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    backgroundColor?: string[];
-    borderColor?: string;
-    borderWidth?: number;
-  }[];
-  options?: any;
-}
-
-// Improved type for certifications
-export type CertificacionNivel = 'nivel1' | 'nivel2' | 'nivel3' | 'ecosistema';
-
-export interface Certificaciones {
-  nivel1?: boolean;
-  nivel2?: boolean;
-  nivel3?: boolean;
-  ecosistema?: boolean;
-}
-
-export interface AlianzaVerde {
+export interface AlianzaEscolarType {
   id: string;
   nombre: string;
-  tipo: 'escuela' | 'empresa' | 'institucion' | string;
   direccion: string;
-  distrito: string;
-  barrio: string;
-  contacto: string;
-  email: string;
-  telefono: string;
-  fechaInicio: Date;
-  estado: 'activa' | 'inactiva' | 'pendiente';
-  numParticipantes?: number;
-  numEstudiantes?: number;
-  talleresRealizados?: number;
-  litrosRecolectados: number;
-  createdAt: any;
-  updatedAt?: any;
-  certificaciones?: Certificaciones | number | string[];
-  nombreCentro?: string;
-  activo?: boolean;
-}
-
-export interface CalleApadrinada {
-  id: string;
-  nombre: string;
-  distrito: string;
-  barrio: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  latitud: number;
   longitud: number;
-  padrino: string;
-  tipoCliente: string;
-  fechaInicio: Date;
-  fechaFin?: Date;
-  estado: 'activo' | 'inactivo' | 'pendiente';
-  numContenedores: number;
-  createdAt: any;
-  updatedAt?: any;
-  descripcion?: string;
-  precio?: number;
-  fechaRenovacion?: Date;
-  nombreCalle?: string;
-  nombrePadrino?: string;
-}
-
-export interface Tarea {
-  id: string;
-  titulo: string;
-  descripcion: string;
-  voluntarioId: string;
-  voluntarioNombre: string;
-  prioridad: 'alta' | 'media' | 'baja';
-  completada: boolean;
-  fechaAsignacion: Date;
-  fechaLimite?: Date | null;
-  fechaCompletada?: Date | null;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-export interface HorarioVoluntario {
-  id: string;
-  voluntarioId: string;
-  voluntarioNombre: string;
-  dia: string;
-  horaInicio: string;
-  horaFin: string;
-  actividad: string;
-  ubicacion: string;
-  createdAt: any;
-  updatedAt?: any;
-}
-
-export interface Incidencia {
-  id: string;
   tipo: string;
   descripcion: string;
-  fecha: Date;
-  trabajadorId: string;
-  estado: 'abierta' | 'en_proceso' | 'cerrada';
+  horario: string;
+  telefono: string;
+  email: string;
+  contacto: string;
+  activo: boolean;
   createdAt: any;
-  updatedAt?: any;
+  updatedAt: any;
+}
+
+export interface CalleApadrinadaType {
+  id: string;
+  nombre: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  latitud: number;
+  longitud: number;
+  tipo: string;
+  descripcion: string;
+  horario: string;
+  telefono: string;
+  email: string;
+  contacto: string;
+  activo: boolean;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Recogida {
+  id: string;
+  cliente: string;
+  direccionRecogida: string;
+  fechaRecogida: any;
+  horaRecogida: string;
+  cantidadAproximada: number;
+  tipoAceite: string;
+  nombreContacto: string;
+  telefonoContacto: string;
+  emailContacto: string;
+  notasAdicionales: string;
+  estadoRecogida: string;
+  litrosRecogidos?: number;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface RetiradaContenedor {
+  id: string;
+  cliente: string;
+  direccionRetirada: string;
+  fechaRetirada: any;
+  horaRetirada: string;
+  nombreContacto: string;
+  telefonoContacto: string;
+  emailContacto: string;
+  notasAdicionales: string;
+  estadoRetirada: string;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export interface Reunion {
@@ -434,41 +230,5 @@ export interface Reunion {
   ubicacion: string;
   participantes: string[];
   createdAt: any;
-  updatedAt?: any;
-  tipo?: string;
-  tipoUsuario?: string;
-  nombreCentro?: string;
-  responsable?: string;
-  direccion?: string;
-  telefono?: string;
-  email?: string;
-}
-
-export interface TrabajadorPago {
-  id: string;
-  trabajadorId: string;
-  cantidad: number;
-  fecha: Date;
-  concepto: string;
-  tipo: 'salario' | 'bono' | 'extra' | 'otro';
-  estado: 'pendiente' | 'pagado' | 'cancelado';
-  metodoPago?: string;
-  comprobante?: string;
-  notas?: string;
-  createdAt: any;
-  updatedAt?: any;
-}
-
-export interface TallerProgramado {
-  id: string;
-  centroId: string;
-  nombreCentro: string;
-  direccion: string;
-  tipoTaller: string;
-  fechaTaller: Date;
-  numAlumnos: number;
-  contacto: string;
-  telefono: string;
-  email: string;
-  estado: 'programado' | 'completado' | 'cancelado';
+  updatedAt: any;
 }
