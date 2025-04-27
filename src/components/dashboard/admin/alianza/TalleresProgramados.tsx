@@ -100,7 +100,7 @@ const TalleresProgramados = () => {
                         taller.estado === 'programado' 
                           ? 'default' 
                           : taller.estado === 'completado' 
-                            ? 'success' 
+                            ? 'secondary'  // Changed from 'success' to 'secondary'
                             : 'destructive'
                       }
                     >
