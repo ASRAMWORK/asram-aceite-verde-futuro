@@ -24,8 +24,8 @@ const formSchema = z.object({
   cliente: z.string().min(1, { message: "El cliente es obligatorio" }),
   responsable: z.string().optional(),
   presupuesto: z.coerce.number().min(0, { message: "El presupuesto debe ser mayor o igual a 0" }).optional(),
-  fechaInicio: z.date().optional(),
-  fechaFin: z.date().optional(),
+  fechaInicio: z.date().optional().nullable(),
+  fechaFin: z.date().optional().nullable(),
   estado: z.enum(["activo", "pendiente", "completado", "cancelado"]),
 });
 
@@ -53,8 +53,8 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
       cliente: "",
       responsable: "",
       presupuesto: 0,
-      fechaInicio: undefined,
-      fechaFin: undefined,
+      fechaInicio: null,
+      fechaFin: null,
       estado: "activo",
     }
   });
@@ -87,8 +87,8 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         cliente: project.cliente || "",
         responsable: project.responsable || "",
         presupuesto: project.presupuesto || 0,
-        fechaInicio: project.fechaInicio,
-        fechaFin: project.fechaFin,
+        fechaInicio: project.fechaInicio || null,
+        fechaFin: project.fechaFin || null,
         estado: project.estado || "activo",
       });
     } else {
@@ -98,8 +98,8 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         cliente: "",
         responsable: "",
         presupuesto: 0,
-        fechaInicio: undefined,
-        fechaFin: undefined,
+        fechaInicio: null,
+        fechaFin: null,
         estado: "activo",
       });
     }
@@ -121,8 +121,8 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
           cliente: data.cliente,
           responsable: data.responsable || "",
           presupuesto: data.presupuesto || 0,
-          fechaInicio: data.fechaInicio,
-          fechaFin: data.fechaFin,
+          fechaInicio: data.fechaInicio || null,
+          fechaFin: data.fechaFin || null,
           estado: data.estado
         });
         toast.success("Proyecto creado correctamente");

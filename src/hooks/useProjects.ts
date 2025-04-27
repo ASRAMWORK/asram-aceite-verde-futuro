@@ -12,8 +12,8 @@ export interface Project {
   cliente: string;
   responsable?: string;
   presupuesto?: number;
-  fechaInicio?: Date;
-  fechaFin?: Date;
+  fechaInicio?: Date | null;
+  fechaFin?: Date | null;
   estado: 'activo' | 'pendiente' | 'completado' | 'cancelado';
   createdAt: any;
   updatedAt?: any;
@@ -45,8 +45,8 @@ export function useProjects() {
           cliente: data.cliente || '',
           responsable: data.responsable || '',
           presupuesto: data.presupuesto || 0,
-          fechaInicio: data.fechaInicio ? new Date(data.fechaInicio.seconds * 1000) : undefined,
-          fechaFin: data.fechaFin ? new Date(data.fechaFin.seconds * 1000) : undefined,
+          fechaInicio: data.fechaInicio ? new Date(data.fechaInicio.seconds * 1000) : null,
+          fechaFin: data.fechaFin ? new Date(data.fechaFin.seconds * 1000) : null,
           estado: data.estado || 'activo',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -101,8 +101,8 @@ export function useProjects() {
           cliente: data.cliente || '',
           responsable: data.responsable || '',
           presupuesto: data.presupuesto || 0,
-          fechaInicio: data.fechaInicio ? new Date(data.fechaInicio.seconds * 1000) : undefined,
-          fechaFin: data.fechaFin ? new Date(data.fechaFin.seconds * 1000) : undefined,
+          fechaInicio: data.fechaInicio ? new Date(data.fechaInicio.seconds * 1000) : null,
+          fechaFin: data.fechaFin ? new Date(data.fechaFin.seconds * 1000) : null,
           estado: data.estado || 'activo',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -135,8 +135,12 @@ export function useProjects() {
 
   const addProject = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
+      // Filter out undefined values that Firebase can't handle
       const projectData = {
         ...data,
+        // Only include dates if they exist
+        fechaInicio: data.fechaInicio || null,
+        fechaFin: data.fechaFin || null,
         createdAt: serverTimestamp(),
       };
       
@@ -153,10 +157,13 @@ export function useProjects() {
 
   const updateProject = async (id: string, data: Partial<Project>) => {
     try {
-      await updateDoc(doc(db, "projects", id), {
+      // Filter out undefined values that Firebase can't handle
+      const updateData = {
         ...data,
         updatedAt: serverTimestamp()
-      });
+      };
+      
+      await updateDoc(doc(db, "projects", id), updateData);
       toast.success("Proyecto actualizado correctamente");
       await loadProjectsData();
       return true;
