@@ -29,6 +29,10 @@ const GestionComunidades = () => {
     return true;
   });
 
+  const handleFormSuccess = () => {
+    setShowForm(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -43,7 +47,7 @@ const GestionComunidades = () => {
             <DialogHeader>
               <DialogTitle>Añadir Nueva Comunidad</DialogTitle>
             </DialogHeader>
-            <GestionarComunidad onSuccess={() => setShowForm(false)} />
+            <GestionarComunidad />
           </DialogContent>
         </Dialog>
       </div>
