@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -31,8 +32,9 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
       addTarea({
         ...data,
         voluntarioNombre: `${selectedVoluntario.nombre} ${selectedVoluntario.apellido}`,
+        voluntarioId: selectedVoluntario.id,
         completada: false,
-        fechaAsignacion: new Date(),
+        fechaInicio: new Date(),
         fechaLimite: data.fechaLimite || null
       });
       setOpen(false);

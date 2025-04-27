@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -5,6 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -55,7 +57,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { TrabajadorForm } from "./TrabajadorForm";
+import TrabajadorForm from "./TrabajadorForm";
 import { ITEMS_PAGE } from "./constants";
 
 const TrabajadoresView = () => {

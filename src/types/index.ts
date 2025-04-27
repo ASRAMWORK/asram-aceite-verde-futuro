@@ -466,6 +466,7 @@ export interface Tarea {
   prioridad: string;
   asignadoA?: string;
   voluntarioNombre?: string;
+  voluntarioId?: string;
   completada?: boolean;
   fechaCompletada?: Date;
   createdAt: any;
@@ -523,6 +524,13 @@ export interface UserProfile {
   litrosEstimados?: number;
   nombreHotel?: string;
   numHabitaciones?: number;
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
 }
 
 export interface TrabajadorFormProps {

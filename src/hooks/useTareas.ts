@@ -1,126 +1,117 @@
-import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { Tarea } from '@/types';
-import { toast } from 'sonner';
 
-export function useTareas() {
+import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from 'uuid';
+import { Tarea } from "@/types";
+import { useToast } from "@/components/ui/use-toast";
+
+export const useTareas = () => {
   const [tareas, setTareas] = useState<Tarea[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const loadTareasData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError(null);
-      const tareasRef = collection(db, "tareasVoluntarios");
-      const tareasQuery = query(tareasRef, orderBy("fechaAsignacion", "desc"));
-      const tareasSnap = await getDocs(tareasQuery);
-      
-      const tareasData: Tarea[] = [];
-      tareasSnap.forEach((doc) => {
-        const data = doc.data() as Record<string, any>;
-        tareasData.push({ 
-          id: doc.id, 
-          titulo: data.titulo || '',
-          descripcion: data.descripcion || '',
-          voluntarioId: data.voluntarioId || '',
-          voluntarioNombre: data.voluntarioNombre || '',
-          prioridad: data.prioridad || 'media',
-          fechaAsignacion: data.fechaAsignacion,
-          fechaLimite: data.fechaLimite,
-          fechaCompletada: data.fechaCompletada,
-          completada: data.completada || false
-        });
-      });
-      
-      setTareas(tareasData);
+      // Load from localStorage
+      const storedData = localStorage.getItem('tareas');
+      if (storedData) {
+        setTareas(JSON.parse(storedData));
+      }
     } catch (err) {
-      console.error("Error cargando tareas:", err);
-      setError("Error al cargar datos de Tareas");
+      setError("Error loading data");
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const addTarea = async (nuevaTarea: Omit<Tarea, 'id'>) => {
-    try {
-      const tareaData = {
-        ...nuevaTarea,
-        fechaAsignacion: serverTimestamp(),
-      };
-      
-      await addDoc(collection(db, "tareasVoluntarios"), tareaData);
-      toast.success("Tarea asignada correctamente");
-      await loadTareasData();
-      return true;
-    } catch (err) {
-      console.error("Error añadiendo tarea:", err);
-      toast.error("Error al asignar la tarea");
-      return false;
-    }
-  };
-
-  const updateTarea = async (id: string, data: Partial<Tarea>) => {
-    try {
-      const updateData: any = { ...data };
-      
-      if ('fechaCompletada' in data) {
-        if (data.fechaCompletada) {
-          updateData.fechaCompletada = serverTimestamp();
-        }
-      }
-      
-      await updateDoc(doc(db, "tareasVoluntarios", id), updateData);
-      
-      if ('completada' in data) {
-        if (data.completada) {
-          toast.success("Tarea completada");
-        } else {
-          toast.info("Tarea marcada como pendiente");
-        }
-      } else {
-        toast.success("Tarea actualizada correctamente");
-      }
-      
-      await loadTareasData();
-      return true;
-    } catch (err) {
-      console.error("Error actualizando tarea:", err);
-      toast.error("Error al actualizar la tarea");
-      return false;
-    }
-  };
-
-  const deleteTarea = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, "tareasVoluntarios", id));
-      toast.success("Tarea eliminada correctamente");
-      await loadTareasData();
-      return true;
-    } catch (err) {
-      console.error("Error eliminando tarea:", err);
-      toast.error("Error al eliminar la tarea");
-      return false;
-    }
-  };
-
-  const getTareasByVoluntarioId = (voluntarioId: string) => {
-    return tareas.filter(tarea => tarea.voluntarioId === voluntarioId);
   };
 
   useEffect(() => {
     loadTareasData();
   }, []);
 
-  return { 
-    tareas, 
-    loading, 
-    error, 
+  useEffect(() => {
+    // Save to localStorage when data changes
+    localStorage.setItem('tareas', JSON.stringify(tareas));
+  }, [tareas]);
+
+  const addTarea = async (nuevaTarea: Omit<Tarea, "id">): Promise<boolean> => {
+    try {
+      const tarea: Tarea = {
+        ...nuevaTarea,
+        id: uuidv4(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      
+      setTareas(prevTareas => [...prevTareas, tarea]);
+      toast({
+        title: "Éxito",
+        description: "Tarea creada correctamente.",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error al crear tarea:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo crear la tarea.",
+      });
+      return false;
+    }
+  };
+
+  const updateTarea = async (id: string, data: Partial<Tarea>): Promise<boolean> => {
+    try {
+      setTareas(tareas.map(tarea => 
+        tarea.id === id ? { ...tarea, ...data, updatedAt: new Date() } : tarea
+      ));
+      
+      toast({
+        title: "Éxito",
+        description: "Tarea actualizada correctamente.",
+      });
+      
+      return true;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al actualizar la tarea.",
+      });
+      return false;
+    }
+  };
+
+  const deleteTarea = async (id: string): Promise<boolean> => {
+    try {
+      setTareas(tareas.filter(tarea => tarea.id !== id));
+      
+      toast({
+        title: "Éxito",
+        description: "Tarea eliminada correctamente.",
+      });
+      
+      return true;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al eliminar la tarea.",
+      });
+      return false;
+    }
+  };
+
+  const getTareasByVoluntarioId = (voluntarioId: string): Tarea[] => {
+    return tareas.filter(tarea => tarea.voluntarioId === voluntarioId);
+  };
+
+  return {
+    tareas,
+    loading,
+    error,
     loadTareasData,
     addTarea,
     updateTarea,
     deleteTarea,
     getTareasByVoluntarioId
   };
-}
+};
