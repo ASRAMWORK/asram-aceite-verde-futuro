@@ -36,12 +36,15 @@ const CalendarDay = ({
         <TooltipTrigger asChild>
           <div
             className={cn(
-              "h-14 p-2 border rounded-md transition-colors",
+              "h-14 p-2 border rounded-md transition-colors relative overflow-hidden",
               isWeekend ? "bg-gray-50" : "bg-white",
-              hasRecogida ? "border-green-500" : "border-gray-200",
-              "hover:shadow-sm cursor-pointer"
+              hasRecogida ? "border-[#ee970d]" : "border-gray-200",
+              "hover:shadow-md cursor-pointer"
             )}
           >
+            {hasRecogida && (
+              <div className="absolute inset-0 w-1 bg-[#ee970d] left-0"></div>
+            )}
             <div className="flex flex-col h-full">
               <span className={cn(
                 "text-sm",
@@ -53,7 +56,7 @@ const CalendarDay = ({
               {hasRecogida && (
                 <Badge 
                   variant="secondary" 
-                  className="mt-auto text-xs bg-green-100 text-green-800"
+                  className="mt-auto text-xs bg-amber-100 text-amber-800 border-[#ee970d] border"
                 >
                   Recogida
                 </Badge>
@@ -62,13 +65,13 @@ const CalendarDay = ({
           </div>
         </TooltipTrigger>
         {hasRecogida && recogidaDetails && (
-          <TooltipContent>
+          <TooltipContent className="bg-white border-[#ee970d] shadow-lg">
             <div className="text-sm">
-              <p className="font-medium">{recogidaDetails.distrito}</p>
+              <p className="font-medium text-[#ee970d]">{recogidaDetails.distrito}</p>
               {recogidaDetails.barrio && (
-                <p className="text-gray-500">{recogidaDetails.barrio}</p>
+                <p className="text-gray-600">{recogidaDetails.barrio}</p>
               )}
-              <p className="text-gray-500">{recogidaDetails.hora}</p>
+              <p className="text-gray-600">{recogidaDetails.hora}</p>
             </div>
           </TooltipContent>
         )}
