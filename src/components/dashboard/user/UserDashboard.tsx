@@ -23,6 +23,7 @@ import RecogidaAceiteView from "./recogida/RecogidaAceiteView";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useRecogidas } from "@/hooks/useRecogidas";
+import { toast } from "sonner";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -35,8 +36,10 @@ const UserDashboard = () => {
     try {
       await logout();
       navigate("/login");
+      toast.success("Sesión cerrada correctamente");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
+      toast.error("Error al cerrar sesión");
     }
   };
 
