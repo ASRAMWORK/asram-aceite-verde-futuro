@@ -44,14 +44,28 @@ const formSchema = z.object({
   notas: z.string().optional(),
 });
 
-const SolicitudRecogidaForm = () => {
+interface SolicitudRecogidaFormProps {
+  onCancel?: () => void;
+  onSuccess?: () => void;
+  initialData?: {
+    direccion?: string;
+    distrito?: string;
+    barrio?: string;
+    telefono?: string;
+    email?: string;
+    nombre?: string;
+    clienteId?: string;
+  };
+}
+
+const SolicitudRecogidaForm = ({ onCancel, onSuccess, initialData = {} }: SolicitudRecogidaFormProps) => {
   const { profile, loading } = useUserProfile();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       litrosEstimados: 5,
-      direccion: '',
-      telefono: '',
+      direccion: initialData.direccion || '',
+      telefono: initialData.telefono || '',
       notas: '',
     },
   });
@@ -59,10 +73,10 @@ const SolicitudRecogidaForm = () => {
   // Prellenar la dirección y teléfono cuando se cargue el perfil
   useEffect(() => {
     if (profile) {
-      form.setValue('direccion', profile.direccion || '');
-      form.setValue('telefono', profile.telefono || '');
+      form.setValue('direccion', initialData.direccion || profile.direccion || '');
+      form.setValue('telefono', initialData.telefono || profile.telefono || '');
     }
-  }, [profile, form]);
+  }, [profile, form, initialData]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -93,6 +107,10 @@ const SolicitudRecogidaForm = () => {
         telefono: profile?.telefono || '',
         notas: '',
       });
+      
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error al enviar la solicitud:', error);
       toast.error('Error al enviar la solicitud. Inténtalo de nuevo.');
@@ -234,9 +252,21 @@ const SolicitudRecogidaForm = () => {
           </CardContent>
         </Card>
         
-        <Button type="submit" className="w-full bg-asram hover:bg-asram-700">
-          Enviar solicitud
-        </Button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full" 
+              onClick={onCancel}
+            >
+              Cancelar
+            </Button>
+          )}
+          <Button type="submit" className="w-full bg-[#ee970d] hover:bg-[#ee970d]/90">
+            Enviar solicitud
+          </Button>
+        </div>
       </form>
     </Form>
   );

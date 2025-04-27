@@ -1,4 +1,3 @@
-
 export interface User {
   uid: string;
   email: string | null;
@@ -42,6 +41,8 @@ export interface UserProfile {
   numAlumnos?: number;
   tipoEscolar?: string;
   participaAlianzaVerde?: boolean;
+  litrosAportados?: number;
+  puntosVerdes?: number;
 }
 
 export interface Usuario {
@@ -186,7 +187,6 @@ export interface Trabajador {
   activo?: boolean;
   rutasAsignadas?: string[];
   roles?: string[];
-  // Added payment-related fields
   salarioBase?: number;
   cuentaBancaria?: string;
   metodoPago?: 'transferencia' | 'efectivo' | 'otro';
