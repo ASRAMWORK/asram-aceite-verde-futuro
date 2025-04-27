@@ -1,39 +1,12 @@
-import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { distritos } from "@/data/madridDistritos";
-import { Recogida } from "@/types";
+import DistritoBarrioFilter from "./filters/DistritoBarrioFilter";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import { format, isSameDay, isValid } from "date-fns";
+import { format, isSameDay, isWeekend } from "date-fns";
 import { es } from "date-fns/locale";
-import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Clock } from "lucide-react";
-import { toast } from "sonner";
+import CalendarDay from "./calendar/CalendarDay";
 
 interface RecogidaCalendarProps {
   isAdmin?: boolean;
@@ -41,264 +14,73 @@ interface RecogidaCalendarProps {
 
 const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const { recogidas, addRecogida, deleteRecogida, updateRecogida } = useRecogidas();
-  const [newRecogida, setNewRecogida] = useState({
-    distrito: "",
-    horaInicio: "09:00",
-    horaFin: "14:00",
-    notas: "",
+  const [selectedDistrito, setSelectedDistrito] = useState("");
+  const [selectedBarrio, setSelectedBarrio] = useState("");
+  const { recogidas } = useRecogidas();
+
+  const filteredRecogidas = recogidas.filter(recogida => {
+    if (selectedDistrito && recogida.distrito !== selectedDistrito) return false;
+    if (selectedBarrio && recogida.barrio !== selectedBarrio) return false;
+    return true;
   });
 
-  const formatDate = (date: Date | null | undefined, formatStr: string = "PPP") => {
-    if (!date || !isValid(date)) return '';
-    try {
-      return format(date, formatStr, { locale: es });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return '';
-    }
+  const hasRecogidaOnDate = (date: Date) => {
+    return filteredRecogidas.some(recogida => 
+      recogida.fecha && isSameDay(new Date(recogida.fecha), date)
+    );
   };
 
-  const checkSameDay = (date1: Date | null | undefined, date2: Date | null | undefined) => {
-    if (!date1 || !date2 || !isValid(date1) || !isValid(date2)) return false;
-    try {
-      return isSameDay(date1, date2);
-    } catch (error) {
-      console.error("Error comparing dates:", error);
-      return false;
-    }
-  };
-
-  const recogidasDelDia = (date: Date | undefined) => {
-    if (!date) return [];
+  const getRecogidaDetails = (date: Date) => {
+    const recogida = filteredRecogidas.find(r => 
+      r.fecha && isSameDay(new Date(r.fecha), date)
+    );
     
-    return recogidas.filter(r => {
-      try {
-        const recogidaFecha = r.fecha ? new Date(r.fecha) : null;
-        return recogidaFecha && checkSameDay(recogidaFecha, date);
-      } catch (error) {
-        console.error("Error processing recogida date:", error, r);
-        return false;
-      }
-    });
-  };
-
-  const handleAddRecogida = async () => {
-    if (!selectedDate || !newRecogida.distrito) {
-      toast.error("Seleccione una fecha y un distrito");
-      return;
-    }
-
-    try {
-      await addRecogida({
-        distrito: newRecogida.distrito,
-        fecha: selectedDate,
-        horaInicio: newRecogida.horaInicio,
-        horaFin: newRecogida.horaFin,
-        estado: "pendiente",
-        notas: newRecogida.notas,
-        nombreLugar: newRecogida.distrito,
-        direccion: newRecogida.distrito,
-        barrio: "",
-        litrosRecogidos: 0,
-        createdAt: new Date(),
-        fechaSolicitud: selectedDate,
-        fechaProgramada: selectedDate,
-        fechaCompletada: null,
-        clienteId: "sistema",
-        tipo: "calendario",
-        telefono: "",
-        litrosEstimados: 0,
-        completada: false
-      });
-
-      setShowAddDialog(false);
-      setNewRecogida({
-        distrito: "",
-        horaInicio: "09:00",
-        horaFin: "14:00",
-        notas: "",
-      });
-      
-      toast.success("Recogida programada correctamente");
-    } catch (error) {
-      console.error("Error adding recogida:", error);
-      toast.error("Error al programar la recogida");
-    }
+    if (!recogida) return null;
+    
+    return {
+      distrito: recogida.distrito,
+      barrio: recogida.barrio,
+      hora: recogida.horaInicio || '09:00'
+    };
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto bg-white/50 backdrop-blur-sm shadow-xl">
       <CardHeader>
-        <CardTitle>Calendario de Recogidas 2025</CardTitle>
-        <CardDescription>
-          Consulta las fechas programadas de recogida por distrito
-        </CardDescription>
+        <CardTitle className="text-2xl font-bold text-center">
+          Calendario de Recogidas 2025
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid md:grid-cols-[1fr,300px] gap-8">
-          <div>
+        <div className="grid md:grid-cols-[300px,1fr] gap-6">
+          <div className="space-y-6">
+            <DistritoBarrioFilter
+              selectedDistrito={selectedDistrito}
+              selectedBarrio={selectedBarrio}
+              onDistritoChange={setSelectedDistrito}
+              onBarrioChange={setSelectedBarrio}
+            />
+          </div>
+
+          <div className="rounded-lg overflow-hidden">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
               locale={es}
               className="rounded-md border w-full"
-              modifiers={{
-                booked: (date) => recogidasDelDia(date).length > 0,
-              }}
-              modifiersClassNames={{
-                booked: "bg-green-50 font-bold text-green-700",
+              components={{
+                Day: ({ date, ...props }) => (
+                  <CalendarDay
+                    day={date.getDate()}
+                    isWeekend={isWeekend(date)}
+                    hasRecogida={hasRecogidaOnDate(date)}
+                    recogidaDetails={getRecogidaDetails(date)}
+                    {...props}
+                  />
+                ),
               }}
             />
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="font-semibold">
-              Recogidas para{" "}
-              {selectedDate
-                ? formatDate(selectedDate)
-                : "hoy"}
-            </h3>
-
-            {recogidasDelDia(selectedDate).length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No hay recogidas programadas para este día
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {recogidasDelDia(selectedDate).map((recogida) => (
-                  <div
-                    key={recogida.id}
-                    className="p-3 border rounded-lg flex flex-col gap-2"
-                  >
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium">{recogida.distrito}</h4>
-                      <Badge
-                        variant={
-                          recogida.estado === "realizada"
-                            ? "default"
-                            : recogida.estado === "cancelada"
-                            ? "destructive"
-                            : "outline"
-                        }
-                      >
-                        {recogida.estado}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        {recogida.horaInicio || "09:00"} - {recogida.horaFin || "14:00"}
-                      </span>
-                    </div>
-                    {recogida.notas && (
-                      <p className="text-sm text-muted-foreground">
-                        {recogida.notas}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {isAdmin && (
-              <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-                <DialogTrigger asChild>
-                  <Button className="w-full">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    Añadir Recogida
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Programar nueva recogida</DialogTitle>
-                    <DialogDescription>
-                      Añade una nueva recogida al calendario para el día{" "}
-                      {selectedDate &&
-                        formatDate(selectedDate)}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="space-y-2">
-                      <Label>Distrito</Label>
-                      <Select
-                        value={newRecogida.distrito}
-                        onValueChange={(value) =>
-                          setNewRecogida({ ...newRecogida, distrito: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un distrito" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {distritos.map((distrito) => (
-                            <SelectItem key={distrito} value={distrito}>
-                              {distrito}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Hora inicio</Label>
-                        <Input
-                          type="time"
-                          value={newRecogida.horaInicio}
-                          onChange={(e) =>
-                            setNewRecogida({
-                              ...newRecogida,
-                              horaInicio: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Hora fin</Label>
-                        <Input
-                          type="time"
-                          value={newRecogida.horaFin}
-                          onChange={(e) =>
-                            setNewRecogida({
-                              ...newRecogida,
-                              horaFin: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Notas adicionales</Label>
-                      <Input
-                        value={newRecogida.notas}
-                        onChange={(e) =>
-                          setNewRecogida({
-                            ...newRecogida,
-                            notas: e.target.value,
-                          })
-                        }
-                        placeholder="Añade cualquier información relevante"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowAddDialog(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleAddRecogida}>
-                      Programar Recogida
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            )}
           </div>
         </div>
       </CardContent>
