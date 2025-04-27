@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
@@ -48,7 +49,7 @@ const AdministradorDashboardPage = () => {
   const handleSignOut = async () => {
     try {
       await auth.signOut();
-      navigate("/login");  // Explicitly navigate to login page
+      navigate("/login");
       toast.success("Sesión cerrada correctamente");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
