@@ -1,129 +1,116 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, Droplet, Info } from 'lucide-react';
+import { RecycleIcon, Calendar as CalendarIcon } from 'lucide-react';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { motion } from 'framer-motion';
+import SolicitudRecogidaForm from '@/components/dashboard/user/solicitud/SolicitudRecogidaForm';
+import RecogidaCalendar from '@/components/calendario/RecogidaCalendar';
 
 const RecogidaAceiteView = () => {
+  const { profile } = useUserProfile();
+  const [showSolicitudForm, setShowSolicitudForm] = useState(false);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold">Servicio de Recogida de Aceite</h3>
-        <p className="text-muted-foreground">
-          Gestiona tus solicitudes de recogida de aceite usado y consulta el historial
-        </p>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-[#ee970d]">Recogida de Aceite</h2>
+          <p className="text-gray-600">Gestiona tus recogidas de aceite usado</p>
+        </div>
+        <Button 
+          className="bg-[#ee970d] hover:bg-[#ee970d]/90 text-white"
+          onClick={() => setShowSolicitudForm(true)}
+        >
+          <RecycleIcon className="mr-2 h-4 w-4" />
+          Solicitar Recogida
+        </Button>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Info className="h-6 w-6 text-asram" />
-              <CardTitle>¿Cómo funciona el servicio de recogida?</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p>
-              ASRAM ofrece un servicio de recogida de aceite usado para particulares, 
-              comunidades y empresas. Puedes solicitar una recogida y nuestro equipo 
-              se encargará de recoger el aceite en la dirección y hora acordada.
-            </p>
+
+      {showSolicitudForm ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+        >
+          <Card>
+            <CardHeader className="bg-[#ee970d]/5">
+              <CardTitle className="flex items-center text-[#ee970d]">
+                <RecycleIcon className="mr-2 h-5 w-5" />
+                Nueva solicitud de recogida
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <SolicitudRecogidaForm 
+                onCancel={() => setShowSolicitudForm(false)}
+                onSuccess={() => setShowSolicitudForm(false)}
+                initialData={{
+                  direccion: profile?.direccion || '',
+                  distrito: profile?.distrito || '',
+                  barrio: profile?.barrio || '',
+                  telefono: profile?.telefono || '',
+                  email: profile?.email || '',
+                  nombre: profile?.nombre || '',
+                  clienteId: profile?.id || ''
+                }}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <RecycleIcon className="mr-2 h-5 w-5 text-[#ee970d]" />
+                  Mi Contribución
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-4xl font-bold text-[#ee970d]">{profile?.litrosAportados || 0}L</p>
+                <p className="text-sm text-gray-500">Aceite reciclado total</p>
+              </CardContent>
+            </Card>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-asram" />
-                    <CardTitle className="text-base">Solicita una fecha</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Elige el día que mejor te convenga para que recojamos tu aceite usado.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-asram" />
-                    <CardTitle className="text-base">Confirma la hora</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Te ofrecemos un horario de recogida ajustado a tu disponibilidad.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-2">
-                    <Droplet className="h-5 w-5 text-asram" />
-                    <CardTitle className="text-base">Entrega tu aceite</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Nos encargamos de recogerlo y darle una segunda vida de forma responsable.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Solicitar recogida</CardTitle>
-            <CardDescription>
-              Programa una recogida de aceite usado en tu domicilio
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full bg-asram hover:bg-asram-700">
-              Nueva solicitud
-            </Button>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <CalendarIcon className="mr-2 h-5 w-5 text-[#ee970d]" />
+                  Próxima Recogida
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-lg font-semibold">
+                  {profile?.distrito 
+                    ? `Distrito ${profile.distrito}` 
+                    : "Sin programar"}
+                </p>
+                <p className="text-sm text-gray-500">Consulta el calendario</p>
+              </CardContent>
+            </Card>
             
-            <div className="mt-6">
-              <h4 className="font-medium text-sm mb-2">Próximas recogidas en tu zona</h4>
-              <div className="space-y-2">
-                <div className="text-xs p-2 bg-gray-50 rounded flex justify-between">
-                  <span>Chamberí</span>
-                  <span className="font-medium">Lunes, 28 Abril</span>
-                </div>
-                <div className="text-xs p-2 bg-gray-50 rounded flex justify-between">
-                  <span>Centro</span>
-                  <span className="font-medium">Miércoles, 30 Abril</span>
-                </div>
-                <div className="text-xs p-2 bg-gray-50 rounded flex justify-between">
-                  <span>Salamanca</span>
-                  <span className="font-medium">Viernes, 2 Mayo</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Tu historial de recogidas</CardTitle>
-          <CardDescription>
-            Registro de las recogidas de aceite solicitadas
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No hay recogidas registradas</p>
-            <p className="text-sm mt-2">
-              Cuando solicites una recogida, aparecerá en esta sección
-            </p>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <RecycleIcon className="mr-2 h-5 w-5 text-[#ee970d]" />
+                  Puntos Verdes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-4xl font-bold text-[#ee970d]">{profile?.puntosVerdes || 0}</p>
+                <p className="text-sm text-gray-500">Acumulados</p>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+
+          <section>
+            <h3 className="text-xl font-bold mb-4 text-gray-800">Calendario de Recogidas</h3>
+            <RecogidaCalendar />
+          </section>
+        </>
+      )}
     </div>
   );
 };

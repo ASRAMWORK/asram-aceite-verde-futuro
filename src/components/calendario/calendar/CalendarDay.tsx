@@ -38,25 +38,25 @@ const CalendarDay = ({
             className={cn(
               "h-14 p-2 border rounded-md transition-colors relative overflow-hidden",
               isWeekend ? "bg-gray-50" : "bg-white",
-              hasRecogida ? "border-[#ee970d]" : "border-gray-200",
+              hasRecogida ? "border-[#ee970d] shadow-sm" : "border-gray-200",
               "hover:shadow-md cursor-pointer"
             )}
           >
             {hasRecogida && (
-              <div className="absolute inset-0 w-1 bg-[#ee970d] left-0"></div>
+              <div className="absolute inset-0 w-1.5 bg-[#ee970d] left-0"></div>
             )}
             <div className="flex flex-col h-full">
               <span className={cn(
-                "text-sm",
+                "text-sm font-medium",
                 isWeekend ? "text-gray-400" : "text-gray-700",
-                hasRecogida && "font-medium"
+                hasRecogida && "font-bold text-[#ee970d]"
               )}>
                 {day}
               </span>
               {hasRecogida && (
                 <Badge 
                   variant="secondary" 
-                  className="mt-auto text-xs bg-amber-100 text-amber-800 border-[#ee970d] border"
+                  className="mt-auto text-xs bg-amber-50 text-[#ee970d] border-[#ee970d] border"
                 >
                   Recogida
                 </Badge>
@@ -71,7 +71,7 @@ const CalendarDay = ({
               {recogidaDetails.barrio && (
                 <p className="text-gray-600">{recogidaDetails.barrio}</p>
               )}
-              <p className="text-gray-600">{recogidaDetails.hora}</p>
+              <p className="text-gray-600">Hora: {recogidaDetails.hora}</p>
             </div>
           </TooltipContent>
         )}

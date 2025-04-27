@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend } from "recharts";
 
 const ImpactCharts = () => {
   const recyclingData = [
@@ -12,32 +12,43 @@ const ImpactCharts = () => {
   ];
 
   const participationData = [
-    { name: "Participan", value: 35, color: "#10B981" },
-    { name: "No Participan", value: 65, color: "#EF4444" },
+    { name: "Participan", value: 35, color: "#ee970d" },
+    { name: "No Participan", value: 65, color: "#f3f4f6" },
   ];
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
+      <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-[#ee970d]/10">
         <CardHeader>
-          <CardTitle>Reciclaje por Distrito</CardTitle>
+          <CardTitle className="text-[#ee970d]">Reciclaje por Distrito</CardTitle>
         </CardHeader>
         <CardContent className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={recyclingData}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
               <XAxis dataKey="distrito" />
               <YAxis />
-              <Tooltip />
-              <Bar dataKey="litros" fill="#10B981" />
+              <Tooltip 
+                contentStyle={{ 
+                  borderColor: "#ee970d", 
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                }}
+                labelStyle={{ 
+                  color: "#ee970d",
+                  fontWeight: "bold"
+                }}
+              />
+              <Legend />
+              <Bar dataKey="litros" fill="#ee970d" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
+      <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-[#ee970d]/10">
         <CardHeader>
-          <CardTitle>Participación Ciudadana</CardTitle>
+          <CardTitle className="text-[#ee970d]">Participación Ciudadana</CardTitle>
         </CardHeader>
         <CardContent className="h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -57,7 +68,14 @@ const ImpactCharts = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip 
+                contentStyle={{ 
+                  borderColor: "#ee970d", 
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                }}
+              />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import DistritoBarrioFilter from "./filters/DistritoBarrioFilter";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import { format, isSameDay, isWeekend, addDays } from "date-fns";
+import { format, isSameDay, isWeekend } from "date-fns";
 import { es } from "date-fns/locale";
 import CalendarDay from "./calendar/CalendarDay";
 
@@ -18,28 +18,42 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
   const [selectedBarrio, setSelectedBarrio] = useState("");
   const { recogidas, loadRecogidasData } = useRecogidas();
   const [showNoRecogidasMessage, setShowNoRecogidasMessage] = useState(false);
+  
+  // Mapeo de números de día a distritos para simular datos
+  const distritosMap: Record<number, string> = {
+    1: "Centro",
+    2: "Arganzuela",
+    3: "Retiro",
+    4: "Salamanca",
+    5: "Chamartín",
+    6: "Tetuán",
+    7: "Chamberí",
+    8: "Fuencarral-El Pardo",
+    9: "Moncloa-Aravaca",
+    10: "Latina",
+    11: "Carabanchel",
+    12: "Usera",
+    13: "Puente de Vallecas",
+    14: "Moratalaz",
+    15: "Ciudad Lineal",
+    16: "Hortaleza",
+    17: "Villaverde",
+    18: "Villa de Vallecas",
+    19: "Vicálvaro",
+    20: "San Blas-Canillejas",
+    21: "Barajas"
+  };
 
   // Si no hay recogidas programadas, crearemos algunas ficticias para mostrar el funcionamiento
   useEffect(() => {
     if (recogidas.length === 0) {
-      const today = new Date();
-      const distritos = [
-        "Centro", "Arganzuela", "Retiro", "Salamanca", "Chamartín", 
-        "Tetuán", "Chamberí", "Fuencarral-El Pardo"
-      ];
-      
-      // Crea recogidas ficticias para cada distrito en diferentes días
-      const createRecogidas = async () => {
-        setShowNoRecogidasMessage(true);
-      };
-      
-      createRecogidas();
+      setShowNoRecogidasMessage(true);
     } else {
       setShowNoRecogidasMessage(false);
     }
   }, [recogidas]);
 
-  // Función para simular días de recogida si no hay datos reales
+  // Función para verificar si hay recogida en una fecha
   const hasRecogidaOnDate = (date: Date) => {
     // Primero verificamos si hay recogidas reales
     const hasRealRecogida = recogidas.some(recogida => 
@@ -50,81 +64,21 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
 
     if (hasRealRecogida) return true;
 
-    // Si no hay recogidas reales, simulamos algunas
+    // Si no hay recogidas reales, simulamos según el día del mes
     if (recogidas.length === 0) {
-      // Determinar el distrito para esta fecha
       const dayOfMonth = date.getDate();
-      const weekDay = date.getDay();
       
       // Si es fin de semana, no hay recogidas
       if (isWeekend(date)) return false;
       
-      // Asignar días específicos para cada distrito
-      // Centro: 1, 15
-      if ((dayOfMonth === 1 || dayOfMonth === 15) && 
-          (!selectedDistrito || selectedDistrito === "Centro") && 
-          !isWeekend(date)) {
-        return true;
-      }
-      
-      // Arganzuela: 2, 16
-      if ((dayOfMonth === 2 || dayOfMonth === 16) && 
-          (!selectedDistrito || selectedDistrito === "Arganzuela") && 
-          !isWeekend(date)) {
-        return true;
-      }
-      
-      // Retiro: 3, 17
-      if ((dayOfMonth === 3 || dayOfMonth === 17) && 
-          (!selectedDistrito || selectedDistrito === "Retiro") && 
-          !isWeekend(date)) {
-        return true;
-      }
-      
-      // Salamanca: 4, 18
-      if ((dayOfMonth === 4 || dayOfMonth === 18) && 
-          (!selectedDistrito || selectedDistrito === "Salamanca") && 
-          !isWeekend(date)) {
-        return true;
-      }
-      
-      // Chamartín: 5, 19
-      if ((dayOfMonth === 5 || dayOfMonth === 19) && 
-          (!selectedDistrito || selectedDistrito === "Chamartín") && 
-          !isWeekend(date)) {
-        return true;
-      }
-      
-      // Tetuán: 6, 20
-      if ((dayOfMonth === 6 || dayOfMonth === 20) && 
-          (!selectedDistrito || selectedDistrito === "Tetuán") && 
-          !isWeekend(date)) {
-        return true;
-      }
-      
-      // Chamberí: 7, 21
-      if ((dayOfMonth === 7 || dayOfMonth === 21) && 
-          (!selectedDistrito || selectedDistrito === "Chamberí") && 
-          !isWeekend(date)) {
-        return true;
-      }
-      
-      // Fuencarral-El Pardo: los lunes
-      if (weekDay === 1 && 
-          (!selectedDistrito || selectedDistrito === "Fuencarral-El Pardo")) {
-        return true;
-      }
-      
-      // Moncloa-Aravaca: los martes
-      if (weekDay === 2 && 
-          (!selectedDistrito || selectedDistrito === "Moncloa-Aravaca")) {
-        return true;
-      }
-      
-      // Latina: los miércoles
-      if (weekDay === 3 && 
-          (!selectedDistrito || selectedDistrito === "Latina")) {
-        return true;
+      // Si el día del mes corresponde a un distrito
+      if (dayOfMonth >= 1 && dayOfMonth <= 21) {
+        const distritoForThisDay = distritosMap[dayOfMonth];
+        
+        // Si no hay distrito seleccionado o coincide con el día
+        if (!selectedDistrito || selectedDistrito === distritoForThisDay) {
+          return true;
+        }
       }
     }
     
@@ -147,24 +101,10 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
       };
     }
     
-    // Si no hay recogida real, generar información ficticia
-    if (hasRecogidaOnDate(date)) {
-      const dayOfMonth = date.getDate();
-      const weekDay = date.getDay();
-      
-      let distrito = "";
-      
-      // Asignar distritos según el día del mes o de la semana
-      if (dayOfMonth === 1 || dayOfMonth === 15) distrito = "Centro";
-      else if (dayOfMonth === 2 || dayOfMonth === 16) distrito = "Arganzuela";
-      else if (dayOfMonth === 3 || dayOfMonth === 17) distrito = "Retiro";
-      else if (dayOfMonth === 4 || dayOfMonth === 18) distrito = "Salamanca";
-      else if (dayOfMonth === 5 || dayOfMonth === 19) distrito = "Chamartín";
-      else if (dayOfMonth === 6 || dayOfMonth === 20) distrito = "Tetuán";
-      else if (dayOfMonth === 7 || dayOfMonth === 21) distrito = "Chamberí";
-      else if (weekDay === 1) distrito = "Fuencarral-El Pardo";
-      else if (weekDay === 2) distrito = "Moncloa-Aravaca";
-      else if (weekDay === 3) distrito = "Latina";
+    // Si no hay recogida real, generar información ficticia basada en el día del mes
+    const dayOfMonth = date.getDate();
+    if (dayOfMonth >= 1 && dayOfMonth <= 21 && !isWeekend(date)) {
+      const distrito = distritosMap[dayOfMonth];
       
       // Solo devolver detalles si coincide con los filtros
       if (!selectedDistrito || distrito === selectedDistrito) {
@@ -189,7 +129,12 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
       <CardContent className="p-6">
         {showNoRecogidasMessage && (
           <div className="bg-amber-50 border border-amber-200 p-3 mb-6 rounded-md text-amber-800 text-sm">
-            Nota: Estos son días de recogida simulados. Contacta con ASRAM para conocer los días reales de recogida en tu distrito.
+            <p className="font-medium">Días de recogida por distrito:</p>
+            <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
+              {Object.entries(distritosMap).map(([day, distrito]) => (
+                <li key={day}>• Día {day}: Distrito {distrito}</li>
+              ))}
+            </ul>
           </div>
         )}
         

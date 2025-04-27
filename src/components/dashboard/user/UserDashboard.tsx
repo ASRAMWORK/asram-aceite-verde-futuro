@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -13,25 +13,37 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { Home, Users, RecycleIcon, Calendar, User, GraduationCap, MapPin, Droplet } from "lucide-react";
+import { Home, Users, RecycleIcon, User, GraduationCap, MapPin, Droplet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import HomeView from "./home/HomeView";
 import AlianzaVerdeView from "./alianza/AlianzaVerdeView";
 import ApadrinaCalleView from "./apadrina/ApadrinaCalleView";
 import RecogidaAceiteView from "./recogida/RecogidaAceiteView";
-import ReunionView from "./reunion/ReunionView";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useRecogidas } from "@/hooks/useRecogidas";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
   const { profile, loading } = useUserProfile();
   const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { getTotalLitrosRecogidos } = useRecogidas();
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-asram"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#ee970d]"></div>
       </div>
     );
   }
@@ -51,14 +63,14 @@ const UserDashboard = () => {
             className="flex justify-between items-center"
           >
             <div>
-              <h1 className="text-4xl font-bold text-asram-800">
+              <h1 className="text-4xl font-bold text-[#ee970d]">
                 Panel de Usuario
               </h1>
               <p className="text-gray-600">
                 Bienvenido, {profile?.nombre || 'Usuario'}
               </p>
             </div>
-            <Button onClick={logout} variant="destructive">
+            <Button onClick={handleLogout} variant="destructive">
               Cerrar sesión
             </Button>
           </motion.div>
@@ -67,25 +79,25 @@ const UserDashboard = () => {
             <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl flex items-center gap-2">
-                  <RecycleIcon className="h-6 w-6 text-green-600" />
+                  <RecycleIcon className="h-6 w-6 text-[#ee970d]" />
                   <span>Aceite Reciclado</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-700">25L</div>
-                <p className="text-sm text-green-600">Este mes</p>
+                <div className="text-3xl font-bold text-[#ee970d]">{profile?.litrosAportados || 0}L</div>
+                <p className="text-sm text-green-600">Tu contribución</p>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl flex items-center gap-2">
-                  <Droplet className="h-6 w-6 text-blue-600" />
+                  <Droplet className="h-6 w-6 text-[#ee970d]" />
                   <span>Agua Ahorrada</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-blue-700">25,000L</div>
+                <div className="text-3xl font-bold text-[#ee970d]">{(profile?.litrosAportados || 0) * 1000}L</div>
                 <p className="text-sm text-blue-600">Impacto total</p>
               </CardContent>
             </Card>
@@ -93,12 +105,12 @@ const UserDashboard = () => {
             <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl flex items-center gap-2">
-                  <GraduationCap className="h-6 w-6 text-purple-600" />
+                  <GraduationCap className="h-6 w-6 text-[#ee970d]" />
                   <span>Puntos Verdes</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-purple-700">150</div>
+                <div className="text-3xl font-bold text-[#ee970d]">{profile?.puntosVerdes || 0}</div>
                 <p className="text-sm text-purple-600">Puntos acumulados</p>
               </CardContent>
             </Card>
@@ -123,10 +135,6 @@ const UserDashboard = () => {
               <RecycleIcon className="h-4 w-4" />
               <span>Recogida</span>
             </TabsTrigger>
-            <TabsTrigger value="reunion" className="flex items-center gap-2 px-4 py-2">
-              <Calendar className="h-4 w-4" />
-              <span>Reuniones</span>
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="home" className="space-y-6">
@@ -143,10 +151,6 @@ const UserDashboard = () => {
 
           <TabsContent value="recogida" className="space-y-6">
             <RecogidaAceiteView />
-          </TabsContent>
-
-          <TabsContent value="reunion" className="space-y-6">
-            <ReunionView />
           </TabsContent>
         </Tabs>
       </div>
