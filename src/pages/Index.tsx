@@ -9,6 +9,7 @@ import ImpactSection from "@/components/home/ImpactSection";
 import CalendarSection from "@/components/home/CalendarSection";
 import ContactCta from "@/components/home/ContactCta";
 import Footer from "@/components/home/Footer";
+import PuntosLimpiosSection from "@/components/home/PuntosLimpiosSection";
 
 const Index = () => {
   // Scroll to top when page loads
@@ -25,6 +26,7 @@ const Index = () => {
         <AboutSection />
         <ServicesSection />
         <ImpactSection />
+        <PuntosLimpiosSection />
         <CalendarSection />
         <ContactCta />
       </main>
