@@ -1,323 +1,257 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { useUsuarios } from "@/hooks/useUsuarios";
-import { useNavigate } from "react-router-dom";
-import type { Usuario } from "@/types";
-
-const formSchema = z.object({
-  nombre: z.string().min(2, { message: "El nombre es obligatorio" }),
-  apellido: z.string().min(2, { message: "El apellido es obligatorio" }),
-  email: z.string().email({ message: "Email inválido" }),
-  telefono: z.string().min(9, { message: "Teléfono inválido" }),
-  direccion: z.string().optional(),
-  ciudad: z.string().optional(),
-  provincia: z.string().optional(),
-  codigoPostal: z.string().optional(),
-  pais: z.string().optional(),
-  tipo: z.string().optional(),
-  distrito: z.string().optional(),
-  barrio: z.string().optional(),
-  numViviendas: z.string().optional(),
-  numContenedores: z.string().optional(),
-});
 
 interface ClienteFormProps {
-  onCancel: () => void;
+  onSubmit: (data: any) => void;
+  onClose: () => void;
+  initialData?: any;
 }
 
-const ClienteForm = ({ onCancel }: ClienteFormProps) => {
-  const { toast } = useToast();
-  const { addUsuario } = useUsuarios();
-  const navigate = useNavigate();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      nombre: "",
-      apellido: "",
-      email: "",
-      telefono: "",
-      direccion: "",
-      ciudad: "",
-      provincia: "",
-      codigoPostal: "",
-      pais: "España",
-      tipo: "Particular",
-      distrito: "",
-      barrio: "",
-      numViviendas: "",
-      numContenedores: "",
-    },
+const ClienteForm = ({ onSubmit, onClose, initialData }: ClienteFormProps) => {
+  const [formData, setFormData] = useState({
+    nombre: initialData?.nombre || '',
+    apellido: initialData?.apellido || '',
+    email: initialData?.email || '',
+    telefono: initialData?.telefono || '',
+    direccion: initialData?.direccion || '',
+    ciudad: initialData?.ciudad || '',
+    provincia: initialData?.provincia || '',
+    codigoPostal: initialData?.codigoPostal || '',
+    pais: initialData?.pais || '',
+    activo: initialData?.activo || true,
+    tipo: initialData?.tipo || '',
+    role: initialData?.role || '',
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    try {
-      const nuevoCliente: Omit<Usuario, "id"> = {
-        nombre: data.nombre,
-        apellido: data.apellido,
-        email: data.email,
-        telefono: data.telefono,
-        direccion: data.direccion,
-        ciudad: data.ciudad,
-        provincia: data.provincia,
-        codigoPostal: data.codigoPostal,
-        pais: data.pais,
-        tipo: data.tipo,
-        role: "user",
-        activo: true,
-        distrito: data.distrito,
-        barrio: data.barrio,
-        numViviendas: parseInt(data.numViviendas) || 0,
-        numContenedores: parseInt(data.numContenedores) || 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+  const { toast } = useToast();
 
-      await addUsuario(nuevoCliente);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: checked,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await onSubmit(formData);
       toast({
-        title: "Cliente creado correctamente.",
+        title: "Éxito",
+        description: "Cliente guardado correctamente.",
       });
-      navigate("/dashboard/administrador/clientes");
+      onClose();
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Error al crear el cliente.",
-        description: "Por favor, inténtalo de nuevo.",
+        title: "Error",
+        description: "Hubo un problema al guardar el cliente.",
       });
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="nombre"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="apellido"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Apellido</FormLabel>
-                <FormControl>
-                  <Input placeholder="Apellido" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <DialogContent className="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>Crear/Editar Cliente</DialogTitle>
+        <DialogDescription>
+          Añade un nuevo cliente a la base de datos.
+        </DialogDescription>
+      </DialogHeader>
+      <form onSubmit={handleSubmit}>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="nombre" className="text-right">
+              Nombre
+            </Label>
+            <Input
+              type="text"
+              id="nombre"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="apellido" className="text-right">
+              Apellido
+            </Label>
+            <Input
+              type="text"
+              id="apellido"
+              name="apellido"
+              value={formData.apellido}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="email" className="text-right">
+              Email
+            </Label>
+            <Input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="telefono" className="text-right">
+              Teléfono
+            </Label>
+            <Input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="direccion" className="text-right">
+              Dirección
+            </Label>
+            <Input
+              type="text"
+              id="direccion"
+              name="direccion"
+              value={formData.direccion}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="ciudad" className="text-right">
+              Ciudad
+            </Label>
+            <Input
+              type="text"
+              id="ciudad"
+              name="ciudad"
+              value={formData.ciudad}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="provincia" className="text-right">
+              Provincia
+            </Label>
+            <Input
+              type="text"
+              id="provincia"
+              name="provincia"
+              value={formData.provincia}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="codigoPostal" className="text-right">
+              Código Postal
+            </Label>
+            <Input
+              type="text"
+              id="codigoPostal"
+              name="codigoPostal"
+              value={formData.codigoPostal}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="pais" className="text-right">
+              País
+            </Label>
+            <Input
+              type="text"
+              id="pais"
+              name="pais"
+              value={formData.pais}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="tipo" className="text-right">
+              Tipo
+            </Label>
+            <Input
+              type="text"
+              id="tipo"
+              name="tipo"
+              value={formData.tipo}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="role" className="text-right">
+              Role
+            </Label>
+            <Input
+              type="text"
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="activo" className="text-right">
+              Activo
+            </Label>
+            <Checkbox
+              id="activo"
+              name="activo"
+              checked={formData.activo}
+              onCheckedChange={(checked) => setFormData({ ...formData, activo: checked })}
+              className="col-span-3"
+            />
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Email" type="email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="telefono"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Teléfono" type="tel" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="direccion"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dirección</FormLabel>
-                <FormControl>
-                  <Input placeholder="Dirección" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="ciudad"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ciudad</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ciudad" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="provincia"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Provincia</FormLabel>
-                <FormControl>
-                  <Input placeholder="Provincia" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="codigoPostal"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código Postal</FormLabel>
-                <FormControl>
-                  <Input placeholder="Código Postal" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="pais"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>País</FormLabel>
-                <FormControl>
-                  <Input placeholder="País" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="tipo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un tipo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Particular">Particular</SelectItem>
-                    <SelectItem value="Comunidad">Comunidad</SelectItem>
-                    <SelectItem value="Restaurante">Restaurante</SelectItem>
-                    <SelectItem value="Hotel">Hotel</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="distrito"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Distrito</FormLabel>
-                <FormControl>
-                  <Input placeholder="Distrito" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="barrio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Barrio</FormLabel>
-                <FormControl>
-                  <Input placeholder="Barrio" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="numViviendas"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de viviendas</FormLabel>
-                <FormControl>
-                  <Input placeholder="Número de viviendas" type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="numContenedores"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de contenedores</FormLabel>
-                <FormControl>
-                  <Input placeholder="Número de contenedores" type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="flex justify-end gap-4">
-          <Button variant="outline" onClick={onCancel}>
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit">Crear Cliente</Button>
-        </div>
+          <Button type="submit">Guardar</Button>
+        </DialogFooter>
       </form>
-    </Form>
+    </DialogContent>
   );
 };
 

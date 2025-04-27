@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { Ingreso, Gasto } from "@/types";
@@ -6,10 +7,12 @@ import { useToast } from "@/components/ui/use-toast";
 const useFacturacion = () => {
   const [ingresos, setIngresos] = useState<Ingreso[]>([]);
   const [gastos, setGastos] = useState<Gasto[]>([]);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     // Aquí puedes cargar los datos iniciales desde localStorage o una API
+    setLoading(true);
     const storedIngresos = localStorage.getItem('ingresos');
     if (storedIngresos) {
       setIngresos(JSON.parse(storedIngresos));
@@ -19,6 +22,7 @@ const useFacturacion = () => {
     if (storedGastos) {
       setGastos(JSON.parse(storedGastos));
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -36,7 +40,7 @@ const useFacturacion = () => {
     try {
       const nuevoIngreso: Ingreso = {
         id,
-        concepto: data.concepto,
+        concepto: data.concepto || "",
         cantidad: data.cantidad || 0,
         tipo: data.tipo || "general",
         fecha: data.fecha || new Date(),
@@ -67,7 +71,7 @@ const useFacturacion = () => {
 
   const updateIngreso = async (id: string, data: Partial<Ingreso>) => {
     try {
-      setIngresos(ingresos.map(ingreso => ingreso.id === id ? { ...ingreso, ...data } : ingreso));
+      setIngresos(ingresos.map(ingreso => ingreso.id === id ? { ...ingreso, ...data, updatedAt: new Date() } : ingreso));
       toast({
         title: "Éxito",
         description: "Ingreso actualizado correctamente.",
@@ -100,7 +104,7 @@ const useFacturacion = () => {
     try {
       const nuevoGasto: Gasto = {
         id,
-        concepto: data.concepto,
+        concepto: data.concepto || "",
         cantidad: data.cantidad || 0,
         tipo: data.tipo || "general",
         fecha: data.fecha || new Date(),
@@ -130,7 +134,7 @@ const useFacturacion = () => {
 
   const updateGasto = async (id: string, data: Partial<Gasto>) => {
     try {
-      setGastos(gastos.map(gasto => gasto.id === id ? { ...gasto, ...data } : gasto));
+      setGastos(gastos.map(gasto => gasto.id === id ? { ...gasto, ...data, updatedAt: new Date() } : gasto));
       toast({
         title: "Éxito",
         description: "Gasto actualizado correctamente.",
@@ -157,16 +161,81 @@ const useFacturacion = () => {
       });
     }
   };
+  
+  // Add missing function for FacturasPendientes component
+  const updateFacturaEstado = async (id: string, tipo: 'ingreso' | 'gasto', estado: string) => {
+    try {
+      if (tipo === 'ingreso') {
+        await updateIngreso(id, { estado });
+      } else {
+        await updateGasto(id, { estado });
+      }
+      toast({
+        title: "Éxito",
+        description: `${tipo === 'ingreso' ? 'Ingreso' : 'Gasto'} actualizado correctamente.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al actualizar el estado.",
+      });
+    }
+  };
+  
+  // Add financial summary function
+  const getFinancialSummary = () => {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    
+    // Filter items for the current month
+    const ingresosMesFiltrados = ingresos.filter(item => {
+      const fecha = item.fecha instanceof Date ? item.fecha : new Date(item.fecha);
+      return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+    });
+    
+    const gastosMesFiltrados = gastos.filter(item => {
+      const fecha = item.fecha instanceof Date ? item.fecha : new Date(item.fecha);
+      return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+    });
+    
+    // Calculate totals
+    const ingresosMes = ingresosMesFiltrados.reduce((sum, item) => sum + item.cantidad, 0);
+    const gastosMes = gastosMesFiltrados.reduce((sum, item) => sum + item.cantidad, 0);
+    const balanceMes = ingresosMes - gastosMes;
+    
+    // Calculate pending amounts
+    const pendienteCobro = ingresos
+      .filter(item => item.estado === 'pendiente')
+      .reduce((sum, item) => sum + item.cantidad, 0);
+    
+    const pendientePago = gastos
+      .filter(item => item.estado === 'pendiente')
+      .reduce((sum, item) => sum + item.cantidad, 0);
+    
+    return {
+      ingresosMes,
+      gastosMes,
+      balanceMes,
+      pendienteCobro,
+      pendientePago,
+      totalIngresos: ingresos.reduce((sum, item) => sum + item.cantidad, 0),
+      totalGastos: gastos.reduce((sum, item) => sum + item.cantidad, 0)
+    };
+  };
 
   return {
     ingresos,
     gastos,
+    loading,
     addIngreso,
     updateIngreso,
     deleteIngreso,
     addGasto,
     updateGasto,
-    deleteGasto
+    deleteGasto,
+    updateFacturaEstado,
+    getFinancialSummary
   };
 };
 

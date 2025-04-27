@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -27,10 +26,11 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Gasto } from "@/types";
+import { useFacturacion } from "@/hooks/useFacturacion";
 
 type GastoFormProps = {
-  onSubmit: (data: Partial<Omit<Gasto, "id">>) => void;
-  onCancel: () => void;
+  onSubmit?: (data: Partial<Omit<Gasto, "id">>) => void;
+  onCancel?: () => void;
   onClose?: () => void; // Add onClose prop for compatibility
   initialData?: Partial<Omit<Gasto, "id">>;
   isOpen?: boolean; // Add isOpen prop for compatibility
@@ -38,6 +38,7 @@ type GastoFormProps = {
 
 const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addGasto } = useFacturacion();
 
   const form = useForm<Partial<Omit<Gasto, "id">>>({
     defaultValues: initialData || {
@@ -47,7 +48,7 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
       cantidad: 0,
       iva: 0,
       total: 0,
-      metodoPago: "",
+      metodoPago: "efectivo",
       notas: "",
       estado: "pendiente",
       categoria: "general",
@@ -55,7 +56,7 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
     },
   });
 
-  const addGasto = async (data) => {
+  const handleSubmit = async (data) => {
     try {
       setIsSubmitting(true);
       
@@ -70,9 +71,15 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
         updatedAt: new Date()
       };
       
-      onSubmit(nuevoGasto);
+      if (onSubmit) {
+        onSubmit(nuevoGasto);
+      } else {
+        await addGasto(nuevoGasto);
+      }
+      
       toast.success("Gasto añadido correctamente");
       if (onClose) onClose(); // Call onClose when provided
+      if (onCancel) onCancel();
     } catch (error) {
       console.error("Error al añadir gasto:", error);
       toast.error("Error al añadir gasto");
@@ -84,12 +91,12 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
   // Use onClose if provided, otherwise fall back to onCancel
   const handleCancel = () => {
     if (onClose) onClose();
-    else onCancel();
+    else if (onCancel) onCancel();
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(addGasto)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="proveedor"

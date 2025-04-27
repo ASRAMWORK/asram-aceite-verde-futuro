@@ -65,9 +65,12 @@ type TrabajadorFormProps = {
   onSubmit: (data: z.infer<typeof formSchema>) => Promise<void>;
   onCancel: () => void;
   trabajador?: Trabajador | null;
+  initialData?: Partial<Trabajador>;
+  vehiculos?: string[];
+  rutas?: string[];
 };
 
-const TrabajadorForm = ({ onSubmit, onCancel, trabajador }: TrabajadorFormProps) => {
+const TrabajadorForm = ({ onSubmit, onCancel, trabajador, initialData, vehiculos, rutas }: TrabajadorFormProps) => {
   const {
     register,
     handleSubmit,
@@ -77,11 +80,11 @@ const TrabajadorForm = ({ onSubmit, onCancel, trabajador }: TrabajadorFormProps)
     resolver: zodResolver(formSchema),
   });
 
-  const initialData = trabajador ? {
+  const initialDataWithDefaults = trabajador ? {
     ...trabajador,
   } : {
     nombre: "",
-    apellido: "", // Changed from apellidos
+    apellido: "", // Changed from apellidos to apellido
     email: "",
     telefono: "",
     direccion: "",
@@ -105,15 +108,44 @@ const TrabajadorForm = ({ onSubmit, onCancel, trabajador }: TrabajadorFormProps)
     // Specify valid values for metodo and frecuencia
     salarioBase: 0,
     cuentaBancaria: "",
-    metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro", // Fixed type
-    frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal", // Fixed type
+    metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro", // Type cast to fix type error
+    frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal", // Type cast to fix type error
     diaCobro: 1,
     beneficios: [],
   };
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<Partial<Trabajador>>({
+    defaultValues: initialDataWithDefaults || {
+      nombre: "",
+      apellido: "", // Changed from apellidos to apellido
+      email: "",
+      telefono: "",
+      direccion: "",
+      ciudad: "",
+      provincia: "",
+      codigoPostal: "",
+      pais: "España",
+      dni: "",
+      fechaNacimiento: null,
+      cargo: "",
+      departamento: "",
+      fechaContratacion: new Date(),
+      foto: "",
+      fechaAlta: new Date(),
+      activo: true,
+      tipoContrato: "",
+      tipoJornada: "",
+      roles: [],
+      vehiculoAsignado: "",
+      rutasAsignadas: [],
+      salarioBase: 0,
+      cuentaBancaria: "",
+      metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro", // Type cast to fix type error
+      frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal", // Type cast to fix type error
+      diaCobro: 1,
+      beneficios: [],
+    },
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
     mode: "onChange",
   });
 

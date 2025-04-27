@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -35,7 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { usePuntosVerdes } from "@/hooks/usePuntosVerdes";
 import { useRutas } from "@/hooks/useRutas";
-import { PuntoVerde } from "@/types";
+import { PuntoVerde, Ruta } from "@/types"; // Add Ruta import
 import { Check, Droplet, ListChecks, MapPin, Plus, Route, Save, Search } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from 'date-fns';

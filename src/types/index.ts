@@ -1,4 +1,3 @@
-
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -102,7 +101,6 @@ export interface Trabajador {
   cargo: string;
   departamento: string;
   fechaContratacion: any;
-  // Extended properties for TrabajadorForm
   foto?: string;
   fechaAlta?: Date;
   tipoContrato?: string;
@@ -413,7 +411,6 @@ export interface TallerProgramado {
   instructor: string;
   estado: "programado" | "completado" | "cancelado";
   observaciones?: string;
-  // For compatibility with existing code
   centroId?: string;
   nombreCentro?: string;
   tipoTaller?: string;
@@ -474,6 +471,7 @@ export interface Incidencia {
   estado: string;
   prioridad: string;
   asignadoA?: string;
+  tipo?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -492,7 +490,14 @@ export interface UserProfile {
   updatedAt: any;
 }
 
-// Add this for typing Project in useProjects hook
+export interface TrabajadorFormProps {
+  onSubmit: (data: any) => Promise<void>;
+  onCancel: () => void;
+  initialData?: any;
+  vehiculos?: any[];
+  rutas?: any[];
+}
+
 export interface Project {
   id: string;
   nombre: string;

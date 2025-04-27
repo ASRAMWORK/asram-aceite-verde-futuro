@@ -15,10 +15,16 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 interface TrabajadorDetalleProps {
   trabajador: Trabajador;
+  onClose: () => void;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
-const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdit }) => {
+const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onClose, onEdit, onDelete }) => {
+  if (!trabajador) return null;
+  
+  const nombreCompleto = `${trabajador.nombre} ${trabajador.apellido}`;
+  
   const { turnos, getTurnosPorTrabajador } = useTurnos();
   const { vehiculos } = useVehiculos();
   const { incidencias, getIncidenciasPorTrabajador } = useIncidencias();
@@ -60,21 +66,10 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-        <div className="flex items-center space-x-4">
-          <Avatar className="h-16 w-16">
-            {trabajador?.foto ? (
-              <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellido}`} />
-            ) : (
-              <AvatarFallback className="text-lg">
-                {trabajador?.nombre?.[0]}{trabajador?.apellido?.[0]}
-              </AvatarFallback>
-            )}
-          </Avatar>
-          <div>
-            <h3 className="text-2xl font-bold">{trabajador?.nombre} {trabajador?.apellido}</h3>
-            <p className="text-muted-foreground">{trabajador?.cargo}</p>
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-2xl font-bold">{nombreCompleto}</h3>
+          <p className="text-muted-foreground">{trabajador.email}</p>
         </div>
         
         <Button onClick={onEdit} className="bg-asram">
