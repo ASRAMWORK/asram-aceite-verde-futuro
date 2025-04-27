@@ -48,6 +48,7 @@ import {
   Trash2, 
   Users 
 } from "lucide-react";
+import TalleresProgramados from "./alianza/TalleresProgramados";
 
 type CentroFormData = {
   nombre: string;

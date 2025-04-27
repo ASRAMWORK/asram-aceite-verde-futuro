@@ -456,3 +456,17 @@ export interface TrabajadorPago {
   createdAt: any;
   updatedAt?: any;
 }
+
+export interface TallerProgramado {
+  id: string;
+  centroId: string;
+  nombreCentro: string;
+  direccion: string;
+  tipoTaller: string;
+  fechaTaller: Date;
+  numAlumnos: number;
+  contacto: string;
+  telefono: string;
+  email: string;
+  estado: 'programado' | 'completado' | 'cancelado';
+}
