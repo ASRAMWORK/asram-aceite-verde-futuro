@@ -1,5 +1,6 @@
 
 import { Link } from "react-router-dom";
+import { ShoppingCart } from "lucide-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
