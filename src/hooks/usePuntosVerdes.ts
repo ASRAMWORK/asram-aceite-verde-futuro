@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PuntoVerde } from '@/types';
@@ -6,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 export const usePuntosVerdes = () => {
   const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -21,6 +23,7 @@ export const usePuntosVerdes = () => {
       }
     } catch (error) {
       console.error('Error loading puntos verdes:', error);
+      setError('Error al cargar los puntos verdes');
     } finally {
       setLoading(false);
     }
@@ -74,21 +77,73 @@ export const usePuntosVerdes = () => {
     }
   };
 
-  // TODO: Implement updatePuntoVerde and deletePuntoVerde
-  // const updatePuntoVerde = async (id: string, data: Partial<PuntoVerde>) => {
-  //   // Logic to update a Punto Verde
-  // };
+  // Add the required functions
+  const updatePuntoVerde = async (id: string, data: Partial<PuntoVerde>): Promise<boolean> => {
+    try {
+      setPuntosVerdes(puntosVerdes.map(punto =>
+        punto.id === id ? { ...punto, ...data, updatedAt: new Date() } : punto
+      ));
+      localStorage.setItem('puntosVerdes', JSON.stringify(puntosVerdes));
+      
+      toast({
+        title: "Éxito",
+        description: "Punto Verde actualizado correctamente."
+      });
+      
+      return true;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al actualizar el Punto Verde."
+      });
+      return false;
+    }
+  };
 
-  // const deletePuntoVerde = async (id: string) => {
-  //   // Logic to delete a Punto Verde
-  // };
+  const deletePuntoVerde = async (id: string): Promise<boolean> => {
+    try {
+      setPuntosVerdes(puntosVerdes.filter(punto => punto.id !== id));
+      localStorage.setItem('puntosVerdes', JSON.stringify(puntosVerdes.filter(punto => punto.id !== id)));
+      
+      toast({
+        title: "Éxito",
+        description: "Punto Verde eliminado correctamente."
+      });
+      
+      return true;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al eliminar el Punto Verde."
+      });
+      return false;
+    }
+  };
+
+  // Add helper functions for districts and neighborhoods
+  const getDistritosUnicos = (): string[] => {
+    return Array.from(new Set(puntosVerdes.map(punto => punto.distrito))).filter(Boolean) as string[];
+  };
+
+  const getBarriosUnicos = (distrito?: string): string[] => {
+    if (distrito) {
+      return Array.from(new Set(puntosVerdes
+        .filter(punto => punto.distrito === distrito)
+        .map(punto => punto.barrio)))
+        .filter(Boolean) as string[];
+    }
+    return Array.from(new Set(puntosVerdes.map(punto => punto.barrio))).filter(Boolean) as string[];
+  };
 
   return {
     puntosVerdes,
     loading,
+    error,
     loadPuntosVerdesData,
     addPuntoVerde,
-    // updatePuntoVerde,
-    // deletePuntoVerde
+    updatePuntoVerde,
+    deletePuntoVerde,
+    getDistritosUnicos,
+    getBarriosUnicos
   };
 };

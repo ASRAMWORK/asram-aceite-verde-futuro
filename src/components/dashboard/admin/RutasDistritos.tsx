@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { useRutas } from "@/hooks/useRutas";
 import { Ruta } from "@/types";
-import { Plus, Pencil, Trash2, Search, MapPin, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, MapPin, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -239,11 +239,11 @@ const RutasDistritos = () => {
                       ) : (
                         <span>Pick a date</span>
                       )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      <Calendar className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
+                    <CalendarComponent
                       mode="single"
                       selected={fechaRecogida}
                       onSelect={setFechaRecogida}
@@ -340,7 +340,7 @@ const RutasDistritos = () => {
                     <TableCell>{ruta.distrito}</TableCell>
                     <TableCell>
                       {ruta.fecha
-                        ? format(ruta.fecha, "dd 'de' MMMM 'de' yyyy", { locale: es })
+                        ? format(new Date(ruta.fecha), "dd 'de' MMMM 'de' yyyy", { locale: es })
                         : "No especificada"}
                     </TableCell>
                     <TableCell>{ruta.puntosRecogida}</TableCell>

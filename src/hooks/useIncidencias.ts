@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Incidencia } from '@/types';
@@ -54,6 +55,11 @@ export const useIncidencias = () => {
     return incidencias.filter(incidencia => incidencia.asignadoA === asignadoId);
   };
 
+  // Add getIncidenciasPorTrabajador function
+  const getIncidenciasPorTrabajador = (trabajadorId: string): Incidencia[] => {
+    return incidencias.filter(incidencia => incidencia.asignadoA === trabajadorId);
+  };
+
   const updateIncidencia = async (id: string, data: Partial<Incidencia>) => {
     setIncidencias(prev =>
       prev.map(incidencia =>
@@ -82,6 +88,7 @@ export const useIncidencias = () => {
     loadIncidenciasData,
     addIncidencia,
     getIncidenciasByAsignado,
+    getIncidenciasPorTrabajador,
     updateIncidencia,
     deleteIncidencia
   };

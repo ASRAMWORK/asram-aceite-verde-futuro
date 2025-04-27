@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Recogida } from '@/types';
@@ -122,6 +123,42 @@ export const useRecogidas = () => {
     }
   };
 
+  // Add the missing completeRecogida function
+  const completeRecogida = async (id: string, litrosRecogidos: number = 0): Promise<boolean> => {
+    try {
+      setRecogidas(recogidas.map(recogida =>
+        recogida.id === id ? {
+          ...recogida,
+          completada: true,
+          estado: 'completada',
+          estadoRecogida: 'completada',
+          litrosRecogidos: litrosRecogidos,
+          updatedAt: new Date()
+        } : recogida
+      ));
+
+      toast({
+        title: "Éxito",
+        description: "Recogida completada correctamente.",
+      });
+
+      return true;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema al completar la recogida.",
+      });
+      return false;
+    }
+  };
+
+  // Add getTotalLitrosRecogidos function
+  const getTotalLitrosRecogidos = (): number => {
+    return recogidas
+      .filter(recogida => recogida.completada)
+      .reduce((total, recogida) => total + (recogida.litrosRecogidos || 0), 0);
+  };
+
   return {
     recogidas,
     loading,
@@ -129,6 +166,8 @@ export const useRecogidas = () => {
     addRecogida,
     getRecogidasByCliente,
     updateRecogida,
-    deleteRecogida
+    deleteRecogida,
+    completeRecogida,
+    getTotalLitrosRecogidos
   };
 };

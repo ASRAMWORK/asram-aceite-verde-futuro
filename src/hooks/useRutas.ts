@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Ruta } from '@/types';
@@ -105,9 +106,16 @@ export const useRutas = () => {
     }
   };
 
-  const completeRuta = async (id: string) => {
+  // Update completeRuta to take litrosTotales as a parameter
+  const completeRuta = async (id: string, litrosTotales: number = 0) => {
     try {
-      setRutas(rutas.map(ruta => ruta.id === id ? { ...ruta, completada: true, fechaCompletada: new Date(), updatedAt: new Date() } : ruta));
+      setRutas(rutas.map(ruta => ruta.id === id ? { 
+        ...ruta, 
+        completada: true, 
+        fechaCompletada: new Date(), 
+        updatedAt: new Date(),
+        litrosTotales: litrosTotales
+      } : ruta));
       toast({
         title: "Éxito",
         description: "Ruta completada correctamente.",

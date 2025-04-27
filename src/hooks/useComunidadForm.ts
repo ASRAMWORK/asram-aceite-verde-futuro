@@ -27,7 +27,11 @@ export const useComunidadForm = () => {
       energia: 0
     },
     createdAt: null, // Initialize with null
-    updatedAt: null // Initialize with null
+    updatedAt: null, // Initialize with null
+    presidente: '',
+    telefono: '',
+    email: '',
+    provincia: ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
