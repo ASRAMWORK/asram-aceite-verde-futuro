@@ -16,7 +16,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { useRecogidas } from "@/hooks/useRecogidas";
 
-const AdminDashboard = () => {
+interface AdminDashboardProps {
+  onSignOut?: () => void;
+}
+
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => {
   const { puntosVerdes, loading: loadingPuntos } = usePuntosVerdes();
   const { usuarios, loading: loadingUsuarios } = useUsuarios();
   const { voluntarios, loading: loadingVoluntarios } = useVoluntarios();
@@ -25,18 +29,15 @@ const AdminDashboard = () => {
   const { ingresos, gastos, loading: loadingFacturacion } = useFacturacion();
   const { recogidas } = useRecogidas();
 
-  // Calculate statistics - now counts all registered users plus active community clients
   const clientesActivos = usuarios.filter(u => u.activo).length;
   const clientesComunidad = usuarios.filter(u => u.activo && u.tipo === 'comunidad').length;
   const totalUsuariosRegistrados = usuarios.length;
   const totalVoluntarios = voluntarios.length;
   const totalTrabajadores = trabajadores.length;
   
-  // Total viviendas and containers using instalaciones data
   const totalViviendas = instalaciones.reduce((acc, inst) => acc + (inst.numViviendas || 0), 0);
   const totalContenedores = instalaciones.reduce((acc, inst) => acc + (inst.numContenedores || 0), 0);
   
-  // Calculate total litros recogidos from all puntos verdes
   const totalLitrosRecogidos = React.useMemo(() => {
     const litrosFromRecogidas = recogidas.reduce((acc, recogida) => 
       acc + (recogida.litrosRecogidos || 0), 0);
@@ -47,7 +48,6 @@ const AdminDashboard = () => {
     return litrosFromRecogidas + litrosFromUsuarios;
   }, [recogidas, usuarios]);
   
-  // Notifications system
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'Nuevo cliente registrado', content: 'Comunidad de propietarios Alcorcón', time: '10:32', read: false },
     { id: 2, title: 'Recogida completada', content: 'Ruta Centro - 54 litros', time: '09:15', read: false },
@@ -62,7 +62,6 @@ const AdminDashboard = () => {
     toast.success("Todas las notificaciones marcadas como leídas");
   };
   
-  // Calculate facturacion data from real data
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   
@@ -80,7 +79,6 @@ const AdminDashboard = () => {
     })
     .reduce((sum, g) => sum + (g.cantidad || 0), 0);
   
-  // Estimate annual projection based on current data
   const monthsWithData = new Set([
     ...ingresos.map(i => {
       const fecha = i.fecha instanceof Date ? i.fecha : new Date(i.fecha);
@@ -98,12 +96,10 @@ const AdminDashboard = () => {
   
   const previsionAnual = Math.round(avgMonthlyIncome * 12);
   
-  // Calculate pending payments (simplified approach)
   const pendienteCobro = ingresos
     .filter(i => i.concepto?.toLowerCase().includes('pendiente') || i.notas?.toLowerCase().includes('pendiente'))
     .reduce((sum, i) => sum + (i.cantidad || 0), 0);
   
-  // Prepare chart data for litros recogidos por distrito with improved styling
   const distritoData: Record<string, number> = {};
   puntosVerdes.forEach(punto => {
     if (!distritoData[punto.distrito]) {
@@ -119,14 +115,14 @@ const AdminDashboard = () => {
         label: 'Litros recogidos',
         data: Object.values(distritoData) as number[],
         backgroundColor: [
-          'rgba(34, 211, 238, 0.7)', // cyan
-          'rgba(168, 85, 247, 0.7)', // purple
-          'rgba(16, 185, 129, 0.7)', // emerald
-          'rgba(251, 146, 60, 0.7)', // orange
-          'rgba(239, 68, 68, 0.7)', // red
-          'rgba(59, 130, 246, 0.7)', // blue
-          'rgba(249, 115, 22, 0.7)', // amber
-          'rgba(139, 92, 246, 0.7)', // indigo
+          'rgba(34, 211, 238, 0.7)',
+          'rgba(168, 85, 247, 0.7)',
+          'rgba(16, 185, 129, 0.7)',
+          'rgba(251, 146, 60, 0.7)',
+          'rgba(239, 68, 68, 0.7)',
+          'rgba(59, 130, 246, 0.7)',
+          'rgba(249, 115, 22, 0.7)',
+          'rgba(139, 92, 246, 0.7)',
         ],
         borderWidth: 0,
         borderRadius: 8,
@@ -135,7 +131,6 @@ const AdminDashboard = () => {
     ],
   };
   
-  // Prepare data for users by type with improved styling
   const usersByType: Record<string, number> = usuarios.reduce((acc, user) => {
     const type = user.tipo || 'otros';
     if (!acc[type]) acc[type] = 0;
@@ -150,12 +145,12 @@ const AdminDashboard = () => {
         label: 'Usuarios por tipo',
         data: Object.values(usersByType) as number[],
         backgroundColor: [
-          'rgba(34, 211, 238, 0.7)', // cyan
-          'rgba(168, 85, 247, 0.7)', // purple
-          'rgba(16, 185, 129, 0.7)', // emerald
-          'rgba(251, 146, 60, 0.7)', // orange
-          'rgba(239, 68, 68, 0.7)', // red
-          'rgba(59, 130, 246, 0.7)', // blue
+          'rgba(34, 211, 238, 0.7)',
+          'rgba(168, 85, 247, 0.7)',
+          'rgba(16, 185, 129, 0.7)',
+          'rgba(251, 146, 60, 0.7)',
+          'rgba(239, 68, 68, 0.7)',
+          'rgba(59, 130, 246, 0.7)',
         ],
         borderWidth: 0,
         borderRadius: 6,
@@ -164,7 +159,6 @@ const AdminDashboard = () => {
     ],
   };
   
-  // Financial data over time
   const last6Months = Array.from({length: 6}, (_, i) => {
     const d = new Date();
     d.setMonth(d.getMonth() - i);
@@ -190,7 +184,7 @@ const AdminDashboard = () => {
             })
             .reduce((sum, i) => sum + (i.cantidad || 0), 0);
         }),
-        borderColor: 'rgba(16, 185, 129, 1)', // emerald
+        borderColor: 'rgba(16, 185, 129, 1)',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
         tension: 0.4,
         fill: true,
@@ -206,7 +200,7 @@ const AdminDashboard = () => {
             })
             .reduce((sum, g) => sum + (g.cantidad || 0), 0);
         }),
-        borderColor: 'rgba(239, 68, 68, 1)', // red
+        borderColor: 'rgba(239, 68, 68, 1)',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         tension: 0.4,
         fill: true,
@@ -216,6 +210,21 @@ const AdminDashboard = () => {
 
   const isLoading = loadingPuntos || loadingUsuarios || loadingVoluntarios || 
                    loadingTrabajadores || loadingInstalaciones || loadingFacturacion;
+
+  const renderSignOutButton = () => {
+    if (onSignOut) {
+      return (
+        <Button 
+          variant="destructive" 
+          onClick={onSignOut}
+          className="w-full"
+        >
+          Cerrar Sesión
+        </Button>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6">
@@ -227,65 +236,61 @@ const AdminDashboard = () => {
           </p>
         </div>
         
-        {/* Notifications bell */}
-        <div className="flex items-center gap-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 px-1 min-w-5 h-5 flex items-center justify-center bg-red-500">
-                    {unreadCount}
-                  </Badge>
-                )}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 px-1 min-w-5 h-5 flex items-center justify-center bg-red-500">
+                  {unreadCount}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0" align="end">
+            <div className="flex items-center justify-between p-2 border-b">
+              <h4 className="font-medium text-sm">Notificaciones</h4>
+              <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+                Marcar todo como leído
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-0" align="end">
-              <div className="flex items-center justify-between p-2 border-b">
-                <h4 className="font-medium text-sm">Notificaciones</h4>
-                <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-                  Marcar todo como leído
-                </Button>
-              </div>
-              <ScrollArea className="h-80">
-                {notifications.length > 0 ? (
-                  <div className="divide-y">
-                    {notifications.map(notification => (
-                      <div 
-                        key={notification.id}
-                        className={`p-3 flex items-start gap-2 ${!notification.read ? 'bg-muted/50' : ''}`}
-                      >
-                        <div className={`mt-1 p-1 rounded-full ${!notification.read ? 'bg-blue-500 text-white' : 'bg-muted'}`}>
-                          <AlertCircle className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-medium">{notification.title}</p>
-                            <p className="text-xs text-muted-foreground">{notification.time}</p>
-                          </div>
-                          <p className="text-xs text-muted-foreground">{notification.content}</p>
-                        </div>
+            </div>
+            <ScrollArea className="h-80">
+              {notifications.length > 0 ? (
+                <div className="divide-y">
+                  {notifications.map(notification => (
+                    <div 
+                      key={notification.id}
+                      className={`p-3 flex items-start gap-2 ${!notification.read ? 'bg-muted/50' : ''}`}
+                    >
+                      <div className={`mt-1 p-1 rounded-full ${!notification.read ? 'bg-blue-500 text-white' : 'bg-muted'}`}>
+                        <AlertCircle className="h-4 w-4" />
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4 text-center text-muted-foreground">
-                    No tienes notificaciones
-                  </div>
-                )}
-              </ScrollArea>
-            </PopoverContent>
-          </Popover>
-          
-          <Button variant="default" className="bg-asram hover:bg-asram-700">
-            Actualizar datos
-          </Button>
-        </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-medium">{notification.title}</p>
+                          <p className="text-xs text-muted-foreground">{notification.time}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{notification.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 text-center text-muted-foreground">
+                  No tienes notificaciones
+                </div>
+              )}
+            </ScrollArea>
+          </PopoverContent>
+        </Popover>
+        
+        <Button variant="default" className="bg-asram hover:bg-asram-700">
+          Actualizar datos
+        </Button>
       </div>
 
-      {/* Cards de estadísticas generales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-asram hover:shadow-lg transition-shadow">
+        <Card className="border-l-4 border-l-4 border-l-asram hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Clientes Activos</CardTitle>
             <Building className="h-5 w-5 text-asram" />
@@ -346,7 +351,6 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
-      {/* Cards de facturación */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-green-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -397,7 +401,6 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
-      {/* Tabs con gráficas mejoradas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
@@ -551,6 +554,8 @@ const AdminDashboard = () => {
           </Card>
         </Tabs>
       </div>
+
+      {renderSignOutButton()}
     </div>
   );
 };
