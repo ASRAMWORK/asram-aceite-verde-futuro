@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, RecycleIcon, Droplet, Award } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -54,21 +53,10 @@ const Hero = () => {
             <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-asram-400/20 to-asram-600/20 z-0" />
               <img 
-                src="https://images.unsplash.com/photo-1613585535485-26083eea6e33?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
-                alt="Reciclaje de aceite" 
+                src="/lovable-uploads/db599e2f-c744-4e6e-8583-00decd9384c2.png" 
+                alt="ASRAM Logo" 
                 className="w-full h-full object-cover rounded-2xl opacity-90"
               />
-              <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/70 via-black/30 to-transparent text-white">
-                <h3 className="text-xl font-bold">Impacto positivo</h3>
-                <p>Cada gota de aceite reciclado cuenta para nuestro planeta</p>
-              </div>
-            </div>
-            
-            <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg border border-gray-100">
-              <div className="flex items-center space-x-2 text-asram font-semibold">
-                <RecycleIcon className="h-5 w-5" />
-                <span>+2500 L reciclados este mes</span>
-              </div>
             </div>
           </motion.div>
         </div>
