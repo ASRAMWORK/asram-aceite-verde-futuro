@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Table,
@@ -16,8 +15,8 @@ import { useUsuarios } from "@/hooks/useUsuarios";
 const AdministradoresFincas = () => {
   const { usuarios, loading } = useUsuarios();
   
-  // Filter users with role 'admin_finca'
-  const administradores = usuarios.filter(user => user.role === 'admin_finca');
+  // Filter users with role 'administrador'
+  const administradores = usuarios.filter(user => user.role === 'administrador');
 
   return (
     <div className="space-y-6">
