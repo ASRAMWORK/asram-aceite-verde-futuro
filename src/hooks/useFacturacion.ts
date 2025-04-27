@@ -29,7 +29,7 @@ export function useFacturacion() {
           concepto: data.concepto || '',
           cantidad: data.cantidad || 0,
           tipo: data.tipo || '',
-          fecha: data.fecha,
+          fecha: data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha),
           cliente: data.cliente || '',
           origen: data.origen || '',
           numFactura: data.numFactura || '',
@@ -54,7 +54,7 @@ export function useFacturacion() {
           concepto: data.concepto || '',
           cantidad: data.cantidad || 0,
           tipo: data.tipo || '',
-          fecha: data.fecha,
+          fecha: data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha),
           proveedor: data.proveedor || '',
           numFactura: data.numFactura || '',
           notas: data.notas || '',
@@ -79,7 +79,8 @@ export function useFacturacion() {
       const ingresoData = {
         ...data,
         categoria: data.categoria || data.tipo || '',
-        origen: data.origen || '', // This is the projectId
+        origen: data.origen || '', // ProjectId
+        fecha: data.fecha || new Date(),
         createdAt: serverTimestamp() // Ensure createdAt is always set
       };
       
@@ -129,7 +130,8 @@ export function useFacturacion() {
       const gastoData = {
         ...data,
         categoria: data.categoria || data.tipo || '',
-        tipo: data.tipo || '', // This is the projectId
+        tipo: data.tipo || '', // ProjectId if associated with a project
+        fecha: data.fecha || new Date(),
         createdAt: serverTimestamp() // Ensure createdAt is always set
       };
       
@@ -173,6 +175,65 @@ export function useFacturacion() {
     }
   };
 
+  // Calcular información financiera
+  const getFinancialSummary = () => {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    
+    // Filtrar ingresos y gastos del mes actual
+    const ingresosMes = ingresos
+      .filter(i => {
+        const fecha = i.fecha instanceof Date ? i.fecha : new Date(i.fecha);
+        return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+      })
+      .reduce((sum, i) => sum + i.cantidad, 0);
+    
+    const gastosMes = gastos
+      .filter(g => {
+        const fecha = g.fecha instanceof Date ? g.fecha : new Date(g.fecha);
+        return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+      })
+      .reduce((sum, g) => sum + g.cantidad, 0);
+    
+    const balanceMes = ingresosMes - gastosMes;
+    
+    // Calcular meses con datos para proyección
+    const monthsWithData = new Set([
+      ...ingresos.map(i => {
+        const fecha = i.fecha instanceof Date ? i.fecha : new Date(i.fecha);
+        return `${fecha.getFullYear()}-${fecha.getMonth()}`;
+      }),
+      ...gastos.map(g => {
+        const fecha = g.fecha instanceof Date ? g.fecha : new Date(g.fecha);
+        return `${fecha.getFullYear()}-${fecha.getMonth()}`;
+      })
+    ]).size;
+    
+    // Calcular ingresos totales y promedio mensual
+    const ingresosTotales = ingresos.reduce((sum, i) => sum + i.cantidad, 0);
+    const gastosTotales = gastos.reduce((sum, g) => sum + g.cantidad, 0);
+    
+    const avgIngresosMes = monthsWithData > 0 ? ingresosTotales / monthsWithData : 0;
+    const proyeccionAnual = avgIngresosMes * 12;
+    
+    // Calcular pendiente de cobro (facturas marcadas como pendientes)
+    const pendienteCobro = ingresos
+      .filter(i => (i.notas?.toLowerCase().includes('pendiente') || i.concepto?.toLowerCase().includes('pendiente')))
+      .reduce((sum, i) => sum + i.cantidad, 0);
+    
+    return {
+      ingresosMes,
+      gastosMes,
+      balanceMes,
+      ingresosTotales,
+      gastosTotales,
+      proyeccionAnual,
+      pendienteCobro,
+      diasEnMes: new Date(currentYear, currentMonth + 1, 0).getDate() // Días en el mes actual
+    };
+  };
+
   useEffect(() => {
     loadFacturacionData();
   }, []);
@@ -188,6 +249,7 @@ export function useFacturacion() {
     deleteIngreso,
     addGasto,
     updateGasto,
-    deleteGasto
+    deleteGasto,
+    getFinancialSummary
   };
 }

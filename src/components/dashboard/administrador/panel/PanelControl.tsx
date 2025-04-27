@@ -2,15 +2,38 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
-import { Building, Droplet, Home } from 'lucide-react';
+import { Building, Droplet, Home, Euro } from 'lucide-react';
 import { Chart } from '@/components/ui/chart';
+import { useFacturacion } from '@/hooks/useFacturacion';
 
 const PanelControl = () => {
   const { comunidades } = useComunidadesVecinos();
+  const { ingresos, gastos } = useFacturacion();
 
+  // Datos de comunidades
   const totalLitros = comunidades.reduce((acc, com) => acc + (com.litrosRecogidos || 0), 0);
   const totalViviendas = comunidades.reduce((acc, com) => acc + (com.numViviendas || 0), 0);
   const totalPuntosVerdes = comunidades.reduce((acc, com) => acc + 1, 0);
+  
+  // Cálculos financieros
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  
+  const ingresosMes = ingresos
+    .filter(i => {
+      const fecha = i.fecha instanceof Date ? i.fecha : new Date(i.fecha);
+      return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+    })
+    .reduce((sum, i) => sum + (i.cantidad || 0), 0);
+    
+  const gastosMes = gastos
+    .filter(g => {
+      const fecha = g.fecha instanceof Date ? g.fecha : new Date(g.fecha);
+      return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+    })
+    .reduce((sum, g) => sum + (g.cantidad || 0), 0);
+    
+  const balanceMes = ingresosMes - gastosMes;
 
   const chartData = {
     labels: comunidades.map(c => c.nombre),
@@ -62,6 +85,50 @@ const PanelControl = () => {
             <div className="text-2xl font-bold">{totalPuntosVerdes}</div>
             <p className="text-xs text-muted-foreground">
               Total de puntos verdes instalados
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Información financiera */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border-l-4 border-l-green-500">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Ingresos Mes</CardTitle>
+            <Euro className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{ingresosMes.toLocaleString('es-ES')}€</div>
+            <p className="text-xs text-muted-foreground">
+              Total ingresos del mes actual
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-red-500">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Gastos Mes</CardTitle>
+            <Euro className="h-4 w-4 text-red-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-500">{gastosMes.toLocaleString('es-ES')}€</div>
+            <p className="text-xs text-muted-foreground">
+              Total gastos del mes actual
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-blue-500">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Balance Mes</CardTitle>
+            <Euro className={`h-4 w-4 ${balanceMes >= 0 ? 'text-green-500' : 'text-red-500'}`} />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${balanceMes >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {balanceMes.toLocaleString('es-ES')}€
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Balance del mes actual
             </p>
           </CardContent>
         </Card>

@@ -1,7 +1,9 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, getDoc, serverTimestamp, where } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useFacturacion } from './useFacturacion';
 
 export interface Project {
   id: string;
@@ -22,6 +24,7 @@ export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { ingresos, gastos } = useFacturacion();
 
   const loadProjectsData = async () => {
     try {
@@ -51,7 +54,28 @@ export function useProjects() {
         });
       });
       
-      setProjects(projectsData);
+      // Calcular la rentabilidad actual de cada proyecto basado en ingresos y gastos
+      const projectsWithFinancials = projectsData.map(project => {
+        // Filtrar ingresos y gastos asociados a este proyecto
+        const projectIngresos = ingresos.filter(i => i.origen === project.id)
+          .reduce((sum, i) => sum + i.cantidad, 0);
+        
+        const projectGastos = gastos.filter(g => g.tipo === project.id)
+          .reduce((sum, g) => sum + g.cantidad, 0);
+        
+        // Calcular rentabilidad
+        const balance = projectIngresos - projectGastos;
+        const rentabilidad = project.presupuesto && project.presupuesto > 0 
+          ? (balance / project.presupuesto) * 100 
+          : 0;
+        
+        return {
+          ...project,
+          rentabilidad: parseFloat(rentabilidad.toFixed(2))
+        };
+      });
+      
+      setProjects(projectsWithFinancials);
     } catch (err) {
       console.error("Error cargando proyectos:", err);
       setError("Error al cargar datos de proyectos");
@@ -62,7 +86,7 @@ export function useProjects() {
 
   useEffect(() => {
     loadProjectsData();
-  }, []);
+  }, [ingresos, gastos]);
 
   const getProjectById = useCallback(async (id: string): Promise<Project | null> => {
     try {
@@ -70,7 +94,7 @@ export function useProjects() {
       
       if (projectDoc.exists()) {
         const data = projectDoc.data();
-        return {
+        const project = {
           id: projectDoc.id,
           nombre: data.nombre || '',
           descripcion: data.descripcion || '',
@@ -84,13 +108,30 @@ export function useProjects() {
           updatedAt: data.updatedAt,
           rentabilidad: data.rentabilidad || 0
         };
+        
+        // Calcular rentabilidad actual basada en ingresos y gastos
+        const projectIngresos = ingresos.filter(i => i.origen === id)
+          .reduce((sum, i) => sum + i.cantidad, 0);
+        
+        const projectGastos = gastos.filter(g => g.tipo === id)
+          .reduce((sum, g) => sum + g.cantidad, 0);
+        
+        const balance = projectIngresos - projectGastos;
+        const rentabilidad = project.presupuesto && project.presupuesto > 0 
+          ? (balance / project.presupuesto) * 100 
+          : 0;
+        
+        return {
+          ...project,
+          rentabilidad: parseFloat(rentabilidad.toFixed(2))
+        };
       }
       return null;
     } catch (err) {
       console.error("Error obteniendo proyecto:", err);
       throw err;
     }
-  }, []);
+  }, [ingresos, gastos]);
 
   const addProject = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
@@ -128,6 +169,15 @@ export function useProjects() {
 
   const deleteProject = async (id: string) => {
     try {
+      // Comprobar si hay ingresos o gastos asociados al proyecto
+      const projectIngresos = ingresos.filter(i => i.origen === id);
+      const projectGastos = gastos.filter(g => g.tipo === id);
+      
+      if (projectIngresos.length > 0 || projectGastos.length > 0) {
+        toast.error("No se puede eliminar un proyecto con ingresos o gastos asociados");
+        return false;
+      }
+      
       await deleteDoc(doc(db, "projects", id));
       toast.success("Proyecto eliminado correctamente");
       await loadProjectsData();
@@ -139,6 +189,24 @@ export function useProjects() {
     }
   };
 
+  // Obtener financiación del proyecto
+  const getProjectFinancials = useCallback((projectId: string) => {
+    const projectIngresos = ingresos.filter(i => i.origen === projectId);
+    const projectGastos = gastos.filter(g => g.tipo === projectId);
+    
+    const totalIngresos = projectIngresos.reduce((sum, i) => sum + i.cantidad, 0);
+    const totalGastos = projectGastos.reduce((sum, g) => sum + g.cantidad, 0);
+    const balance = totalIngresos - totalGastos;
+    
+    return {
+      ingresos: projectIngresos,
+      gastos: projectGastos,
+      totalIngresos,
+      totalGastos,
+      balance
+    };
+  }, [ingresos, gastos]);
+
   return {
     projects,
     loading,
@@ -147,6 +215,7 @@ export function useProjects() {
     getProjectById,
     addProject,
     updateProject,
-    deleteProject
+    deleteProject,
+    getProjectFinancials
   };
 }
