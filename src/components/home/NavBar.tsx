@@ -1,17 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown, MapPin } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
-import { 
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,125 +18,6 @@ const NavBar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const ListItem = ({ className, title, children, ...props }: any) => {
-    return (
-      <li>
-        <NavigationMenuLink asChild>
-          <Link
-            className={cn(
-              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-              className
-            )}
-            {...props}
-          >
-            <div className="text-sm font-medium leading-none">{title}</div>
-            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-              {children}
-            </p>
-          </Link>
-        </NavigationMenuLink>
-      </li>
-    );
-  };
-  
-  const NavigationItems = () => {
-    return (
-      <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Sobre Nosotros</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4">
-                <li className="row-span-3">
-                  <NavigationMenuLink asChild>
-                    <Link
-                      className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-asram/50 to-asram p-6 no-underline outline-none focus:shadow-md"
-                      to="/about"
-                    >
-                      <div className="mb-2 mt-4 text-lg font-medium text-white">
-                        ASRAM Madrid
-                      </div>
-                      <p className="text-sm leading-tight text-white/90">
-                        Asociación para el Reciclaje de Aceite en Madrid
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <ListItem href="/mision" title="Misión y Visión">
-                  Conoce nuestros objetivos y valores
-                </ListItem>
-                <ListItem href="/modelo" title="Modelo Circular">
-                  Descubre cómo funciona nuestra economía circular
-                </ListItem>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-  
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Programas</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[600px] grid-cols-2 gap-3 p-4">
-                <ListItem href="/alianza-verde" title="Alianza Verde Escolar">
-                  Educación ambiental en centros educativos
-                </ListItem>
-                <ListItem href="/asram-kids" title="ASRAM Kids">
-                  Actividades para los más pequeños
-                </ListItem>
-                <ListItem href="/puntos-verdes" title="Puntos Verdes">
-                  Red de contenedores de reciclaje
-                </ListItem>
-                <ListItem href="/asram-rural" title="ASRAM Rural">
-                  Llevamos el reciclaje a zonas rurales
-                </ListItem>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-  
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Colabora</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4">
-                <ListItem href="/apadrina" title="Apadrina una Calle">
-                  Ayuda a expandir nuestra red de reciclaje
-                </ListItem>
-                <ListItem href="/detergente" title="Detergente Solidario">
-                  Proyecto de emergencia social
-                </ListItem>
-                <ListItem href="/contacto" title="Contacto">
-                  Únete a nosotros
-                </ListItem>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              <Link 
-                to="/tienda" 
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium"
-              >
-                <MapPin className="w-4 h-4" />
-                <span>Puntos Limpios</span>
-              </Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              <Link 
-                to="/tienda" 
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium"
-              >
-                {/*<ShoppingCart className="w-4 h-4" />*/}
-                <span>Tienda</span>
-              </Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-    );
-  };
   
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 shadow-sm backdrop-blur-md" : "bg-transparent"}`}>
@@ -155,7 +28,69 @@ const NavBar = () => {
           </Link>
           
           <nav className="hidden lg:flex items-center space-x-1">
-            <NavigationItems />
+            {/* About Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-asram hover:bg-gray-100">
+                <span>Sobre Nosotros</span>
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </button>
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <Link to="/about" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  ASRAM Madrid
+                </Link>
+                <Link to="/mision" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Misión y Visión
+                </Link>
+                <Link to="/modelo" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Modelo Circular
+                </Link>
+              </div>
+            </div>
+            
+            {/* Programs Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-asram hover:bg-gray-100">
+                <span>Programas</span>
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </button>
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <Link to="/alianza-verde" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Alianza Verde Escolar
+                </Link>
+                <Link to="/asram-kids" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  ASRAM Kids
+                </Link>
+                <Link to="/puntos-verdes" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Puntos Verdes
+                </Link>
+                <Link to="/asram-rural" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  ASRAM Rural
+                </Link>
+              </div>
+            </div>
+            
+            {/* Collaborate Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-asram hover:bg-gray-100">
+                <span>Colabora</span>
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </button>
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <Link to="/apadrina" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Apadrina una Calle
+                </Link>
+                <Link to="/detergente" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Detergente Solidario
+                </Link>
+                <Link to="/contacto" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Contacto
+                </Link>
+              </div>
+            </div>
+            
+            <Link to="/tienda" className="px-3 py-2 rounded-md text-gray-700 hover:text-asram hover:bg-gray-100">
+              Tienda
+            </Link>
           </nav>
           
           <div className="hidden lg:flex items-center gap-3">
