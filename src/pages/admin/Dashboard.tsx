@@ -130,6 +130,8 @@ const AdminDashboardPage = () => {
         return <MiSitioWeb />;
       case "administradores":
         return <AdministradoresFincas />;
+      case "comerciales":
+        return <ComercialView />;
       default:
         return <AdminDashboard />;
     }
@@ -321,6 +323,17 @@ const AdminDashboardPage = () => {
           >
             <User className="mr-2 h-4 w-4" />
             Administradores de Fincas
+          </Button>
+          
+          <Button
+            variant={activeTab === "comerciales" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "comerciales" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("comerciales")}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Comerciales
           </Button>
           
           <Button

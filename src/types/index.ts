@@ -6,7 +6,7 @@ export interface User {
   emailVerified: boolean;
 }
 
-export type UserRole = 'user' | 'admin_finca' | 'superadmin' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'administrador';
+export type UserRole = 'user' | 'admin_finca' | 'superadmin' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'administrador' | 'comercial';
 
 export interface UserProfile {
   id?: string;
