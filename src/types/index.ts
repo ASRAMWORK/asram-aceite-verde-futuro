@@ -136,11 +136,22 @@ export interface Ruta {
   nombre: string;
   distrito: string;
   barrio?: string;
+  barrios?: string[]; // Some components use 'barrios' (plural) instead of 'barrio'
   puntos: any[]; // Array of points/coordinates
   distancia?: number;
   tiempoEstimado?: number;
   tipoRuta?: string;
   estado?: string;
+  fecha?: Date;
+  hora?: string;
+  recogedores?: string;
+  clientes?: any[];
+  puntosRecogida?: number;
+  distanciaTotal?: number;
+  frecuencia?: string;
+  completada?: boolean;
+  litrosTotales?: number;
+  fechaCompletada?: Date;
   createdAt: any;
   updatedAt: any;
 }

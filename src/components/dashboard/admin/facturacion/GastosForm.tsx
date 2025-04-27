@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -53,10 +54,11 @@ type GastoFormProps = {
   initialData?: Partial<Gasto>;
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
+  onClose?: () => void; // Add onClose prop to match usage
   isOpen?: boolean;
 };
 
-const GastosForm = ({ initialData, onSubmit, onCancel, isOpen }: GastoFormProps) => {
+const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -93,12 +95,19 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen }: GastoFormProps)
       
       await onSubmit(nuevoGasto);
       toast.success(initialData ? "Gasto actualizado" : "Gasto creado");
+      if (onClose) onClose(); // Call onClose when provided
     } catch (error) {
       console.error("Error guardando gasto:", error);
       toast.error("Error al guardar el gasto");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Use onClose if provided, otherwise fall back to onCancel
+  const handleCancel = () => {
+    if (onClose) onClose();
+    else onCancel();
   };
 
   return (
@@ -277,7 +286,7 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen }: GastoFormProps)
         />
 
         <DialogFooter>
-          <Button variant="outline" type="button" onClick={onCancel}>
+          <Button variant="outline" type="button" onClick={handleCancel}>
             Cancelar
           </Button>
           <Button type="submit" disabled={isSubmitting}>

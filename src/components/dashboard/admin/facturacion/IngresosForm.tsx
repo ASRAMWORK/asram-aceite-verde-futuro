@@ -31,11 +31,12 @@ import { Ingreso } from "@/types";
 type IngresosFormProps = {
   onSubmit: (data: Partial<Omit<Ingreso, "id">>) => void;
   onCancel: () => void;
+  onClose?: () => void; // Add onClose prop to match usage
   initialData?: Partial<Omit<Ingreso, "id">>;
-  isOpen?: boolean; // Add isOpen prop to match usage in FacturacionView
+  isOpen?: boolean; // Add isOpen prop to match usage
 };
 
-const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen }: IngresosFormProps) => {
+const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: IngresosFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<Partial<Omit<Ingreso, "id">>>({
@@ -72,12 +73,19 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen }: IngresosFormP
       
       onSubmit(nuevoIngreso);
       toast.success("Ingreso añadido correctamente");
+      if (onClose) onClose(); // Call onClose when provided
     } catch (error) {
       console.error("Error al añadir ingreso:", error);
       toast.error("Error al añadir ingreso");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Use onClose if provided, otherwise fall back to onCancel
+  const handleCancel = () => {
+    if (onClose) onClose();
+    else onCancel();
   };
 
   return (
@@ -239,7 +247,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen }: IngresosFormP
         />
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" type="button" onClick={onCancel}>
+          <Button variant="outline" type="button" onClick={handleCancel}>
             Cancelar
           </Button>
           <Button type="submit" disabled={isSubmitting}>
