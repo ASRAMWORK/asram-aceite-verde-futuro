@@ -1,266 +1,290 @@
-
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { z } from "zod";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useFacturacion } from "@/hooks/useFacturacion";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-
-const tiposGasto = [
-  "Personal",
-  "Transporte",
-  "Equipamiento",
-  "Mantenimiento",
-  "Alquiler",
-  "Suministros",
-  "Marketing",
-  "Seguros",
-  "Impuestos",
-  "Gastos financieros",
-  "Otros"
-];
+import { Gasto } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
-  concepto: z.string().min(2, { message: "El concepto es obligatorio" }),
-  cantidad: z.number().min(0, { message: "La cantidad debe ser mayor o igual a 0" }),
-  tipo: z.string().min(1, { message: "Selecciona un tipo de gasto" }),
-  fecha: z.string().min(1, { message: "La fecha es obligatoria" }),
-  proveedor: z.string().optional(),
-  numFactura: z.string().optional(),
+  proveedor: z.string().min(3, "El proveedor debe tener al menos 3 caracteres"),
+  concepto: z.string().min(10, "El concepto debe tener al menos 10 caracteres"),
+  cantidad: z.string().refine(value => !isNaN(parseFloat(value)), {
+    message: "La cantidad debe ser un número",
+  }),
+  iva: z.string().refine(value => !isNaN(parseFloat(value)), {
+    message: "El IVA debe ser un número",
+  }),
+  total: z.string().refine(value => !isNaN(parseFloat(value)), {
+    message: "El total debe ser un número",
+  }),
+  metodoPago: z.string().min(3, "El método de pago debe tener al menos 3 caracteres"),
   notas: z.string().optional(),
+  fecha: z.date(),
+  categoria: z.string().optional(),
+  estado: z.string().optional(),
+  tipo: z.string().optional(),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type GastoFormProps = {
+  initialData?: Partial<Gasto>;
+  onSubmit: (data: any) => Promise<void>;
+  onCancel: () => void;
+};
 
-interface GastosFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: FormData;
-}
-
-const GastosForm = ({ isOpen, onClose, initialData }: GastosFormProps) => {
-  const { addGasto } = useFacturacion();
-  const [loading, setLoading] = useState(false);
+const GastosForm = ({ initialData, onSubmit, onCancel }: GastoFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const form = useForm<FormData>({
+
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      concepto: "",
-      cantidad: 0,
-      tipo: "",
-      fecha: new Date().toISOString().split("T")[0],
-      proveedor: "",
-      numFactura: "",
-      notas: ""
-    }
+    defaultValues: {
+      proveedor: initialData?.proveedor || "",
+      concepto: initialData?.concepto || "",
+      cantidad: initialData?.cantidad?.toString() || "0",
+      iva: initialData?.iva?.toString() || "0",
+      total: initialData?.total?.toString() || "0",
+      metodoPago: initialData?.metodoPago || "",
+      notas: initialData?.notas || "",
+      fecha: initialData?.fecha || new Date(),
+      categoria: initialData?.categoria || "",
+      estado: initialData?.estado || "",
+      tipo: initialData?.tipo || "general",
+    },
   });
 
-  const handleSubmit = async (data: FormData) => {
-    if (isSubmitting) return; // Prevenir envíos múltiples
-    
-    setIsSubmitting(true);
-    setLoading(true);
+  const addGasto = async (data) => {
     try {
-      // Limpiar valores undefined y null antes de enviar
-      const cleanedData: Record<string, any> = {};
+      setIsSubmitting(true);
       
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          cleanedData[key] = value;
-        }
-      });
-      
-      // Pass all required data, addGasto will handle serverTimestamp internally
-      await addGasto({
-        concepto: data.concepto,
-        cantidad: Number(data.cantidad),
+      const nuevoGasto = {
+        ...data,
         fecha: new Date(data.fecha),
-        categoria: data.tipo,
-        tipo: data.tipo,
-        proveedor: cleanedData.proveedor,
-        numFactura: cleanedData.numFactura,
-        notas: cleanedData.notas,
-      });
+        cantidad: parseFloat(data.cantidad),
+        iva: parseFloat(data.iva),
+        total: parseFloat(data.total),
+        tipo: data.tipo || 'general',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
       
-      // Usar un timeout para dar tiempo a que Firebase complete la operación
-      setTimeout(() => {
-        onClose();
-      }, 200);
+      await onSubmit(nuevoGasto);
+      toast.success(initialData ? "Gasto actualizado" : "Gasto creado");
     } catch (error) {
-      console.error("Error al registrar el gasto:", error);
-      toast.error("Error al registrar el gasto");
+      console.error("Error guardando gasto:", error);
+      toast.error("Error al guardar el gasto");
     } finally {
-      setLoading(false);
       setIsSubmitting(false);
     }
   };
 
-  // Manejar cierre de diálogo de forma segura
-  const handleDialogClose = () => {
-    if (!isSubmitting) {
-      onClose();
-    }
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Nuevo Gasto</DialogTitle>
-          <DialogDescription>
-            Registra un nuevo gasto en el sistema
-          </DialogDescription>
-        </DialogHeader>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="concepto"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Concepto</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Descripción del gasto" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="cantidad"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Importe (€)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01" 
-                        placeholder="0.00" 
-                        {...field} 
-                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="tipo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo de gasto</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un tipo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {tiposGasto.map((tipo) => (
-                          <SelectItem key={tipo} value={tipo}>
-                            {tipo}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="fecha"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fecha</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="proveedor"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Proveedor</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre del proveedor (opcional)" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="numFactura"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número de factura</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Número de factura (opcional)" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="notas"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notas adicionales</FormLabel>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(addGasto)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="proveedor"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Proveedor</FormLabel>
+              <FormControl>
+                <Input placeholder="Nombre del proveedor" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="concepto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Concepto</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Descripción del gasto"
+                  className="resize-none h-24"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="cantidad"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cantidad (€)</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="iva"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>IVA (€)</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="total"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total (€)</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="metodoPago"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Método de Pago</FormLabel>
+              <FormControl>
+                <Input placeholder="Tarjeta, transferencia, etc." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="fecha"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Fecha</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
                   <FormControl>
-                    <Textarea placeholder="Información adicional (opcional)" {...field} />
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "dd/MM/yyyy")
+                      ) : (
+                        <span>Selecciona una fecha</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleDialogClose} 
-                disabled={loading || isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                type="submit" 
-                className="bg-asram hover:bg-asram-700" 
-                disabled={loading || isSubmitting}
-              >
-                {loading ? "Guardando..." : "Registrar gasto"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="notas"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notas (opcional)</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Información adicional"
+                  className="resize-none h-16"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="tipo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un tipo" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="nomina">Nómina</SelectItem>
+                  <SelectItem value="alquiler">Alquiler</SelectItem>
+                  {/* Add more types as needed */}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <DialogFooter>
+          <Button variant="outline" type="button" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Guardando..." : initialData ? "Actualizar" : "Crear"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 };
 

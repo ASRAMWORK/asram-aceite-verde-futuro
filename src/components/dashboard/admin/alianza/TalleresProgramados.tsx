@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Table,
@@ -33,29 +34,39 @@ const TalleresProgramados = () => {
   const talleres: TallerProgramado[] = [
     {
       id: "1",
-      centroId: "1",
-      nombreCentro: "CEIP García Lorca",
+      titulo: "Reciclaje Creativo",
+      centro: "CEIP García Lorca",
+      fechaHora: new Date("2025-05-15"),
+      duracion: 120,
+      numAsistentes: 25,
+      materiales: ["Material 1", "Material 2"],
+      instructor: "María García",
+      estado: "programado",
       direccion: "Calle del Colegio 1, Madrid",
-      tipoTaller: "Reciclaje Creativo",
-      fechaTaller: new Date("2025-05-15"),
-      numAlumnos: 25,
+      nombreCentro: "CEIP García Lorca",
       contacto: "María García",
       telefono: "912345678",
       email: "contacto@garcialorca.edu",
-      estado: "programado"
+      createdAt: null,
+      updatedAt: null
     },
     {
       id: "2",
-      centroId: "2",
-      nombreCentro: "IES Ramiro de Maeztu",
+      titulo: "Mini Huerto Escolar",
+      centro: "IES Ramiro de Maeztu",
+      fechaHora: new Date("2025-05-22"),
+      duracion: 90,
+      numAsistentes: 30,
+      materiales: ["Material 1", "Material 2"],
+      instructor: "Juan Pérez",
+      estado: "programado",
       direccion: "Calle de Serrano 127, Madrid",
-      tipoTaller: "Mini Huerto Escolar",
-      fechaTaller: new Date("2025-05-22"),
-      numAlumnos: 30,
+      nombreCentro: "IES Ramiro de Maeztu",
       contacto: "Juan Pérez",
       telefono: "913456789",
       email: "contacto@ramirodemaeztu.edu",
-      estado: "programado"
+      createdAt: null,
+      updatedAt: null
     }
   ];
 
@@ -141,28 +152,28 @@ const TalleresProgramados = () => {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-500" />
-                            {new Date(taller.fechaTaller).toLocaleDateString()}
+                            {new Date(taller.fechaHora).toLocaleDateString()}
                           </div>
                         </TableCell>
-                        <TableCell>{taller.nombreCentro}</TableCell>
-                        <TableCell>{taller.tipoTaller}</TableCell>
+                        <TableCell>{taller.nombreCentro || taller.centro}</TableCell>
+                        <TableCell>{taller.titulo}</TableCell>
                         <TableCell>{taller.direccion}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-gray-500" />
-                            {taller.numAlumnos} alumnos
+                            {taller.numAsistentes} alumnos
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <div>{taller.contacto}</div>
+                            <div>{taller.contacto || taller.instructor}</div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Phone className="h-4 w-4" />
-                              {taller.telefono}
+                              {taller.telefono || "N/A"}
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Mail className="h-4 w-4" />
-                              {taller.email}
+                              {taller.email || "N/A"}
                             </div>
                           </div>
                         </TableCell>
@@ -224,23 +235,23 @@ const TalleresProgramados = () => {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-500" />
-                            {new Date(taller.fechaTaller).toLocaleDateString()}
+                            {new Date(taller.fechaHora).toLocaleDateString()}
                           </div>
                         </TableCell>
-                        <TableCell>{taller.nombreCentro}</TableCell>
-                        <TableCell>{taller.tipoTaller}</TableCell>
+                        <TableCell>{taller.nombreCentro || taller.centro}</TableCell>
+                        <TableCell>{taller.titulo}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-gray-500" />
-                            {taller.numAlumnos} alumnos
+                            {taller.numAsistentes} alumnos
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <div>{taller.contacto}</div>
+                            <div>{taller.contacto || taller.instructor}</div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Phone className="h-4 w-4" />
-                              {taller.telefono}
+                              {taller.telefono || "N/A"}
                             </div>
                           </div>
                         </TableCell>

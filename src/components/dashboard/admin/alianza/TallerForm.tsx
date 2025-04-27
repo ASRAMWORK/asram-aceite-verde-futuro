@@ -31,9 +31,9 @@ interface TallerFormProps {
 const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
   const form = useForm<Partial<TallerProgramado>>({
     defaultValues: taller || {
-      tipoTaller: '',
-      fechaTaller: new Date(),
-      numAlumnos: 0,
+      titulo: '',
+      fechaHora: new Date(),
+      numAsistentes: 0,
       estado: 'programado'
     }
   });
@@ -43,7 +43,7 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="centroId"
+          name="centro"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Centro Educativo</FormLabel>
@@ -71,7 +71,7 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
 
         <FormField
           control={form.control}
-          name="tipoTaller"
+          name="titulo"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tipo de Taller</FormLabel>
@@ -99,7 +99,7 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="fechaTaller"
+            name="fechaHora"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Fecha del Taller</FormLabel>
@@ -120,7 +120,7 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
 
           <FormField
             control={form.control}
-            name="numAlumnos"
+            name="numAsistentes"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Número de Alumnos</FormLabel>
@@ -142,3 +142,4 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
 };
 
 export default TallerForm;
+

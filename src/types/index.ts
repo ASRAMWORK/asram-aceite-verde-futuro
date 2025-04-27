@@ -1,5 +1,4 @@
 
-
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -9,7 +8,8 @@ export type UserRole =
   | "asociacion" 
   | "escolar" 
   | "usuario" 
-  | "administrador";
+  | "administrador"
+  | "comercial";
 
 export interface Usuario {
   id: string;
@@ -154,6 +154,8 @@ export interface Ingreso {
   estado?: string;
   categoria?: string;
   origen?: string;
+  tipo?: string;
+  numFactura?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -170,6 +172,8 @@ export interface Gasto {
   notas: string;
   estado?: string;
   categoria?: string;
+  tipo?: string;
+  numFactura?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -310,7 +314,16 @@ export interface TallerProgramado {
   instructor: string;
   estado: "programado" | "completado" | "cancelado";
   observaciones?: string;
+  // For compatibility with existing code
+  centroId?: string;
+  nombreCentro?: string;
+  tipoTaller?: string;
+  fechaTaller?: Date;
+  direccion?: string;
+  numAlumnos?: number;
+  contacto?: string;
+  telefono?: string;
+  email?: string;
   createdAt: any;
   updatedAt: any;
 }
-
