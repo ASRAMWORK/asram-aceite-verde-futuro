@@ -313,6 +313,17 @@ const AdminDashboardPage = () => {
           <Separator className="my-4" />
           
           <Button
+            variant={activeTab === "administradores" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "administradores" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("administradores")}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Administradores de Fincas
+          </Button>
+          
+          <Button
             variant="ghost"
             className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
             onClick={handleSignOut}
