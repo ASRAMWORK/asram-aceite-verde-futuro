@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
@@ -8,10 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { 
-  User, UserCircle, BookOpen, School, MapPin, 
-  Activity, LogOut, Home as HomeIcon, Building, Plus
-} from "lucide-react";
+import { Home, Users, PlusCircle, LogOut } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -28,7 +24,6 @@ const AdministradorDashboardPage = () => {
         return;
       }
       
-      // Check if the user is an administrador
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (!userDoc.exists() || userDoc.data().role !== "administrador") {
@@ -61,13 +56,8 @@ const AdministradorDashboardPage = () => {
     let tabValue = "home";
     switch(tab) {
       case "home": tabValue = "home"; break;
-      case "dashboard": tabValue = "dashboard"; break;
       case "comunidades": tabValue = "comunidades"; break;
       case "gestionar": tabValue = "gestionar"; break;
-      case "recursos": tabValue = "recursos"; break; 
-      case "alianza": tabValue = "alianza-verde"; break;
-      case "apadrina": tabValue = "apadrina"; break;
-      case "puntos": tabValue = "puntos-verdes"; break;
       default: tabValue = "home";
     }
     setActiveTab(tabValue);
@@ -86,13 +76,13 @@ const AdministradorDashboardPage = () => {
       <div className="flex min-h-screen bg-gray-50">
         <div className="hidden md:flex flex-col w-72 bg-white border-r shadow-sm">
           <div className="p-6 flex items-center justify-center">
-            <h1 className="text-2xl font-bold text-purple-600">ASRAM Admin Fincas</h1>
+            <h1 className="text-2xl font-bold text-[#ee970d]">ASRAM Admin Fincas</h1>
           </div>
           
           <div className="p-4">
             <div className="bg-gray-100 p-4 rounded-lg mb-4 flex items-center space-x-3">
-              <div className="bg-purple-600 text-white p-2 rounded-full">
-                <Building className="h-5 w-5" />
+              <div className="bg-[#ee970d] text-white p-2 rounded-full">
+                <Users className="h-5 w-5" />
               </div>
               <div>
                 <p className="font-medium text-sm">Bienvenido</p>
@@ -101,98 +91,38 @@ const AdministradorDashboardPage = () => {
             </div>
           </div>
           
-          <nav className="flex-1 px-4 pb-6 space-y-1.5 overflow-auto">
+          <nav className="flex-1 px-4 pb-6 space-y-1.5">
             <Button
               variant={activeTab === "home" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                activeTab === "home" ? "bg-purple-600 hover:bg-purple-700" : ""
+                activeTab === "home" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
               }`}
               onClick={() => handleTabChange("home")}
             >
-              <HomeIcon className="mr-3 h-5 w-5" />
+              <Home className="mr-3 h-5 w-5" />
               Inicio
-            </Button>
-            
-            <Button
-              variant={activeTab === "dashboard" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "dashboard" ? "bg-purple-600 hover:bg-purple-700" : ""
-              }`}
-              onClick={() => handleTabChange("dashboard")}
-            >
-              <Activity className="mr-3 h-5 w-5" />
-              Dashboard
             </Button>
             
             <Button
               variant={activeTab === "comunidades" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                activeTab === "comunidades" ? "bg-purple-600 hover:bg-purple-700" : ""
+                activeTab === "comunidades" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
               }`}
               onClick={() => handleTabChange("comunidades")}
             >
-              <Building className="mr-3 h-5 w-5" />
+              <Users className="mr-3 h-5 w-5" />
               Mis Comunidades
             </Button>
             
             <Button
               variant={activeTab === "gestionar" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                activeTab === "gestionar" ? "bg-purple-600 hover:bg-purple-700" : ""
+                activeTab === "gestionar" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
               }`}
               onClick={() => handleTabChange("gestionar")}
             >
-              <Plus className="mr-3 h-5 w-5" />
+              <PlusCircle className="mr-3 h-5 w-5" />
               Añadir Comunidad
-            </Button>
-            
-            <Separator className="my-2" />
-            <div className="px-3 py-2">
-              <h3 className="text-xs font-medium text-gray-500 uppercase">Servicios ASRAM</h3>
-            </div>
-            
-            <Button
-              variant={activeTab === "recursos" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "recursos" ? "bg-purple-600 hover:bg-purple-700" : ""
-              }`}
-              onClick={() => handleTabChange("recursos")}
-            >
-              <BookOpen className="mr-3 h-5 w-5" />
-              Recursos
-            </Button>
-            
-            <Button
-              variant={activeTab === "alianza-verde" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "alianza-verde" ? "bg-purple-600 hover:bg-purple-700" : ""
-              }`}
-              onClick={() => handleTabChange("alianza")}
-            >
-              <School className="mr-3 h-5 w-5" />
-              Alianza Verde Escolar
-            </Button>
-            
-            <Button
-              variant={activeTab === "apadrina" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "apadrina" ? "bg-purple-600 hover:bg-purple-700" : ""
-              }`}
-              onClick={() => handleTabChange("apadrina")}
-            >
-              <MapPin className="mr-3 h-5 w-5" />
-              Apadrina una Calle
-            </Button>
-            
-            <Button
-              variant={activeTab === "puntos-verdes" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "puntos-verdes" ? "bg-purple-600 hover:bg-purple-700" : ""
-              }`}
-              onClick={() => handleTabChange("puntos")}
-            >
-              <User className="mr-3 h-5 w-5" />
-              Puntos Verdes
             </Button>
             
             <Separator className="my-4" />
