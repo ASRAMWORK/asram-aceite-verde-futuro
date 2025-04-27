@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, UserCheck, UserX } from "lucide-react";
 
 const ComercialView = () => {
-  const { usuarios, updateUserRole } = useUsuarios();
+  const { usuarios, updateUsuario } = useUsuarios();
   const comerciales = usuarios.filter(user => user.role === 'comercial');
 
   const handleToggleStatus = async (userId: string, isActive: boolean) => {
@@ -54,7 +54,7 @@ const ComercialView = () => {
                   <TableCell>{comercial.email}</TableCell>
                   <TableCell>{comercial.telefono}</TableCell>
                   <TableCell>
-                    <Badge variant={comercial.activo ? "success" : "destructive"}>
+                    <Badge variant={comercial.activo ? "default" : "destructive"} className={comercial.activo ? "bg-green-500" : ""}>
                       {comercial.activo ? "Activo" : "Inactivo"}
                     </Badge>
                   </TableCell>

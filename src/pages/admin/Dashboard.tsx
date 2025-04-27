@@ -20,6 +20,7 @@ import GestionRetiradas from "@/pages/admin/GestionRetiradas";
 import TiendaAdmin from "@/components/dashboard/admin/tienda/TiendaAdmin";
 import MiSitioWeb from "@/components/dashboard/admin/sitio-web/MiSitioWeb";
 import AdministradoresFincas from "@/components/dashboard/admin/administradores/AdministradoresFincas";
+import ComercialView from "@/components/dashboard/admin/comercial/ComercialView";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
