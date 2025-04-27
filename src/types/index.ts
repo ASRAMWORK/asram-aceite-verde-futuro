@@ -255,6 +255,7 @@ export interface Ruta {
   completada?: boolean;
   clientes?: { id: string; nombre: string; direccion: string; litros?: number }[];
   litrosTotales?: number;
+  litrosEstimados?: number;
 }
 
 export interface Turno {

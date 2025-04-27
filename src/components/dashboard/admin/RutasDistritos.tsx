@@ -231,8 +231,8 @@ const RutasDistritos = () => {
       distanciaTotal: formData.distanciaTotal || Math.round(puntosSeleccionados.length * 0.5), // Simple estimate
       tiempoEstimado: formData.tiempoEstimado || Math.round(puntosSeleccionados.length * 10), // Simple estimate: 10 min per point
       frecuencia: formData.frecuencia,
-      litrosEstimados: litrosEstimados,
-      completada: false
+      completada: false,
+      createdAt: new Date() // Added missing required property
     };
     
     try {
@@ -300,7 +300,8 @@ const RutasDistritos = () => {
 
   const handleOpenCompleteDialog = (ruta: any) => {
     setSelectedRuta(ruta);
-    setLitrosTotales(ruta.litrosEstimados || 0);
+    // Initialize with litrosTotales from the route if available, otherwise use 0
+    setLitrosTotales(0);
     setIsCompletingRuta(true);
   };
   
@@ -802,7 +803,7 @@ const RutasDistritos = () => {
                       <TableCell className="text-right">
                         {currentTab === "completadas" 
                           ? <span className="font-medium">{ruta.litrosTotales || 0}L</span>
-                          : <span className="text-gray-500">{ruta.litrosEstimados || 0}L est.</span>
+                          : <span className="text-gray-500">0L est.</span>
                         }
                       </TableCell>
                       <TableCell className="text-center">
@@ -944,60 +945,25 @@ const RutasDistritos = () => {
                           <TableHead className="w-[60px]">Orden</TableHead>
                           <TableHead>Dirección</TableHead>
                           <TableHead>Barrio</TableHead>
-                          <TableHead className="text-right">Litros est.</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {selectedRuta.clientes
-                          .sort((a: any, b: any) => (a.orden || 0) - (b.orden || 0))
-                          .map((cliente: any, index: number) => (
-                            <TableRow key={index}>
-                              <TableCell>{cliente.orden || index + 1}</TableCell>
-                              <TableCell>{cliente.direccion || cliente.nombre}</TableCell>
-                              <TableCell>{cliente.barrio || "N/A"}</TableCell>
-                              <TableCell className="text-right">{cliente.litrosEstimados || 0}L</TableCell>
-                            </TableRow>
-                          ))}
+                        {selectedRuta.clientes.map((cliente: any, index: number) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">{cliente.orden || index + 1}</TableCell>
+                            <TableCell>{cliente.direccion}</TableCell>
+                            <TableCell>{cliente.barrio}</TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>
                 ) : (
-                  <div className="text-center py-6 border rounded-md bg-gray-50">
-                    <p className="text-gray-500">No hay puntos de recogida especificados</p>
-                  </div>
+                  <p className="text-sm text-gray-500">No hay puntos de recogida especificados</p>
                 )}
               </div>
-              
-              {selectedRuta.completada && (
-                <div className="p-3 bg-green-50 border border-green-100 rounded-md">
-                  <h3 className="text-sm font-medium text-green-800 flex items-center gap-1 mb-2">
-                    <Check className="h-4 w-4" />
-                    Ruta completada
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-green-700 mb-1">Fecha de realización</p>
-                      <p className="text-sm">
-                        {selectedRuta.fechaCompletada 
-                          ? format(new Date(selectedRuta.fechaCompletada.toDate()), "dd/MM/yyyy HH:mm") 
-                          : format(new Date(), "dd/MM/yyyy")}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-green-700 mb-1">Litros recogidos</p>
-                      <p className="text-sm font-medium">{selectedRuta.litrosTotales || 0}L</p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           )}
-          
-          <DialogFooter>
-            <Button onClick={() => setIsViewingRuta(false)}>
-              Cerrar
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
       
@@ -1007,49 +973,37 @@ const RutasDistritos = () => {
           <DialogHeader>
             <DialogTitle>Completar ruta</DialogTitle>
             <DialogDescription>
-              Registra los litros totales recogidos en esta ruta
+              Marcar esta ruta como completada y registrar los litros recogidos
             </DialogDescription>
           </DialogHeader>
           
           {selectedRuta && (
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Nombre de la ruta</h3>
-                  <p className="font-medium">{selectedRuta.nombre}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Distrito</h3>
-                  <p>{selectedRuta.distrito}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Fecha</h3>
-                  <p>{selectedRuta.fecha ? format(new Date(selectedRuta.fecha), "dd/MM/yyyy") : "No programada"}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Puntos de recogida</h3>
-                  <p>{selectedRuta.puntosRecogida || selectedRuta.clientes?.length || 0}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-2 pt-2">
-                <Label htmlFor="litrosTotales">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="litrosTotales" className="text-sm font-medium">
                   Litros totales recogidos <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="litrosTotales"
-                  name="litrosTotales"
                   type="number"
                   value={litrosTotales}
                   onChange={handleLitrosChange}
-                  placeholder="Introduce los litros recogidos"
+                  placeholder="Ej: 120"
                 />
-                <p className="text-xs text-gray-500">
-                  Litros estimados: {selectedRuta.litrosEstimados || 0}L
-                </p>
+              </div>
+              
+              <div className="p-4 bg-gray-50 rounded-md">
+                <h3 className="font-medium mb-2">Resumen de la ruta</h3>
+                <div className="grid grid-cols-2 gap-y-2 text-sm">
+                  <p className="text-gray-500">Nombre:</p>
+                  <p>{selectedRuta.nombre}</p>
+                  <p className="text-gray-500">Distrito:</p>
+                  <p>{selectedRuta.distrito}</p>
+                  <p className="text-gray-500">Fecha:</p>
+                  <p>{selectedRuta.fecha ? format(new Date(selectedRuta.fecha), "dd/MM/yyyy") : "No programada"}</p>
+                  <p className="text-gray-500">Puntos recogida:</p>
+                  <p>{selectedRuta.puntosRecogida || selectedRuta.clientes?.length || 0}</p>
+                </div>
               </div>
             </div>
           )}
@@ -1059,15 +1013,15 @@ const RutasDistritos = () => {
               variant="outline"
               onClick={() => {
                 setIsCompletingRuta(false);
+                setSelectedRuta(null);
                 setLitrosTotales(0);
               }}
             >
               Cancelar
             </Button>
             <Button 
-              className="bg-green-600 hover:bg-green-700 focus:ring-green-500"
               onClick={handleCompleteRuta}
-              disabled={litrosTotales <= 0}
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               Completar Ruta
             </Button>
