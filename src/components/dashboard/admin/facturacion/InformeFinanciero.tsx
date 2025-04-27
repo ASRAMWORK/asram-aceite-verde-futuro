@@ -62,7 +62,7 @@ const InformeFinanciero: React.FC<Props> = ({
         backgroundColor: [
           'rgba(34, 197, 94, 0.7)', // verde para ingresos
           'rgba(239, 68, 68, 0.7)',  // rojo para gastos
-          balanceMensual >= 0 ? 'rgba(59, 130, 246, 0.7)' : 'rgba(249, 115, 22, 0.7)', // azul o naranja para balance
+          balanceMensual >= 0 ? 'rgba(238, 151, 13, 0.7)' : 'rgba(249, 115, 22, 0.7)', // naranja para balance
         ],
         borderWidth: 0,
         borderRadius: 4,
@@ -121,7 +121,7 @@ const InformeFinanciero: React.FC<Props> = ({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Proyección Mensual</CardTitle>
-            <PiggyBank className="h-4 w-4 text-blue-500" />
+            <PiggyBank className="h-4 w-4 text-[#ee970d]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">

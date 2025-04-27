@@ -2,18 +2,27 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
-import { Building, Droplet, Home, Euro } from 'lucide-react';
+import { Building, Droplet, Home, Euro, Route } from 'lucide-react';
 import { Chart } from '@/components/ui/chart';
 import { useFacturacion } from '@/hooks/useFacturacion';
+import { useRutas } from '@/hooks/useRutas';
+import { usePuntosVerdes } from '@/hooks/usePuntosVerdes';
 
 const PanelControl = () => {
   const { comunidades } = useComunidadesVecinos();
   const { ingresos, gastos } = useFacturacion();
+  const { rutas } = useRutas();
+  const { puntosVerdes } = usePuntosVerdes();
 
   // Datos de comunidades
   const totalLitros = comunidades.reduce((acc, com) => acc + (com.litrosRecogidos || 0), 0);
   const totalViviendas = comunidades.reduce((acc, com) => acc + (com.numViviendas || 0), 0);
   const totalPuntosVerdes = comunidades.reduce((acc, com) => acc + 1, 0);
+  
+  // Datos de rutas
+  const rutasCompletadas = rutas.filter(r => r.completada).length;
+  const rutasPendientes = rutas.filter(r => !r.completada).length;
+  const litrosRecolectados = rutas.reduce((acc, ruta) => acc + (ruta.litrosTotales || 0), 0);
   
   // Cálculos financieros
   const currentMonth = new Date().getMonth();
@@ -47,9 +56,21 @@ const PanelControl = () => {
     ]
   };
 
+  const rutasChartData = {
+    labels: ['Completadas', 'Pendientes'],
+    datasets: [
+      {
+        label: 'Estado de Rutas',
+        data: [rutasCompletadas, rutasPendientes],
+        backgroundColor: ['#4CAF50', '#ee970d'],
+        borderColor: ['#4CAF50', '#ee970d'],
+      }
+    ]
+  };
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="border-l-4 border-l-[#ee970d]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Litros Totales</CardTitle>
@@ -82,9 +103,22 @@ const PanelControl = () => {
             <Home className="h-4 w-4 text-[#ee970d]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalPuntosVerdes}</div>
+            <div className="text-2xl font-bold">{puntosVerdes.length}</div>
             <p className="text-xs text-muted-foreground">
               Total de puntos verdes instalados
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-[#ee970d]">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Rutas Activas</CardTitle>
+            <Route className="h-4 w-4 text-[#ee970d]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{rutasPendientes}</div>
+            <p className="text-xs text-muted-foreground">
+              Rutas pendientes de completar
             </p>
           </CardContent>
         </Card>
@@ -134,29 +168,52 @@ const PanelControl = () => {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Litros Recogidos por Comunidad</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Chart
-            type="bar"
-            data={chartData}
-            options={{
-              responsive: true,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: {
-                    callback: (value) => `${value}L`
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Litros Recogidos por Comunidad</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Chart
+              type="bar"
+              data={chartData}
+              options={{
+                responsive: true,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      callback: (value) => `${value}L`
+                    }
                   }
                 }
-              }
-            }}
-            className="h-[300px]"
-          />
-        </CardContent>
-      </Card>
+              }}
+              className="h-[300px]"
+            />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Estado de Rutas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Chart
+              type="doughnut"
+              data={rutasChartData}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                  }
+                }
+              }}
+              className="h-[300px]"
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
