@@ -114,7 +114,17 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
         toast.success("Proyecto actualizado correctamente");
       } else {
         // Create new project
-        await addProject(data);
+        // Ensure that we're passing non-optional fields as required by the Project type
+        await addProject({
+          nombre: data.nombre,
+          descripcion: data.descripcion || "",
+          cliente: data.cliente,
+          responsable: data.responsable || "",
+          presupuesto: data.presupuesto || 0,
+          fechaInicio: data.fechaInicio,
+          fechaFin: data.fechaFin,
+          estado: data.estado
+        });
         toast.success("Proyecto creado correctamente");
       }
       handleDialogClose();
