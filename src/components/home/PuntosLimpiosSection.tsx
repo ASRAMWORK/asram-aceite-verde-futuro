@@ -6,8 +6,8 @@ import { MapPin } from "lucide-react";
 interface PuntoLimpio {
   title: string;
   address: {
-    street-address: string;
-    postal-code: string;
+    "street-address": string; // Added quotes around property names with hyphens
+    "postal-code": string;    // Added quotes around property names with hyphens
     district: {
       id: string;
       title: string;
