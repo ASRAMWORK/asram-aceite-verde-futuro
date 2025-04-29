@@ -45,6 +45,23 @@ export function useUsuarios() {
     return usuarios.filter(usuario => usuario.role === role);
   };
 
+  const addUsuario = async (usuario: Omit<Usuario, "id">) => {
+    try {
+      await addDoc(collection(db, "usuarios"), {
+        ...usuario,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Usuario añadido correctamente");
+      await loadUsuariosData();
+      return true;
+    } catch (err) {
+      console.error("Error añadiendo usuario:", err);
+      toast.error("Error al añadir el usuario");
+      return false;
+    }
+  };
+
   const addCliente = async (cliente: Omit<Usuario, "id">) => {
     try {
       await addDoc(collection(db, "usuarios"), {
@@ -121,6 +138,7 @@ export function useUsuarios() {
     updateUsuario,
     deleteUsuario,
     updateUserRole,
-    addCliente
+    addCliente,
+    addUsuario
   };
 }

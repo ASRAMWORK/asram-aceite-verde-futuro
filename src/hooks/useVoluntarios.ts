@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
@@ -23,18 +24,23 @@ export function useVoluntarios() {
         voluntariosData.push({ 
           id: doc.id, 
           nombre: data.nombre || '',
-          apellidos: data.apellidos || '',
+          apellido: data.apellido || data.apellidos || '',
           email: data.email || '',
           telefono: data.telefono || '',
           direccion: data.direccion || '',
+          ciudad: data.ciudad || '',
+          provincia: data.provincia || '',
           codigoPostal: data.codigoPostal || '',
+          pais: data.pais || '',
+          activo: data.activo ?? true,
+          dni: data.dni || '',
+          fechaNacimiento: data.fechaNacimiento,
           diasDisponibles: data.diasDisponibles || [],
           horasDisponibles: data.horasDisponibles || '',
           habilidades: data.habilidades || [],
           experiencia: data.experiencia || '',
-          activo: data.activo ?? true,
-          fechaAlta: data.fechaAlta || new Date(),
           estado: data.estado || 'activo',
+          fechaAlta: data.fechaAlta || new Date(),
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
         });
@@ -52,23 +58,18 @@ export function useVoluntarios() {
   const addVoluntario = async (nuevoVoluntario: Omit<Voluntario, "id">) => {
     try {
       // Handle the apellidos -> apellido renaming if needed
-      const voluntarioData: any = { ...nuevoVoluntario };
-      
-      if ('apellidos' in voluntarioData) {
-        voluntarioData.apellido = voluntarioData.apellidos;
-        delete voluntarioData.apellidos;
-      }
+      const voluntarioData: any = { 
+        ...nuevoVoluntario,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
       
       // Ensure horasDisponibles is a string
       if (Array.isArray(voluntarioData.horasDisponibles)) {
         voluntarioData.horasDisponibles = voluntarioData.horasDisponibles.join(", ");
       }
 
-      const docRef = await addDoc(collection(db, "voluntarios"), {
-        ...voluntarioData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      const docRef = await addDoc(collection(db, "voluntarios"), voluntarioData);
       
       toast.success("Voluntario añadido correctamente");
       await loadVoluntarios();
@@ -83,12 +84,10 @@ export function useVoluntarios() {
   const updateVoluntario = async (id: string, data: Partial<Voluntario>) => {
     try {
       // Handle the apellidos -> apellido renaming if needed
-      const voluntarioData: any = { ...data };
-      
-      if ('apellidos' in voluntarioData) {
-        voluntarioData.apellido = voluntarioData.apellidos;
-        delete voluntarioData.apellidos;
-      }
+      const voluntarioData: any = { 
+        ...data,
+        updatedAt: serverTimestamp()
+      };
 
       // Check for fechaAlta and convert it if needed
       if (voluntarioData.fechaAlta && !(voluntarioData.fechaAlta instanceof Date)) {
@@ -100,10 +99,7 @@ export function useVoluntarios() {
         voluntarioData.horasDisponibles = voluntarioData.horasDisponibles.join(", ");
       }
 
-      await updateDoc(doc(db, "voluntarios", id), {
-        ...voluntarioData,
-        updatedAt: serverTimestamp()
-      });
+      await updateDoc(doc(db, "voluntarios", id), voluntarioData);
       
       toast.success("Voluntario actualizado correctamente");
       await loadVoluntarios();

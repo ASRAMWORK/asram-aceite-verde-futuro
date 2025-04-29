@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -56,9 +55,7 @@ const VoluntarioForm = ({ onSubmit, onCancel, initialData }: VoluntarioFormProps
   const processedInitialData = initialData ? {
     ...initialData,
     apellidos: initialData.apellido,
-    horasDisponibles: Array.isArray(initialData.horasDisponibles) 
-      ? initialData.horasDisponibles.join(", ")
-      : initialData.horasDisponibles || ""
+    horasDisponibles: initialData.horasDisponibles || ""
   } : null;
   
   const form = useForm<FormData>({

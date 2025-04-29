@@ -98,11 +98,14 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           barrio: data.barrio,
           codigoPostal: data.codigoPostal,
           frecuenciaRecogida: data.frecuenciaRecogida,
-          notas: data.notas,
           tipo: 'comunidad',
           activo: true,
           role: 'user',
+          ciudad: '',
+          provincia: '',
+          pais: '',
           createdAt: new Date(),
+          updatedAt: new Date()
         });
         toast.success('Cliente añadido correctamente');
       }

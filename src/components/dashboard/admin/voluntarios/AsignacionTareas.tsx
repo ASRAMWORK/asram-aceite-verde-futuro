@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -52,7 +51,7 @@ const AsignacionTareas: React.FC<AsignacionTareasProps> = ({ voluntarios }) => {
       return;
     }
     
-    const tareaData = {
+    const nuevaTarea = {
       titulo: data.titulo,
       descripcion: data.descripcion,
       fecha: new Date(data.fecha),
@@ -63,9 +62,11 @@ const AsignacionTareas: React.FC<AsignacionTareasProps> = ({ voluntarios }) => {
       voluntarioNombre: voluntario.nombre,
       completada: false,
       fechaAsignacion: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     
-    await addTarea(tareaData);
+    await addTarea(nuevaTarea);
     form.reset();
     setIsFormOpen(false);
   };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
@@ -15,6 +14,7 @@ import { useRecogidas } from '@/hooks/useRecogidas';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from 'date-fns';
+import { toast } from 'react-toastify';
 
 const AdministradorRecogidas = () => {
   const [showForm, setShowForm] = useState(false);
@@ -28,7 +28,8 @@ const AdministradorRecogidas = () => {
     completeRecogida, 
     getTotalLitrosRecogidos,
     calcularPromedioLitrosPorPeriodo,
-    addRecogida
+    addRecogida,
+    completarRecogida
   } = useRecogidas();
 
   // Generate chart data from recogidas
@@ -103,11 +104,9 @@ const AdministradorRecogidas = () => {
       })
     : recogidas;
 
-  const handleCompleteRecogida = async (id: string) => {
-    // Default to 10 liters but in a real implementation
-    // you would prompt for the amount or have it in the form
-    const litrosRecogidos = 10; 
-    await completeRecogida(id, litrosRecogidos);
+  const handleCompletarRecogida = async (id: string) => {
+    await completarRecogida(id, 10); // Default litros value
+    toast.success("Recogida completada correctamente");
   };
 
   // Handle form submission for new recogidas
@@ -248,7 +247,7 @@ const AdministradorRecogidas = () => {
             <CardContent className="pt-6">
               <RecogidasList 
                 recogidas={filteredRecogidas.filter(r => !r.completada)}
-                onCompleteRecogida={handleCompleteRecogida}
+                onCompleteRecogida={handleCompletarRecogida}
                 onViewDetails={(id) => setSelectedRecogidaId(id)}
               />
             </CardContent>

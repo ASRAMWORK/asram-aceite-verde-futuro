@@ -105,7 +105,7 @@ const GestionRetiradas = () => {
 
   const confirmCompletar = async () => {
     if (retiradaACompletar) {
-      await completeRuta(retiradaACompletar);
+      await completeRuta(retiradaACompletar, 0);
       setShowCompletarDialog(false);
       setRetiradaACompletar(null);
     }

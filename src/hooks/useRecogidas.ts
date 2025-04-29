@@ -24,10 +24,28 @@ export function useRecogidas() {
         const data = doc.data();
         recogidasData.push({
           id: doc.id,
-          ...data,
+          cliente: data.cliente || '',
+          direccionRecogida: data.direccionRecogida || '',
+          horaRecogida: data.horaRecogida || '',
+          cantidadAproximada: data.cantidadAproximada || 0,
+          tipoAceite: data.tipoAceite || '',
+          nombreContacto: data.nombreContacto || '',
+          telefonoContacto: data.telefonoContacto || '',
+          emailContacto: data.emailContacto || '',
+          notasAdicionales: data.notasAdicionales || '',
+          estadoRecogida: data.estadoRecogida || 'pendiente',
           fechaRecogida: data.fechaRecogida?.toDate(),
           fechaSolicitud: data.fechaSolicitud?.toDate(),
           fechaCompletada: data.fechaCompletada?.toDate(),
+          litrosRecogidos: data.litrosRecogidos || 0,
+          direccion: data.direccion || '',
+          distrito: data.distrito || '',
+          barrio: data.barrio || '',
+          horaInicio: data.horaInicio || '',
+          hora: data.hora || '',
+          completada: data.completada || false,
+          estado: data.estado || '',
+          clienteId: data.clienteId || '',
           createdAt: data.createdAt?.toDate(),
           updatedAt: data.updatedAt?.toDate()
         });
@@ -143,6 +161,10 @@ export function useRecogidas() {
     }
   };
 
+  const completeRecogida = async (id: string, litrosRecogidos: number = 0) => {
+    return completarRecogida(id, litrosRecogidos);
+  };
+
   const getTotalLitrosRecogidos = () => {
     return recogidas.reduce((total, recogida) => {
       return total + (recogida.litrosRecogidos || 0);
@@ -193,6 +215,7 @@ export function useRecogidas() {
     updateRecogida,
     deleteRecogida,
     completarRecogida,
+    completeRecogida,
     getTotalLitrosRecogidos,
     getLitrosRecolectadosPorDistrito,
     calcularPromedioLitrosPorRecogida,

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -25,8 +24,7 @@ export function useUserProfile() {
         if (docSnap.exists()) {
           const userData = docSnap.data();
           const profileData: UserProfile = {
-            id: docSnap.id,
-            userId: user.uid,
+            id: docRef.id,
             email: userData.email || user.email || '',
             role: (userData.role as UserProfile['role']) || 'usuario',
             // If the type doesn't have nombreAdministracion, it will be ignored when used

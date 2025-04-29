@@ -13,7 +13,7 @@ export function useTrabajadores() {
     try {
       setLoading(true);
       const trabajadoresRef = collection(db, "trabajadores");
-      const trabajadoresSnap = await getDocs(query(trabajadoresRef, orderBy("apellidos")));
+      const trabajadoresSnap = await getDocs(query(trabajadoresRef, orderBy("apellido")));
       
       const trabajadoresData: Trabajador[] = [];
       trabajadoresSnap.forEach((doc) => {
@@ -21,7 +21,7 @@ export function useTrabajadores() {
         trabajadoresData.push({
           id: doc.id,
           nombre: data.nombre || '',
-          apellidos: data.apellidos || '',
+          apellido: data.apellido || '',
           dni: data.dni || '',
           fechaNacimiento: data.fechaNacimiento,
           email: data.email || '',

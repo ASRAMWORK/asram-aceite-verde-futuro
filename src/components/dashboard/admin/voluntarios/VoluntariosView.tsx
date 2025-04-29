@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { Button } from "@/components/ui/button";
@@ -149,7 +148,11 @@ const VoluntariosView = () => {
                               </div>
                               <div className="flex items-center gap-1 mt-1">
                                 <Clock className="h-4 w-4" />
-                                <div className="text-sm text-gray-500">{formatHorasDisponibles(voluntario.horasDisponibles)}</div>
+                                <div className="text-sm text-gray-500">
+                                  {Array.isArray(voluntario.horasDisponibles) 
+                                    ? voluntario.horasDisponibles.join(", ") 
+                                    : voluntario.horasDisponibles || "No especificado"}
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell>
