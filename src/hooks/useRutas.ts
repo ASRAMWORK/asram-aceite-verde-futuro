@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { 
@@ -27,24 +26,26 @@ export function useRutas() {
           id: doc.id,
           nombre: data.nombre,
           distrito: data.distrito,
-          barrios: data.barrios,
+          barrios: data.barrios || [],
           fecha: data.fecha?.toDate(),
           hora: data.hora,
           recogedores: data.recogedores,
-          clientes: data.clientes,
+          clientes: data.clientes || [],
           puntosRecogida: data.puntosRecogida,
           distanciaTotal: data.distanciaTotal,
           tiempoEstimado: data.tiempoEstimado,
           frecuencia: data.frecuencia,
-          completada: data.completada,
-          litrosTotales: data.litrosTotales,
-          puntos: data.puntos || [], // Add empty array as default
+          completada: data.completada || false,
+          litrosTotales: data.litrosTotales || 0,
+          puntos: data.puntos || [],
           createdAt: data.createdAt?.toDate(),
-          updatedAt: data.updatedAt?.toDate()
+          updatedAt: data.updatedAt?.toDate(),
+          tipo: data.tipo || 'distrito' // Adding tipo field to distinguish between distrito and personalizada
         });
       });
       
       setRutas(rutasData);
+      setError(null);
     } catch (err) {
       console.error("Error cargando rutas:", err);
       setError("Error al cargar las rutas");
@@ -53,11 +54,17 @@ export function useRutas() {
     }
   };
 
+  const getRutasByTipo = (tipo: 'distrito' | 'personalizada') => {
+    return rutas.filter(ruta => ruta.tipo === tipo);
+  };
+
   const addRuta = async (ruta: Omit<Ruta, "id">) => {
     try {
       await addDoc(collection(db, "rutas"), {
         ...ruta,
-        puntos: ruta.puntos || [], // Ensure puntos is included
+        puntos: ruta.puntos || [],
+        completada: ruta.completada || false,
+        litrosTotales: ruta.litrosTotales || 0,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
@@ -168,6 +175,7 @@ export function useRutas() {
     updateRutaRecogida,
     deleteRuta,
     completeRuta,
-    loadRutas
+    loadRutas,
+    getRutasByTipo
   };
 }
