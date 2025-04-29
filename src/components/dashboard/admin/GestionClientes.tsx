@@ -175,6 +175,9 @@ const GestionClientes = () => {
     numViviendas?: number; 
     numContenedores?: number;
     litrosRecogidos?: number;
+    litrosAceite?: number;
+    fechaAceite?: string;
+    contacto?: string;
   }>({});
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,7 +224,7 @@ const GestionClientes = () => {
   const handleSubmit = async () => {
     if (!selectedUsuario) return;
     
-    const { numViviendas, numContenedores, litrosRecogidos, ...basicFormData } = formData;
+    const { numViviendas, numContenedores, litrosRecogidos, litrosAceite, fechaAceite, contacto, ...basicFormData } = formData;
     
     const updateData: Partial<Usuario> = {
       ...basicFormData
@@ -235,6 +238,15 @@ const GestionClientes = () => {
     }
     if (litrosRecogidos !== undefined) {
       (updateData as any).litrosRecogidos = litrosRecogidos;
+    }
+    if (litrosAceite !== undefined) {
+      (updateData as any).litrosAceite = litrosAceite;
+    }
+    if (fechaAceite !== undefined) {
+      (updateData as any).fechaAceite = fechaAceite;
+    }
+    if (contacto !== undefined) {
+      (updateData as any).contacto = contacto;
     }
     
     await updateUsuario(selectedUsuario.id, updateData);
@@ -903,7 +915,9 @@ const GestionClientes = () => {
               </TabsContent>
               
               <TabsContent value="recogidas" className="space-y-4">
-                <ClienteHistorialRecogidas cliente={selectedUsuario} />
+                <ClienteHistorialRecogidas 
+                  cliente={selectedUsuario}
+                />
               </TabsContent>
             </Tabs>
           )}
