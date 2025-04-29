@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -103,7 +102,7 @@ const RutasDistritos = () => {
       return;
     }
 
-    // Make sure this object has the completada property
+    // Make sure this object has all required properties
     const nuevaRuta = {
       nombre: nombreRuta,
       distrito: distritoSeleccionado,
@@ -118,6 +117,10 @@ const RutasDistritos = () => {
       completada: false,
       litrosTotales: 0,
       puntos: puntosSeleccionados,
+      barrios: [], // Added required property
+      distancia: 0, // Added required property
+      tipoRuta: "regular", // Added required property
+      estado: "pendiente", // Added required property
       createdAt: new Date(),
       updatedAt: new Date()
     };

@@ -1,5 +1,4 @@
 
-
 export interface ComunidadVecinos {
   id: string;
   nombre: string;
@@ -21,6 +20,7 @@ export interface ComunidadVecinos {
   nombreAdministracion?: string;
   correoContacto?: string;
   litrosRecogidos?: number;
+  pais?: string;
   beneficiosMedioambientales?: {
     co2?: number;
     agua?: number;
@@ -40,6 +40,7 @@ export interface Incidencia {
   tipo: string;
   createdAt: Date;
   updatedAt: Date;
+  trabajadorId?: string; // Added missing property
 }
 
 export interface Ruta {
@@ -141,6 +142,13 @@ export interface Usuario {
   role?: UserRole;
   distrito?: string;
   barrio?: string;
+  pais?: string;
+  nombreAdministracion?: string; // Added missing property
+  litrosAportados?: number; // Added missing property
+  frecuenciaRecogida?: string; // Added missing property
+  litrosRecogidos?: number; // Added missing property
+  numViviendas?: number; // Added missing property
+  numContenedores?: number; // Added missing property
 }
 
 export interface Instalacion {
@@ -164,6 +172,8 @@ export interface Instalacion {
   proximaRecogida?: Date;
   createdAt: Date;
   updatedAt: Date;
+  numViviendas?: number; // Added missing property
+  numContenedores?: number; // Added missing property
 }
 
 export interface AlianzaVerde {
@@ -186,6 +196,9 @@ export interface AlianzaVerde {
   estado: string;
   createdAt: Date;
   updatedAt: Date;
+  numEstudiantes?: number; // Added missing property
+  talleresRealizados?: number; // Added missing property
+  certificaciones?: string[] | any; // Added missing property
 }
 
 export interface CalleApadrinada {
@@ -202,6 +215,10 @@ export interface CalleApadrinada {
   observaciones: string;
   createdAt: Date;
   updatedAt: Date;
+  padrino?: string; // Added missing property
+  precio?: number; // Added missing property
+  fechaRenovacion?: Date; // Added missing property
+  descripcion?: string; // Added missing property
 }
 
 export interface Ingreso {
@@ -217,6 +234,9 @@ export interface Ingreso {
   origen?: string;
   createdAt: Date;
   updatedAt: Date;
+  numFactura?: string; // Added missing property
+  iva?: number; // Added missing property
+  total?: number; // Added missing property
 }
 
 export interface Gasto {
@@ -234,6 +254,7 @@ export interface Gasto {
   tipo: string;
   createdAt: Date;
   updatedAt: Date;
+  numFactura?: string; // Added missing property
 }
 
 export interface TallerProgramado {
@@ -287,7 +308,7 @@ export interface TrabajadorFormProps {
 export interface ClienteFormProps {
   onSubmit: (data: any) => void;
   initialData?: any;
-  onCancel?: () => void;
+  onCancel?: () => void; // Added missing property
 }
 
 export interface Turno {
@@ -328,7 +349,7 @@ export interface Vehiculo {
   estado: string;
   createdAt: Date;
   updatedAt: Date;
-  conductorAsignado?: string;
+  conductorAsignado?: string; // Added missing property
 }
 
 export interface Voluntario {
@@ -374,7 +395,7 @@ export interface HorarioVoluntario {
   ubicacion: string;
   createdAt: Date;
   updatedAt: Date;
-  voluntarioNombre?: string;
+  voluntarioNombre?: string; // Added missing property
 }
 
 export interface Reunion {
@@ -440,7 +461,8 @@ export type UserRole =
   | 'hotel'
   | 'asociacion'
   | 'escolar'
-  | 'administrador';
+  | 'administrador'
+  | 'comercial'; // Added missing role
 
 // Fix for admin/rutas/RutasDistritos.tsx
 export interface RutaRecogida extends Ruta {
@@ -451,4 +473,3 @@ export interface RutaRecogida extends Ruta {
 export interface ClienteForm extends Usuario {
   onCancel?: () => void;
 }
-

@@ -13,6 +13,7 @@ import { useUsuarios } from '@/hooks/useUsuarios';
 
 const AdministradorClientes = () => {
   const [showForm, setShowForm] = useState(false);
+  const [showAddClienteForm, setShowAddClienteForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('todos');
   const { usuarios, loadUsuariosData } = useUsuarios();
@@ -41,10 +42,27 @@ const AdministradorClientes = () => {
             Total: {totalUsuarios} | Activos: {usuariosActivos} | Inactivos: {usuariosInactivos}
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => setShowAddClienteForm(true)}>
           <Plus className="mr-2 h-4 w-4" /> Añadir Cliente
         </Button>
       </div>
+
+      {showAddClienteForm && (
+        <div className="mb-6">
+          <Card className="border-t-4 border-t-[#ee970d]">
+            <CardHeader>
+              <CardTitle>Añadir Cliente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ClienteForm
+                onSubmit={handleClienteSubmit}
+                onCancel={() => setShowAddClienteForm(false)}
+                initialData={{}}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {showForm ? (
         <Card className="mb-6">
