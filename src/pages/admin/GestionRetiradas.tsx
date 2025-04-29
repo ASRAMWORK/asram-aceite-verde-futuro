@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -85,6 +84,8 @@ const GestionRetiradas = () => {
       frecuencia: "puntual",
       completada: false,
       litrosTotales: 0,
+      puntos: [], // Add the missing puntos property
+      updatedAt: new Date(), // Add the missing updatedAt property
       createdAt: new Date() // Added the missing createdAt property
     };
     

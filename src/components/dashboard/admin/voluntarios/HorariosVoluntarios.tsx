@@ -40,9 +40,27 @@ const HorariosVoluntarios = () => {
   }));
 
   // Fix filtering logic to use the dia property instead of fecha
-  const horariosFiltrados = horarios.filter(horario => 
-    voluntarioId === '' || horario.voluntarioId === voluntarioId
-  );
+  const horariosFiltrados = horarios.filter(horario => {
+    if (voluntarioId !== '' && horario.voluntarioId !== voluntarioId) {
+      return false;
+    }
+    
+    if (mes && horario.dia) {
+      // If we have a fecha property, use it
+      if (horario.fecha) {
+        const horarioMes = new Date(horario.fecha).toISOString().slice(0, 7);
+        return horarioMes === mes;
+      }
+      
+      // Otherwise try to extract from dia if it's a date string
+      if (typeof horario.dia === 'string' && horario.dia.includes('-')) {
+        const horarioMes = horario.dia.slice(0, 7);
+        return horarioMes === mes;
+      }
+    }
+    
+    return true;
+  });
 
   const totalHorasMes = horariosFiltrados.reduce((sum, horario) => {
     const inicio = new Date(`2000-01-01T${horario.horaInicio}`);
@@ -101,13 +119,21 @@ const HorariosVoluntarios = () => {
           <TableBody>
             {horariosFiltrados.map((horario) => {
               const voluntario = voluntarios.find(v => v.id === horario.voluntarioId);
-              const voluntarioNombre = `${voluntario?.nombre} ${voluntario?.apellido}`;
+              const voluntarioNombre = voluntario ? `${voluntario.nombre} ${voluntario.apellido}` : 'Desconocido';
+              
+              // Determine how to format the date based on available properties
+              let fechaMostrar = 'Sin fecha';
+              if (horario.fecha) {
+                fechaMostrar = format(new Date(horario.fecha), 'dd/MM/yyyy');
+              } else if (typeof horario.dia === 'string' && horario.dia.includes('-')) {
+                fechaMostrar = format(new Date(horario.dia), 'dd/MM/yyyy');
+              } else {
+                fechaMostrar = horario.dia;
+              }
 
               return (
                 <TableRow key={horario.id}>
-                  <TableCell>
-                    {format(new Date(horario.dia), 'dd/MM/yyyy')}
-                  </TableCell>
+                  <TableCell>{fechaMostrar}</TableCell>
                   <TableCell>
                     <div className="font-medium text-sm">{voluntarioNombre}</div>
                   </TableCell>

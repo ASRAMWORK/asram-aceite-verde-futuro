@@ -58,7 +58,7 @@ import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { distritos } from "@/data/madridDistritos";
 import { toast } from 'sonner';
-import { ClientesRutaList } from "./ClientesRutaList";
+import { ClientesRutaList } from "@/components/dashboard/admin/ClientesRutaList";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -69,6 +69,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Recogida } from "@/types";
 
 type RutaFormData = {
   nombre: string;

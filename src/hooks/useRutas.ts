@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, where, increment } from 'firebase/firestore';
@@ -23,6 +24,7 @@ export function useRutas() {
           nombre: data.nombre || '',
           distrito: data.distrito || '',
           barrios: data.barrios || [],
+          puntos: data.puntos || [], // Added default empty array for puntos
           fecha: data.fecha?.toDate() || new Date(),
           hora: data.hora || '',
           recogedores: data.recogedores || '',

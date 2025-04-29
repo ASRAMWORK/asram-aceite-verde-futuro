@@ -1,89 +1,80 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { Tarea } from '@/types';
 import { toast } from 'sonner';
+import type { Tarea } from '@/types';
 
 export function useTareas() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadTareasData = async () => {
+  const loadTareas = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const tareasRef = collection(db, "tareasVoluntarios");
-      const tareasQuery = query(tareasRef, orderBy("fechaAsignacion", "desc"));
-      const tareasSnap = await getDocs(tareasQuery);
+      const tareasRef = collection(db, "tareas");
+      const tareasSnap = await getDocs(query(tareasRef, orderBy("fecha", "desc")));
       
       const tareasData: Tarea[] = [];
       tareasSnap.forEach((doc) => {
-        const data = doc.data() as Record<string, any>;
-        tareasData.push({ 
-          id: doc.id, 
-          titulo: data.titulo || '',
-          descripcion: data.descripcion || '',
-          voluntarioId: data.voluntarioId || '',
-          voluntarioNombre: data.voluntarioNombre || '',
-          prioridad: data.prioridad || 'media',
-          fechaAsignacion: data.fechaAsignacion,
-          fechaLimite: data.fechaLimite,
+        const data = doc.data();
+        tareasData.push({
+          id: doc.id,
+          titulo: data.titulo,
+          descripcion: data.descripcion,
+          fecha: data.fecha?.toDate(),
+          estado: data.estado,
+          prioridad: data.prioridad,
+          asignadoA: data.asignadoA,
+          voluntarioId: data.voluntarioId,
+          voluntarioNombre: data.voluntarioNombre,
+          completada: data.completada || false,
           fechaCompletada: data.fechaCompletada,
-          completada: data.completada || false
+          fechaAsignacion: data.fechaAsignacion?.toDate(),
+          fechaLimite: data.fechaLimite,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
         });
       });
       
       setTareas(tareasData);
     } catch (err) {
       console.error("Error cargando tareas:", err);
-      setError("Error al cargar datos de Tareas");
+      setError("Error al cargar datos de tareas");
     } finally {
       setLoading(false);
     }
   };
 
-  const addTarea = async (nuevaTarea: Omit<Tarea, 'id'>) => {
+  const addTarea = async (nuevaTarea: Omit<Tarea, "id">) => {
     try {
       const tareaData = {
         ...nuevaTarea,
-        fechaAsignacion: serverTimestamp(),
+        completada: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       };
       
-      await addDoc(collection(db, "tareasVoluntarios"), tareaData);
-      toast.success("Tarea asignada correctamente");
-      await loadTareasData();
+      await addDoc(collection(db, "tareas"), tareaData);
+      toast.success("Tarea añadida correctamente");
+      await loadTareas();
       return true;
     } catch (err) {
       console.error("Error añadiendo tarea:", err);
-      toast.error("Error al asignar la tarea");
+      toast.error("Error al añadir la tarea");
       return false;
     }
   };
 
   const updateTarea = async (id: string, data: Partial<Tarea>) => {
     try {
-      const updateData: any = { ...data };
-      
-      if ('fechaCompletada' in data) {
-        if (data.fechaCompletada) {
-          updateData.fechaCompletada = serverTimestamp();
-        }
-      }
-      
-      await updateDoc(doc(db, "tareasVoluntarios", id), updateData);
-      
-      if ('completada' in data) {
-        if (data.completada) {
-          toast.success("Tarea completada");
-        } else {
-          toast.info("Tarea marcada como pendiente");
-        }
-      } else {
-        toast.success("Tarea actualizada correctamente");
-      }
-      
-      await loadTareasData();
+      await updateDoc(doc(db, "tareas"), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Tarea actualizada correctamente");
+      await loadTareas();
       return true;
     } catch (err) {
       console.error("Error actualizando tarea:", err);
@@ -91,12 +82,30 @@ export function useTareas() {
       return false;
     }
   };
-
+  
+  const completeTarea = async (id: string) => {
+    try {
+      await updateDoc(doc(db, "tareas", id), {
+        completada: true,
+        fechaCompletada: new Date(),
+        estado: "completada",
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Tarea completada correctamente");
+      await loadTareas();
+      return true;
+    } catch (err) {
+      console.error("Error completando tarea:", err);
+      toast.error("Error al completar la tarea");
+      return false;
+    }
+  };
+  
   const deleteTarea = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "tareasVoluntarios", id));
+      await deleteDoc(doc(db, "tareas", id));
       toast.success("Tarea eliminada correctamente");
-      await loadTareasData();
+      await loadTareas();
       return true;
     } catch (err) {
       console.error("Error eliminando tarea:", err);
@@ -104,23 +113,24 @@ export function useTareas() {
       return false;
     }
   };
-
-  const getTareasByVoluntarioId = (voluntarioId: string) => {
+  
+  const getTareasByVoluntario = (voluntarioId: string) => {
     return tareas.filter(tarea => tarea.voluntarioId === voluntarioId);
   };
 
   useEffect(() => {
-    loadTareasData();
+    loadTareas();
   }, []);
 
-  return { 
-    tareas, 
-    loading, 
-    error, 
-    loadTareasData,
+  return {
+    tareas,
+    loading,
+    error,
+    loadTareas,
     addTarea,
     updateTarea,
+    completeTarea,
     deleteTarea,
-    getTareasByVoluntarioId
+    getTareasByVoluntario
   };
 }

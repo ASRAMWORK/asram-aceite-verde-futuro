@@ -1,3 +1,4 @@
+
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -37,6 +38,24 @@ export interface Usuario {
   updatedAt: any;
   fechaRegistro?: Date;
   ultimoAcceso?: Date;
+  notas?: string;
+  puntosVerdes?: number;
+  // Restaurant-specific fields
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  // Hotel-specific fields
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  // Association-specific fields
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  // School-specific fields
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
 }
 
 export interface ComunidadVecinos {
@@ -49,6 +68,7 @@ export interface ComunidadVecinos {
   numViviendas: number;
   administrador: string;
   telefono: string;
+  email: string;
   cif?: string;
   distrito?: string;
   barrio?: string;
@@ -66,6 +86,7 @@ export interface ComunidadVecinos {
   updatedAt: any;
 }
 
+// Remove duplicate UserProfile
 export type UserProfile = Usuario;
 
 export interface PuntoVerde {
@@ -110,10 +131,11 @@ export interface Voluntario {
   dni: string;
   fechaNacimiento: any;
   diasDisponibles?: string[];
-  horasDisponibles?: string;
+  horasDisponibles?: string | string[];
   habilidades?: string[];
   experiencia?: string;
   estado?: string;
+  fechaAlta?: Date;
   createdAt: any;
   updatedAt: any;
 }
@@ -163,6 +185,7 @@ export interface Vehiculo {
   ultimaRevision?: Date;
   proximaRevision?: Date;
   kilometraje?: number;
+  conductorAsignado?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -499,7 +522,7 @@ export interface HorarioVoluntario {
   dia: string;
   horaInicio: string;
   horaFin: string;
-  fecha: Date;
+  fecha?: Date; // Added the missing fecha property
   createdAt: any;
   updatedAt: any;
 }
@@ -512,6 +535,7 @@ export interface Tarea {
   estado: string;
   prioridad: string;
   asignadoA: string;
+  voluntarioId?: string; // Added voluntarioId property
   voluntarioNombre?: string;
   completada?: boolean;
   fechaCompletada?: Date | null;
@@ -530,10 +554,10 @@ export interface Incidencia {
   prioridad: string;
   asignadoA: string;
   reportadoPor: string;
-  tipo: string;
+  tipo?: string; // Added missing tipo property
   createdAt: any;
   updatedAt: any;
   trabajadorId?: string;
 }
 
-export type UserProfile = Usuario;
+// Removed duplicate UserProfile definition

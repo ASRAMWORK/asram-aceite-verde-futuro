@@ -1,16 +1,15 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
-import type { Voluntario } from '@/types';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
+import type { Voluntario } from '@/types';
 
 export function useVoluntarios() {
   const [voluntarios, setVoluntarios] = useState<Voluntario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadVoluntariosData = async () => {
+  const loadVoluntarios = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -50,35 +49,64 @@ export function useVoluntarios() {
     }
   };
 
-  const addVoluntario = async (data: Omit<Voluntario, "id">) => {
+  const addVoluntario = async (nuevoVoluntario: Omit<Voluntario, "id">) => {
     try {
-      // Ensure required fields are set
-      const voluntarioData = {
-        ...data,
-        fechaAlta: data.fechaAlta || new Date(),
-        estado: data.estado || 'activo',
-        createdAt: serverTimestamp()
-      };
+      // Handle the apellidos -> apellido renaming if needed
+      const voluntarioData: any = { ...nuevoVoluntario };
       
-      const docRef = await addDoc(collection(db, "voluntarios"), voluntarioData);
+      if ('apellidos' in voluntarioData) {
+        voluntarioData.apellido = voluntarioData.apellidos;
+        delete voluntarioData.apellidos;
+      }
+      
+      // Ensure horasDisponibles is a string
+      if (Array.isArray(voluntarioData.horasDisponibles)) {
+        voluntarioData.horasDisponibles = voluntarioData.horasDisponibles.join(", ");
+      }
+
+      const docRef = await addDoc(collection(db, "voluntarios"), {
+        ...voluntarioData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      
       toast.success("Voluntario añadido correctamente");
-      await loadVoluntariosData();
+      await loadVoluntarios();
       return true;
     } catch (err) {
-      console.error("Error al añadir voluntario:", err);
-      toast.error("Error al añadir voluntario");
+      console.error("Error añadiendo voluntario:", err);
+      toast.error("Error al añadir el voluntario");
       return false;
     }
   };
 
   const updateVoluntario = async (id: string, data: Partial<Voluntario>) => {
     try {
+      // Handle the apellidos -> apellido renaming if needed
+      const voluntarioData: any = { ...data };
+      
+      if ('apellidos' in voluntarioData) {
+        voluntarioData.apellido = voluntarioData.apellidos;
+        delete voluntarioData.apellidos;
+      }
+
+      // Check for fechaAlta and convert it if needed
+      if (voluntarioData.fechaAlta && !(voluntarioData.fechaAlta instanceof Date)) {
+        voluntarioData.fechaAlta = new Date(voluntarioData.fechaAlta);
+      }
+
+      // Ensure horasDisponibles is a string
+      if (Array.isArray(voluntarioData.horasDisponibles)) {
+        voluntarioData.horasDisponibles = voluntarioData.horasDisponibles.join(", ");
+      }
+
       await updateDoc(doc(db, "voluntarios", id), {
-        ...data,
+        ...voluntarioData,
         updatedAt: serverTimestamp()
       });
+      
       toast.success("Voluntario actualizado correctamente");
-      await loadVoluntariosData();
+      await loadVoluntarios();
       return true;
     } catch (err) {
       console.error("Error actualizando voluntario:", err);
@@ -91,7 +119,7 @@ export function useVoluntarios() {
     try {
       await deleteDoc(doc(db, "voluntarios", id));
       toast.success("Voluntario eliminado correctamente");
-      await loadVoluntariosData();
+      await loadVoluntarios();
       return true;
     } catch (err) {
       console.error("Error eliminando voluntario:", err);
@@ -101,14 +129,14 @@ export function useVoluntarios() {
   };
 
   useEffect(() => {
-    loadVoluntariosData();
+    loadVoluntarios();
   }, []);
 
-  return { 
-    voluntarios, 
-    loading, 
-    error, 
-    loadVoluntariosData,
+  return {
+    voluntarios,
+    loading,
+    error,
+    loadVoluntarios,
     addVoluntario,
     updateVoluntario,
     deleteVoluntario

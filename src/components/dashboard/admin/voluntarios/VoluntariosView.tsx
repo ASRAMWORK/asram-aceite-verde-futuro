@@ -53,31 +53,7 @@ const VoluntariosView = () => {
         )}
       </div>
 
-      {showForm ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>{editingVoluntario ? "Editar" : "Añadir"} Voluntario</CardTitle>
-            <CardDescription>
-              {editingVoluntario 
-                ? "Modifica los datos del voluntario" 
-                : "Completa el formulario para añadir un nuevo voluntario"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <VoluntarioForm 
-              onSubmit={editingVoluntario 
-                ? (data) => handleUpdateVoluntario(editingVoluntario.id, data) 
-                : handleAddVoluntario
-              }
-              initialData={editingVoluntario}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingVoluntario(null);
-              }}
-            />
-          </CardContent>
-        </Card>
-      ) : (
+      {!showForm ? (
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="inscripciones">Inscripciones</TabsTrigger>
@@ -168,13 +144,37 @@ const VoluntariosView = () => {
           </TabsContent>
           
           <TabsContent value="horarios">
-            <HorariosVoluntarios voluntarios={voluntarios} />
+            <HorariosVoluntarios />
           </TabsContent>
           
           <TabsContent value="tareas">
             <AsignacionTareas voluntarios={voluntarios} />
           </TabsContent>
         </Tabs>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>{editingVoluntario ? "Editar" : "Añadir"} Voluntario</CardTitle>
+            <CardDescription>
+              {editingVoluntario 
+                ? "Modifica los datos del voluntario" 
+                : "Completa el formulario para añadir un nuevo voluntario"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <VoluntarioForm 
+              onSubmit={editingVoluntario 
+                ? (data) => handleUpdateVoluntario(editingVoluntario.id, data) 
+                : handleAddVoluntario
+              }
+              initialData={editingVoluntario}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingVoluntario(null);
+              }}
+            />
+          </CardContent>
+        </Card>
       )}
     </div>
   );
