@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
@@ -63,8 +62,9 @@ export function useVoluntarios() {
       // Handle the apellidos -> apellido renaming if needed
       const voluntarioData: any = { 
         ...nuevoVoluntario,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        // Store timestamps in Firestore but don't include in the Voluntario type
+        _createdAt: serverTimestamp(),
+        _updatedAt: serverTimestamp()
       };
       
       // Ensure horasDisponibles is a string

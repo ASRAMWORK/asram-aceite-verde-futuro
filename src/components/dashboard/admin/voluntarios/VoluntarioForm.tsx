@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -55,7 +54,7 @@ const VoluntarioForm = ({ onSubmit, onCancel, initialData }: VoluntarioFormProps
   // Process initialData to ensure it matches expected form structure
   const processedData = initialData ? {
     nombre: initialData.nombre || "",
-    apellidos: initialData.apellidos || initialData.apellido || "",
+    apellidos: initialData.apellidos || "",
     email: initialData.email || "",
     telefono: initialData.telefono || "",
     direccion: initialData.direccion || "",

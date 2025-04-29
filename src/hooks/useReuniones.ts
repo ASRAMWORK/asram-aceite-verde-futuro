@@ -28,6 +28,14 @@ export function useReuniones() {
           duracion: data.duracion || 60,
           ubicacion: data.ubicacion || '',
           participantes: data.participantes || [],
+          // Include the additional fields from our extended interface
+          tipo: data.tipo || '',
+          tipoUsuario: data.tipoUsuario || '',
+          nombreCentro: data.nombreCentro || '',
+          responsable: data.responsable || '',
+          direccion: data.direccion || '',
+          telefono: data.telefono || '',
+          email: data.email || '',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
         });

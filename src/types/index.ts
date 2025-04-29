@@ -494,6 +494,14 @@ export interface Reunion {
   participantes: string[];
   createdAt?: Date;
   updatedAt?: Date;
+  // Add fields being used in ReunionesView.tsx
+  tipo?: string;
+  tipoUsuario?: string;
+  nombreCentro?: string;
+  responsable?: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
 }
 
 export interface Vehiculo {
