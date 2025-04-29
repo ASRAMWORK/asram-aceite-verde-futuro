@@ -255,6 +255,7 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
                           onSelect={field.onChange}
                           disabled={(date) => date < new Date()}
                           initialFocus
+                          className="p-3 pointer-events-auto"
                         />
                       </PopoverContent>
                     </Popover>
@@ -348,106 +349,109 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
       
       <TabsContent value="distrito">
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div className="flex flex-col space-y-2">
-                <FormLabel>Fecha de recogida</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button 
-                      variant={"outline"}
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      {form.getValues("fechaRecogida") ? (
-                        format(form.getValues("fechaRecogida"), "P", { locale: es })
-                      ) : (
-                        <span>Seleccionar fecha</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={form.getValues("fechaRecogida")}
-                      onSelect={(date) => form.setValue("fechaRecogida", date as Date)}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+          <Form {...form}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="flex flex-col space-y-2">
+                  <FormLabel>Fecha de recogida</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        variant={"outline"}
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        {form.getValues("fechaRecogida") ? (
+                          format(form.getValues("fechaRecogida"), "P", { locale: es })
+                        ) : (
+                          <span>Seleccionar fecha</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={form.getValues("fechaRecogida")}
+                        onSelect={(date) => form.setValue("fechaRecogida", date as Date)}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="space-y-2">
+                  <FormLabel>Hora de recogida</FormLabel>
+                  <Input 
+                    type="time" 
+                    value={form.getValues("horaRecogida")}
+                    onChange={(e) => form.setValue("horaRecogida", e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <FormLabel>Distrito</FormLabel>
+                  <Select value={distritoFilter} onValueChange={setDistritoFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un distrito" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Todos los distritos</SelectItem>
+                      {distritos.map(distrito => (
+                        <SelectItem key={distrito} value={distrito}>{distrito}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <FormLabel>Buscar clientes</FormLabel>
+                  <Input 
+                    placeholder="Nombre o dirección del cliente" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
               
-              <div className="space-y-2">
-                <FormLabel>Hora de recogida</FormLabel>
-                <Input 
-                  type="time" 
-                  value={form.getValues("horaRecogida")}
-                  onChange={(e) => form.setValue("horaRecogida", e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <FormLabel>Distrito</FormLabel>
-                <Select value={distritoFilter} onValueChange={setDistritoFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un distrito" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Todos los distritos</SelectItem>
-                    {distritos.map(distrito => (
-                      <SelectItem key={distrito} value={distrito}>{distrito}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <FormLabel>Buscar clientes</FormLabel>
-                <Input 
-                  placeholder="Nombre o dirección del cliente" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <Card className="p-4 overflow-auto max-h-96">
-              <h3 className="text-lg font-medium mb-2">Clientes disponibles</h3>
-              {filteredClientes.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead>Dirección</TableHead>
-                      <TableHead>Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredClientes.map((cliente) => (
-                      <TableRow key={cliente.id}>
-                        <TableCell>{cliente.nombre}</TableCell>
-                        <TableCell className="hidden md:table-cell">{cliente.direccion}</TableCell>
-                        <TableCell>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleAddCliente(cliente)}
-                            variant="outline"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
+              <Card className="p-4 overflow-auto max-h-96">
+                <h3 className="text-lg font-medium mb-2">Clientes disponibles</h3>
+                {filteredClientes.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nombre</TableHead>
+                        <TableHead>Dirección</TableHead>
+                        <TableHead>Acciones</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <p className="text-center text-muted-foreground py-4">
-                  No hay clientes disponibles con los filtros seleccionados
-                </p>
-              )}
-            </Card>
-          </div>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredClientes.map((cliente) => (
+                        <TableRow key={cliente.id}>
+                          <TableCell>{cliente.nombre}</TableCell>
+                          <TableCell className="hidden md:table-cell">{cliente.direccion}</TableCell>
+                          <TableCell>
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleAddCliente(cliente)}
+                              variant="outline"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <p className="text-center text-muted-foreground py-4">
+                    No hay clientes disponibles con los filtros seleccionados
+                  </p>
+                )}
+              </Card>
+            </div>
+          </Form>
           
           <div className="mt-6 border rounded-md p-4">
             <h3 className="text-lg font-medium mb-4">Clientes seleccionados para la ruta</h3>
