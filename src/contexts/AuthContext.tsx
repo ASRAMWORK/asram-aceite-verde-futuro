@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -38,3 +37,10 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// Fix the type comparison in any function that compares UserRole with string literals
+// Example:
+// Instead of:
+// if (user.role === "superadmin") { ... }
+// Use:
+// if (user.role === "superadmin" as UserRole) { ... }

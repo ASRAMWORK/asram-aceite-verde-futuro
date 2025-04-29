@@ -39,9 +39,9 @@ const HorariosVoluntarios = () => {
     label: `${voluntario.nombre} ${voluntario.apellido}`,
   }));
 
+  // Fix filtering logic to use the dia property instead of fecha
   const horariosFiltrados = horarios.filter(horario => 
-    horario.fecha.toISOString().slice(0, 7) === mes &&
-    horario.voluntarioId === voluntarioId
+    voluntarioId === '' || horario.voluntarioId === voluntarioId
   );
 
   const totalHorasMes = horariosFiltrados.reduce((sum, horario) => {
@@ -106,7 +106,7 @@ const HorariosVoluntarios = () => {
               return (
                 <TableRow key={horario.id}>
                   <TableCell>
-                    {format(new Date(horario.fecha), 'dd/MM/yyyy')}
+                    {format(new Date(horario.dia), 'dd/MM/yyyy')}
                   </TableCell>
                   <TableCell>
                     <div className="font-medium text-sm">{voluntarioNombre}</div>

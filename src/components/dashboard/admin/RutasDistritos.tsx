@@ -14,6 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,12 +36,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { usePuntosVerdes } from "@/hooks/usePuntosVerdes";
 import { useRutas } from "@/hooks/useRutas";
-import { PuntoVerde } from "@/types";
-import { Check, Droplet, ListChecks, MapPin, Plus, Route, Save, Search } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from 'date-fns';
+import { useUsuarios } from "@/hooks/useUsuarios";
+import { useRecogidas } from "@/hooks/useRecogidas";
+import type { Ruta } from "@/types";
+import { Calendar, Check, Clock, FileSpreadsheet, FileText, Loader2, MapPin, PenLine, Plus, Route, Trash2, Users, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { distritos } from "@/data/madridDistritos";
 import { toast } from 'sonner';
+import { ClientesRutaList } from "./ClientesRutaList";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 type RutaPersonalizada = {
   id?: string;
@@ -61,6 +67,8 @@ type RutaPersonalizada = {
 const RutasDistritos = () => {
   const { puntosVerdes } = usePuntosVerdes();
   const { rutas, addRuta } = useRutas();
+  const { usuarios } = useUsuarios();
+  const { recogidas, updateRutaRecogida } = useRecogidas();
   
   const [isOpen, setIsOpen] = useState(false);
   const [nombreRuta, setNombreRuta] = useState<string>("");
@@ -93,7 +101,8 @@ const RutasDistritos = () => {
       tiempoEstimado: 0,
       frecuencia: "semanal",
       updatedAt: new Date(),
-      createdAt: new Date()
+      createdAt: new Date(),
+      puntos: [] // Add the required 'puntos' property
     });
     
     setIsOpen(false);

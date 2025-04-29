@@ -126,8 +126,8 @@ const RutasPersonalizadas = () => {
       distanciaTotal: 0,
       tiempoEstimado: 0,
       frecuencia: "personalizada",
-      puntos: [], // Required field
-      updatedAt: new Date(), // Required field
+      puntos: [], // Add the required 'puntos' property
+      updatedAt: new Date(), // Add the required 'updatedAt' property
       createdAt: new Date()
     });
     

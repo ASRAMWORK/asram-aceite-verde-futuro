@@ -1,4 +1,3 @@
-
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -38,6 +37,33 @@ export interface Usuario {
   updatedAt: any;
   fechaRegistro?: Date;
   ultimoAcceso?: Date;
+}
+
+export interface ComunidadVecinos {
+  id: string;
+  nombre: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  numViviendas: number;
+  administrador: string;
+  telefono: string;
+  cif?: string;
+  distrito?: string;
+  barrio?: string;
+  numeroPorteria?: number;
+  totalViviendas?: number;
+  nombreAdministracion?: string;
+  correoContacto?: string;
+  litrosRecogidos?: number;
+  beneficiosMedioambientales?: {
+    co2: number;
+    agua: number;
+    energia: number;
+  };
+  createdAt: any;
+  updatedAt: any;
 }
 
 export type UserProfile = Usuario;
@@ -83,10 +109,13 @@ export interface Voluntario {
   activo: boolean;
   dni: string;
   fechaNacimiento: any;
+  diasDisponibles?: string[];
+  horasDisponibles?: string;
+  habilidades?: string[];
+  experiencia?: string;
+  estado?: string;
   createdAt: any;
   updatedAt: any;
-  diasDisponibles?: string[];
-  horasDisponibles?: string[];
 }
 
 export interface Trabajador {
@@ -447,6 +476,19 @@ export interface ComunidadVecinos {
   administrador: string;
   telefono: string;
   email: string;
+  cif?: string;
+  distrito?: string;
+  barrio?: string;
+  numeroPorteria?: number;
+  totalViviendas?: number;
+  nombreAdministracion?: string;
+  correoContacto?: string;
+  litrosRecogidos?: number;
+  beneficiosMedioambientales?: {
+    co2: number;
+    agua: number;
+    energia: number;
+  };
   createdAt: any;
   updatedAt: any;
 }
@@ -457,23 +499,9 @@ export interface HorarioVoluntario {
   dia: string;
   horaInicio: string;
   horaFin: string;
-  createdAt: any;
-  updatedAt: any;
-}
-
-export interface Incidencia {
-  id: string;
-  titulo: string;
-  descripcion: string;
   fecha: Date;
-  estado: string;
-  prioridad: string;
-  asignadoA: string;
-  reportadoPor: string;
-  tipo: string;
   createdAt: any;
   updatedAt: any;
-  trabajadorId?: string;
 }
 
 export interface Tarea {
@@ -493,16 +521,19 @@ export interface Tarea {
   updatedAt: any;
 }
 
-export interface Project {
+export interface Incidencia {
   id: string;
-  nombre: string;
-  descripcion?: string;
-  cliente?: string;
-  fechaInicio?: Date;
-  fechaFin?: Date;
-  presupuesto?: number;
-  responsable?: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
   estado: string;
-  createdAt: Date;
-  updatedAt?: Date;
+  prioridad: string;
+  asignadoA: string;
+  reportadoPor: string;
+  tipo: string;
+  createdAt: any;
+  updatedAt: any;
+  trabajadorId?: string;
 }
+
+export type UserProfile = Usuario;
