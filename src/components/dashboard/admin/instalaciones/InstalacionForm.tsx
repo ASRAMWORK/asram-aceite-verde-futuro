@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -103,12 +102,16 @@ const InstalacionForm = ({ isOpen, onClose, instalacion }: InstalacionFormProps)
           contacto: "",
           activo: true,
           numViviendas: formData.numViviendas || 0,
-          numContenedores: formData.numContenedores || 1,
+          numContenedores: formData.numContenedores || 0,
           numPorteria: formData.numPorteria || 0,
           distrito: formData.distrito || "",
           barrio: formData.barrio || "",
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
+          estado: "activo",
+          fechaInstalacion: new Date(),
+          litrosCapacidad: 0,
+          litrosRecogidos: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
         
         await addInstalacion(newInstalacion);
@@ -224,7 +227,7 @@ const InstalacionForm = ({ isOpen, onClose, instalacion }: InstalacionFormProps)
                 name="numContenedores"
                 type="number"
                 min={1}
-                value={formData.numContenedores || 1}
+                value={formData.numContenedores || 0}
                 onChange={handleInputChange}
               />
             </div>

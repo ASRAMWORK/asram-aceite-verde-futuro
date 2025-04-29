@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -47,6 +46,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
       cantidad: 0,
       iva: 0,
       total: 0,
+      metodoCobro: "",
       metodoPago: "",
       notas: "",
       estado: "pendiente",
@@ -205,7 +205,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
 
         <FormField
           control={form.control}
-          name="metodoPago"
+          name="metodoCobro"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Método de Pago</FormLabel>

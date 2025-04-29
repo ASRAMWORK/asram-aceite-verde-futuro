@@ -148,10 +148,10 @@ const InstalacionesView = () => {
 
   const handleAddInstalacion = (data: Partial<Instalacion>) => {
     const nuevaInstalacion: Omit<Instalacion, "id"> = {
-      nombre: data.nombre || "",
-      direccion: data.direccion || "",
-      ciudad: data.ciudad || "",
-      provincia: data.provincia || "",
+      nombre: data.nombre,
+      direccion: data.direccion,
+      ciudad: data.ciudad || "Madrid",
+      provincia: data.provincia || "Madrid",
       codigoPostal: data.codigoPostal || "",
       pais: data.pais || "España",
       latitud: data.latitud || 0,
@@ -162,12 +162,16 @@ const InstalacionesView = () => {
       telefono: data.telefono || "",
       email: data.email || "",
       contacto: data.contacto || "",
-      activo: data.activo !== undefined ? data.activo : true,
-      numViviendas: data.numViviendas,
-      numContenedores: data.numContenedores,
-      distrito: data.distrito,
-      barrio: data.barrio,
-      numPorteria: data.numPorteria,
+      activo: true,
+      distrito: data.distrito || "",
+      barrio: data.barrio || "",
+      numViviendas: data.numViviendas || 0,
+      numContenedores: data.numContenedores || 0,
+      numPorteria: data.numPorteria || 0,
+      estado: "activo",
+      fechaInstalacion: new Date(),
+      litrosCapacidad: 0,
+      litrosRecogidos: 0,
       createdAt: new Date(),
       updatedAt: new Date()
     };

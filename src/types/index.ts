@@ -1,3 +1,4 @@
+
 export interface ComunidadVecinos {
   id: string;
   nombre: string;
@@ -243,6 +244,7 @@ export interface Ingreso {
   numFactura?: string;
   iva?: number;
   total?: number;
+  metodoPago?: string;
 }
 
 export interface Gasto {
@@ -304,11 +306,28 @@ export interface Trabajador {
   turno?: string;
   disponibilidad?: string[];
   especialidad?: string;
+  dni?: string;
+  fechaNacimiento?: Date | null;
+  cargo?: string;
+  tipoContrato?: string;
+  tipoJornada?: string;
+  roles?: string[];
+  rutasAsignadas?: string[];
+  cuentaBancaria?: string;
+  metodoPago?: string;
+  frecuenciaPago?: string;
+  diaCobro?: number;
+  beneficios?: string[];
+  foto?: string;
+  fechaAlta?: Date;
+  activo?: boolean;
+  pais?: string;
 }
 
 export interface TrabajadorFormProps {
   onSubmit: (data: Partial<Trabajador>) => void;
   initialData?: Partial<Trabajador>;
+  onCancel?: () => void;
 }
 
 export interface ClienteFormProps {
@@ -333,6 +352,7 @@ export interface Turno {
   estado?: string;
   distrito?: string;
   dia?: string;
+  nombreTrabajador?: string;
 }
 
 export interface TrabajadorPago {
@@ -380,6 +400,9 @@ export interface Voluntario {
   updatedAt: Date;
   fechaAlta?: Date;
   estado?: string;
+  diasDisponibles?: string[];
+  horasDisponibles?: string;
+  activo?: boolean;
 }
 
 export interface Tarea {

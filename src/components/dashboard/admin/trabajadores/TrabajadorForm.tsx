@@ -45,6 +45,7 @@ const formSchema = z.object({
   cargo: z.string().optional(),
   departamento: z.string().optional(),
   fechaContratacion: z.date(),
+  puesto: z.string().optional(),
   foto: z.string().optional(),
   fechaAlta: z.date(),
   activo: z.boolean().default(true),
@@ -53,12 +54,13 @@ const formSchema = z.object({
   roles: z.array(z.string()).optional(),
   vehiculoAsignado: z.string().optional(),
   rutasAsignadas: z.array(z.string()).optional(),
-  salarioBase: z.number(),
+  salario: z.number(),
   cuentaBancaria: z.string().optional(),
   metodoPago: z.enum(["efectivo", "transferencia", "otro"]),
   frecuenciaPago: z.enum(["mensual", "semanal", "quincenal"]),
   diaCobro: z.number(),
   beneficios: z.array(z.string()).optional(),
+  especialidad: z.string().optional(),
 });
 
 type TrabajadorFormProps = {
@@ -84,32 +86,33 @@ const TrabajadorForm = ({ onSubmit, onCancel, trabajador, initialData, vehiculos
     ...trabajador,
   } : {
     nombre: "",
-    apellido: "", // Changed from apellidos to apellido
+    apellido: "", 
     email: "",
     telefono: "",
     direccion: "",
     ciudad: "",
     provincia: "",
     codigoPostal: "",
+    puesto: "",
+    departamento: "",
+    fechaContratacion: new Date(),
+    salario: 0,
+    estado: "activo",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // Additional fields
     pais: "España",
     dni: "",
     fechaNacimiento: null,
     cargo: "",
-    departamento: "",
-    fechaContratacion: new Date(),
-    foto: "",
-    fechaAlta: new Date(),
-    activo: true,
     tipoContrato: "",
     tipoJornada: "",
     roles: [],
     vehiculoAsignado: "",
     rutasAsignadas: [],
-    // Specify valid values for metodo and frecuencia
-    salarioBase: 0,
     cuentaBancaria: "",
-    metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro", // Type cast to fix type error
-    frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal", // Type cast to fix type error
+    metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro",
+    frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal",
     diaCobro: 1,
     beneficios: [],
   };
@@ -117,31 +120,33 @@ const TrabajadorForm = ({ onSubmit, onCancel, trabajador, initialData, vehiculos
   const form = useForm<Partial<Trabajador>>({
     defaultValues: initialDataWithDefaults || {
       nombre: "",
-      apellido: "", // Changed from apellidos to apellido
+      apellido: "", 
       email: "",
       telefono: "",
       direccion: "",
       ciudad: "",
       provincia: "",
       codigoPostal: "",
+      puesto: "",
+      departamento: "",
+      fechaContratacion: new Date(),
+      salario: 0,
+      estado: "activo",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Additional fields
       pais: "España",
       dni: "",
       fechaNacimiento: null,
       cargo: "",
-      departamento: "",
-      fechaContratacion: new Date(),
-      foto: "",
-      fechaAlta: new Date(),
-      activo: true,
       tipoContrato: "",
       tipoJornada: "",
       roles: [],
       vehiculoAsignado: "",
       rutasAsignadas: [],
-      salarioBase: 0,
       cuentaBancaria: "",
-      metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro", // Type cast to fix type error
-      frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal", // Type cast to fix type error
+      metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro",
+      frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal",
       diaCobro: 1,
       beneficios: [],
     },
@@ -421,12 +426,12 @@ const TrabajadorForm = ({ onSubmit, onCancel, trabajador, initialData, vehiculos
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FormField
             control={form.control}
-            name="salarioBase"
+            name="salario"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Salario Base</FormLabel>
+                <FormLabel>Salario</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="Salario Base" {...field} />
+                  <Input type="number" placeholder="Salario" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
