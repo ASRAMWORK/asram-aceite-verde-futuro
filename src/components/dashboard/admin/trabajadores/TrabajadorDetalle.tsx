@@ -15,16 +15,10 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 interface TrabajadorDetalleProps {
   trabajador: Trabajador;
-  onClose: () => void;
   onEdit: () => void;
-  onDelete: () => void;
 }
 
-const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onClose, onEdit, onDelete }) => {
-  if (!trabajador) return null;
-  
-  const nombreCompleto = `${trabajador.nombre} ${trabajador.apellido}`;
-  
+const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdit }) => {
   const { turnos, getTurnosPorTrabajador } = useTurnos();
   const { vehiculos } = useVehiculos();
   const { incidencias, getIncidenciasPorTrabajador } = useIncidencias();
@@ -66,10 +60,48 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onClo
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-2xl font-bold">{nombreCompleto}</h3>
-          <p className="text-muted-foreground">{trabajador.email}</p>
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+        <Avatar className="h-24 w-24">
+          <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellidos}`} />
+          <AvatarFallback className="text-lg">
+            {trabajador.nombre.charAt(0)}{trabajador.apellidos.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        
+        <div className="flex-1">
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+            <h2 className="text-2xl font-semibold">
+              {trabajador.nombre} {trabajador.apellidos}
+            </h2>
+            <Badge variant={trabajador.activo ? "default" : "secondary"} className={
+              trabajador.activo ? "bg-green-100 text-green-800 w-fit" : "bg-red-100 text-red-800 w-fit"
+            }>
+              {trabajador.activo ? "Activo" : "Inactivo"}
+            </Badge>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mt-2">
+            {trabajador.roles && trabajador.roles.map((rol) => (
+              <Badge key={rol} variant="outline" className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+                {rol.charAt(0).toUpperCase() + rol.slice(1)}
+              </Badge>
+            ))}
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-4 mt-4">
+            <div className="flex items-center gap-2 text-gray-600">
+              <Mail className="h-4 w-4" />
+              <span>{trabajador.email}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <Phone className="h-4 w-4" />
+              <span>{trabajador.telefono}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <Calendar className="h-4 w-4" />
+              <span>Alta: {formatDate(trabajador.fechaAlta || trabajador.fechaContratacion)}</span>
+            </div>
+          </div>
         </div>
         
         <Button onClick={onEdit} className="bg-asram">

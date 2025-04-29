@@ -4,7 +4,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -14,12 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -27,500 +20,528 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Trabajador } from "@/types";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import type { Trabajador, Vehiculo } from "@/types";
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es obligatorio" }),
-  apellido: z.string().min(2, { message: "El apellido es obligatorio" }),
-  email: z.string().email({ message: "Email inválido" }),
-  telefono: z.string().min(9, { message: "Teléfono inválido" }),
-  direccion: z.string().optional(),
-  ciudad: z.string().optional(),
-  provincia: z.string().optional(),
-  codigoPostal: z.string().optional(),
-  pais: z.string().optional(),
-  dni: z.string().optional(),
-  fechaNacimiento: z.date().nullable(),
-  cargo: z.string().optional(),
-  departamento: z.string().optional(),
-  fechaContratacion: z.date(),
-  puesto: z.string().optional(),
+  apellidos: z.string().min(2, { message: "Los apellidos son obligatorios" }),
+  dni: z.string().min(9, { message: "El DNI/NIE debe tener al menos 9 caracteres" }),
+  fechaNacimiento: z.string().min(1, { message: "La fecha de nacimiento es obligatoria" }),
+  email: z.string().email({ message: "Introduce un email válido" }),
+  telefono: z.string().min(9, { message: "El teléfono debe tener al menos 9 dígitos" }),
+  direccion: z.string().min(5, { message: "La dirección es obligatoria" }),
   foto: z.string().optional(),
-  fechaAlta: z.date(),
-  activo: z.boolean().default(true),
-  tipoContrato: z.string().optional(),
-  tipoJornada: z.string().optional(),
-  roles: z.array(z.string()).optional(),
+  fechaAlta: z.string().min(1, { message: "La fecha de alta es obligatoria" }),
+  tipoContrato: z.string().min(1, { message: "Selecciona un tipo de contrato" }),
+  tipoJornada: z.string().min(1, { message: "Selecciona un tipo de jornada" }),
+  roles: z.array(z.string()).min(1, { message: "Debe seleccionar al menos un rol" }),
   vehiculoAsignado: z.string().optional(),
-  rutasAsignadas: z.array(z.string()).optional(),
-  salario: z.number(),
+  rutasAsignadas: z.array(z.string()),
+  activo: z.boolean().default(true),
+  salarioBase: z.number().min(0, { message: "El salario debe ser positivo" }),
   cuentaBancaria: z.string().optional(),
-  metodoPago: z.enum(["efectivo", "transferencia", "otro"]),
-  frecuenciaPago: z.enum(["mensual", "semanal", "quincenal"]),
-  diaCobro: z.number(),
-  beneficios: z.array(z.string()).optional(),
-  especialidad: z.string().optional(),
+  metodoPago: z.enum(["transferencia", "efectivo", "otro"]).default("transferencia"),
+  frecuenciaPago: z.enum(["mensual", "quincenal", "semanal"]).default("mensual"),
+  diaCobro: z.number().min(1).max(31).optional(),
+  beneficios: z.array(z.string()).default([]),
 });
 
-type TrabajadorFormProps = {
-  onSubmit: (data: z.infer<typeof formSchema>) => Promise<void>;
+type FormData = z.infer<typeof formSchema>;
+
+const tiposContrato = [
+  { value: "indefinido", label: "Indefinido" },
+  { value: "temporal", label: "Temporal" },
+  { value: "practicas", label: "Prácticas" },
+  { value: "formacion", label: "Formación" },
+  { value: "obra", label: "Obra y servicio" },
+  { value: "otro", label: "Otro" },
+];
+
+const tiposJornada = [
+  { value: "completa", label: "Completa" },
+  { value: "parcial", label: "Parcial" },
+];
+
+const rolesTrabajador = [
+  { id: "recolector", label: "Recolector" },
+  { id: "conductor", label: "Conductor" },
+  { id: "supervisor", label: "Supervisor" },
+  { id: "analista", label: "Analista" },
+  { id: "administrador", label: "Administrador" },
+  { id: "gestor", label: "Gestor" },
+];
+
+interface TrabajadorFormProps {
+  onSubmit: (data: FormData) => void;
   onCancel: () => void;
-  trabajador?: Trabajador | null;
   initialData?: Partial<Trabajador>;
-  vehiculos?: string[];
-  rutas?: string[];
-};
+  vehiculos: Vehiculo[];
+  rutas: { id: string; nombre: string }[];
+}
 
-const TrabajadorForm = ({ onSubmit, onCancel, trabajador, initialData, vehiculos, rutas }: TrabajadorFormProps) => {
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<z.infer<typeof formSchema>>({
+const TrabajadorForm = ({ onSubmit, onCancel, initialData, vehiculos, rutas }: TrabajadorFormProps) => {
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-  });
-
-  const initialDataWithDefaults = trabajador ? {
-    ...trabajador,
-  } : {
-    nombre: "",
-    apellido: "", 
-    email: "",
-    telefono: "",
-    direccion: "",
-    ciudad: "",
-    provincia: "",
-    codigoPostal: "",
-    puesto: "",
-    departamento: "",
-    fechaContratacion: new Date(),
-    salario: 0,
-    estado: "activo",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    // Additional fields
-    pais: "España",
-    dni: "",
-    fechaNacimiento: null,
-    cargo: "",
-    tipoContrato: "",
-    tipoJornada: "",
-    roles: [],
-    vehiculoAsignado: "",
-    rutasAsignadas: [],
-    cuentaBancaria: "",
-    metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro",
-    frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal",
-    diaCobro: 1,
-    beneficios: [],
-  };
-
-  const form = useForm<Partial<Trabajador>>({
-    defaultValues: initialDataWithDefaults || {
-      nombre: "",
-      apellido: "", 
-      email: "",
-      telefono: "",
-      direccion: "",
-      ciudad: "",
-      provincia: "",
-      codigoPostal: "",
-      puesto: "",
-      departamento: "",
-      fechaContratacion: new Date(),
-      salario: 0,
-      estado: "activo",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      // Additional fields
-      pais: "España",
-      dni: "",
-      fechaNacimiento: null,
-      cargo: "",
-      tipoContrato: "",
-      tipoJornada: "",
-      roles: [],
-      vehiculoAsignado: "",
-      rutasAsignadas: [],
-      cuentaBancaria: "",
-      metodoPago: "efectivo" as "efectivo" | "transferencia" | "otro",
-      frecuenciaPago: "mensual" as "mensual" | "semanal" | "quincenal",
-      diaCobro: 1,
-      beneficios: [],
+    defaultValues: {
+      nombre: initialData?.nombre || "",
+      apellidos: initialData?.apellidos || "",
+      dni: initialData?.dni || "",
+      fechaNacimiento: initialData?.fechaNacimiento
+        ? new Date(initialData.fechaNacimiento).toISOString().split("T")[0]
+        : "",
+      email: initialData?.email || "",
+      telefono: initialData?.telefono || "",
+      direccion: initialData?.direccion || "",
+      foto: initialData?.foto || "",
+      fechaAlta: initialData?.fechaAlta
+        ? new Date(initialData.fechaAlta).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      tipoContrato: initialData?.tipoContrato || "indefinido",
+      tipoJornada: initialData?.tipoJornada || "completa",
+      roles: initialData?.roles || [],
+      vehiculoAsignado: initialData?.vehiculoAsignado || "",
+      rutasAsignadas: initialData?.rutasAsignadas || [],
+      activo: initialData?.activo !== undefined ? initialData.activo : true,
+      salarioBase: initialData?.salarioBase || 0,
+      cuentaBancaria: initialData?.cuentaBancaria || "",
+      metodoPago: initialData?.metodoPago || "transferencia",
+      frecuenciaPago: initialData?.frecuenciaPago || "mensual",
+      diaCobro: initialData?.diaCobro || 1,
+      beneficios: initialData?.beneficios || [],
     },
-    resolver: zodResolver(formSchema),
-    mode: "onChange",
   });
 
-  const submitHandler = async (values: z.infer<typeof formSchema>) => {
-    try {
-      await onSubmit(values);
-    } catch (error) {
-      console.error("Error al guardar trabajador:", error);
-    }
+  const handleSubmit = (data: FormData) => {
+    onSubmit(data);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(submitHandler)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="nombre"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre del trabajador" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <Accordion type="single" collapsible defaultValue="personal">
+          <AccordionItem value="personal">
+            <AccordionTrigger>Información Personal</AccordionTrigger>
+            <AccordionContent>
+              <Card>
+                <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="nombre"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nombre" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="apellidos"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Apellidos</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Apellidos" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="dni"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>DNI/NIE</FormLabel>
+                        <FormControl>
+                          <Input placeholder="DNI/NIE" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fechaNacimiento"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Fecha de nacimiento</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="foto"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL de foto</FormLabel>
+                        <FormControl>
+                          <Input placeholder="URL de la foto (opcional)" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          URL de la imagen de perfil del trabajador
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="correo@ejemplo.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="telefono"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Teléfono</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Teléfono" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="direccion"
+                    render={({ field }) => (
+                      <FormItem className="col-span-1 md:col-span-2">
+                        <FormLabel>Dirección</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Dirección completa" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </AccordionContent>
+          </AccordionItem>
 
-          <FormField
-            control={form.control}
-            name="apellido"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Apellido</FormLabel>
-                <FormControl>
-                  <Input placeholder="Apellido del trabajador" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <AccordionItem value="laboral">
+            <AccordionTrigger>Información Laboral</AccordionTrigger>
+            <AccordionContent>
+              <Card>
+                <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="fechaAlta"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Fecha de alta</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tipoContrato"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de contrato</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona tipo de contrato" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {tiposContrato.map((tipo) => (
+                              <SelectItem key={tipo.value} value={tipo.value}>
+                                {tipo.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tipoJornada"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de jornada</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona tipo de jornada" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {tiposJornada.map((tipo) => (
+                              <SelectItem key={tipo.value} value={tipo.value}>
+                                {tipo.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="roles"
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel className="text-base">Roles</FormLabel>
+                          <FormDescription>
+                            Selecciona los roles que desempeñará el trabajador
+                          </FormDescription>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {rolesTrabajador.map((rol) => (
+                            <FormField
+                              key={rol.id}
+                              control={form.control}
+                              name="roles"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={rol.id}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(rol.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, rol.id])
+                                            : field.onChange(
+                                              field.value?.filter(
+                                                (value) => value !== rol.id
+                                              )
+                                            );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {rol.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="ejemplo@correo.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormField
+                    control={form.control}
+                    name="vehiculoAsignado"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vehículo asignado</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona un vehículo (opcional)" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="">Sin asignar</SelectItem>
+                            {vehiculos.map((vehiculo) => (
+                              <SelectItem key={vehiculo.id} value={vehiculo.id}>
+                                {vehiculo.matricula} - {vehiculo.modelo}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          <FormField
-            control={form.control}
-            name="telefono"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input type="tel" placeholder="123456789" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+                  <FormField
+                    control={form.control}
+                    name="activo"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Activo</FormLabel>
+                          <FormDescription>
+                            Indica si el trabajador está actualmente en activo.
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </AccordionContent>
+          </AccordionItem>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            control={form.control}
-            name="direccion"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dirección</FormLabel>
-                <FormControl>
-                  <Input placeholder="Dirección" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="ciudad"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ciudad</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ciudad" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="provincia"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Provincia</FormLabel>
-                <FormControl>
-                  <Input placeholder="Provincia" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            control={form.control}
-            name="codigoPostal"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código Postal</FormLabel>
-                <FormControl>
-                  <Input placeholder="Código Postal" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="pais"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>País</FormLabel>
-                <FormControl>
-                  <Input placeholder="País" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="dni"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>DNI</FormLabel>
-                <FormControl>
-                  <Input placeholder="DNI" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="fechaNacimiento"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Fecha de Nacimiento</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                      initialFocus
+          <AccordionItem value="pagos">
+            <AccordionTrigger>Información de Pagos</AccordionTrigger>
+            <AccordionContent>
+              <Card>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="salarioBase"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Salario Base</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="0.00"
+                              {...field}
+                              onChange={e => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="fechaContratacion"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Fecha de Contratación</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) => date > new Date()}
-                      initialFocus
+                    <FormField
+                      control={form.control}
+                      name="metodoPago"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Método de Pago</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecciona método de pago" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="transferencia">Transferencia Bancaria</SelectItem>
+                              <SelectItem value="efectivo">Efectivo</SelectItem>
+                              <SelectItem value="otro">Otro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+                    <FormField
+                      control={form.control}
+                      name="cuentaBancaria"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cuenta Bancaria</FormLabel>
+                          <FormControl>
+                            <Input placeholder="ES00 0000 0000 0000 0000 0000" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="frecuenciaPago"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Frecuencia de Pago</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecciona frecuencia" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="mensual">Mensual</SelectItem>
+                              <SelectItem value="quincenal">Quincenal</SelectItem>
+                              <SelectItem value="semanal">Semanal</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="diaCobro"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Día de Cobro</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="31"
+                              {...field}
+                              onChange={e => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Día del mes para el pago (1-31)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        <div className="flex justify-end space-x-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button type="submit" className="bg-asram hover:bg-asram-700">
+            {initialData?.id ? "Actualizar trabajador" : "Añadir trabajador"}
+          </Button>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="cargo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cargo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Cargo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="departamento"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Departamento</FormLabel>
-                <FormControl>
-                  <Input placeholder="Departamento" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            control={form.control}
-            name="salario"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Salario</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="Salario" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="metodoPago"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Método de Pago</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un método" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="efectivo">Efectivo</SelectItem>
-                    <SelectItem value="transferencia">Transferencia</SelectItem>
-                    <SelectItem value="otro">Otro</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="frecuenciaPago"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Frecuencia de Pago</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona una frecuencia" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="mensual">Mensual</SelectItem>
-                    <SelectItem value="semanal">Semanal</SelectItem>
-                    <SelectItem value="quincenal">Quincenal</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="cuentaBancaria"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cuenta Bancaria</FormLabel>
-                <FormControl>
-                  <Input placeholder="Cuenta Bancaria" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="diaCobro"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Día de Cobro</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="Día de Cobro" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <Button type="submit">
-          {trabajador ? "Actualizar Trabajador" : "Crear Trabajador"}
-        </Button>
-        <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancelar
-        </Button>
       </form>
     </Form>
   );

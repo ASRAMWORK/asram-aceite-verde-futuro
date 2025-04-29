@@ -1,24 +1,102 @@
-import { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { Voluntario } from '@/types';
-import { useToast } from '@/components/ui/use-toast';
 
-export const useVoluntarios = () => {
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
+import type { Voluntario } from '@/types';
+import { toast } from 'sonner';
+
+export function useVoluntarios() {
   const [voluntarios, setVoluntarios] = useState<Voluntario[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadVoluntariosData = async () => {
-    setLoading(true);
     try {
-      const storedData = localStorage.getItem('voluntarios');
-      if (storedData) {
-        setVoluntarios(JSON.parse(storedData));
-      }
-    } catch (error) {
-      console.error('Error loading voluntarios:', error);
+      setLoading(true);
+      setError(null);
+      const voluntariosRef = collection(db, "voluntarios");
+      const voluntariosQuery = query(voluntariosRef, orderBy("nombre"));
+      const voluntariosSnap = await getDocs(voluntariosQuery);
+      
+      const voluntariosData: Voluntario[] = [];
+      voluntariosSnap.forEach((doc) => {
+        const data = doc.data() as Record<string, any>;
+        voluntariosData.push({ 
+          id: doc.id, 
+          nombre: data.nombre || '',
+          apellidos: data.apellidos || '',
+          email: data.email || '',
+          telefono: data.telefono || '',
+          direccion: data.direccion || '',
+          codigoPostal: data.codigoPostal || '',
+          diasDisponibles: data.diasDisponibles || [],
+          horasDisponibles: data.horasDisponibles || '',
+          habilidades: data.habilidades || [],
+          experiencia: data.experiencia || '',
+          activo: data.activo ?? true,
+          fechaAlta: data.fechaAlta || new Date(),
+          estado: data.estado || 'activo',
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
+        });
+      });
+      
+      setVoluntarios(voluntariosData);
+    } catch (err) {
+      console.error("Error cargando voluntarios:", err);
+      setError("Error al cargar datos de Voluntarios");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const addVoluntario = async (data: Omit<Voluntario, "id">) => {
+    try {
+      // Ensure required fields are set
+      const voluntarioData = {
+        ...data,
+        fechaAlta: data.fechaAlta || new Date(),
+        estado: data.estado || 'activo',
+        createdAt: serverTimestamp()
+      };
+      
+      const docRef = await addDoc(collection(db, "voluntarios"), voluntarioData);
+      toast.success("Voluntario añadido correctamente");
+      await loadVoluntariosData();
+      return true;
+    } catch (err) {
+      console.error("Error al añadir voluntario:", err);
+      toast.error("Error al añadir voluntario");
+      return false;
+    }
+  };
+
+  const updateVoluntario = async (id: string, data: Partial<Voluntario>) => {
+    try {
+      await updateDoc(doc(db, "voluntarios", id), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Voluntario actualizado correctamente");
+      await loadVoluntariosData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando voluntario:", err);
+      toast.error("Error al actualizar el voluntario");
+      return false;
+    }
+  };
+
+  const deleteVoluntario = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "voluntarios", id));
+      toast.success("Voluntario eliminado correctamente");
+      await loadVoluntariosData();
+      return true;
+    } catch (err) {
+      console.error("Error eliminando voluntario:", err);
+      toast.error("Error al eliminar el voluntario");
+      return false;
     }
   };
 
@@ -26,104 +104,13 @@ export const useVoluntarios = () => {
     loadVoluntariosData();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('voluntarios', JSON.stringify(voluntarios));
-  }, [voluntarios]);
-
-  const addVoluntario = async (data: Omit<Voluntario, 'id'>) => {
-    const id = uuidv4();
-    try {
-      const nuevoVoluntario: Voluntario = {
-        id,
-        email: data.email || '',
-        nombre: data.nombre || '',
-        apellido: data.apellido || '', // Changed from apellidos to apellido
-        telefono: data.telefono || '',
-        direccion: data.direccion || '',
-        ciudad: data.ciudad || '',
-        provincia: data.provincia || '',
-        codigoPostal: data.codigoPostal || '',
-        pais: data.pais || 'España',
-        activo: data.activo !== undefined ? data.activo : true,
-        dni: data.dni || '',
-        fechaNacimiento: data.fechaNacimiento || null,
-        diasDisponibles: data.diasDisponibles || [],
-        horasDisponibles: data.horasDisponibles || '',
-        habilidades: data.habilidades || [],
-        experiencia: data.experiencia || '',
-        createdAt: data.createdAt || new Date(),
-        updatedAt: data.updatedAt || new Date()
-      };
-      
-      setVoluntarios(prev => [...prev, nuevoVoluntario]);
-      
-      toast({
-        title: "Éxito",
-        description: "Voluntario añadido correctamente."
-      });
-      
-      return nuevoVoluntario;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al añadir el voluntario."
-      });
-      throw error;
-    }
-  };
-
-  const updateVoluntario = async (id: string, data: Partial<Voluntario>): Promise<boolean> => {
-    try {
-      setVoluntarios(voluntarios.map(voluntario =>
-        voluntario.id === id ? { ...voluntario, ...data, updatedAt: new Date() } : voluntario
-      ));
-
-      toast({
-        title: "Éxito",
-        description: "Voluntario actualizado correctamente.",
-      });
-
-      return true;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al actualizar el voluntario.",
-      });
-      return false;
-    }
-  };
-
-  const deleteVoluntario = async (id: string): Promise<boolean> => {
-    try {
-      setVoluntarios(voluntarios.filter(voluntario => voluntario.id !== id));
-
-      toast({
-        title: "Éxito",
-        description: "Voluntario eliminado correctamente.",
-      });
-
-      return true;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al eliminar el voluntario.",
-      });
-      return false;
-    }
-  };
-
-  const getVoluntario = async (id: string): Promise<Voluntario | null> => {
-    const voluntario = voluntarios.find(v => v.id === id);
-    return voluntario || null;
-  };
-
-  return {
-    voluntarios,
-    loading,
+  return { 
+    voluntarios, 
+    loading, 
+    error, 
     loadVoluntariosData,
     addVoluntario,
     updateVoluntario,
-    deleteVoluntario,
-    getVoluntario
+    deleteVoluntario
   };
-};
+}

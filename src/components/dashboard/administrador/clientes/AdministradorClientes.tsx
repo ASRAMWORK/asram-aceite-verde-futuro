@@ -14,7 +14,6 @@ import { useUsuarios } from '@/hooks/useUsuarios';
 
 const AdministradorClientes = () => {
   const [showForm, setShowForm] = useState(false);
-  const [showAddClienteForm, setShowAddClienteForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('todos');
   const { usuarios, loadUsuariosData } = useUsuarios();
@@ -29,7 +28,6 @@ const AdministradorClientes = () => {
     try {
       await loadUsuariosData();
       setShowForm(false);
-      setShowAddClienteForm(false);
     } catch (error) {
       console.error("Error loading usuarios data:", error);
     }
@@ -44,27 +42,10 @@ const AdministradorClientes = () => {
             Total: {totalUsuarios} | Activos: {usuariosActivos} | Inactivos: {usuariosInactivos}
           </p>
         </div>
-        <Button onClick={() => setShowAddClienteForm(true)}>
+        <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" /> Añadir Cliente
         </Button>
       </div>
-
-      {showAddClienteForm && (
-        <div className="mb-6">
-          <Card className="border-t-4 border-t-[#ee970d]">
-            <CardHeader>
-              <CardTitle>Añadir Cliente</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ClienteForm
-                onSubmit={handleClienteSubmit}
-                onCancel={() => setShowAddClienteForm(false)}
-                initialData={{}}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
       {showForm ? (
         <Card className="mb-6">
@@ -73,11 +54,7 @@ const AdministradorClientes = () => {
             <CardDescription>Ingrese los datos del cliente</CardDescription>
           </CardHeader>
           <CardContent>
-            <ClienteForm 
-              onSubmit={handleClienteSubmit} 
-              onCancel={() => setShowForm(false)} 
-              initialData={{}}
-            />
+            <ClienteForm onCancel={() => setShowForm(false)} onSubmit={handleClienteSubmit} />
           </CardContent>
         </Card>
       ) : null}

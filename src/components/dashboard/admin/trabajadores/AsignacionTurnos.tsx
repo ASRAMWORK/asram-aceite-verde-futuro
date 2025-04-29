@@ -53,9 +53,7 @@ const AsignacionTurnos: React.FC<AsignacionTurnosProps> = ({ trabajador, onClose
         fecha: new Date(),
         estado: 'programado',
         distrito: '',
-        createdAt: new Date(),
-        nombre: '',
-        dias: []
+        createdAt: new Date()
       };
       
       await addTurno(nuevoTurno);

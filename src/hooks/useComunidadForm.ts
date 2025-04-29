@@ -14,24 +14,20 @@ export const useComunidadForm = () => {
     ciudad: '',
     distrito: '',
     barrio: '',
-    numViviendas: 0, // Ensure this is a number
-    totalViviendas: 0, // Ensure this is a number
+    numViviendas: 0,
+    totalViviendas: 0,
     numeroPorteria: '',
     nombreAdministracion: '',
     correoContacto: '',
     litrosRecogidos: 0,
+    administradorId: null,
     beneficiosMedioambientales: {
       co2: 0,
       agua: 0,
-      arboles: 0,
       energia: 0
     },
     createdAt: null, // Initialize with null
-    updatedAt: null, // Initialize with null
-    presidente: '',
-    telefono: '',
-    email: '',
-    provincia: ''
+    updatedAt: null // Initialize with null
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -13,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, Clock, FileText } from "lucide-react";
 import { useTareas } from "@/hooks/useTareas";
 import type { Voluntario, Tarea } from "@/types";
-import { toast } from "sonner";
 
 interface AsignacionTareasProps {
   voluntarios: Voluntario[];
@@ -21,8 +19,7 @@ interface AsignacionTareasProps {
 
 const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedVoluntario, setSelectedVoluntario] = useState("");
-  const { tareas, loading, addTarea, updateTarea, deleteTarea, loadTareasData } = useTareas();
+  const { tareas, loading, addTarea, updateTarea, deleteTarea } = useTareas();
   const form = useForm();
 
   const handleAddTarea = (data: any) => {
@@ -31,10 +28,9 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
     if (selectedVoluntario) {
       addTarea({
         ...data,
-        voluntarioNombre: `${selectedVoluntario.nombre} ${selectedVoluntario.apellido}`,
-        voluntarioId: selectedVoluntario.id,
+        voluntarioNombre: `${selectedVoluntario.nombre} ${selectedVoluntario.apellidos}`,
         completada: false,
-        fechaInicio: new Date(),
+        fechaAsignacion: new Date(),
         fechaLimite: data.fechaLimite || null
       });
       setOpen(false);
@@ -45,22 +41,8 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
   const handleToggleCompletada = (id: string, completada: boolean) => {
     updateTarea(id, {
       completada,
-      fechaFin: completada ? new Date() : null
+      fechaCompletada: completada ? new Date() : null
     });
-  };
-
-  const handleCompletarTarea = async (tareaId: string) => {
-    try {
-      await updateTarea(tareaId, {
-        estado: "completada",
-        completada: true,
-        fechaFin: new Date()
-      });
-      toast.success("Tarea completada correctamente");
-      loadTareasData();
-    } catch (error) {
-      toast.error("Error al completar la tarea");
-    }
   };
 
   const prioridadClass = (prioridad: string) => {
@@ -153,7 +135,7 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
                                 .filter(v => v.activo)
                                 .map((vol) => (
                                   <SelectItem key={vol.id} value={vol.id}>
-                                    {vol.nombre} {vol.apellido}
+                                    {vol.nombre} {vol.apellidos}
                                   </SelectItem>
                                 ))}
                             </SelectContent>
@@ -255,14 +237,6 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
                         className="text-red-500 hover:text-red-700"
                       >
                         Eliminar
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleCompletarTarea(tarea.id)}
-                        className="text-green-500 hover:text-green-700"
-                      >
-                        Completar
                       </Button>
                     </TableCell>
                   </TableRow>

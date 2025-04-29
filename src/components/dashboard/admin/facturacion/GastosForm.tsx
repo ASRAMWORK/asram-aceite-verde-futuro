@@ -1,22 +1,27 @@
-import React, { useState } from "react";
+
+import { useState } from "react";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { DialogFooter } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Gasto } from "@/types";
 import {
   Select,
   SelectContent,
@@ -24,39 +29,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
-import { Gasto } from "@/types";
-import { useFacturacion } from "@/hooks/useFacturacion";
+
+const formSchema = z.object({
+  proveedor: z.string().min(3, "El proveedor debe tener al menos 3 caracteres"),
+  concepto: z.string().min(10, "El concepto debe tener al menos 10 caracteres"),
+  cantidad: z.string().refine(value => !isNaN(parseFloat(value)), {
+    message: "La cantidad debe ser un número",
+  }),
+  iva: z.string().refine(value => !isNaN(parseFloat(value)), {
+    message: "El IVA debe ser un número",
+  }),
+  total: z.string().refine(value => !isNaN(parseFloat(value)), {
+    message: "El total debe ser un número",
+  }),
+  metodoPago: z.string().min(3, "El método de pago debe tener al menos 3 caracteres"),
+  notas: z.string().optional(),
+  fecha: z.date(),
+  categoria: z.string().optional(),
+  estado: z.string().optional(),
+  tipo: z.string().optional(),
+});
 
 type GastoFormProps = {
-  onSubmit?: (data: Partial<Omit<Gasto, "id">>) => void;
-  onCancel?: () => void;
-  onClose?: () => void; // Add onClose prop for compatibility
-  initialData?: Partial<Omit<Gasto, "id">>;
-  isOpen?: boolean; // Add isOpen prop for compatibility
+  initialData?: Partial<Gasto>;
+  onSubmit: (data: any) => Promise<void>;
+  onCancel: () => void;
+  onClose?: () => void; // Add onClose prop to match usage
+  isOpen?: boolean;
 };
 
-const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoFormProps) => {
+const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addGasto } = useFacturacion();
 
-  const form = useForm<Partial<Omit<Gasto, "id">>>({
-    defaultValues: initialData || {
-      proveedor: "",
-      fecha: new Date(),
-      concepto: "",
-      cantidad: 0,
-      iva: 0,
-      total: 0,
-      metodoPago: "efectivo",
-      notas: "",
-      estado: "pendiente",
-      categoria: "general",
-      tipo: "general",
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      proveedor: initialData?.proveedor || "",
+      concepto: initialData?.concepto || "",
+      cantidad: initialData?.cantidad?.toString() || "0",
+      iva: initialData?.iva?.toString() || "0",
+      total: initialData?.total?.toString() || "0",
+      metodoPago: initialData?.metodoPago || "",
+      notas: initialData?.notas || "",
+      fecha: initialData?.fecha || new Date(),
+      categoria: initialData?.categoria || "",
+      estado: initialData?.estado || "",
+      tipo: initialData?.tipo || "general",
     },
   });
 
-  const handleSubmit = async (data) => {
+  const addGasto = async (data) => {
     try {
       setIsSubmitting(true);
       
@@ -66,23 +88,17 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
         cantidad: parseFloat(data.cantidad),
         iva: parseFloat(data.iva),
         total: parseFloat(data.total),
-        estado: data.estado || "pendiente",
+        tipo: data.tipo || 'general',
         createdAt: new Date(),
         updatedAt: new Date()
       };
       
-      if (onSubmit) {
-        onSubmit(nuevoGasto);
-      } else {
-        await addGasto(nuevoGasto);
-      }
-      
-      toast.success("Gasto añadido correctamente");
+      await onSubmit(nuevoGasto);
+      toast.success(initialData ? "Gasto actualizado" : "Gasto creado");
       if (onClose) onClose(); // Call onClose when provided
-      if (onCancel) onCancel();
     } catch (error) {
-      console.error("Error al añadir gasto:", error);
-      toast.error("Error al añadir gasto");
+      console.error("Error guardando gasto:", error);
+      toast.error("Error al guardar el gasto");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,12 +107,12 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
   // Use onClose if provided, otherwise fall back to onCancel
   const handleCancel = () => {
     if (onClose) onClose();
-    else if (onCancel) onCancel();
+    else onCancel();
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(addGasto)} className="space-y-4">
         <FormField
           control={form.control}
           name="proveedor"
@@ -105,6 +121,82 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
               <FormLabel>Proveedor</FormLabel>
               <FormControl>
                 <Input placeholder="Nombre del proveedor" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="concepto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Concepto</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Descripción del gasto"
+                  className="resize-none h-24"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="cantidad"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cantidad (€)</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="iva"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>IVA (€)</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="total"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total (€)</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="metodoPago"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Método de Pago</FormLabel>
+              <FormControl>
+                <Input placeholder="Tarjeta, transferencia, etc." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -128,9 +220,9 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PP")
+                        format(field.value, "dd/MM/yyyy")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>Selecciona una fecha</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -141,7 +233,7 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) => date > new Date()}
+                    disabled={(date) => date < new Date()}
                     initialFocus
                   />
                 </PopoverContent>
@@ -153,97 +245,14 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
 
         <FormField
           control={form.control}
-          name="concepto"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Concepto</FormLabel>
-              <FormControl>
-                <Input placeholder="Descripción del gasto" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="cantidad"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cantidad</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="iva"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>IVA</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="total"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="metodoPago"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Método de Pago</FormLabel>
-              <FormControl>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un método" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="efectivo">Efectivo</SelectItem>
-                    <SelectItem value="tarjeta">Tarjeta de Crédito</SelectItem>
-                    <SelectItem value="transferencia">Transferencia Bancaria</SelectItem>
-                    <SelectItem value="cheque">Cheque</SelectItem>
-                    <SelectItem value="otro">Otro</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="notas"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notas</FormLabel>
+              <FormLabel>Notas (opcional)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Información adicional"
-                  className="resize-none"
+                  className="resize-none h-16"
                   {...field}
                 />
               </FormControl>
@@ -251,15 +260,39 @@ const GastosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: GastoF
             </FormItem>
           )}
         />
+        
+        <FormField
+          control={form.control}
+          name="tipo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un tipo" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="nomina">Nómina</SelectItem>
+                  <SelectItem value="alquiler">Alquiler</SelectItem>
+                  {/* Add more types as needed */}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <div className="flex justify-end gap-2">
+        <DialogFooter>
           <Button variant="outline" type="button" onClick={handleCancel}>
             Cancelar
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Añadiendo..." : "Añadir Gasto"}
+            {isSubmitting ? "Guardando..." : initialData ? "Actualizar" : "Crear"}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Form>
   );

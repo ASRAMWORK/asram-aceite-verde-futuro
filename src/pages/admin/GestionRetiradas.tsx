@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,10 +38,16 @@ const GestionRetiradas = () => {
   
   const { rutas, loading, addRuta, completeRuta } = useRutas();
 
+  // Filtrar rutas según estado (completada), distrito y búsqueda
   const filtrarRutas = (completada: boolean) => {
     return rutas.filter(ruta => {
+      // Filtrar por estado de completitud
       const matchCompletada = completada === ruta.completada;
+      
+      // Filtrar por distrito
       const matchDistrito = filtroDistrito === 'todos' ? true : ruta.distrito === filtroDistrito;
+      
+      // Filtrar por búsqueda (distrito o fecha)
       const fechaFormateada = ruta.fecha ? format(ruta.fecha, "dd/MM/yyyy") : '';
       const matchBusqueda = busqueda 
         ? ruta.distrito.toLowerCase().includes(busqueda.toLowerCase()) || 
@@ -63,6 +70,7 @@ const GestionRetiradas = () => {
       return;
     }
     
+    // Crear nueva ruta
     const nuevaRuta = {
       nombre: `Retirada ${distrito} ${format(date, "dd/MM/yyyy")}`,
       fecha: date,
@@ -77,13 +85,12 @@ const GestionRetiradas = () => {
       frecuencia: "puntual",
       completada: false,
       litrosTotales: 0,
-      puntos: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date() // Added the missing createdAt property
     };
     
     addRuta(nuevaRuta);
     
+    // Reset form
     setShowForm(false);
     setDistrito(undefined);
     setContenedoresRecogidos("0");
@@ -403,6 +410,7 @@ const GestionRetiradas = () => {
         </TabsContent>
       </Tabs>
 
+      {/* Diálogo de confirmación para completar retirada */}
       <AlertDialog open={showCompletarDialog} onOpenChange={setShowCompletarDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

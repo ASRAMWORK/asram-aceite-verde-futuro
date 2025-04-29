@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -238,7 +239,7 @@ const UserProfileView = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Apellidos</p>
-              <p className="font-medium">{profile.apellido}</p>
+              <p className="font-medium">{profile.apellidos}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Email</p>

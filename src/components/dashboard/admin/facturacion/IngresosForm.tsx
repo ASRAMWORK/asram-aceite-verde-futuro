@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -30,9 +31,9 @@ import { Ingreso } from "@/types";
 type IngresosFormProps = {
   onSubmit: (data: Partial<Omit<Ingreso, "id">>) => void;
   onCancel: () => void;
-  onClose?: () => void; // Add onClose prop for compatibility
+  onClose?: () => void; // Add onClose prop to match usage
   initialData?: Partial<Omit<Ingreso, "id">>;
-  isOpen?: boolean; // Add isOpen prop for compatibility
+  isOpen?: boolean; // Add isOpen prop to match usage
 };
 
 const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: IngresosFormProps) => {
@@ -46,7 +47,6 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
       cantidad: 0,
       iva: 0,
       total: 0,
-      metodoCobro: "",
       metodoPago: "",
       notas: "",
       estado: "pendiente",
@@ -205,7 +205,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
 
         <FormField
           control={form.control}
-          name="metodoCobro"
+          name="metodoPago"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Método de Pago</FormLabel>

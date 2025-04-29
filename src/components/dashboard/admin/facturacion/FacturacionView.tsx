@@ -27,7 +27,6 @@ import { ProjectsView } from "./ProjectsView";
 import ProjectForm from "./ProjectForm";
 import FacturasPendientes from "./FacturasPendientes";
 import { useProjects } from "@/hooks/useProjects";
-import { toast } from "sonner";
 
 const FacturacionView = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -36,7 +35,7 @@ const FacturacionView = () => {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
-  const { ingresos, gastos, loading, getFinancialSummary, addIngreso, addGasto } = useFacturacion();
+  const { ingresos, gastos, loading, getFinancialSummary } = useFacturacion();
   const { ingresosMes, gastosMes, balanceMes, pendienteCobro } = getFinancialSummary();
   const { addProject, updateProject, getProjectById } = useProjects();
 
@@ -412,16 +411,6 @@ const FacturacionView = () => {
         <IngresosForm 
           isOpen={showIngresosForm} 
           onClose={() => setShowIngresosForm(false)} 
-          onSubmit={async (data) => {
-            try {
-              await addIngreso(data);
-              setShowIngresosForm(false);
-              toast.success("Ingreso añadido correctamente");
-            } catch (error) {
-              toast.error("Hubo un problema al añadir el ingreso");
-            }
-          }}
-          onCancel={() => setShowIngresosForm(false)}
         />
       )}
 
@@ -429,16 +418,6 @@ const FacturacionView = () => {
         <GastosForm 
           isOpen={showGastosForm} 
           onClose={() => setShowGastosForm(false)} 
-          onSubmit={async (data) => {
-            try {
-              await addGasto(data);
-              setShowGastosForm(false);
-              toast.success("Gasto añadido correctamente");
-            } catch (error) {
-              toast.error("Hubo un problema al añadir el gasto");
-            }
-          }}
-          onCancel={() => setShowGastosForm(false)}
         />
       )}
 

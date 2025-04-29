@@ -1,28 +1,114 @@
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
+import type { Trabajador } from '@/types';
+import { toast } from 'sonner';
 
-import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import { Trabajador } from "@/types";
-import { useToast } from "@/components/ui/use-toast";
-
-export const useTrabajadores = () => {
+export function useTrabajadores() {
   const [trabajadores, setTrabajadores] = useState<Trabajador[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
 
   const loadTrabajadoresData = async () => {
-    setLoading(true);
     try {
-      // Load from localStorage
-      const storedData = localStorage.getItem('trabajadores');
-      if (storedData) {
-        setTrabajadores(JSON.parse(storedData));
-      }
+      setLoading(true);
+      const trabajadoresRef = collection(db, "trabajadores");
+      const trabajadoresSnap = await getDocs(query(trabajadoresRef, orderBy("apellidos")));
+      
+      const trabajadoresData: Trabajador[] = [];
+      trabajadoresSnap.forEach((doc) => {
+        const data = doc.data();
+        trabajadoresData.push({
+          id: doc.id,
+          nombre: data.nombre || '',
+          apellidos: data.apellidos || '',
+          dni: data.dni || '',
+          fechaNacimiento: data.fechaNacimiento,
+          email: data.email || '',
+          telefono: data.telefono || '',
+          direccion: data.direccion || '',
+          foto: data.foto,
+          fechaAlta: data.fechaAlta,
+          tipoContrato: data.tipoContrato,
+          tipoJornada: data.tipoJornada,
+          roles: data.roles || [],
+          vehiculoAsignado: data.vehiculoAsignado,
+          rutasAsignadas: data.rutasAsignadas || [],
+          activo: data.activo ?? true,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          puesto: data.puesto || '',
+          departamento: data.departamento || '',
+          fechaContratacion: data.fechaContratacion,
+          estado: data.estado || 'activo'
+        });
+      });
+      
+      setTrabajadores(trabajadoresData);
     } catch (err) {
-      setError("Error loading data");
-      console.error(err);
+      console.error("Error cargando trabajadores:", err);
+      setError("Error al cargar datos de trabajadores");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getTrabajadoresPorRol = (rol: any) => {
+    return trabajadores.filter(t => t.roles.includes(rol));
+  };
+
+  const getTrabajadoresActivos = () => {
+    return trabajadores.filter(t => t.activo);
+  };
+
+  const addTrabajador = async (data: Omit<Trabajador, "id">) => {
+    try {
+      const trabajadorData = {
+        ...data,
+        createdAt: serverTimestamp(),
+      };
+      
+      const docRef = await addDoc(collection(db, "trabajadores"), trabajadorData);
+      toast.success("Trabajador añadido correctamente");
+      await loadTrabajadoresData();
+      return { id: docRef.id, ...data };
+    } catch (err) {
+      console.error("Error añadiendo trabajador:", err);
+      toast.error("Error al añadir el trabajador");
+      throw err;
+    }
+  };
+
+  const updateTrabajador = async (id: string, data: Partial<Trabajador>) => {
+    try {
+      await updateDoc(doc(db, "trabajadores", id), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Trabajador actualizado correctamente");
+      await loadTrabajadoresData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando trabajador:", err);
+      toast.error("Error al actualizar el trabajador");
+      return false;
+    }
+  };
+
+  const deleteTrabajador = async (id: string) => {
+    try {
+      // Soft delete approach
+      await updateDoc(doc(db, "trabajadores", id), {
+        activo: false,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Trabajador desactivado correctamente");
+      await loadTrabajadoresData();
+      return true;
+    } catch (err) {
+      console.error("Error eliminando trabajador:", err);
+      toast.error("Error al desactivar el trabajador");
+      return false;
     }
   };
 
@@ -30,101 +116,15 @@ export const useTrabajadores = () => {
     loadTrabajadoresData();
   }, []);
 
-  useEffect(() => {
-    // Save to localStorage when data changes
-    localStorage.setItem('trabajadores', JSON.stringify(trabajadores));
-  }, [trabajadores]);
-
-  const getTrabajador = async (id: string): Promise<Trabajador | null> => {
-    const trabajador = trabajadores.find(t => t.id === id);
-    return trabajador || null;
-  };
-
-  const getTrabajadoresPorRol = (rol: string): Trabajador[] => {
-    return trabajadores.filter(t => t.roles?.includes(rol));
-  };
-
-  const getTrabajadoresActivos = (): Trabajador[] => {
-    return trabajadores.filter(t => t.activo);
-  };
-
-  const addTrabajador = async (data: Omit<Trabajador, "id">): Promise<Trabajador> => {
-    try {
-      const id = uuidv4();
-      const nuevoTrabajador: Trabajador = {
-        ...data,
-        id,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      setTrabajadores([...trabajadores, nuevoTrabajador]);
-      
-      toast({
-        title: "Éxito",
-        description: "Trabajador añadido correctamente.",
-      });
-      
-      return nuevoTrabajador;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al añadir el trabajador.",
-      });
-      throw error;
-    }
-  };
-
-  const updateTrabajador = async (id: string, data: Partial<Trabajador>): Promise<boolean> => {
-    try {
-      setTrabajadores(trabajadores.map(t => 
-        t.id === id ? { ...t, ...data, updatedAt: new Date() } : t
-      ));
-      
-      toast({
-        title: "Éxito",
-        description: "Trabajador actualizado correctamente.",
-      });
-      
-      return true;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al actualizar el trabajador.",
-      });
-      return false;
-    }
-  };
-
-  const deleteTrabajador = async (id: string): Promise<boolean> => {
-    try {
-      setTrabajadores(trabajadores.filter(t => t.id !== id));
-      
-      toast({
-        title: "Éxito",
-        description: "Trabajador eliminado correctamente.",
-      });
-      
-      return true;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al eliminar el trabajador.",
-      });
-      return false;
-    }
-  };
-
-  return {
-    trabajadores,
-    loading,
-    error,
+  return { 
+    trabajadores, 
+    loading, 
+    error, 
     loadTrabajadoresData,
     getTrabajadoresPorRol,
     getTrabajadoresActivos,
     addTrabajador,
     updateTrabajador,
-    deleteTrabajador,
-    getTrabajador
+    deleteTrabajador
   };
-};
+}
