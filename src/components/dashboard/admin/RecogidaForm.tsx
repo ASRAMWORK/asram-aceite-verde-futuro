@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -92,6 +91,9 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
       onSubmit({
         ...data,
         fecha: data.fechaRecogida,
+        // Ensure cantidadAproximada is stored for tracking historical collections
+        cantidadAproximada: data.cantidadAproximada || 0,
+        litrosRecogidos: data.litrosRecogidos || data.cantidadAproximada || 0,
       });
     } else {
       // Ruta por distrito
@@ -100,7 +102,10 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
         hora: data.horaRecogida,
         distrito: distritoFilter,
         esRecogidaZona: true,
-        clientesRuta: selectedClientes,
+        clientesRuta: selectedClientes.map(cliente => ({
+          ...cliente,
+          litrosRecogidos: cliente.litrosEstimados || 0, // Ensure litrosRecogidos is set
+        })),
       });
     }
   };

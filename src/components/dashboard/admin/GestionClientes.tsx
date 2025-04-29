@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Search, UserPlus, User, Edit, Trash2, RefreshCcw, Filter } from 'lucide-react';
+import { Search, UserPlus, User, Edit, Trash2, RefreshCcw, Filter, History } from 'lucide-react';
 import { useClientes } from '@/hooks/useClientes';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -51,6 +52,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { useDebounce } from '@/hooks/useDebounce';
 import { Usuario } from '@/types';
+import DetalleCliente from './DetalleCliente';
 
 const GestionClientes = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,6 +62,7 @@ const GestionClientes = () => {
   const [clientToDelete, setClientToDelete] = useState<string | null>(null);
   const [distritoFilter, setDistritoFilter] = useState('');
   const [barrioFilter, setBarrioFilter] = useState('');
+  const [viewingClient, setViewingClient] = useState<Usuario | null>(null);
   const [formData, setFormData] = useState({
     id: '',
     nombre: '',
@@ -147,6 +150,10 @@ const GestionClientes = () => {
     setIsEditingClient(true);
   };
 
+  const handleViewClient = (cliente: Usuario) => {
+    setViewingClient(cliente);
+  };
+
   const handleUpdateClient = async () => {
     try {
       if (!selectedClient) {
@@ -216,6 +223,16 @@ const GestionClientes = () => {
 
     return matchesSearch && matchesDistrito && matchesBarrio;
   });
+
+  // If we're viewing a client, show the client detail view
+  if (viewingClient) {
+    return (
+      <DetalleCliente
+        cliente={viewingClient}
+        onBack={() => setViewingClient(null)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -351,6 +368,15 @@ const GestionClientes = () => {
                       <TableCell>{cliente.barrio}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleViewClient(cliente)}
+                            className="text-[#EE970D] border-[#EE970D] hover:text-[#EE970D] hover:bg-orange-50"
+                          >
+                            <History className="h-4 w-4 mr-1" />
+                            Historial
+                          </Button>
                           <RecogidaClienteButton cliente={cliente} size="icon" />
                           <Button variant="outline" size="sm" onClick={() => handleEditClient(cliente)}>
                             <Edit className="h-4 w-4 mr-1" />
