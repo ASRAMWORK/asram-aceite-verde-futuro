@@ -112,7 +112,6 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
       
       const nuevoUsuario: Omit<Usuario, 'id'> = {
         nombre: formData.nombre,
-        apellido: "",
         email: formData.email || "",
         telefono: formData.telefono,
         direccion: formData.direccion,

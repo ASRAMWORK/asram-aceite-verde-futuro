@@ -73,8 +73,10 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={recogida.completada || recogida.estadoRecogida === "completada" ? "default" : "outline"}
-                           className={recogida.completada || recogida.estadoRecogida === "completada" ? "bg-green-500 hover:bg-green-600" : ""}>
+                    <Badge 
+                      variant={recogida.completada || recogida.estadoRecogida === "completada" ? "default" : "outline"}
+                      className={recogida.completada || recogida.estadoRecogida === "completada" ? "bg-green-500 hover:bg-green-600" : ""}
+                    >
                       {recogida.completada || recogida.estadoRecogida === "completada" ? "Completada" : "Pendiente"}
                     </Badge>
                   </TableCell>

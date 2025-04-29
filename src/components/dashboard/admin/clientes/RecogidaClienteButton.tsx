@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Droplet, Calendar } from "lucide-react";
+import { Droplet } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import RecogidaForm from "../RecogidaForm";
 import { useRecogidas } from '@/hooks/useRecogidas';
@@ -54,12 +55,11 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
   };
 
   return (
-    <>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
         <Button
           variant={variant}
           size={size}
-          onClick={() => setIsDialogOpen(true)}
           className={variant === "default" ? "bg-cyan-600 hover:bg-cyan-700" : ""}
         >
           {size === "icon" ? <Droplet className="h-4 w-4" /> : (
@@ -69,30 +69,30 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
             </>
           )}
         </Button>
+      </DialogTrigger>
+      
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Programar Recogida</DialogTitle>
+          <DialogDescription>
+            Programa una recogida para {cliente.nombre}
+          </DialogDescription>
+        </DialogHeader>
         
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Programar Recogida</DialogTitle>
-            <DialogDescription>
-              Programa una recogida para {cliente.nombre}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <RecogidaForm 
-            onCancel={() => setIsDialogOpen(false)}
-            onSubmit={handleAddRecogida}
-            initialData={{
-              direccion: cliente.direccion,
-              distrito: cliente.distrito,
-              barrio: cliente.barrio,
-              nombre: cliente.nombre,
-              telefono: cliente.telefono,
-              clienteId: cliente.id
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-    </>
+        <RecogidaForm 
+          onCancel={() => setIsDialogOpen(false)}
+          onSubmit={handleAddRecogida}
+          initialData={{
+            direccion: cliente.direccion,
+            distrito: cliente.distrito,
+            barrio: cliente.barrio,
+            nombre: cliente.nombre,
+            telefono: cliente.telefono,
+            clienteId: cliente.id
+          }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 };
 

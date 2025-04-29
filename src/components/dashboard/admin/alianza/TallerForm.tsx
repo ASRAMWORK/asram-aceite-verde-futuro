@@ -32,8 +32,8 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
   const form = useForm<Partial<TallerProgramado>>({
     defaultValues: taller || {
       titulo: '',
-      fechaHora: new Date(),
-      numAsistentes: 0,
+      fecha: new Date(),
+      capacidad: 0,
       estado: 'programado'
     }
   });
@@ -43,7 +43,7 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="centro"
+          name="alianzaId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Centro Educativo</FormLabel>
@@ -99,14 +99,13 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="fechaHora"
+            name="fecha"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Fecha del Taller</FormLabel>
                 <FormControl>
                   <Input 
                     type="date" 
-                    {...field}
                     value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
                     onChange={(e) => {
                       field.onChange(e.target.value ? new Date(e.target.value) : null);
@@ -120,12 +119,16 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
 
           <FormField
             control={form.control}
-            name="numAsistentes"
+            name="capacidad"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Número de Alumnos</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input 
+                    type="number"
+                    value={field.value}
+                    onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

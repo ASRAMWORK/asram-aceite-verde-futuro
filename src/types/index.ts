@@ -31,9 +31,11 @@ export interface Usuario {
   fechaAceite?: Date;
   apellido?: string;
   litrosAportados?: number;
+  pais?: string;
+  frecuenciaRecogida?: string;
 }
 
-export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador";
+export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador" | "user";
 
 export interface PuntoVerde {
   id: string;
@@ -111,8 +113,9 @@ export interface AlianzaVerde {
   barrio?: string;
   numEstudiantes?: number;
   talleresRealizados?: number;
-  certificaciones?: number;
+  certificaciones?: number[];
   numParticipantes?: number;
+  estado?: string;
 }
 
 export interface Recogida {
@@ -167,7 +170,6 @@ export interface Ruta {
   updatedAt?: Date;
 }
 
-// Add these types to fix other errors
 export interface CalleApadrinada {
   id: string;
   nombre: string;
@@ -178,6 +180,14 @@ export interface CalleApadrinada {
   fechaInicio: Date;
   fechaFin?: Date;
   activo: boolean;
+  precio?: number;
+  fechaRenovacion?: Date;
+  descripcion?: string;
+  estado?: string;
+  numContenedores?: number;
+  tipoCliente?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface TallerProgramado {
@@ -196,6 +206,9 @@ export interface TallerProgramado {
   estado: string;
   createdAt: Date;
   updatedAt: Date;
+  fechaHora?: Date; // Added for TallerForm compatibility
+  numAsistentes?: number; // Added for TallerForm compatibility
+  centro?: string; // Added for TallerForm compatibility
 }
 
 export interface Trabajador {

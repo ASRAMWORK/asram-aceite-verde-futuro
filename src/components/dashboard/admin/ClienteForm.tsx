@@ -103,11 +103,23 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
         toast.success('Cliente actualizado correctamente');
       } else {
         await addUsuario({
-          ...data,
-          activo: true,
-          role: 'client',
+          nombre: data.nombre, // Make sure nombre is required and not optional
+          email: data.email,
+          telefono: data.telefono,
+          direccion: data.direccion,
+          ciudad: data.ciudad,
+          provincia: data.provincia,
+          codigoPostal: data.codigoPostal,
+          tipo: data.tipo,
+          contacto: data.contacto,
+          distrito: data.distrito,
+          barrio: data.barrio,
           numViviendas: data.numViviendas || 0,
           numContenedores: data.numContenedores || 0,
+          cif: data.cif,
+          nombreAdministracion: data.nombreAdministracion,
+          activo: true,
+          role: 'client',
           createdAt: new Date(),
           updatedAt: new Date(),
           fechaRegistro: new Date()
