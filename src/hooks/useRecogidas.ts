@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { 
@@ -62,12 +61,15 @@ export function useRecogidas() {
 
   const addRecogida = async (nuevaRecogida: Partial<Omit<Recogida, "id">>) => {
     try {
-      await addDoc(collection(db, "recogidas"), {
+      const recogidaData = {
         ...nuevaRecogida,
         estadoRecogida: nuevaRecogida.estadoRecogida || "pendiente",
+        fechaRecogida: nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date(),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      };
+      
+      await addDoc(collection(db, "recogidas"), recogidaData);
       
       toast.success("Recogida programada correctamente");
       await loadRecogidasData();
@@ -202,6 +204,10 @@ export function useRecogidas() {
     return totalLitros / diasTotales;
   };
 
+  const getRecogidasByClientId = (clienteId: string) => {
+    return recogidas.filter(recogida => recogida.clienteId === clienteId);
+  };
+
   useEffect(() => {
     loadRecogidasData();
   }, []);
@@ -216,6 +222,7 @@ export function useRecogidas() {
     deleteRecogida,
     completarRecogida,
     completeRecogida,
+    getRecogidasByClientId,
     getTotalLitrosRecogidos,
     getLitrosRecolectadosPorDistrito,
     calcularPromedioLitrosPorRecogida,

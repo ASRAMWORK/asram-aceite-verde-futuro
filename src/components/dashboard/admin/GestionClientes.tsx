@@ -96,6 +96,7 @@ const GestionClientes = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
   const [showNewRegistrations, setShowNewRegistrations] = useState(false);
+  const [showHistorialRecogidas, setShowHistorialRecogidas] = useState(false);
   
   const typedUsuarios = usuarios as (Usuario & { numViviendas?: number, numContenedores?: number })[];
   
@@ -832,6 +833,38 @@ const GestionClientes = () => {
               onClick={handleSubmit}
             >
               Actualizar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Historial de Recogidas Dialog */}
+      <Dialog open={showHistorialRecogidas} onOpenChange={setShowHistorialRecogidas}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Historial de Recogidas</DialogTitle>
+            <DialogDescription>
+              Historial de recogidas para {selectedUsuario?.nombre}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUsuario && (
+            <ClienteHistorialRecogidas 
+              clienteId={selectedUsuario.id} 
+              clienteNombre={selectedUsuario.nombre}
+              cliente={selectedUsuario}
+            />
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowHistorialRecogidas(false);
+                setSelectedUsuario(null);
+              }}
+            >
+              Cerrar
             </Button>
           </DialogFooter>
         </DialogContent>
