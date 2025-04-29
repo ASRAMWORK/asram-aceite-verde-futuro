@@ -89,7 +89,6 @@ const PuntosVerdes = () => {
     numViviendas: 0,
     numContenedores: 0,
     telefono: "",
-    litrosRecogidos: 0
   });
   
   // Manejar cambio de distrito en el formulario
@@ -121,7 +120,7 @@ const PuntosVerdes = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === "numViviendas" || name === "numContenedores" || name === "litrosRecogidos"
+      [name]: name === "numViviendas" || name === "numContenedores"
         ? parseInt(value) || 0 
         : value,
     });
@@ -143,7 +142,6 @@ const PuntosVerdes = () => {
       numViviendas: 0,
       numContenedores: 0,
       telefono: "",
-      litrosRecogidos: 0
     });
     setSelectedDistrito("");
     setFilteredBarrios([]);
@@ -176,7 +174,7 @@ const PuntosVerdes = () => {
         barrio: formData.barrio,
         numViviendas: formData.numViviendas || 0,
         numContenedores: formData.numContenedores || 0,
-        litrosRecogidos: formData.litrosRecogidos || 0,
+        litrosRecogidos: 0,
         administradorId: null,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -204,7 +202,6 @@ const PuntosVerdes = () => {
       numViviendas: punto.numViviendas,
       numContenedores: punto.numContenedores,
       telefono: punto.telefono,
-      litrosRecogidos: punto.litrosRecogidos
     });
     
     setIsEditingPoint(true);
@@ -223,8 +220,7 @@ const PuntosVerdes = () => {
         direccion: formData.direccion,
         numViviendas: Number(formData.numViviendas) || 0,
         numContenedores: Number(formData.numContenedores) || 0,
-        telefono: formData.telefono,
-        litrosRecogidos: Number(formData.litrosRecogidos) || 0
+        telefono: formData.telefono
       });
       
       if (success) {
@@ -367,16 +363,6 @@ const PuntosVerdes = () => {
                   onChange={handleInputChange}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="litrosRecogidos">Litros recogidos</Label>
-                <Input
-                  id="litrosRecogidos"
-                  name="litrosRecogidos"
-                  type="number"
-                  value={formData.litrosRecogidos}
-                  onChange={handleInputChange}
-                />
-              </div>
             </div>
             <DialogFooter>
               <Button
@@ -484,16 +470,6 @@ const PuntosVerdes = () => {
                   id="telefono"
                   name="telefono"
                   value={formData.telefono}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="litrosRecogidos">Litros recogidos</Label>
-                <Input
-                  id="litrosRecogidos"
-                  name="litrosRecogidos"
-                  type="number"
-                  value={formData.litrosRecogidos}
                   onChange={handleInputChange}
                 />
               </div>
@@ -658,7 +634,6 @@ const PuntosVerdes = () => {
                         <TableHead>Dirección</TableHead>
                         <TableHead className="text-right">Viviendas</TableHead>
                         <TableHead className="text-right">Contenedores</TableHead>
-                        <TableHead className="text-right">Litros recogidos</TableHead>
                         <TableHead>Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -669,7 +644,6 @@ const PuntosVerdes = () => {
                           <TableCell>{punto.direccion}</TableCell>
                           <TableCell className="text-right">{punto.numViviendas}</TableCell>
                           <TableCell className="text-right">{punto.numContenedores}</TableCell>
-                          <TableCell className="text-right">{punto.litrosRecogidos}L</TableCell>
                           <TableCell>
                             <div className="flex space-x-2">
                               <Button variant="outline" size="sm" onClick={() => handleEditPoint(punto)}>

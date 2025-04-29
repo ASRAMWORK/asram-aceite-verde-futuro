@@ -41,6 +41,10 @@ export function useUsuarios() {
     return usuarios.filter(usuario => usuario.tipo === tipo);
   };
 
+  const getPuntosVerdes = () => {
+    return usuarios.filter(usuario => usuario.tipo === "punto_verde");
+  };
+
   const getUsuariosByRole = (role: string) => {
     return usuarios.filter(usuario => usuario.role === role);
   };
@@ -135,6 +139,7 @@ export function useUsuarios() {
     loadUsuariosData,
     getUsuariosByTipo,
     getUsuariosByRole,
+    getPuntosVerdes,
     updateUsuario,
     deleteUsuario,
     updateUserRole,

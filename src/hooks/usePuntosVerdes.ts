@@ -1,13 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
 import type { PuntoVerde } from '@/types';
 import { toast } from 'sonner';
+import { useUsuarios } from './useUsuarios';
 
 export function usePuntosVerdes(administradorId?: string) {
   const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addUsuario } = useUsuarios();
 
   const loadPuntosVerdesData = async () => {
     try {
@@ -80,11 +83,35 @@ export function usePuntosVerdes(administradorId?: string) {
     try {
       const puntoData = {
         ...nuevoPunto,
-        litrosRecogidos: nuevoPunto.litrosRecogidos || 0,
+        litrosRecogidos: 0,
         createdAt: serverTimestamp(),
       };
       
-      await addDoc(collection(db, "puntosVerdes"), puntoData);
+      // Add punto verde to puntosVerdes collection
+      const puntoRef = await addDoc(collection(db, "puntosVerdes"), puntoData);
+      
+      // Also create a user record as a client
+      await addUsuario({
+        nombre: `Punto Verde - ${nuevoPunto.direccion}`,
+        email: nuevoPunto.email || "",
+        telefono: nuevoPunto.telefono || "",
+        direccion: nuevoPunto.direccion,
+        ciudad: "Madrid",
+        provincia: "Madrid",
+        codigoPostal: "",
+        tipo: "punto_verde",
+        activo: true,
+        role: "client",
+        distrito: nuevoPunto.distrito,
+        barrio: nuevoPunto.barrio,
+        numViviendas: nuevoPunto.numViviendas,
+        numContenedores: nuevoPunto.numContenedores,
+        puntoVerdeId: puntoRef.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        fechaRegistro: new Date()
+      });
+      
       toast.success("Punto verde añadido correctamente");
       await loadPuntosVerdesData();
       return true;
