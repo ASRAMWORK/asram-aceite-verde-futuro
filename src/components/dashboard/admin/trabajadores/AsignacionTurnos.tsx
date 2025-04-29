@@ -43,8 +43,8 @@ const AsignacionTurnos: React.FC<AsignacionTurnosProps> = ({ trabajador, onClose
     try {
       const nuevoTurno: Omit<Turno, "id"> = {
         trabajadorId: trabajador.id,
-        nombreTrabajador: `${trabajador.nombre} ${trabajador.apellido}`,
-        trabajadorNombre: `${trabajador.nombre} ${trabajador.apellido}`,
+        nombreTrabajador: `${trabajador.nombre} ${trabajador.apellidos}`,
+        trabajadorNombre: `${trabajador.nombre} ${trabajador.apellidos}`,
         dia,
         horaInicio,
         horaFin,
@@ -52,6 +52,7 @@ const AsignacionTurnos: React.FC<AsignacionTurnosProps> = ({ trabajador, onClose
         vehiculoId: vehiculoId || undefined,
         fecha: new Date(),
         estado: 'programado',
+        descripcion: '',
         distrito: '',
         createdAt: new Date()
       };
@@ -88,7 +89,7 @@ const AsignacionTurnos: React.FC<AsignacionTurnosProps> = ({ trabajador, onClose
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">
-            Gestión de turnos para {trabajador.nombre} {trabajador.apellido}
+            Gestión de turnos para {trabajador.nombre} {trabajador.apellidos}
           </h3>
           <p className="text-sm text-gray-500">
             Configure los horarios y rutas asignadas al trabajador

@@ -17,14 +17,12 @@ import { Recogida } from '@/types';
 
 interface RecogidasListProps {
   recogidas: Recogida[];
-  onCompleteRecogida?: (id: string) => void;
   onViewDetails?: (id: string) => void;
   onComplete?: (id: string) => void;
 }
 
 const RecogidasList: React.FC<RecogidasListProps> = ({ 
-  recogidas, 
-  onCompleteRecogida, 
+  recogidas,
   onViewDetails,
   onComplete
 }) => {
@@ -36,15 +34,6 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
     } catch (e) {
       console.error("Error formatting date:", e);
       return "Fecha inválida";
-    }
-  };
-
-  // Use onCompleteRecogida if provided, otherwise fall back to onComplete
-  const handleComplete = (id: string) => {
-    if (onCompleteRecogida) {
-      onCompleteRecogida(id);
-    } else if (onComplete) {
-      onComplete(id);
     }
   };
   
@@ -87,8 +76,8 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
                         Detalles
                       </Button>
                     )}
-                    {(onCompleteRecogida || onComplete) && !recogida.completada && (
-                      <Button variant="outline" size="sm" onClick={() => handleComplete(recogida.id)}>
+                    {onComplete && !recogida.completada && (
+                      <Button variant="outline" size="sm" onClick={() => onComplete(recogida.id)}>
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Completar
                       </Button>

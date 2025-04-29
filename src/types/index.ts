@@ -215,13 +215,13 @@ export interface TallerProgramado {
   telefono?: string;
   email?: string;
   duracion?: number;
-  materiales?: string;
+  materiales?: string[];
 }
 
 export interface Trabajador {
   id: string;
   nombre: string;
-  apellidos: string;
+  apellidos: string; // Corrected from apellido to apellidos
   email: string;
   telefono: string;
   direccion: string;
@@ -240,6 +240,22 @@ export interface Trabajador {
   createdAt: Date;
   updatedAt: Date;
   vehiculoAsignado?: string;
+  // Additional fields needed based on errors
+  dni?: string;
+  foto?: string;
+  roles: string[];
+  fechaContratacion?: Date;
+  tipoContrato?: string;
+  tipoJornada?: string;
+  rutasAsignadas?: string[] | string;
+  pais?: string;
+  cargo?: string;
+  salarioBase?: number;
+  cuentaBancaria?: string;
+  metodoPago?: string;
+  frecuenciaPago?: string;
+  diaCobro?: string;
+  beneficios?: string[];
 }
 
 export interface Turno {
@@ -255,6 +271,8 @@ export interface Turno {
   rutaId?: string;
   vehiculoId?: string;
   nombreTrabajador?: string;
+  distrito?: string;
+  createdAt?: Date;
 }
 
 export interface TrabajadorPago {
@@ -297,6 +315,11 @@ export interface Tarea {
   completadaPor?: string;
   createdAt: Date;
   updatedAt: Date;
+  prioridad?: string;
+  voluntarioId?: string;
+  voluntarioNombre?: string;
+  completada?: boolean;
+  fechaAsignacion?: Date;
 }
 
 export interface UserProfile {
