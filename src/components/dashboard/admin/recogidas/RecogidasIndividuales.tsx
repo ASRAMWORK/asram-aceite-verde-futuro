@@ -31,7 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Calendar, Check, Search, Eye, FilterIcon } from 'lucide-react';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import RecogidasList from './RecogidasList';
-import RecogidaForm from './RecogidaForm';
+import RecogidaForm from '@/components/dashboard/admin/RecogidaForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
