@@ -165,11 +165,11 @@ const RutasDistritos = () => {
   const handleOpenEditDialog = (ruta: Ruta) => {
     setSelectedRuta(ruta);
     setFormData({
-      nombre: ruta.nombre || "",
-      distrito: ruta.distrito || "",
-      fecha: ruta.fecha ? format(new Date(ruta.fecha), "yyyy-MM-dd") : "",
-      hora: ruta.hora || "",
-      recogedores: ruta.recogedores || "",
+      nombre: ruta.nombre || '',
+      distrito: ruta.distrito || '',
+      fecha: ruta.fecha ? format(new Date(ruta.fecha), "yyyy-MM-dd") : '',
+      hora: ruta.hora || '',
+      recogedores: ruta.recogedores || '',
       barrios: ruta.barrios || [],
       clientes: ruta.clientes || [],
       completada: ruta.completada || false,

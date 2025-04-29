@@ -1,756 +1,523 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { toast } from 'sonner';
+import { useAlianzas } from '@/hooks/useAlianzas';
+import { AlianzaVerde } from '@/types';
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/table"
+import { Trash2 } from 'lucide-react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useAlianzaVerde } from "@/hooks/useAlianzaVerde";
-import type { AlianzaVerde } from "@/types";
-import { 
-  Download, 
-  FilePlus2, 
-  FileSpreadsheet, 
-  FileText, 
-  Loader2, 
-  Mail, 
-  PenLine, 
-  School, 
-  Trash2, 
-  Users 
-} from "lucide-react";
-import TalleresProgramados from "./alianza/TalleresProgramados";
-
-type CentroFormData = {
-  nombre: string;
-  tipo: string;
-  direccion: string;
-  distrito: string;
-  barrio: string;
-  contacto: string;
-  telefono: string;
-  email: string;
-  numEstudiantes: number;
-  talleresRealizados: number;
-  certificaciones: number;
-};
-
-const tiposCentro = [
-  "Colegio Público",
-  "Colegio Concertado",
-  "Colegio Privado",
-  "Instituto",
-  "Centro de Formación",
-  "Asociación",
-  "Empresa",
-  "Entidad Pública"
-];
-
-const distritos = [
-  "Centro", "Arganzuela", "Retiro", "Salamanca", "Chamartín", 
-  "Tetuán", "Chamberí", "Fuencarral-El Pardo", "Moncloa-Aravaca", 
-  "Latina", "Carabanchel", "Usera", "Puente de Vallecas", 
-  "Moratalaz", "Ciudad Lineal", "Hortaleza", "Villaverde",
-  "Villa de Vallecas", "Vicálvaro", "San Blas-Canillejas", "Barajas"
-];
-
-const barrios: Record<string, string[]> = {
-  "Centro": ["Palacio", "Embajadores", "Cortes", "Justicia", "Universidad", "Sol"],
-  "Arganzuela": ["Imperial", "Acacias", "Chopera", "Legazpi", "Delicias", "Palos de Moguer", "Atocha"],
-  // Add more barrios for each distrito as needed
-};
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const AlianzaEscolar = () => {
-  const { alianzas, loading, error, addAlianzaVerde, updateAlianzaVerde, deleteAlianzaVerde } = useAlianzaVerde();
-  const [isAddingCentro, setIsAddingCentro] = useState(false);
-  const [isEditingCentro, setIsEditingCentro] = useState(false);
-  const [selectedCentro, setSelectedCentro] = useState<AlianzaVerde | null>(null);
-  const [formData, setFormData] = useState<CentroFormData>({
-    nombre: "",
-    tipo: "",
-    direccion: "",
-    distrito: "",
-    barrio: "",
-    contacto: "",
-    telefono: "",
-    email: "",
-    numEstudiantes: 0,
-    talleresRealizados: 0,
-    certificaciones: 0
-  });
-  const [filteredBarrios, setFilteredBarrios] = useState<string[]>([]);
-  
-  const handleDistritoChange = (value: string) => {
-    setFormData({
-      ...formData,
-      distrito: value,
-      barrio: ""
-    });
-    setFilteredBarrios(barrios[value] || []);
-  };
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name.includes("num") ? parseInt(value) || 0 : value,
-    });
-  };
-  
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-  
-  const handleOpenEditDialog = (centro: AlianzaVerde) => {
-    setSelectedCentro(centro);
-    setFormData({
-      nombre: centro.nombre || "",
-      tipo: centro.tipo || "",
-      direccion: centro.direccion || "",
-      distrito: centro.distrito || "",
-      barrio: centro.barrio || "",
-      contacto: centro.contacto || "",
-      telefono: centro.telefono || "",
-      email: centro.email || "",
-      numEstudiantes: centro.numEstudiantes || 0,
-      talleresRealizados: centro.talleresRealizados || 0,
-      certificaciones: typeof centro.certificaciones === 'number' 
-        ? centro.certificaciones 
-        : (centro.certificaciones as string[]).length || 0
-    });
-    
-    if (centro.distrito) {
-      setFilteredBarrios(barrios[centro.distrito] || []);
-    }
-    
-    setIsEditingCentro(true);
-  };
-  
-  const resetForm = () => {
-    setFormData({
-      nombre: "",
-      tipo: "",
-      direccion: "",
-      distrito: "",
-      barrio: "",
-      contacto: "",
-      telefono: "",
-      email: "",
-      numEstudiantes: 0,
-      talleresRealizados: 0,
-      certificaciones: 0
-    });
-    setFilteredBarrios([]);
-    setSelectedCentro(null);
-  };
-  
-  const handleSubmit = async () => {
-    if (!formData.nombre || !formData.tipo || !formData.direccion || !formData.distrito || !formData.email) {
-      alert("Por favor completa todos los campos obligatorios");
-      return;
-    }
-    
-    const dataToSubmit: Partial<AlianzaVerde> = {
-      nombre: formData.nombre,
-      tipo: formData.tipo,
-      direccion: formData.direccion,
-      distrito: formData.distrito,
-      barrio: formData.barrio,
-      contacto: formData.contacto,
-      telefono: formData.telefono,
-      email: formData.email,
-      numEstudiantes: formData.numEstudiantes,
-      talleresRealizados: formData.talleresRealizados,
-      certificaciones: formData.certificaciones,
-      fechaInicio: new Date(),
-      estado: 'activa',
-      litrosRecolectados: 0,
-      createdAt: new Date()
-    };
-    
-    if (isEditingCentro && selectedCentro) {
-      await updateAlianzaVerde(selectedCentro.id, dataToSubmit);
-      setIsEditingCentro(false);
+  const [showForm, setShowForm] = useState(false);
+  const [nombre, setNombre] = useState('');
+  const [tipo, setTipo] = useState('');
+  const [direccion, setDireccion] = useState('');
+  const [ciudad, setCiudad] = useState('');
+  const [provincia, setProvincia] = useState('');
+  const [codigoPostal, setCodigoPostal] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
+  const [contacto, setContacto] = useState('');
+  const [numAlumnos, setNumAlumnos] = useState(0);
+  const [numContenedores, setNumContenedores] = useState(0);
+  const [litrosRecogidos, setLitrosRecogidos] = useState(0);
+  const [activo, setActivo] = useState(true);
+  const [fechaInicio, setFechaInicio] = useState<Date | null>(null);
+  const [fechaFin, setFechaFin] = useState<Date | null>(null);
+  const [distrito, setDistrito] = useState('');
+  const [barrio, setBarrio] = useState('');
+  const [numEstudiantes, setNumEstudiantes] = useState(0);
+  const [talleresRealizados, setTalleresRealizados] = useState(0);
+  const [certificacionesNivel, setCertificacionesNivel] = useState<number>(1);
+  const [numParticipantes, setNumParticipantes] = useState(0);
+  const [estado, setEstado] = useState('');
+  const [alianzaSeleccionada, setAlianzaSeleccionada] = useState<AlianzaVerde | null>(null);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [certificaciones, setCertificaciones] = useState<string[]>([]);
+
+  const { alianzas, addAlianza, updateAlianza, deleteAlianza } = useAlianzas();
+
+  useEffect(() => {
+    if (alianzaSeleccionada) {
+      setNombre(alianzaSeleccionada.nombre);
+      setTipo(alianzaSeleccionada.tipo);
+      setDireccion(alianzaSeleccionada.direccion);
+      setCiudad(alianzaSeleccionada.ciudad);
+      setProvincia(alianzaSeleccionada.provincia);
+      setCodigoPostal(alianzaSeleccionada.codigoPostal);
+      setTelefono(alianzaSeleccionada.telefono);
+      setEmail(alianzaSeleccionada.email);
+      setContacto(alianzaSeleccionada.contacto);
+      setNumAlumnos(alianzaSeleccionada.numAlumnos);
+      setNumContenedores(alianzaSeleccionada.numContenedores);
+      setLitrosRecogidos(alianzaSeleccionada.litrosRecogidos);
+      setActivo(alianzaSeleccionada.activo);
+      setFechaInicio(alianzaSeleccionada.fechaInicio);
+      setFechaFin(alianzaSeleccionada.fechaFin || null);
+      setDistrito(alianzaSeleccionada.distrito || '');
+      setBarrio(alianzaSeleccionada.barrio || '');
+      setNumEstudiantes(alianzaSeleccionada.numEstudiantes || 0);
+      setTalleresRealizados(alianzaSeleccionada.talleresRealizados || 0);
+      setCertificaciones(alianzaSeleccionada.certificaciones ? (alianzaSeleccionada.certificaciones as unknown as string[]) : []);
+      setNumParticipantes(alianzaSeleccionada.numParticipantes || 0);
+      setEstado(alianzaSeleccionada.estado || '');
     } else {
-      await addAlianzaVerde(dataToSubmit as Omit<AlianzaVerde, 'id'>);
-      setIsAddingCentro(false);
+      resetForm();
     }
-    
+  }, [alianzaSeleccionada]);
+
+  const resetForm = () => {
+    setNombre('');
+    setTipo('');
+    setDireccion('');
+    setCiudad('');
+    setProvincia('');
+    setCodigoPostal('');
+    setTelefono('');
+    setEmail('');
+    setContacto('');
+    setNumAlumnos(0);
+    setNumContenedores(0);
+    setLitrosRecogidos(0);
+    setActivo(true);
+    setFechaInicio(null);
+    setFechaFin(null);
+    setDistrito('');
+    setBarrio('');
+    setNumEstudiantes(0);
+    setTalleresRealizados(0);
+    setCertificaciones([]);
+    setNumParticipantes(0);
+    setEstado('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const alianzaData = {
+      nombre,
+      tipo,
+      direccion,
+      ciudad,
+      provincia,
+      codigoPostal,
+      telefono,
+      email,
+      contacto,
+      numAlumnos,
+      numContenedores,
+      litrosRecogidos,
+      activo,
+      fechaInicio,
+      fechaFin,
+      distrito,
+      barrio,
+      numEstudiantes,
+      talleresRealizados,
+      certificaciones: certificaciones.map(Number),
+      numParticipantes,
+      estado,
+    };
+
+    if (alianzaSeleccionada) {
+      // Update existing alianza
+      await updateAlianza(alianzaSeleccionada.id, alianzaData);
+      toast.success('Alianza actualizada correctamente');
+    } else {
+      // Add new alianza
+      await addAlianza(alianzaData);
+      toast.success('Alianza creada correctamente');
+    }
+
+    setShowForm(false);
+    setAlianzaSeleccionada(null);
     resetForm();
   };
-  
-  const handleDeleteCentro = async (id: string) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este centro?")) {
-      await deleteAlianzaVerde(id);
+
+  const handleEdit = (alianza: AlianzaVerde) => {
+    setAlianzaSeleccionada(alianza);
+    setShowForm(true);
+  };
+
+  const handleDelete = (alianza: AlianzaVerde) => {
+    setAlianzaSeleccionada(alianza);
+    setShowDeleteAlert(true);
+  };
+
+  const confirmDelete = async () => {
+    if (alianzaSeleccionada) {
+      await deleteAlianza(alianzaSeleccionada.id);
+      toast.success('Alianza eliminada correctamente');
+      setShowDeleteAlert(false);
+      setAlianzaSeleccionada(null);
     }
   };
-  
-  const handleExportData = (format: 'pdf' | 'excel') => {
-    alert(`Exportando datos en formato ${format}. Esta función estará disponible próximamente.`);
-  };
-  
-  const handleSendNotification = () => {
-    alert("Enviando notificaciones a todos los centros. Esta función estará disponible próximamente.");
-  };
-  
-  const totalCentros = alianzas.length;
-  const totalEstudiantes = alianzas.reduce((total, centro) => total + (centro.numEstudiantes || 0), 0);
-  const totalTalleres = alianzas.reduce((total, centro) => total + (centro.talleresRealizados || 0), 0);
-  const totalCertificaciones = alianzas.reduce((total, centro) => {
-    if (typeof centro.certificaciones === 'number') {
-      return total + centro.certificaciones;
-    } else if (Array.isArray(centro.certificaciones)) {
-      return total + centro.certificaciones.length;
+
+  const handleAddCertificacion = () => {
+    const nivel = certificacionesNivel;
+    if (!certificaciones.includes(String(nivel))) {
+      setCertificaciones([...certificaciones, String(nivel)]);
     }
-    return total;
-  }, 0);
-  
+  };
+
+  const handleRemoveCertificacion = (nivel: string) => {
+    setCertificaciones(certificaciones.filter(c => c !== nivel));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Alianza Verde Escolar</h2>
+          <h2 className="text-3xl font-bold">Gestión de Alianzas Escolares</h2>
           <p className="text-muted-foreground">
-            Gestión de centros educativos, asociaciones y entidades participantes
+            Administra las alianzas con centros educativos
           </p>
         </div>
-        <div className="flex gap-2">
-          <Dialog open={isAddingCentro} onOpenChange={setIsAddingCentro}>
-            <DialogTrigger asChild>
-              <Button className="bg-asram hover:bg-asram-700">
-                <FilePlus2 className="mr-2 h-4 w-4" />
-                Añadir Centro
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Añadir nuevo centro</DialogTitle>
-                <DialogDescription>
-                  Completa el formulario para añadir un nuevo centro a la Alianza Verde Escolar
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nombre">Nombre del centro</Label>
-                    <Input
-                      id="nombre"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tipo">Tipo de centro</Label>
-                    <Select
-                      value={formData.tipo}
-                      onValueChange={(value) => handleSelectChange("tipo", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tiposCentro.map((tipo) => (
-                          <SelectItem key={tipo} value={tipo}>
-                            {tipo}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="direccion">Dirección</Label>
-                  <Input
-                    id="direccion"
-                    name="direccion"
-                    value={formData.direccion}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="distrito">Distrito</Label>
-                    <Select
-                      value={formData.distrito}
-                      onValueChange={handleDistritoChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona distrito" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {distritos.map((distrito) => (
-                          <SelectItem key={distrito} value={distrito}>
-                            {distrito}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="barrio">Barrio</Label>
-                    <Select
-                      value={formData.barrio}
-                      onValueChange={(value) => handleSelectChange("barrio", value)}
-                      disabled={!formData.distrito}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona barrio" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredBarrios.map((barrio) => (
-                          <SelectItem key={barrio} value={barrio}>
-                            {barrio}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contacto">Persona de contacto</Label>
-                  <Input
-                    id="contacto"
-                    name="contacto"
-                    value={formData.contacto}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="telefono">Teléfono de contacto</Label>
-                    <Input
-                      id="telefono"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Correo electrónico</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="numEstudiantes">Nº de estudiantes</Label>
-                    <Input
-                      id="numEstudiantes"
-                      name="numEstudiantes"
-                      type="number"
-                      value={formData.numEstudiantes}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="talleresRealizados">Talleres realizados</Label>
-                    <Input
-                      id="talleresRealizados"
-                      name="talleresRealizados"
-                      type="number"
-                      value={formData.talleresRealizados}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="certificaciones">Certificaciones</Label>
-                    <Input
-                      id="certificaciones"
-                      name="certificaciones"
-                      type="number"
-                      value={formData.certificaciones}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsAddingCentro(false);
-                    resetForm();
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  className="bg-asram hover:bg-asram-700"
-                  onClick={handleSubmit}
-                >
-                  Guardar
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          
-          <Dialog open={isEditingCentro} onOpenChange={setIsEditingCentro}>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Editar centro</DialogTitle>
-                <DialogDescription>
-                  Actualiza la información del centro en la Alianza Verde Escolar
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nombre-edit">Nombre del centro</Label>
-                    <Input
-                      id="nombre-edit"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tipo-edit">Tipo de centro</Label>
-                    <Select
-                      value={formData.tipo}
-                      onValueChange={(value) => handleSelectChange("tipo", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tiposCentro.map((tipo) => (
-                          <SelectItem key={tipo} value={tipo}>
-                            {tipo}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="direccion-edit">Dirección</Label>
-                  <Input
-                    id="direccion-edit"
-                    name="direccion"
-                    value={formData.direccion}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="distrito-edit">Distrito</Label>
-                    <Select
-                      value={formData.distrito}
-                      onValueChange={handleDistritoChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona distrito" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {distritos.map((distrito) => (
-                          <SelectItem key={distrito} value={distrito}>
-                            {distrito}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="barrio-edit">Barrio</Label>
-                    <Select
-                      value={formData.barrio}
-                      onValueChange={(value) => handleSelectChange("barrio", value)}
-                      disabled={!formData.distrito}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona barrio" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredBarrios.map((barrio) => (
-                          <SelectItem key={barrio} value={barrio}>
-                            {barrio}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contacto-edit">Persona de contacto</Label>
-                  <Input
-                    id="contacto-edit"
-                    name="contacto"
-                    value={formData.contacto}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="telefono-edit">Teléfono de contacto</Label>
-                    <Input
-                      id="telefono-edit"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-edit">Correo electrónico</Label>
-                    <Input
-                      id="email-edit"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="numEstudiantes-edit">Nº de estudiantes</Label>
-                    <Input
-                      id="numEstudiantes-edit"
-                      name="numEstudiantes"
-                      type="number"
-                      value={formData.numEstudiantes}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="talleresRealizados-edit">Talleres realizados</Label>
-                    <Input
-                      id="talleresRealizados-edit"
-                      name="talleresRealizados"
-                      type="number"
-                      value={formData.talleresRealizados}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="certificaciones-edit">Certificaciones</Label>
-                    <Input
-                      id="certificaciones-edit"
-                      name="certificaciones"
-                      type="number"
-                      value={formData.certificaciones}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditingCentro(false);
-                    resetForm();
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  className="bg-asram hover:bg-asram-700"
-                  onClick={handleSubmit}
-                >
-                  Actualizar
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          
-          <Button variant="outline" onClick={() => handleExportData('excel')}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" />
-            Excel
-          </Button>
-          <Button variant="outline" onClick={() => handleExportData('pdf')}>
-            <FileText className="mr-2 h-4 w-4" />
-            PDF
-          </Button>
-          <Button variant="outline" onClick={handleSendNotification}>
-            <Mail className="mr-2 h-4 w-4" />
-            Notificar
-          </Button>
-        </div>
+        <Button onClick={() => { setShowForm(true); setAlianzaSeleccionada(null); }} className="bg-green-500 hover:bg-green-700 text-white">
+          Nueva Alianza
+        </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      {showForm && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Centros Activos
-            </CardTitle>
-            <School className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>{alianzaSeleccionada ? 'Editar Alianza' : 'Nueva Alianza Escolar'}</CardTitle>
+            <CardDescription>Ingrese los datos de la alianza</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalCentros}</div>
-            <p className="text-xs text-muted-foreground">
-              en el programa Alianza Verde Escolar
-            </p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input
+                    type="text"
+                    id="nombre"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="tipo">Tipo</Label>
+                  <Select value={tipo} onValueChange={setTipo}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione un tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="colegio">Colegio</SelectItem>
+                      <SelectItem value="instituto">Instituto</SelectItem>
+                      <SelectItem value="universidad">Universidad</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="direccion">Dirección</Label>
+                  <Input
+                    type="text"
+                    id="direccion"
+                    value={direccion}
+                    onChange={(e) => setDireccion(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ciudad">Ciudad</Label>
+                  <Input
+                    type="text"
+                    id="ciudad"
+                    value={ciudad}
+                    onChange={(e) => setCiudad(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="provincia">Provincia</Label>
+                  <Input
+                    type="text"
+                    id="provincia"
+                    value={provincia}
+                    onChange={(e) => setProvincia(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="codigoPostal">Código Postal</Label>
+                  <Input
+                    type="text"
+                    id="codigoPostal"
+                    value={codigoPostal}
+                    onChange={(e) => setCodigoPostal(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="telefono">Teléfono</Label>
+                  <Input
+                    type="tel"
+                    id="telefono"
+                    value={telefono}
+                    onChange={(e) => setTelefono(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="contacto">Contacto</Label>
+                  <Input
+                    type="text"
+                    id="contacto"
+                    value={contacto}
+                    onChange={(e) => setContacto(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="numAlumnos">Número de Alumnos</Label>
+                  <Input
+                    type="number"
+                    id="numAlumnos"
+                    value={numAlumnos}
+                    onChange={(e) => setNumAlumnos(Number(e.target.value))}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="numContenedores">Número de Contenedores</Label>
+                  <Input
+                    type="number"
+                    id="numContenedores"
+                    value={numContenedores}
+                    onChange={(e) => setNumContenedores(Number(e.target.value))}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="litrosRecogidos">Litros Recogidos</Label>
+                  <Input
+                    type="number"
+                    id="litrosRecogidos"
+                    value={litrosRecogidos}
+                    onChange={(e) => setLitrosRecogidos(Number(e.target.value))}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="distrito">Distrito</Label>
+                  <Input
+                    type="text"
+                    id="distrito"
+                    value={distrito}
+                    onChange={(e) => setDistrito(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="barrio">Barrio</Label>
+                  <Input
+                    type="text"
+                    id="barrio"
+                    value={barrio}
+                    onChange={(e) => setBarrio(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="numEstudiantes">Número de Estudiantes</Label>
+                  <Input
+                    type="number"
+                    id="numEstudiantes"
+                    value={numEstudiantes}
+                    onChange={(e) => setNumEstudiantes(Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="talleresRealizados">Talleres Realizados</Label>
+                  <Input
+                    type="number"
+                    id="talleresRealizados"
+                    value={talleresRealizados}
+                    onChange={(e) => setTalleresRealizados(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Certificaciones</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="number"
+                    value={certificacionesNivel}
+                    onChange={(e) => setCertificacionesNivel(Number(e.target.value))}
+                    className="w-20"
+                  />
+                  <Button type="button" variant="secondary" onClick={handleAddCertificacion}>
+                    Añadir Nivel
+                  </Button>
+                </div>
+                <div className="flex space-x-2 mt-2">
+                  {certificaciones.map((nivel) => (
+                    <Badge key={nivel} className="gap-0.5">
+                      Nivel {nivel}
+                      <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveCertificacion(nivel)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="numParticipantes">Número de Participantes</Label>
+                <Input
+                  type="number"
+                  id="numParticipantes"
+                  value={numParticipantes}
+                  onChange={(e) => setNumParticipantes(Number(e.target.value))}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="estado">Estado</Label>
+                <Input
+                  type="text"
+                  id="estado"
+                  value={estado}
+                  onChange={(e) => setEstado(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="activo">Activo</Label>
+                <Switch
+                  id="activo"
+                  checked={activo}
+                  onCheckedChange={(checked) => setActivo(checked)}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button variant="secondary" onClick={() => { setShowForm(false); setAlianzaSeleccionada(null); resetForm(); }}>
+                  Cancelar
+                </Button>
+                <Button type="submit" className="bg-green-500 hover:bg-green-700 text-white">
+                  {alianzaSeleccionada ? 'Actualizar' : 'Guardar'}
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Estudiantes
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalEstudiantes}</div>
-            <p className="text-xs text-muted-foreground">
-              participantes en actividades
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Talleres Realizados
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalTalleres}</div>
-            <p className="text-xs text-muted-foreground">
-              en todos los centros
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Certificaciones
-            </CardTitle>
-            <Download className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCertificaciones}</div>
-            <p className="text-xs text-muted-foreground">
-              otorgadas a centros
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Centros en Alianza Verde Escolar</CardTitle>
-          <CardDescription>
-            Lista de centros educativos y entidades participantes
-          </CardDescription>
+          <CardTitle>Listado de Alianzas Escolares</CardTitle>
+          <CardDescription>Gestiona las alianzas existentes</CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-6">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Distrito</TableHead>
-                    <TableHead>Contacto</TableHead>
-                    <TableHead>Estudiantes</TableHead>
-                    <TableHead>Talleres</TableHead>
-                    <TableHead>Certificaciones</TableHead>
-                    <TableHead>Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {alianzas.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center">
-                        No hay centros registrados en la Alianza Verde Escolar
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    alianzas.map((centro) => (
-                      <TableRow key={centro.id}>
-                        <TableCell className="font-medium">{centro.nombre}</TableCell>
-                        <TableCell>{centro.tipo}</TableCell>
-                        <TableCell>{centro.distrito}</TableCell>
-                        <TableCell>{centro.contacto}</TableCell>
-                        <TableCell>{centro.numEstudiantes}</TableCell>
-                        <TableCell>{centro.talleresRealizados}</TableCell>
-                        <TableCell>
-                          {typeof centro.certificaciones === 'number'
-                            ? centro.certificaciones
-                            : Array.isArray(centro.certificaciones)
-                              ? centro.certificaciones.length
-                              : 0}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button 
-                              variant="outline" 
-                              size="icon"
-                              onClick={() => handleOpenEditDialog(centro)}
-                            >
-                              <PenLine className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="icon"
-                              onClick={() => handleDeleteCentro(centro.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Contacto</TableHead>
+                <TableHead>Teléfono</TableHead>
+                <TableHead>Activo</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {alianzas.map((alianza) => (
+                <TableRow key={alianza.id}>
+                  <TableCell>{alianza.nombre}</TableCell>
+                  <TableCell>{alianza.tipo}</TableCell>
+                  <TableCell>{alianza.contacto}</TableCell>
+                  <TableCell>{alianza.telefono}</TableCell>
+                  <TableCell>{alianza.activo ? 'Sí' : 'No'}</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(alianza)}>
+                      Editar
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(alianza)}>
+                      Eliminar
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
-            Mostrando {alianzas.length} centros
-          </div>
-          <div className="space-x-2">
-            <Button variant="outline" size="sm">Anterior</Button>
-            <Button variant="outline" size="sm">Siguiente</Button>
-          </div>
-        </CardFooter>
       </Card>
+
+      <AlertDialog open={showDeleteAlert} onOpenChange={() => setShowDeleteAlert(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará la alianza de forma permanente. ¿Deseas continuar?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteAlert(false)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

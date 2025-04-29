@@ -58,7 +58,7 @@ type RutaPersonalizada = {
   clientes: { id: string; nombre: string; direccion: string; barrio: string; orden: number; litrosEstimados: number; }[];
   puntosRecogida: number;
   distanciaTotal: number;
-  tiempoEstimado: number;
+  tiempoEstimado: string;
   frecuencia: string;
   updatedAt: Date;
   createdAt: Date;
@@ -98,7 +98,7 @@ const RutasDistritos = () => {
       clientes: clientesOrdenados,
       puntosRecogida: clientesOrdenados.length,
       distanciaTotal: 0,
-      tiempoEstimado: 0,
+      tiempoEstimado: "0",
       frecuencia: "semanal",
       updatedAt: new Date(),
       createdAt: new Date(),

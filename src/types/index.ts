@@ -1,4 +1,3 @@
-
 export interface Usuario {
   id: string;
   nombre: string;
@@ -209,6 +208,13 @@ export interface TallerProgramado {
   fechaHora?: Date; // Added for TallerForm compatibility
   numAsistentes?: number; // Added for TallerForm compatibility
   centro?: string; // Added for TallerForm compatibility
+  nombreCentro?: string;
+  direccion?: string;
+  contacto?: string;
+  instructor?: string;
+  telefono?: string;
+  email?: string;
+  duracion?: number;
 }
 
 export interface Trabajador {
@@ -325,6 +331,14 @@ export interface Ingreso {
   notas?: string;
   createdAt: Date;
   updatedAt: Date;
+  categoria?: string;
+  estado?: string;
+  numFactura?: string;
+  iva?: number;
+  total?: number;
+  metodoPago?: string;
+  origen?: string;
+  tipo?: string;
 }
 
 export interface Gasto {
@@ -338,4 +352,10 @@ export interface Gasto {
   notas?: string;
   createdAt: Date;
   updatedAt: Date;
+  estado?: string;
+  tipo?: string;
+  numFactura?: string;
+  iva?: number;
+  total?: number;
+  metodoPago?: string;
 }
