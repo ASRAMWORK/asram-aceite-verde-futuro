@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -62,6 +63,8 @@ type RutaPersonalizada = {
   frecuencia: string;
   updatedAt: Date;
   createdAt: Date;
+  barrios?: string[];
+  puntos?: any[]; // Added to match Ruta interface requirements
 };
 
 const RutasDistritos = () => {
@@ -92,6 +95,7 @@ const RutasDistritos = () => {
     await addRuta({
       nombre: `${distritoSeleccionado} - ${clientesOrdenados.map(cliente => cliente.nombre).join(", ")}`,
       distrito: distritoSeleccionado || "",
+      barrios: [],
       fecha: fechaSeleccionada as Date,
       hora: horaSeleccionada || "",
       recogedores: recogedorSeleccionado || "",
@@ -100,6 +104,8 @@ const RutasDistritos = () => {
       distanciaTotal: 0,
       tiempoEstimado: "0",
       frecuencia: "semanal",
+      completada: false,
+      litrosTotales: 0,
       updatedAt: new Date(),
       createdAt: new Date(),
       puntos: [] // Add the required 'puntos' property

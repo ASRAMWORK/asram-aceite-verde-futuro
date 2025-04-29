@@ -156,11 +156,11 @@ export interface Ruta {
   barrios: string[];
   fecha?: Date;
   hora: string;
-  recogedores: any[];
+  recogedores: string;
   clientes: any[];
-  puntosRecogida: any[];
+  puntosRecogida: number;
   distanciaTotal: number;
-  tiempoEstimado: string;
+  tiempoEstimado: number | string;
   frecuencia: string;
   completada: boolean;
   litrosTotales: number;
@@ -215,6 +215,7 @@ export interface TallerProgramado {
   telefono?: string;
   email?: string;
   duracion?: number;
+  materiales?: string;
 }
 
 export interface Trabajador {
@@ -238,6 +239,7 @@ export interface Trabajador {
   activo: boolean;
   createdAt: Date;
   updatedAt: Date;
+  vehiculoAsignado?: string;
 }
 
 export interface Turno {
@@ -249,6 +251,10 @@ export interface Turno {
   horaFin: string;
   descripcion: string;
   estado: string;
+  dia?: string;
+  rutaId?: string;
+  vehiculoId?: string;
+  nombreTrabajador?: string;
 }
 
 export interface TrabajadorPago {
@@ -261,6 +267,7 @@ export interface TrabajadorPago {
   estado: string;
   createdAt: Date;
   comprobante?: string;
+  tipo?: string;
 }
 
 export interface Voluntario {
