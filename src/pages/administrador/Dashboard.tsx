@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Home, Users, PlusCircle, LogOut } from "lucide-react";
+import { Home, Users, PlusCircle, LogOut, FileText, BarChart } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -58,6 +59,11 @@ const AdministradorDashboardPage = () => {
       case "home": tabValue = "home"; break;
       case "comunidades": tabValue = "comunidades"; break;
       case "gestionar": tabValue = "gestionar"; break;
+      case "informes": tabValue = "informes"; break;
+      case "clientes": tabValue = "clientes"; break;
+      case "recogidas": tabValue = "recogidas"; break;
+      case "estadisticas": tabValue = "estadisticas"; break;
+      case "perfil": tabValue = "perfil"; break;
       default: tabValue = "home";
     }
     setActiveTab(tabValue);
@@ -123,6 +129,28 @@ const AdministradorDashboardPage = () => {
             >
               <PlusCircle className="mr-3 h-5 w-5" />
               Añadir Comunidad
+            </Button>
+            
+            <Button
+              variant={activeTab === "informes" ? "default" : "ghost"}
+              className={`w-full justify-start ${
+                activeTab === "informes" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
+              }`}
+              onClick={() => handleTabChange("informes")}
+            >
+              <FileText className="mr-3 h-5 w-5" />
+              Informes y Contratos
+            </Button>
+            
+            <Button
+              variant={activeTab === "estadisticas" ? "default" : "ghost"}
+              className={`w-full justify-start ${
+                activeTab === "estadisticas" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
+              }`}
+              onClick={() => handleTabChange("estadisticas")}
+            >
+              <BarChart className="mr-3 h-5 w-5" />
+              Estadísticas
             </Button>
             
             <Separator className="my-4" />

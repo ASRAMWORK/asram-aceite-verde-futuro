@@ -1,20 +1,38 @@
 
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, doc, deleteDoc, updateDoc, serverTimestamp, where } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { ComunidadVecinos } from '@/types';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 export const useComunidadesVecinos = () => {
   const [comunidades, setComunidades] = useState<ComunidadVecinos[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { profile } = useUserProfile();
 
   const loadComunidades = async () => {
     try {
       setLoading(true);
-      const comunidadCollection = collection(db, 'comunidadesVecinos');
-      const comunidadSnapshot = await getDocs(query(comunidadCollection, orderBy('nombre')));
+      let comunidadesRef;
+      let comunidadSnapshot;
+      
+      // If user is an admin, only show their communities
+      if (profile?.role === 'administrador') {
+        comunidadesRef = collection(db, 'comunidadesVecinos');
+        comunidadSnapshot = await getDocs(
+          query(
+            comunidadesRef, 
+            where('administradorId', '==', profile.id),
+            orderBy('nombre')
+          )
+        );
+      } else {
+        // For super admins or other roles, show all communities
+        comunidadesRef = collection(db, 'comunidadesVecinos');
+        comunidadSnapshot = await getDocs(query(comunidadesRef, orderBy('nombre')));
+      }
       
       const comunidadesData: ComunidadVecinos[] = comunidadSnapshot.docs.map(doc => ({
         id: doc.id,
@@ -34,21 +52,28 @@ export const useComunidadesVecinos = () => {
 
   useEffect(() => {
     loadComunidades();
-  }, []);
+  }, [profile?.id]);
 
   const addComunidad = async (comunidad: Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      const comunidadCollection = collection(db, 'comunidadesVecinos');
-      await addDoc(comunidadCollection, {
+      // Add the current administrator ID to the community if it's an administrator
+      const comunidadData = {
         ...comunidad,
+        administradorId: profile?.id || null,
+        administradorNombre: profile?.nombreAdministracion || profile?.nombre || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      };
+
+      const comunidadCollection = collection(db, 'comunidadesVecinos');
+      await addDoc(comunidadCollection, comunidadData);
       toast.success('Comunidad de vecinos añadida correctamente');
       await loadComunidades();
+      return true;
     } catch (e: any) {
       toast.error('Error al añadir la comunidad de vecinos');
       setError(e.message);
+      return false;
     }
   };
 
@@ -61,9 +86,11 @@ export const useComunidadesVecinos = () => {
       });
       toast.success('Comunidad de vecinos actualizada correctamente');
       await loadComunidades();
+      return true;
     } catch (e: any) {
       toast.error('Error al actualizar la comunidad de vecinos');
       setError(e.message);
+      return false;
     }
   };
 
@@ -73,9 +100,11 @@ export const useComunidadesVecinos = () => {
       await deleteDoc(comunidadDoc);
       toast.success('Comunidad de vecinos eliminada correctamente');
       await loadComunidades();
+      return true;
     } catch (e: any) {
       toast.error('Error al eliminar la comunidad de vecinos');
       setError(e.message);
+      return false;
     }
   };
 
