@@ -40,6 +40,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 interface ClienteLitrosHistoryProps {
   cliente: Usuario;
@@ -146,10 +147,10 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
+                      <CalendarComponent
                         mode="single"
                         selected={date}
-                        onSelect={(date) => date && setDate(date)}
+                        onSelect={(newDate) => newDate && setDate(newDate)}
                         initialFocus
                         className="p-3 pointer-events-auto"
                       />
