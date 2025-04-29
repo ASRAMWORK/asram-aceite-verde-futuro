@@ -947,8 +947,6 @@ const GestionClientes = () => {
           
           {selectedUsuario && (
             <ClienteHistorialRecogidas 
-              clienteId={selectedUsuario.id} 
-              clienteNombre={selectedUsuario.nombre}
               cliente={selectedUsuario}
             />
           )}
