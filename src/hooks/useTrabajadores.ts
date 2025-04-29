@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -39,7 +40,6 @@ export function useTrabajadores() {
           updatedAt: data.updatedAt,
           departamento: data.departamento || '',
           fechaContratacion: data.fechaContratacion,
-          estado: data.estado || 'activo',
           cargo: data.cargo || '',
           ciudad: data.ciudad || '',
           provincia: data.provincia || '',
