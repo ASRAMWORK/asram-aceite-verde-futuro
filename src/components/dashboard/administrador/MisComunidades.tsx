@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Building, Plus, Loader2, MapPin, Home, Users, Droplet, BarChart } from 'lucide-react';
+import { Building, Plus, Loader2, MapPin, Home, Package, Droplet, BarChart } from 'lucide-react';
 
 const MisComunidades = () => {
   const { comunidades, loading, error } = useComunidadesVecinos();
@@ -101,7 +102,11 @@ const MisComunidades = () => {
                     <span className="text-sm">{comunidad.numViviendas || 0} viviendas</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Droplet className="h-4 w-4 text-gray-500" />
+                    <Package className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm">{comunidad.numContenedores || 0} contenedores</span>
+                  </div>
+                  <div className="flex items-center gap-2 col-span-2">
+                    <Droplet className="h-4 w-4 text-blue-500" />
                     <span className="text-sm">{comunidad.litrosRecogidos || 0}L recogidos</span>
                   </div>
                 </div>

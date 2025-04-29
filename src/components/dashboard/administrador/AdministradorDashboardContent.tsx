@@ -10,6 +10,7 @@ import AdministradorRecogidas from './recogidas/AdministradorRecogidas';
 import AdministradorEstadisticas from './estadisticas/AdministradorEstadisticas';
 import AdministradorPerfil from './perfil/AdministradorPerfil';
 import InformesPanel from './informes/InformesPanel';
+import GestionComunidades from './comunidades/GestionComunidades';
 
 interface AdministradorDashboardContentProps {
   activeTab?: string;
@@ -34,6 +35,8 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
       return <InformesPanel />;
     case 'perfil':
       return <AdministradorPerfil />;
+    case 'gestionComunidades':
+      return <GestionComunidades />;
     default:
       return (
         <div className="container mx-auto px-4 py-8">

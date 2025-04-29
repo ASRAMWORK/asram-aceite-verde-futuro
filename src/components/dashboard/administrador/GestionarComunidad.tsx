@@ -31,7 +31,8 @@ const GestionarComunidad = () => {
 
   const statsProps = {
     numViviendas: formData.numViviendas || 0,
-    totalViviendas: formData.totalViviendas || 0
+    totalViviendas: formData.totalViviendas || 0,
+    numContenedores: formData.numContenedores || 0 // Added numContenedores
   };
 
   const contactProps = {

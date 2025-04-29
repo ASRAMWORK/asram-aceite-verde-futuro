@@ -406,6 +406,7 @@ export interface ComunidadVecinos {
   correoContacto?: string;
   nombreAdministracion?: string;
   litrosRecogidos?: number;
+  numContenedores?: number;  // Added numContenedores field
   beneficiosMedioambientales?: {
     co2Reducido?: number;
     aguaAhorrada?: number;

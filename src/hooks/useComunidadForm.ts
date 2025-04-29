@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
-import { useComunidades } from '@/hooks/useComunidades';
+import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { toast } from 'sonner';
 import type { ComunidadVecinos } from '@/types';
 
 export const useComunidadForm = () => {
-  const { addComunidad, loading } = useComunidades();
+  const { addComunidad, loading } = useComunidadesVecinos();
   const [formData, setFormData] = useState<Partial<ComunidadVecinos>>({
     nombre: '',
     cif: '',
@@ -18,18 +18,19 @@ export const useComunidadForm = () => {
     barrio: '',
     numeroPorteria: 0,
     totalViviendas: 0,
+    numContenedores: 0,  // Added default for numContenedores
     nombreAdministracion: '',
     correoContacto: '',
     telefono: '',
     email: '',
-    administradorId: '' // Changed 'administrador' to 'administradorId' to match the interface
+    administradorId: ''
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'numViviendas' || name === 'numeroPorteria' || name === 'totalViviendas' 
+      [name]: name === 'numViviendas' || name === 'numeroPorteria' || name === 'totalViviendas' || name === 'numContenedores'
         ? parseInt(value) || 0 
         : value
     }));
@@ -40,11 +41,16 @@ export const useComunidadForm = () => {
     const numViviendas = typeof data.numViviendas === 'string' 
       ? parseInt(data.numViviendas) 
       : data.numViviendas;
+    
+    const numContenedores = typeof data.numContenedores === 'string'
+      ? parseInt(data.numContenedores)
+      : data.numContenedores || 0;
       
     try {
       await addComunidad({
         ...data,
-        numViviendas: numViviendas, // Use the converted number
+        numViviendas: numViviendas,
+        numContenedores: numContenedores,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
