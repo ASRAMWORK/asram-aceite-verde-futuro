@@ -23,7 +23,7 @@ const AdminDashboard = () => {
   const { trabajadores, loading: loadingTrabajadores } = useTrabajadores();
   const { instalaciones, loading: loadingInstalaciones } = useInstalaciones();
   const { ingresos, gastos, loading: loadingFacturacion } = useFacturacion();
-  const { recogidas } = useRecogidas();
+  const { recogidas, getTotalLitrosRecogidos } = useRecogidas();
 
   // Calculate statistics - now counts all registered users plus active community clients
   const clientesActivos = usuarios.filter(u => u.activo).length;
@@ -34,18 +34,12 @@ const AdminDashboard = () => {
   
   // Total viviendas and containers using instalaciones data
   const totalViviendas = instalaciones.reduce((acc, inst) => acc + (inst.numViviendas || 0), 0);
-  const totalContenedores = instalaciones.reduce((acc, inst) => acc + (inst.numContenedores || 0), 0);
   
-  // Calculate total litros recogidos from all puntos verdes
-  const totalLitrosRecogidos = React.useMemo(() => {
-    const litrosFromRecogidas = recogidas.reduce((acc, recogida) => 
-      acc + (recogida.litrosRecogidos || 0), 0);
-      
-    const litrosFromUsuarios = usuarios.reduce((acc, usuario) => 
-      acc + (usuario.litrosAportados || 0), 0);
-      
-    return litrosFromRecogidas + litrosFromUsuarios;
-  }, [recogidas, usuarios]);
+  // Count total containers installed from puntos verdes
+  const totalContenedores = puntosVerdes.reduce((acc, punto) => acc + (punto.numContenedores || 0), 0);
+  
+  // Calculate total litros recogidos using the hook function
+  const totalLitrosRecogidos = getTotalLitrosRecogidos();
   
   // Notifications system
   const [notifications, setNotifications] = useState([
@@ -302,7 +296,7 @@ const AdminDashboard = () => {
 
         <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Puntos Verdes</CardTitle>
+            <CardTitle className="text-sm font-medium">Contenedores Instalados</CardTitle>
             <Home className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>

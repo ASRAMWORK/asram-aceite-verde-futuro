@@ -1,17 +1,22 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useUsuarios } from '@/hooks/useUsuarios';
 import { Chart } from '@/components/ui/chart';
 import { Building, Users, Droplet, Workflow } from 'lucide-react';
+import { useRecogidas } from '@/hooks/useRecogidas';
 
 const AdministradorDashboardOverview = () => {
   const { comunidades, loading } = useComunidadesVecinos();
   const { usuarios, loading: loadingUsuarios } = useUsuarios();
+  const { recogidas, getTotalLitrosRecogidos } = useRecogidas();
   
   const totalComunidades = comunidades.length;
   const totalViviendas = comunidades.reduce((acc, com) => acc + (com.numViviendas || 0), 0);
-  const totalLitros = comunidades.reduce((acc, com) => acc + (com.litrosRecogidos || 0), 0);
+  
+  // Get total litros from recogidas
+  const totalLitros = getTotalLitrosRecogidos();
   
   // Clientes asociados a las comunidades de este administrador
   const clientesActivos = usuarios.filter(u => u.activo && u.tipo === 'comunidad').length;

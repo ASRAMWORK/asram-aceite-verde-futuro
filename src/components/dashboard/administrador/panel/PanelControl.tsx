@@ -8,6 +8,7 @@ import { useFacturacion } from '@/hooks/useFacturacion';
 import { useRutas } from '@/hooks/useRutas';
 import { usePuntosVerdes } from '@/hooks/usePuntosVerdes';
 import { useProjects } from '@/hooks/useProjects';
+import { useRecogidas } from '@/hooks/useRecogidas';
 
 const PanelControl = () => {
   const { comunidades } = useComunidadesVecinos();
@@ -15,11 +16,14 @@ const PanelControl = () => {
   const { rutas } = useRutas();
   const { puntosVerdes } = usePuntosVerdes();
   const { projects } = useProjects();
+  const { getTotalLitrosRecogidos } = useRecogidas();
 
   // Datos de comunidades
-  const totalLitros = comunidades.reduce((acc, com) => acc + (com.litrosRecogidos || 0), 0);
+  const totalLitros = getTotalLitrosRecogidos();
   const totalViviendas = comunidades.reduce((acc, com) => acc + (com.numViviendas || 0), 0);
-  const totalPuntosVerdes = comunidades.reduce((acc, com) => acc + 1, 0);
+  
+  // Total contenedores instalados
+  const totalContenedores = puntosVerdes.reduce((acc, punto) => acc + (punto.numContenedores || 0), 0);
   
   // Datos de rutas
   const rutasCompletadas = rutas.filter(r => r.completada).length;
@@ -159,13 +163,13 @@ const PanelControl = () => {
 
         <Card className="border-l-4 border-l-[#ee970d]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Puntos Verdes</CardTitle>
+            <CardTitle className="text-sm font-medium">Contenedores Instalados</CardTitle>
             <Home className="h-4 w-4 text-[#ee970d]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{puntosVerdes.length}</div>
+            <div className="text-2xl font-bold">{totalContenedores}</div>
             <p className="text-xs text-muted-foreground">
-              Total de puntos verdes instalados
+              Total de contenedores instalados
             </p>
           </CardContent>
         </Card>
