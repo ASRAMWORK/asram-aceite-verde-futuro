@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
@@ -19,9 +18,25 @@ const AdministradorDashboardOverview = () => {
   
   // Calculate total environmental impact
   const totalImpacto = {
-    co2: comunidades.reduce((acc, com) => acc + (com.beneficiosMedioambientales?.co2 || 0), 0),
-    agua: comunidades.reduce((acc, com) => acc + (com.beneficiosMedioambientales?.agua || 0), 0),
-    energia: comunidades.reduce((acc, com) => acc + (com.beneficiosMedioambientales?.energia || 0), 0)
+    co2: comunidades.reduce((acc, com) => {
+      // Use co2Reducido if available, otherwise fall back to co2
+      const co2Value = com.beneficiosMedioambientales?.co2Reducido !== undefined 
+        ? com.beneficiosMedioambientales.co2Reducido 
+        : com.beneficiosMedioambientales?.co2 || 0;
+      return acc + co2Value;
+    }, 0),
+    agua: comunidades.reduce((acc, com) => {
+      const aguaValue = com.beneficiosMedioambientales?.aguaAhorrada !== undefined
+        ? com.beneficiosMedioambientales.aguaAhorrada
+        : com.beneficiosMedioambientales?.agua || 0;
+      return acc + aguaValue;
+    }, 0),
+    energia: comunidades.reduce((acc, com) => {
+      const energiaValue = com.beneficiosMedioambientales?.energiaAhorrada !== undefined
+        ? com.beneficiosMedioambientales.energiaAhorrada
+        : com.beneficiosMedioambientales?.energia || 0;
+      return acc + energiaValue;
+    }, 0)
   };
   
   // Prepare chart data

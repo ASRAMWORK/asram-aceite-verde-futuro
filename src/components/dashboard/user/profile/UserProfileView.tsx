@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,7 +43,10 @@ const UserProfileView = () => {
   }
 
   const renderProfileFields = () => {
-    switch (profile.role as UserRole) {
+    // Check if profile.role exists before comparing
+    const userRole = profile?.role as string;
+    
+    switch (userRole) {
       case 'comunidad':
         return (
           <>
@@ -238,7 +242,7 @@ const UserProfileView = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Apellido</p>
-              <p className="font-medium">{profile.apellido}</p>
+              <p className="font-medium">{profile.apellidos || profile.apellido}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Email</p>

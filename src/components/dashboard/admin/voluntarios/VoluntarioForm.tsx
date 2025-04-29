@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -51,16 +52,29 @@ interface VoluntarioFormProps {
 }
 
 const VoluntarioForm = ({ onSubmit, onCancel, initialData }: VoluntarioFormProps) => {
-  // Convert any horasDisponibles array to string if needed
-  const processedInitialData = initialData ? {
-    ...initialData,
-    apellidos: initialData.apellidos || "", 
-    horasDisponibles: initialData.horasDisponibles || ""
+  // Process initialData to ensure it matches expected form structure
+  const processedData = initialData ? {
+    nombre: initialData.nombre || "",
+    apellidos: initialData.apellidos || initialData.apellido || "",
+    email: initialData.email || "",
+    telefono: initialData.telefono || "",
+    direccion: initialData.direccion || "",
+    codigoPostal: initialData.codigoPostal || "",
+    diasDisponibles: initialData.diasDisponibles || [],
+    // Convert any array of horasDisponibles to a string
+    horasDisponibles: typeof initialData.horasDisponibles === 'string' 
+      ? initialData.horasDisponibles 
+      : Array.isArray(initialData.horasDisponibles) 
+        ? initialData.horasDisponibles[0] || ""
+        : "",
+    habilidades: initialData.habilidades || [],
+    experiencia: initialData.experiencia || "",
+    activo: initialData.activo
   } : null;
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: processedInitialData || {
+    defaultValues: processedData || {
       nombre: "",
       apellidos: "",
       email: "",

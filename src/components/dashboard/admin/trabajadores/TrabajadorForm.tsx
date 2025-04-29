@@ -31,7 +31,7 @@ import type { Trabajador } from "@/types";
 const formSchema = z.object({
   email: z.string().email({ message: "Introduce un email válido" }),
   nombre: z.string().min(2, { message: "Introduce un nombre válido" }),
-  apellido: z.string().min(2, { message: "Introduce apellidos válidos" }),
+  apellidos: z.string().min(2, { message: "Introduce apellidos válidos" }),
   telefono: z.string().min(9, { message: "Introduce un teléfono válido" }),
   direccion: z.string().optional(),
   ciudad: z.string().optional(),
@@ -103,7 +103,7 @@ const TrabajadorForm = ({ onSubmit, onCancel, initialData, vehiculos = [], rutas
     defaultValues: {
       email: processedInitialData?.email || "",
       nombre: processedInitialData?.nombre || "",
-      apellido: processedInitialData?.apellido || "",
+      apellidos: processedInitialData?.apellidos || "", // Changed from apellido to apellidos
       telefono: processedInitialData?.telefono || "",
       direccion: processedInitialData?.direccion || "",
       ciudad: processedInitialData?.ciudad || "",
@@ -159,7 +159,7 @@ const TrabajadorForm = ({ onSubmit, onCancel, initialData, vehiculos = [], rutas
                   <Avatar className="h-40 w-40">
                     <AvatarImage src={form.getValues("foto")} />
                     <AvatarFallback className="text-4xl">
-                      {form.getValues("nombre").charAt(0) || "T"}{form.getValues("apellido").charAt(0) || ""}
+                      {form.getValues("nombre").charAt(0) || "T"}{form.getValues("apellidos").charAt(0) || ""}
                     </AvatarFallback>
                   </Avatar>
                 </div>
@@ -197,7 +197,7 @@ const TrabajadorForm = ({ onSubmit, onCancel, initialData, vehiculos = [], rutas
                   
                   <FormField
                     control={form.control}
-                    name="apellido"
+                    name="apellidos"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Apellidos *</FormLabel>

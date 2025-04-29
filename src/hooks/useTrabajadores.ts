@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -14,7 +13,8 @@ export function useTrabajadores() {
     try {
       setLoading(true);
       const trabajadoresRef = collection(db, "trabajadores");
-      const trabajadoresSnap = await getDocs(query(trabajadoresRef, orderBy("apellido")));
+      // Change from apellido to apellidos in the orderBy
+      const trabajadoresSnap = await getDocs(query(trabajadoresRef, orderBy("apellidos")));
       
       const trabajadoresData: Trabajador[] = [];
       trabajadoresSnap.forEach((doc) => {
@@ -22,7 +22,9 @@ export function useTrabajadores() {
         trabajadoresData.push({
           id: doc.id,
           nombre: data.nombre || '',
-          apellido: data.apellido || '',
+          // Handle both apellido and apellidos for backward compatibility
+          apellidos: data.apellidos || data.apellido || '',
+          apellido: data.apellido || data.apellidos || '',
           dni: data.dni || '',
           fechaNacimiento: data.fechaNacimiento,
           email: data.email || '',

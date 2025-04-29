@@ -1,4 +1,3 @@
-
 export interface Usuario {
   id: string;
   nombre: string;
@@ -35,7 +34,7 @@ export interface Usuario {
   frecuenciaRecogida?: string;
 }
 
-export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador" | "user";
+export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador" | "user" | "hotel" | "asociacion" | "escolar";
 
 export interface PuntoVerde {
   id: string;
@@ -310,6 +309,7 @@ export interface Voluntario {
   pais?: string;
   ciudad?: string;
   provincia?: string;
+  apellido?: string; // For backward compatibility
 }
 
 export interface Tarea {
@@ -347,6 +347,30 @@ export interface UserProfile {
   createdAt: Date;
   updatedAt: Date;
   nombreAdministracion?: string;
+  
+  // Additional fields needed for user dashboard/profile
+  role?: UserRole;
+  email?: string;
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
+  apellido?: string;
+  litrosAportados?: number;
+  puntosVerdes?: number;
 }
 
 export interface ComunidadVecinos {
@@ -377,6 +401,9 @@ export interface ComunidadVecinos {
     co2Reducido?: number;
     aguaAhorrada?: number;
     energiaAhorrada?: number;
+    co2?: number; // Aliases for backward compatibility
+    agua?: number; // Aliases for backward compatibility
+    energia?: number; // Aliases for backward compatibility
   };
 }
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,6 +27,26 @@ const MisComunidades = () => {
   
   const handleAddComunidad = () => {
     navigate('/administrador/dashboard/gestionar');
+  };
+  
+  // Helper function to safely get environmental impact values
+  const getImpactoValue = (comunidad, property) => {
+    if (property === 'co2') {
+      return comunidad.beneficiosMedioambientales?.co2Reducido !== undefined
+        ? comunidad.beneficiosMedioambientales.co2Reducido
+        : comunidad.beneficiosMedioambientales?.co2 || 0;
+    }
+    if (property === 'agua') {
+      return comunidad.beneficiosMedioambientales?.aguaAhorrada !== undefined
+        ? comunidad.beneficiosMedioambientales.aguaAhorrada
+        : comunidad.beneficiosMedioambientales?.agua || 0;
+    }
+    if (property === 'energia') {
+      return comunidad.beneficiosMedioambientales?.energiaAhorrada !== undefined
+        ? comunidad.beneficiosMedioambientales.energiaAhorrada
+        : comunidad.beneficiosMedioambientales?.energia || 0;
+    }
+    return 0;
   };
   
   return (
@@ -95,19 +114,19 @@ const MisComunidades = () => {
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="p-2 bg-green-50 rounded text-center">
                       <p className="font-semibold text-green-700">
-                        {Math.round(comunidad.beneficiosMedioambientales?.co2 || 0)} kg
+                        {Math.round(getImpactoValue(comunidad, 'co2'))} kg
                       </p>
                       <p className="text-gray-500">CO2</p>
                     </div>
                     <div className="p-2 bg-blue-50 rounded text-center">
                       <p className="font-semibold text-blue-700">
-                        {Math.round(comunidad.beneficiosMedioambientales?.agua || 0)} L
+                        {Math.round(getImpactoValue(comunidad, 'agua'))} L
                       </p>
                       <p className="text-gray-500">Agua</p>
                     </div>
                     <div className="p-2 bg-amber-50 rounded text-center">
                       <p className="font-semibold text-amber-700">
-                        {Math.round(comunidad.beneficiosMedioambientales?.energia || 0)} kWh
+                        {Math.round(getImpactoValue(comunidad, 'energia'))} kWh
                       </p>
                       <p className="text-gray-500">Energía</p>
                     </div>

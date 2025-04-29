@@ -165,6 +165,22 @@ const TrabajadoresView = () => {
     }
   };
 
+  const getTrabajadorForTable = (trabajador) => {
+    return {
+      id: trabajador.id,
+      nombre: trabajador.nombre,
+      apellidos: trabajador.apellidos || trabajador.apellido || '',
+      dni: trabajador.dni || '',
+      departamento: trabajador.departamento || '',
+      cargo: trabajador.cargo || '',
+      roles: trabajador.roles || [],
+      activo: trabajador.activo,
+      email: trabajador.email,
+      telefono: trabajador.telefono,
+      foto: trabajador.foto
+    };
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -265,30 +281,30 @@ const TrabajadoresView = () => {
                       paginatedTrabajadores.map((trabajador) => (
                         <TableRow key={trabajador.id}>
                           <TableCell>
-                            <Avatar className="h-9 w-9">
-                              <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellidos}`} />
-                              <AvatarFallback>
-                                {trabajador.nombre.charAt(0)}{trabajador.apellidos?.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {trabajador.nombre} {trabajador.apellidos}
-                          </TableCell>
-                          <TableCell>{trabajador.dni}</TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {trabajador.roles.slice(0, 2).map((rol) => (
-                                <Badge key={rol} variant="outline" className={getRolBadgeColor(rol)}>
-                                  {getRolLabel(rol)}
-                                </Badge>
-                              ))}
-                              {trabajador.roles.length > 2 && (
-                                <Badge variant="outline" className="bg-gray-100 text-gray-800">
-                                  +{trabajador.roles.length - 2}
-                                </Badge>
-                              )}
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellidos}`} />
+                                <AvatarFallback>
+                                  {trabajador.nombre?.charAt(0)}{trabajador.apellidos?.charAt(0)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{trabajador.nombre} {trabajador.apellidos}</p>
+                                <p className="text-sm text-muted-foreground">{trabajador.email}</p>
+                              </div>
                             </div>
+                          </TableCell>
+                          <TableCell>
+                            <span>{trabajador.dni}</span>
+                          </TableCell>
+                          <TableCell>
+                            {trabajador.roles?.includes('conductor') && (
+                              <Badge variant="secondary">Conductor</Badge>
+                            )}
+                            {trabajador.roles?.includes('recolector') && (
+                              <Badge variant="outline" className="ml-1">Recolector</Badge>
+                            )}
+                            {/* other roles */}
                           </TableCell>
                           <TableCell>
                             <Badge variant={trabajador.activo ? "default" : "secondary"} className={
