@@ -43,10 +43,16 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
   return (
     <Card className="mt-4">
       <CardHeader>
-        <CardTitle>Historial de recogidas</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Historial de recogidas</CardTitle>
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
+            <Droplet className="h-3.5 w-3.5" />
+            <span>Total: {totalLitros} litros</span>
+          </Badge>
+        </div>
         <CardDescription>
           {clienteRecogidas.length 
-            ? `Total histórico: ${totalLitros} litros en ${clienteRecogidas.length} recogidas` 
+            ? `${clienteRecogidas.length} recogidas registradas` 
             : "Este cliente no tiene recogidas registradas"}
         </CardDescription>
       </CardHeader>
@@ -57,8 +63,8 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
               <TableRow>
                 <TableHead>Fecha</TableHead>
                 <TableHead>Dirección</TableHead>
-                <TableHead>Litros</TableHead>
-                <TableHead>Estado</TableHead>
+                <TableHead className="text-right">Litros</TableHead>
+                <TableHead className="text-right">Estado</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -66,13 +72,13 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
                 <TableRow key={recogida.id}>
                   <TableCell>{formatDate(recogida.fechaRecogida || recogida.fecha)}</TableCell>
                   <TableCell>{recogida.direccionRecogida || recogida.direccion || cliente.direccion}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
                       <Droplet className="h-4 w-4 text-blue-500" />
                       {recogida.litrosRecogidos || 0}L
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <Badge 
                       variant={recogida.completada || recogida.estadoRecogida === "completada" ? "default" : "outline"}
                       className={recogida.completada || recogida.estadoRecogida === "completada" ? "bg-green-500 hover:bg-green-600" : ""}

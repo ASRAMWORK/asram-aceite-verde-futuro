@@ -1,16 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
   CardDescription 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Filter, Package, Clock, TrendingUp, LayoutList } from 'lucide-react';
+import { 
+  Plus, Filter, Package, Clock, TrendingUp, 
+  LayoutList, Trash2, Pencil, Droplet, List, 
+  CalendarDays, Search 
+} from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, isValid } from 'date-fns';
 import { toast } from 'sonner';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import { useRutas } from '@/hooks/useRutas';
+import { useClientes } from '@/hooks/useClientes';
 import RecogidasList from './RecogidasList';
 import RecogidaForm from './RecogidaForm';
 import { 
@@ -27,6 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const GestionRecogidas = () => {
   const [showForm, setShowForm] = useState(false);
@@ -38,9 +44,15 @@ const GestionRecogidas = () => {
   const [selectedRuta, setSelectedRuta] = useState<string | null>(null);
   const [litrosCompletados, setLitrosCompletados] = useState<number>(0);
   const [showCompletarDialog, setShowCompletarDialog] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [clientesRuta, setClientesRuta] = useState<any[]>([]);
+  const [showRutaPendiente, setShowRutaPendiente] = useState(false);
   
   const { recogidas, addRecogida, completeRecogida, getTotalLitrosRecogidos, calcularPromedioLitrosPorPeriodo } = useRecogidas();
   const { rutas, completeRuta } = useRutas();
+  const { clientes } = useClientes();
+  
+  const debouncedSearch = useDebounce(searchTerm, 300);
   
   // Safe date formatting helper function
   const formatDate = (date: Date | string | null | undefined) => {
@@ -83,30 +95,39 @@ const GestionRecogidas = () => {
       })
     : recogidas;
 
+  // Filter recogidas based on search
+  const searchFilteredRecogidas = debouncedSearch 
+    ? filteredRecogidas.filter(r => 
+        r.cliente?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        r.direccionRecogida?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        r.direccion?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        r.distrito?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      )
+    : filteredRecogidas;
+
   // Manejar envío de formulario para nuevas recogidas
   const handleAddRecogida = async (data: any) => {
     try {
       if (data.esRecogidaZona) {
         // Crear una recogida por zona (ruta)
-        const rutaSeleccionada = rutas.find(r => r.id === data.rutaId);
-        if (!rutaSeleccionada) {
-          toast.error('Ruta no encontrada');
+        const rutaClientes = data.clientesRuta || [];
+        if (rutaClientes.length === 0) {
+          toast.error('No hay clientes seleccionados para la ruta');
           return;
         }
         
         // Crear una recogida por cada cliente en la ruta
-        const promesas = data.clientesRuta.map((cliente: any) => {
+        const promesas = rutaClientes.map((cliente: any) => {
           return addRecogida({
-            fechaRecogida: data.fecha,
+            fechaRecogida: data.fechaRecogida || data.fecha,
             clienteId: cliente.id,
             cliente: cliente.nombre,
             direccionRecogida: cliente.direccion,
-            horaRecogida: data.hora,
-            litrosEstimados: cliente.litrosEstimados || 0,
+            horaRecogida: data.horaRecogida || data.hora,
+            cantidadAproximada: cliente.litrosEstimados || 0,
             estadoRecogida: 'pendiente',
-            rutaId: data.rutaId,
             esRecogidaZona: true,
-            distrito: rutaSeleccionada.distrito,
+            distrito: cliente.distrito,
             barrio: cliente.barrio,
             nombreContacto: cliente.nombre,
             telefonoContacto: cliente.telefono || '',
@@ -115,20 +136,22 @@ const GestionRecogidas = () => {
         });
         
         await Promise.all(promesas);
-        toast.success(`Recogida por zona programada para ${rutaSeleccionada.distrito}`);
+        toast.success(`Recogida programada para ${rutaClientes.length} clientes`);
       } else {
         // Recogida individual normal
         await addRecogida({
           ...data,
-          direccion: data.direccion,
+          direccion: data.direccionRecogida,
           cliente: data.nombreContacto,
           distrito: data.distrito || 'Sin asignar',
           barrio: data.barrio || 'Sin asignar',
           estado: 'pendiente'
         });
+        toast.success('Recogida programada correctamente');
       }
       
       setShowForm(false);
+      setShowRutaPendiente(false);
     } catch (error) {
       console.error('Error al crear recogida:', error);
       toast.error('Error al programar la recogida');
@@ -152,6 +175,28 @@ const GestionRecogidas = () => {
   const calcularTotalLitrosRuta = (rutaId: string) => {
     const recogidasRuta = recogidas.filter(r => r.rutaId === rutaId);
     return recogidasRuta.reduce((total, recogida) => total + (recogida.litrosRecogidos || 0), 0);
+  };
+
+  // Handle client selection for route
+  const handleAddClienteRuta = (cliente: any) => {
+    if (!clientesRuta.some(c => c.id === cliente.id)) {
+      setClientesRuta([...clientesRuta, {
+        ...cliente,
+        litrosEstimados: 0,
+        litrosRecogidos: 0
+      }]);
+    }
+  };
+
+  const handleRemoveClienteRuta = (clienteId: string) => {
+    setClientesRuta(clientesRuta.filter(c => c.id !== clienteId));
+  };
+
+  const handleGuardarLitros = (clienteId: string, litros: number) => {
+    setClientesRuta(clientesRuta.map(cliente => 
+      cliente.id === clienteId ? { ...cliente, litrosRecogidos: litros } : cliente
+    ));
+    toast.success("Litros actualizados");
   };
 
   // Stats calculation
@@ -189,6 +234,9 @@ const GestionRecogidas = () => {
           </p>
         </div>
         <div className="flex space-x-2">
+          <Button onClick={() => setShowRutaPendiente(true)} variant="outline">
+            <List className="mr-2 h-4 w-4" /> Ruta Personalizada
+          </Button>
           <Button onClick={() => setShowHistorialRutas(true)} variant="outline">
             <LayoutList className="mr-2 h-4 w-4" /> Historial de Rutas
           </Button>
@@ -222,7 +270,7 @@ const GestionRecogidas = () => {
 
       {/* Formulario de nueva recogida */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Nueva recogida</DialogTitle>
             <DialogDescription>
@@ -297,6 +345,224 @@ const GestionRecogidas = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog para ruta personalizada */}
+      <Dialog open={showRutaPendiente} onOpenChange={setShowRutaPendiente}>
+        <DialogContent className="sm:max-w-[750px] h-[650px]">
+          <DialogHeader>
+            <DialogTitle>Ruta de Recogida Personalizada</DialogTitle>
+            <DialogDescription>
+              Selecciona los clientes para crear una ruta personalizada
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 gap-4">
+            <div className="flex gap-4 items-end">
+              <div className="flex-1">
+                <Label htmlFor="search-clientes">Buscar clientes</Label>
+                <Input 
+                  id="search-clientes"
+                  placeholder="Nombre, dirección..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              
+              <div className="w-[200px]">
+                <Label htmlFor="fecha-ruta">Fecha de recogida</Label>
+                <Input 
+                  id="fecha-ruta"
+                  type="date" 
+                  defaultValue={format(new Date(), 'yyyy-MM-dd')}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="h-[200px] overflow-auto">
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="text-base">Clientes disponibles</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 px-4 pb-4">
+                  <div className="max-h-[130px] overflow-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Cliente</TableHead>
+                          <TableHead>Distrito</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {clientes
+                          .filter(c => 
+                            !debouncedSearch || 
+                            c.nombre?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                            c.direccion?.toLowerCase().includes(debouncedSearch.toLowerCase())
+                          )
+                          .filter(c => !clientesRuta.some(rc => rc.id === c.id))
+                          .slice(0, 10)
+                          .map(cliente => (
+                            <TableRow key={cliente.id}>
+                              <TableCell className="py-1">{cliente.nombre}</TableCell>
+                              <TableCell className="py-1">{cliente.distrito || 'N/A'}</TableCell>
+                              <TableCell className="py-1 text-right">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => handleAddClienteRuta(cliente)}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        }
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="h-[200px] overflow-auto">
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="text-base">Ruta actual</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 px-4 pb-4">
+                  <div className="max-h-[130px] overflow-auto">
+                    {clientesRuta.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {clientesRuta.map(cliente => (
+                            <TableRow key={cliente.id}>
+                              <TableCell className="py-1">{cliente.nombre}</TableCell>
+                              <TableCell className="py-1 text-right">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="text-red-500 hover:text-red-700"
+                                  onClick={() => handleRemoveClienteRuta(cliente.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <div className="flex items-center justify-center h-[100px] text-center text-muted-foreground">
+                        No hay clientes seleccionados
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <ScrollArea className="h-[250px] border rounded">
+              <div className="p-4">
+                <h3 className="font-medium mb-4">Clientes en la ruta ({clientesRuta.length})</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Dirección</TableHead>
+                      <TableHead>Litros estimados</TableHead>
+                      <TableHead>Litros recogidos</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {clientesRuta.map(cliente => (
+                      <TableRow key={cliente.id}>
+                        <TableCell>{cliente.nombre}</TableCell>
+                        <TableCell>{cliente.direccion}</TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={cliente.litrosEstimados || 0}
+                            onChange={(e) => {
+                              const updatedClientes = clientesRuta.map(c => 
+                                c.id === cliente.id ? { ...c, litrosEstimados: Number(e.target.value) } : c
+                              );
+                              setClientesRuta(updatedClientes);
+                            }}
+                            className="w-[80px]"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2 items-center">
+                            <Input
+                              type="number"
+                              min={0}
+                              value={cliente.litrosRecogidos || 0}
+                              onChange={(e) => {
+                                const updatedClientes = clientesRuta.map(c => 
+                                  c.id === cliente.id ? { ...c, litrosRecogidos: Number(e.target.value) } : c
+                                );
+                                setClientesRuta(updatedClientes);
+                              }}
+                              className="w-[80px]"
+                            />
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleGuardarLitros(cliente.id, cliente.litrosRecogidos || 0)}
+                            >
+                              <Droplet className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => handleRemoveClienteRuta(cliente.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </ScrollArea>
+            
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowRutaPendiente(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (clientesRuta.length === 0) {
+                    toast.error("No hay clientes seleccionados para la ruta");
+                    return;
+                  }
+                  handleAddRecogida({
+                    fechaRecogida: new Date(),
+                    horaRecogida: "10:00",
+                    esRecogidaZona: true,
+                    clientesRuta
+                  });
+                }}
+                disabled={clientesRuta.length === 0}
+              >
+                Guardar Ruta
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Dialog para completar recogida */}
       <AlertDialog open={showCompletarDialog} onOpenChange={setShowCompletarDialog}>
         <AlertDialogContent>
@@ -333,15 +599,77 @@ const GestionRecogidas = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Output for debugging */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="text-xs opacity-50">
-          <p>Selected Month: {selectedMonth}</p>
-          <p>Selected Year: {selectedYear}</p>
-          <p>Total Recogidas: {recogidas.length}</p>
-          <p>Filtered Recogidas: {filteredRecogidas.length}</p>
+      {/* Filtros y búsqueda */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="flex items-center space-x-2">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar cliente o dirección..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1"
+          />
         </div>
-      )}
+        
+        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Todos los meses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Todos los meses</SelectItem>
+            {months.map((month) => (
+              <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedYear} onValueChange={setSelectedYear}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Año" />
+          </SelectTrigger>
+          <SelectContent>
+            {years.map((year) => (
+              <SelectItem key={year} value={year}>{year}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
+        <div className="md:text-right">
+          <Badge variant="outline" className="px-3 py-1">
+            {searchFilteredRecogidas.length} resultados
+          </Badge>
+        </div>
+      </div>
+
+      <Tabs defaultValue="pendientes" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="pendientes">Pendientes</TabsTrigger>
+          <TabsTrigger value="completadas">Completadas</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="pendientes">
+          <Card>
+            <CardContent className="pt-6">
+              <RecogidasList 
+                recogidas={searchFilteredRecogidas.filter(r => !r.completada)}
+                onCompleteRecogida={handleCompleteRecogida}
+                onViewDetails={(id) => setSelectedRecogida(id)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="completadas">
+          <Card>
+            <CardContent className="pt-6">
+              <RecogidasList 
+                recogidas={searchFilteredRecogidas.filter(r => r.completada)}
+                onViewDetails={(id) => setSelectedRecogida(id)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

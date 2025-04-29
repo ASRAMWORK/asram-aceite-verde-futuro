@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
 } from "@/components/ui/dialog";
 import RecogidaForm from "../RecogidaForm";
 import { useRecogidas } from '@/hooks/useRecogidas';
@@ -56,20 +55,19 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant={variant}
-          size={size}
-          className={variant === "default" ? "bg-cyan-600 hover:bg-cyan-700" : ""}
-        >
-          {size === "icon" ? <Droplet className="h-4 w-4" /> : (
-            <>
-              <Droplet className="mr-2 h-4 w-4" />
-              Programar Recogida
-            </>
-          )}
-        </Button>
-      </DialogTrigger>
+      <Button
+        variant={variant}
+        size={size}
+        className={variant === "default" ? "bg-cyan-600 hover:bg-cyan-700" : ""}
+        onClick={() => setIsDialogOpen(true)}
+      >
+        {size === "icon" ? <Droplet className="h-4 w-4" /> : (
+          <>
+            <Droplet className="mr-2 h-4 w-4" />
+            Programar Recogida
+          </>
+        )}
+      </Button>
       
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
@@ -86,9 +84,11 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
             direccion: cliente.direccion,
             distrito: cliente.distrito,
             barrio: cliente.barrio,
-            nombre: cliente.nombre,
-            telefono: cliente.telefono,
-            clienteId: cliente.id
+            nombreContacto: cliente.nombre,
+            telefonoContacto: cliente.telefono,
+            emailContacto: cliente.email,
+            clienteId: cliente.id,
+            fechaRecogida: new Date()
           }}
         />
       </DialogContent>
