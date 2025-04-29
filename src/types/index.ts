@@ -33,6 +33,7 @@ export interface Usuario {
   litrosAportados?: number;
   pais?: string;
   frecuenciaRecogida?: string;
+  litrosEstimados?: number; // Added litrosEstimados field
 }
 
 export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador" | "user" | "hotel" | "asociacion" | "escolar" | "usuario";
@@ -168,6 +169,7 @@ export interface Ruta {
   puntos: any[];
   createdAt?: Date;
   updatedAt?: Date;
+  tipo?: string; // Added tipo field
 }
 
 export interface CalleApadrinada {

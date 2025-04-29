@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -251,7 +250,7 @@ const RutasDistritos = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={ruta.completada ? "success" : "outline"} className={
+                      <Badge variant={ruta.completada ? "secondary" : "outline"} className={
                         ruta.completada ? "bg-green-100 text-green-800" : ""
                       }>
                         {ruta.completada ? "Completada" : "Pendiente"}

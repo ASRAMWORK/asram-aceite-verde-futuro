@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { 
@@ -40,7 +41,7 @@ export function useRutas() {
           puntos: data.puntos || [],
           createdAt: data.createdAt?.toDate(),
           updatedAt: data.updatedAt?.toDate(),
-          tipo: data.tipo || 'distrito' // Adding tipo field to distinguish between distrito and personalizada
+          tipo: data.tipo || 'distrito'
         });
       });
       
