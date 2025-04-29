@@ -1,3 +1,5 @@
+
+// Alternative solution if ProjectForm is exported as default:
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +14,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useFacturacion } from "@/hooks/useFacturacion";
 import { ProjectsView } from "./ProjectsView";
-import { ProjectForm } from "./ProjectForm";
+import ProjectForm from "./ProjectForm";  // Changed to default import
 import { useProjects } from "@/hooks/useProjects";
 import { Ingreso, Gasto } from "@/types";
 import { toast } from "sonner";

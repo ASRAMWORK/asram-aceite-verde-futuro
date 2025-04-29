@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,7 +37,7 @@ interface ProjectFormProps {
   initialData?: Partial<Project>;
 }
 
-const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProps) => {
+export const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProps) => {
   const [loading, setLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const { ingresos, gastos } = useFacturacion();
@@ -460,5 +459,3 @@ const ProjectForm = ({ isOpen, onClose, onSubmit, initialData }: ProjectFormProp
     </>
   );
 };
-
-export default ProjectForm;
