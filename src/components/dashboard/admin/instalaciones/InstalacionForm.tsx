@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -135,9 +134,28 @@ const InstalacionForm: React.FC<InstalacionFormProps> = ({ instalacion, onClose 
           toast.error("Error al actualizar instalación");
         });
     } else {
-      // Add new instalacion
+      // Add new instalacion - Make sure all fields are explicitly defined
       const nuevaInstalacion: Omit<Instalacion, "id"> = {
-        ...data,
+        nombre: data.nombre,
+        direccion: data.direccion,
+        ciudad: data.ciudad,
+        provincia: data.provincia,
+        codigoPostal: data.codigoPostal,
+        pais: data.pais,
+        latitud: data.latitud,
+        longitud: data.longitud,
+        tipo: data.tipo,
+        descripcion: data.descripcion,
+        horario: data.horario,
+        telefono: data.telefono,
+        email: data.email,
+        contacto: data.contacto,
+        activo: data.activo,
+        distrito: data.distrito || "",
+        barrio: data.barrio || "",
+        numViviendas: data.numViviendas || 0,
+        numContenedores: data.numContenedores || 0,
+        numPorteria: data.numPorteria || 0,
         createdAt: new Date(),
         updatedAt: new Date()
       };
