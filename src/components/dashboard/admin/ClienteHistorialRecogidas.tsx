@@ -4,7 +4,7 @@ import { useRecogidas } from '@/hooks/useRecogidas';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Droplet } from 'lucide-react';
+import { Droplet, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Usuario } from '@/types';
@@ -16,12 +16,38 @@ interface ClienteHistorialRecogidasProps {
 const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ cliente }) => {
   const { recogidas, getRecogidasByClientId } = useRecogidas();
   const [clienteRecogidas, setClienteRecogidas] = useState<any[]>([]);
+  const [promedioLitros30Dias, setPromedioLitros30Dias] = useState<number>(0);
   
   useEffect(() => {
     // Get recogidas for this specific client
     if (cliente && cliente.id) {
       const recogidasCliente = getRecogidasByClientId(cliente.id);
       setClienteRecogidas(recogidasCliente);
+      
+      // Calculate average liters per 30 days
+      if (recogidasCliente.length > 0) {
+        // Sort recogidas by date (oldest first)
+        const sortedRecogidas = [...recogidasCliente].sort((a, b) => {
+          const dateA = a.fechaRecogida || a.fecha || new Date();
+          const dateB = b.fechaRecogida || b.fecha || new Date();
+          return dateA.getTime() - dateB.getTime();
+        });
+        
+        // Get first and last date
+        const firstDate = sortedRecogidas[0].fechaRecogida || sortedRecogidas[0].fecha || new Date();
+        const lastDate = sortedRecogidas[sortedRecogidas.length - 1].fechaRecogida || 
+                        sortedRecogidas[sortedRecogidas.length - 1].fecha || new Date();
+        
+        // Calculate total days between first and last collection
+        const totalDays = Math.max(1, Math.ceil((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)));
+        
+        // Calculate total liters
+        const totalLitros = sortedRecogidas.reduce((sum, recogida) => sum + (recogida.litrosRecogidos || 0), 0);
+        
+        // Calculate average per 30 days
+        const promedio = (totalLitros / totalDays) * 30;
+        setPromedioLitros30Dias(parseFloat(promedio.toFixed(2)));
+      }
     }
   }, [cliente, recogidas]);
   
@@ -44,17 +70,27 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
     <Card className="mt-4">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Historial de recogidas</CardTitle>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
-            <Droplet className="h-3.5 w-3.5" />
-            <span>Total: {totalLitros} litros</span>
-          </Badge>
+          <div>
+            <CardTitle>Historial de recogidas</CardTitle>
+            <CardDescription>
+              {clienteRecogidas.length 
+                ? `${clienteRecogidas.length} recogidas registradas` 
+                : "Este cliente no tiene recogidas registradas"}
+            </CardDescription>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
+              <Droplet className="h-3.5 w-3.5" />
+              <span>Total: {totalLitros} litros</span>
+            </Badge>
+            {promedioLitros30Dias > 0 && (
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" />
+                <span>Media: {promedioLitros30Dias} L/30 días</span>
+              </Badge>
+            )}
+          </div>
         </div>
-        <CardDescription>
-          {clienteRecogidas.length 
-            ? `${clienteRecogidas.length} recogidas registradas` 
-            : "Este cliente no tiene recogidas registradas"}
-        </CardDescription>
       </CardHeader>
       <CardContent>
         {clienteRecogidas.length > 0 ? (
