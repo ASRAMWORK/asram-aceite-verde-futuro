@@ -51,6 +51,11 @@ const UserDashboard = () => {
     );
   }
 
+  // Safely access profile properties with fallbacks
+  const litrosAportados = profile?.litrosAportados || 0;
+  const puntosVerdes = profile?.puntosVerdes || 0;
+  const nombreUsuario = profile?.nombre || 'Usuario';
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -70,7 +75,7 @@ const UserDashboard = () => {
                 Panel de Usuario
               </h1>
               <p className="text-gray-600">
-                Bienvenido, {profile?.nombre || 'Usuario'}
+                Bienvenido, {nombreUsuario}
               </p>
             </div>
             <Button onClick={handleLogout} variant="destructive">
@@ -87,7 +92,7 @@ const UserDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-[#ee970d]">{profile?.litrosAportados || 0}L</div>
+                <div className="text-3xl font-bold text-[#ee970d]">{litrosAportados}L</div>
                 <p className="text-sm text-green-600">Tu contribución</p>
               </CardContent>
             </Card>
@@ -100,7 +105,7 @@ const UserDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-[#ee970d]">{(profile?.litrosAportados || 0) * 1000}L</div>
+                <div className="text-3xl font-bold text-[#ee970d]">{litrosAportados * 1000}L</div>
                 <p className="text-sm text-blue-600">Impacto total</p>
               </CardContent>
             </Card>
@@ -113,7 +118,7 @@ const UserDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-[#ee970d]">{profile?.puntosVerdes || 0}</div>
+                <div className="text-3xl font-bold text-[#ee970d]">{puntosVerdes}</div>
                 <p className="text-sm text-purple-600">Puntos acumulados</p>
               </CardContent>
             </Card>

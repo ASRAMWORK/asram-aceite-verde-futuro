@@ -29,7 +29,7 @@ export function useUserProfile() {
             userId: user.uid,
             email: userData.email || user.email || '',
             role: (userData.role as UserProfile['role']) || 'usuario',
-            nombreAdministracion: userData.nombreAdministracion || '',
+            // If the type doesn't have nombreAdministracion, it will be ignored when used
             ...userData
           };
           

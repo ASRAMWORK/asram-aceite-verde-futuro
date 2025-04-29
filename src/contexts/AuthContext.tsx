@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -13,15 +13,13 @@ type AuthContextType = {
   userPermissions: string[];
 };
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  userRole: null,
-  logout: async () => {},
-  checkUserPermission: () => false,
-  userPermissions: [],
-});
+const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
@@ -71,14 +69,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return userPermissions.includes(permission);
   };
 
+  const contextValue: AuthContextType = {
+    user, 
+    userRole, 
+    logout, 
+    checkUserPermission, 
+    userPermissions
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      userRole, 
-      logout, 
-      checkUserPermission, 
-      userPermissions 
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
