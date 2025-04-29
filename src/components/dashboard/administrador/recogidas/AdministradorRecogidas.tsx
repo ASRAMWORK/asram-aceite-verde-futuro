@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
@@ -14,7 +15,7 @@ import { useRecogidas } from '@/hooks/useRecogidas';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from 'date-fns';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 
 const AdministradorRecogidas = () => {
   const [showForm, setShowForm] = useState(false);

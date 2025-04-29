@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -27,6 +28,18 @@ export function useUserProfile() {
             id: docRef.id,
             email: userData.email || user.email || '',
             role: (userData.role as UserProfile['role']) || 'usuario',
+            nombre: userData.nombre || '',
+            apellido: userData.apellido || '',
+            telefono: userData.telefono || '',
+            direccion: userData.direccion || '',
+            ciudad: userData.ciudad || '',
+            provincia: userData.provincia || '',
+            codigoPostal: userData.codigoPostal || '',
+            pais: userData.pais || '',
+            activo: userData.activo !== undefined ? userData.activo : true,
+            tipo: userData.tipo || '',
+            createdAt: userData.createdAt,
+            updatedAt: userData.updatedAt,
             // If the type doesn't have nombreAdministracion, it will be ignored when used
             ...userData
           };

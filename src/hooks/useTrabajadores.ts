@@ -37,10 +37,14 @@ export function useTrabajadores() {
           activo: data.activo ?? true,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
-          puesto: data.puesto || '',
           departamento: data.departamento || '',
           fechaContratacion: data.fechaContratacion,
-          estado: data.estado || 'activo'
+          estado: data.estado || 'activo',
+          cargo: data.cargo || '',
+          ciudad: data.ciudad || '',
+          provincia: data.provincia || '',
+          codigoPostal: data.codigoPostal || '',
+          pais: data.pais || ''
         });
       });
       

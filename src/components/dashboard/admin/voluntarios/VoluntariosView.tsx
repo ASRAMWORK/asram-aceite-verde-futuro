@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,9 @@ const VoluntariosView = () => {
       habilidades: data.habilidades || [],
       experiencia: data.experiencia || "",
       estado: "activo",
-      fechaAlta: new Date()
+      fechaAlta: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     
     const success = await addVoluntario(voluntarioData);

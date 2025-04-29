@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
@@ -41,8 +40,8 @@ export function useVoluntarios() {
           experiencia: data.experiencia || '',
           estado: data.estado || 'activo',
           fechaAlta: data.fechaAlta || new Date(),
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          createdAt: data.createdAt || data.fechaAlta || new Date(),
+          updatedAt: data.updatedAt || new Date()
         });
       });
       
