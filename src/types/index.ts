@@ -1,4 +1,3 @@
-
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -340,10 +339,15 @@ export interface Recogida {
   estadoRecogida: string;
   litrosRecogidos?: number;
   fecha?: any;
+  fechaSolicitud?: any;
+  fechaCompletada?: any;
+  direccion?: string;
   distrito?: string;
   barrio?: string;
   horaInicio?: string;
   completada?: boolean;
+  estado?: string;
+  clienteId?: string;
   createdAt: any;
   updatedAt: any;
 }

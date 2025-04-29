@@ -1,8 +1,10 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp, increment } from 'firebase/firestore';
 import type { Recogida } from '@/types';
 import { toast } from 'sonner';
+import { startOfMonth, endOfMonth, differenceInMonths, addMonths } from 'date-fns';
 
 export function useRecogidas() {
   const [recogidas, setRecogidas] = useState<Recogida[]>([]);
@@ -23,7 +25,12 @@ export function useRecogidas() {
         if (!data.fecha && data.fechaSolicitud) {
           data.fecha = data.fechaSolicitud;
         }
-        recogidasData.push({ id: doc.id, ...data } as Recogida);
+        recogidasData.push({ 
+          id: doc.id, 
+          ...data,
+          fecha: data.fecha ? new Date(data.fecha.seconds * 1000) : null,
+          fechaCompletada: data.fechaCompletada ? new Date(data.fechaCompletada.seconds * 1000) : null
+        } as Recogida);
       });
       
       setRecogidas(recogidasData);
@@ -37,6 +44,73 @@ export function useRecogidas() {
   
   const getTotalLitrosRecogidos = useCallback(() => {
     return recogidas.reduce((acc, recogida) => acc + (recogida.litrosRecogidos || 0), 0);
+  }, [recogidas]);
+
+  const getPromedioLitrosPorMes = useCallback(() => {
+    // Filter only completed recogidas with dates and litros
+    const completedRecogidas = recogidas.filter(r => 
+      r.completada && r.fecha && r.fechaCompletada && r.litrosRecogidos
+    );
+    
+    if (completedRecogidas.length === 0) return 0;
+    
+    // Group recogidas by month
+    const recogidaByMonth: Record<string, {totalLitros: number, count: number}> = {};
+    
+    completedRecogidas.forEach(recogida => {
+      if (!recogida.fecha || !recogida.litrosRecogidos) return;
+      
+      const date = new Date(recogida.fecha);
+      const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+      
+      if (!recogidaByMonth[monthKey]) {
+        recogidaByMonth[monthKey] = {
+          totalLitros: 0,
+          count: 0
+        };
+      }
+      
+      recogidaByMonth[monthKey].totalLitros += recogida.litrosRecogidos;
+      recogidaByMonth[monthKey].count += 1;
+    });
+    
+    // Calculate average per month
+    const totalMonths = Object.keys(recogidaByMonth).length;
+    const totalLitros = Object.values(recogidaByMonth).reduce(
+      (sum, { totalLitros }) => sum + totalLitros, 0
+    );
+    
+    return totalMonths > 0 ? totalLitros / totalMonths : 0;
+  }, [recogidas]);
+
+  // Calculate average liters collected over a specific time period
+  const calcularPromedioLitrosPorPeriodo = useCallback(() => {
+    if (recogidas.length <= 1) return 0;
+    
+    // Get only completed recogidas with valid dates and litros
+    const completedRecogidas = recogidas
+      .filter(r => r.completada && r.fecha && r.litrosRecogidos)
+      .sort((a, b) => {
+        if (!a.fecha || !b.fecha) return 0;
+        return a.fecha.getTime() - b.fecha.getTime();
+      });
+    
+    if (completedRecogidas.length <= 1) return 0;
+    
+    // Get first and last date
+    const firstDate = completedRecogidas[0].fecha;
+    const lastDate = completedRecogidas[completedRecogidas.length - 1].fecha;
+    
+    if (!firstDate || !lastDate) return 0;
+    
+    // Calculate months difference (minimum 1 month even if less)
+    const monthsDiff = Math.max(1, differenceInMonths(lastDate, firstDate) + 1);
+    
+    // Sum total litros
+    const totalLitros = completedRecogidas.reduce((acc, rec) => acc + (rec.litrosRecogidos || 0), 0);
+    
+    // Calculate average per month
+    return totalLitros / monthsDiff;
   }, [recogidas]);
 
   const addRecogida = async (nuevaRecogida: Partial<Omit<Recogida, 'id'>>) => {
@@ -142,6 +216,17 @@ export function useRecogidas() {
     return recogidas.filter(recogida => recogida.clienteId === clienteId);
   };
 
+  const getRecogidasByMonth = (month: number, year: number) => {
+    const startDate = startOfMonth(new Date(year, month, 1));
+    const endDate = endOfMonth(new Date(year, month, 1));
+    
+    return recogidas.filter(recogida => {
+      if (!recogida.fecha) return false;
+      const fecha = new Date(recogida.fecha);
+      return fecha >= startDate && fecha <= endDate;
+    });
+  };
+
   useEffect(() => {
     loadRecogidasData();
   }, []);
@@ -158,6 +243,9 @@ export function useRecogidas() {
     getRecogidasByDistrito,
     getRecogidasByBarrio,
     getRecogidasByCliente,
-    getTotalLitrosRecogidos
+    getRecogidasByMonth,
+    getTotalLitrosRecogidos,
+    getPromedioLitrosPorMes,
+    calcularPromedioLitrosPorPeriodo
   };
 }

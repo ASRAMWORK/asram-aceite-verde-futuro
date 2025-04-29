@@ -1,143 +1,149 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { 
+import { Button } from '@/components/ui/button';
+import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
-import { format, isValid } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
-import { distritos, getBarriosByDistrito } from '@/data/madridDistritos';
-
-const recogidaSchema = z.object({
-  comunidadId: z.string().min(1, 'Selecciona una comunidad'),
-  fechaRecogida: z.date({
-    required_error: "Selecciona una fecha",
-  }),
-  litrosRecogidos: z.number().min(1, 'Ingresa la cantidad de litros'),
-  observaciones: z.string().optional(),
-  distrito: z.string().min(1, 'Selecciona un distrito'),
-  barrio: z.string().min(1, 'Selecciona un barrio'),
-});
-
-type RecogidaFormValues = z.infer<typeof recogidaSchema>;
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 interface RecogidaFormProps {
   onCancel: () => void;
-  recogidaId?: string;
+  onSubmit: (data: any) => void;
+  initialData?: any;
 }
 
-const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => {
-  const { comunidades, updateBeneficios } = useComunidadesVecinos();
-  const [date, setDate] = useState<Date>(new Date());
-  const [selectedDistrito, setSelectedDistrito] = useState<string>('');
-  const [barrios, setBarrios] = useState<string[]>([]);
-  
-  useEffect(() => {
-    if (selectedDistrito) {
-      setBarrios(getBarriosByDistrito(selectedDistrito));
-    }
-  }, [selectedDistrito]);
-  
-  const form = useForm<RecogidaFormValues>({
-    resolver: zodResolver(recogidaSchema),
-    defaultValues: {
-      comunidadId: '',
-      fechaRecogida: new Date(),
-      litrosRecogidos: 0,
-      observaciones: '',
+const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initialData }) => {
+  const form = useForm({
+    defaultValues: initialData || {
+      nombreContacto: '',
+      telefonoContacto: '',
+      emailContacto: '',
+      direccionRecogida: '',
       distrito: '',
       barrio: '',
-    }
+      fechaRecogida: new Date(),
+      horaRecogida: '10:00',
+      cantidadAproximada: 0,
+      tipoAceite: 'vegetal',
+      notasAdicionales: '',
+    },
   });
 
-  // Safe date formatting helper
-  const formatDate = (date: Date | null | undefined) => {
-    if (!date || !isValid(date)) return '';
-    try {
-      return format(date, "PPP");
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return '';
-    }
-  };
-
-  const onSubmit = async (data: RecogidaFormValues) => {
-    try {
-      // Validate date before proceeding
-      if (!isValid(data.fechaRecogida)) {
-        toast.error('La fecha seleccionada no es válida');
-        return;
-      }
-      
-      // Here you would normally save the recogida data to your database
-      console.log('Datos de recogida:', data);
-      
-      // Update environmental benefits based on liters collected
-      if (data.comunidadId && data.litrosRecogidos) {
-        await updateBeneficios(data.comunidadId, data.litrosRecogidos);
-      }
-      
-      toast.success('Recogida registrada correctamente');
-      onCancel();
-    } catch (error) {
-      toast.error('Error al registrar la recogida');
-      console.error(error);
-    }
+  const handleSubmit = (data: any) => {
+    onSubmit({
+      ...data,
+      fecha: data.fechaRecogida,
+    });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="comunidadId"
+            name="nombreContacto"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Comunidad</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
+                <FormLabel>Nombre de contacto</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nombre completo" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="telefonoContacto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Teléfono</FormLabel>
+                <FormControl>
+                  <Input placeholder="Número de teléfono" type="tel" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="emailContacto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Correo electrónico" type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="direccionRecogida"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dirección de recogida</FormLabel>
+                <FormControl>
+                  <Input placeholder="Calle, número, piso..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="distrito"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Distrito</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar comunidad" />
+                      <SelectValue placeholder="Selecciona un distrito" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {comunidades.map(comunidad => (
-                      <SelectItem key={comunidad.id} value={comunidad.id}>
-                        {comunidad.nombre}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="centro">Centro</SelectItem>
+                    <SelectItem value="chamberi">Chamberí</SelectItem>
+                    <SelectItem value="salamanca">Salamanca</SelectItem>
+                    <SelectItem value="tetuan">Tetuán</SelectItem>
+                    <SelectItem value="chamartin">Chamartín</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Selecciona la comunidad donde se realizó la recogida
-                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="barrio"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Barrio</FormLabel>
+                <FormControl>
+                  <Input placeholder="Barrio" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -155,16 +161,16 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
-                        {field.value && isValid(field.value) ? (
-                          formatDate(field.value)
+                        {field.value ? (
+                          format(field.value, "P", { locale: es })
                         ) : (
                           <span>Seleccionar fecha</span>
                         )}
-                        <CalendarDays className="ml-auto h-4 w-4 opacity-50" />
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
@@ -172,93 +178,12 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={(date) => {
-                        if (date && isValid(date)) {
-                          field.onChange(date);
-                        }
-                      }}
-                      disabled={(date) => date > new Date()}
+                      onSelect={field.onChange}
+                      disabled={(date) => date < new Date()}
                       initialFocus
-                      className={cn("p-3 pointer-events-auto")}
                     />
                   </PopoverContent>
                 </Popover>
-                <FormDescription>
-                  Fecha en la que se realizó la recogida
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <FormField
-          control={form.control}
-          name="litrosRecogidos"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Litros recogidos</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="0" 
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormDescription>
-                Cantidad de litros de aceite recogidos
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="observaciones"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observaciones</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Observaciones sobre la recogida" 
-                  className="resize-none" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="distrito"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Distrito</FormLabel>
-                <Select 
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    setSelectedDistrito(value);
-                  }} 
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar distrito" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {distritos.map(distrito => (
-                      <SelectItem key={distrito} value={distrito}>
-                        {distrito}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -266,26 +191,48 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
           
           <FormField
             control={form.control}
-            name="barrio"
+            name="horaRecogida"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Barrio</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  value={field.value}
-                  disabled={!selectedDistrito}
-                >
+                <FormLabel>Hora de recogida</FormLabel>
+                <FormControl>
+                  <Input type="time" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="cantidadAproximada"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cantidad aproximada (litros)</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="tipoAceite"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de aceite</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar barrio" />
+                      <SelectValue placeholder="Selecciona el tipo" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {barrios.map(barrio => (
-                      <SelectItem key={barrio} value={barrio}>
-                        {barrio}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="vegetal">Aceite vegetal</SelectItem>
+                    <SelectItem value="oliva">Aceite de oliva</SelectItem>
+                    <SelectItem value="mixto">Mixto</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -294,12 +241,26 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, recogidaId }) => 
           />
         </div>
         
-        <div className="flex justify-end gap-2 pt-4">
+        <FormField
+          control={form.control}
+          name="notasAdicionales"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notas adicionales</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Información adicional sobre la recogida" className="min-h-[100px]" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
           <Button type="submit">
-            Registrar Recogida
+            Guardar
           </Button>
         </div>
       </form>

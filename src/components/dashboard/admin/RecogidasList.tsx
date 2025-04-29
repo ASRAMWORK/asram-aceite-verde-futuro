@@ -25,6 +25,7 @@ import {
 interface RecogidasListProps {
   recogidas: any[];
   onCompleteRecogida?: (id: string) => void;
+  onViewDetails?: (id: string) => void;
   showActions?: boolean;
   formatDate?: (date: Date | string | null | undefined) => string;
 }
@@ -32,6 +33,7 @@ interface RecogidasListProps {
 const RecogidasList = ({ 
   recogidas, 
   onCompleteRecogida, 
+  onViewDetails,
   showActions = true,
   formatDate = (date) => date ? String(date) : "N/A"
 }: RecogidasListProps) => {
@@ -77,8 +79,10 @@ const RecogidasList = ({
                 <TableCell>
                   {formatDate(recogida.fecha)}
                 </TableCell>
-                <TableCell>{recogida.distrito}</TableCell>
-                <TableCell>{recogida.direccion}</TableCell>
+                <TableCell>{recogida.distrito || 'Sin asignar'}</TableCell>
+                <TableCell>
+                  {recogida.direccion || recogida.direccionRecogida || 'No especificada'}
+                </TableCell>
                 <TableCell>
                   <Badge 
                     className={
@@ -96,6 +100,7 @@ const RecogidasList = ({
                       variant="outline" 
                       size="sm"
                       className="text-[#ee970d] border-[#ee970d]/30 hover:bg-[#ee970d]/10"
+                      onClick={() => onViewDetails && onViewDetails(recogida.id)}
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       Detalles
