@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { User, Phone, Mail, Calendar, Briefcase, MapPin, Clock, Truck, Users, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
 import type { Trabajador } from "@/types";
 import { useTurnos } from "@/hooks/useTurnos";
 import { useVehiculos } from "@/hooks/useVehiculos";
@@ -62,9 +64,9 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
         <Avatar className="h-24 w-24">
-          <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellidos}`} />
+          <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellido}`} />
           <AvatarFallback className="text-lg">
-            {trabajador.nombre.charAt(0)}{trabajador.apellidos.charAt(0)}
+            {trabajador.nombre.charAt(0)}{trabajador.apellido.charAt(0)}
           </AvatarFallback>
         </Avatar>
         
@@ -89,7 +91,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
           <div className="flex flex-col md:flex-row gap-4 mt-4">
             <div className="flex items-center gap-2 text-gray-600">
               <Mail className="h-4 w-4" />
-              <div className="text-muted-foreground">{trabajador.email} | {trabajador.apellido}</div>
+              <div className="text-muted-foreground">{trabajador.email}</div>
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <Phone className="h-4 w-4" />
@@ -131,7 +133,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Fecha de nacimiento</div>
-                  <div className="text-gray-700 truncate">{trabajador.fechaNacimiento ? format(new Date(trabajador.fechaNacimiento), 'dd/MM/yyyy') : '-'}</div>
+                  <div className="text-gray-700 truncate">{trabajador.fechaNacimiento ? formatDate(new Date(trabajador.fechaNacimiento)) : '-'}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Dirección</div>
@@ -155,7 +157,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Fecha de alta</div>
-                  <div className="text-gray-700 truncate">{trabajador.fechaAlta ? format(new Date(trabajador.fechaAlta), 'dd/MM/yyyy') : '-'}</div>
+                  <div className="text-gray-700 truncate">{trabajador.fechaAlta ? formatDate(new Date(trabajador.fechaAlta)) : '-'}</div>
                 </div>
               </CardContent>
             </Card>
@@ -338,7 +340,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
                     <div key={incidencia.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <div className="font-medium capitalize">{incidencia.tipo.replace('_', ' ')}</div>
+                          <div className="font-medium capitalize">{incidencia.tipo}</div>
                           <div className="text-sm text-gray-500">{formatDate(incidencia.fecha)}</div>
                         </div>
                         <Badge variant="outline" className={

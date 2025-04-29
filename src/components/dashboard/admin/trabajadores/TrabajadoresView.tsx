@@ -70,7 +70,7 @@ const TrabajadoresView = () => {
     const matchesSearch = 
       searchTerm === "" ||
       trabajador.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      trabajador.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trabajador.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
       trabajador.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
       trabajador.email.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -266,9 +266,9 @@ const TrabajadoresView = () => {
                         <TableRow key={trabajador.id}>
                           <TableCell>
                             <Avatar className="h-9 w-9">
-                              <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellidos}`} />
+                              <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellido}`} />
                               <AvatarFallback>
-                                {trabajador.nombre.charAt(0)}{trabajador.apellidos.charAt(0)}
+                                {trabajador.nombre.charAt(0)}{trabajador.apellido.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
                           </TableCell>

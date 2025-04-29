@@ -40,7 +40,7 @@ export interface Usuario {
   ultimoAcceso?: Date;
 }
 
-export type UserProfile = Omit<Usuario, 'id'>;
+export type UserProfile = Usuario;
 
 export interface PuntoVerde {
   id: string;
@@ -470,8 +470,10 @@ export interface Incidencia {
   prioridad: string;
   asignadoA: string;
   reportadoPor: string;
+  tipo: string;
   createdAt: any;
   updatedAt: any;
+  trabajadorId?: string;
 }
 
 export interface Tarea {
@@ -482,6 +484,11 @@ export interface Tarea {
   estado: string;
   prioridad: string;
   asignadoA: string;
+  voluntarioNombre?: string;
+  completada?: boolean;
+  fechaCompletada?: Date | null;
+  fechaAsignacion?: Date;
+  fechaLimite?: string | null;
   createdAt: any;
   updatedAt: any;
 }
@@ -499,4 +506,3 @@ export interface Project {
   createdAt: Date;
   updatedAt?: Date;
 }
-

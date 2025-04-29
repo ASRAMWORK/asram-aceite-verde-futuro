@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -20,11 +21,15 @@ export function useIncidencias() {
         const data = doc.data();
         incidenciasData.push({
           id: doc.id,
-          tipo: data.tipo || '',
+          titulo: data.titulo || '',
           descripcion: data.descripcion || '',
           fecha: data.fecha.toDate(),
-          trabajadorId: data.trabajadorId || '',
           estado: data.estado || 'abierta',
+          prioridad: data.prioridad || 'media',
+          asignadoA: data.asignadoA || '',
+          reportadoPor: data.reportadoPor || '',
+          tipo: data.tipo || '',
+          trabajadorId: data.trabajadorId || '',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
         });
@@ -43,11 +48,12 @@ export function useIncidencias() {
     return incidencias.filter(incidencia => incidencia.trabajadorId === trabajadorId);
   };
 
-  const addIncidencia = async (data: Omit<Incidencia, "id">) => {
+  const addIncidencia = async (data: Omit<Incidencia, "id" | "createdAt" | "updatedAt">) => {
     try {
       const docRef = await addDoc(collection(db, "incidencias"), {
         ...data,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       });
       toast.success("Incidencia añadida correctamente");
       await loadIncidenciasData();

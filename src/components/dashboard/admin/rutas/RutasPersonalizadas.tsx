@@ -105,7 +105,8 @@ const RutasPersonalizadas = () => {
       toast.error('Debe seleccionar al menos un punto verde');
       return;
     }
-    
+
+    const fechaRecogidaDate = new Date(fechaRecogida);
     const distritoSeleccionado = puntosSeleccionados[0]?.distrito || 'Varios';
     const barriosSeleccionados = Array.from(new Set(puntosSeleccionados.map(p => p.barrio)));
     const clientesAsignados = puntosSeleccionados.map(p => ({
@@ -116,10 +117,10 @@ const RutasPersonalizadas = () => {
     }));
     
     await addRuta({
-      nombre: `Ruta personalizada ${distritoSeleccionado} ${fecha ? format(fecha, 'dd/MM/yyyy') : 'Sin fecha'}`,
+      nombre: `Ruta personalizada ${distritoSeleccionado} ${fechaRecogidaDate ? format(fechaRecogidaDate, 'dd/MM/yyyy') : 'Sin fecha'}`,
       distrito: distritoSeleccionado || "",
       barrios: barriosSeleccionados,
-      fecha: fecha as Date,
+      fecha: fechaRecogidaDate,
       clientes: clientesAsignados,
       puntosRecogida: clientesAsignados.length,
       distanciaTotal: 0,
