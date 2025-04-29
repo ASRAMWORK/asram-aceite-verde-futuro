@@ -28,7 +28,7 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
     if (selectedVoluntario) {
       addTarea({
         ...data,
-        voluntarioNombre: `${selectedVoluntario.nombre} ${selectedVoluntario.apellidos}`,
+        voluntarioNombre: `${selectedVoluntario.nombre} ${selectedVoluntario.apellido}`,
         completada: false,
         fechaAsignacion: new Date(),
         fechaLimite: data.fechaLimite || null
@@ -135,7 +135,7 @@ const AsignacionTareas = ({ voluntarios }: AsignacionTareasProps) => {
                                 .filter(v => v.activo)
                                 .map((vol) => (
                                   <SelectItem key={vol.id} value={vol.id}>
-                                    {vol.nombre} {vol.apellidos}
+                                    <div className="text-sm font-medium">{vol.nombre} {vol.apellido}</div>
                                   </SelectItem>
                                 ))}
                             </SelectContent>

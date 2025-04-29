@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, where, increment } from 'firebase/firestore';
@@ -52,9 +51,8 @@ export function useRutas() {
     try {
       const rutaData = {
         ...nuevaRuta,
-        createdAt: serverTimestamp(),
-        completada: false,
-        litrosTotales: 0
+        puntos: nuevaRuta.puntos || [],
+        updatedAt: nuevaRuta.updatedAt || serverTimestamp()
       };
       
       const docRef = await addDoc(collection(db, "rutas"), rutaData);

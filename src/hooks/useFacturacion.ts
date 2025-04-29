@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -26,17 +25,21 @@ export function useFacturacion() {
         const data = doc.data() as Record<string, any>;
         ingresosData.push({ 
           id: doc.id, 
-          concepto: data.concepto || '',
-          cantidad: data.cantidad || 0,
-          tipo: data.tipo || '',
-          fecha: data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha),
-          cliente: data.cliente || '',
-          origen: data.origen || '',
-          numFactura: data.numFactura || '',
-          notas: data.notas || '',
-          createdAt: data.createdAt,
-          categoria: data.categoria || data.tipo || '', // Use tipo as fallback
-          estado: data.estado || 'cobrada', // Nuevo campo para estado de factura
+          concepto: data.concepto,
+          cantidad: data.cantidad,
+          tipo: data.tipo,
+          fecha: data.fecha ? new Date(data.fecha.seconds * 1000) : null,
+          cliente: data.cliente,
+          origen: data.origen,
+          numFactura: data.numFactura,
+          notas: data.notas,
+          createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date(),
+          updatedAt: data.updatedAt ? new Date(data.updatedAt.seconds * 1000) : new Date(),
+          categoria: data.categoria,
+          estado: data.estado,
+          iva: data.iva || 0,
+          total: data.total || 0,
+          metodoPago: data.metodoPago || ''
         });
       });
       
@@ -52,16 +55,20 @@ export function useFacturacion() {
         const data = doc.data() as Record<string, any>;
         gastosData.push({ 
           id: doc.id, 
-          concepto: data.concepto || '',
-          cantidad: data.cantidad || 0,
-          tipo: data.tipo || '',
-          fecha: data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha),
-          proveedor: data.proveedor || '',
-          numFactura: data.numFactura || '',
-          notas: data.notas || '',
-          createdAt: data.createdAt,
-          categoria: data.categoria || data.tipo || '', // Use tipo as fallback
-          estado: data.estado || 'pagada', // Nuevo campo para estado de factura
+          concepto: data.concepto,
+          cantidad: data.cantidad,
+          tipo: data.tipo,
+          fecha: data.fecha ? new Date(data.fecha.seconds * 1000) : null,
+          proveedor: data.proveedor,
+          numFactura: data.numFactura,
+          notas: data.notas,
+          createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date(),
+          updatedAt: data.updatedAt ? new Date(data.updatedAt.seconds * 1000) : new Date(),
+          categoria: data.categoria,
+          estado: data.estado,
+          iva: data.iva || 0,
+          total: data.total || 0,
+          metodoPago: data.metodoPago || ''
         });
       });
       

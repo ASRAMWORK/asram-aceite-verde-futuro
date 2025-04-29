@@ -106,25 +106,30 @@ const RutasPersonalizadas = () => {
       return;
     }
     
-    const nuevaRuta = {
-      nombre: nombreRuta,
-      distrito: puntosSeleccionados[0]?.distrito || 'Varios',
-      barrios: Array.from(new Set(puntosSeleccionados.map(p => p.barrio))),
-      fecha: new Date(fechaRecogida),
-      clientes: puntosSeleccionados.map(p => ({
-        id: p.id,
-        nombre: `${p.direccion} (${p.barrio})`,
-        direccion: p.direccion,
-        litros: 0
-      })),
-      puntosRecogida: puntosSeleccionados.length,
+    const distritoSeleccionado = puntosSeleccionados[0]?.distrito || 'Varios';
+    const barriosSeleccionados = Array.from(new Set(puntosSeleccionados.map(p => p.barrio)));
+    const clientesAsignados = puntosSeleccionados.map(p => ({
+      id: p.id,
+      nombre: `${p.direccion} (${p.barrio})`,
+      direccion: p.direccion,
+      litros: 0
+    }));
+    
+    await addRuta({
+      nombre: `Ruta personalizada ${distritoSeleccionado} ${fecha ? format(fecha, 'dd/MM/yyyy') : 'Sin fecha'}`,
+      distrito: distritoSeleccionado || "",
+      barrios: barriosSeleccionados,
+      fecha: fecha as Date,
+      clientes: clientesAsignados,
+      puntosRecogida: clientesAsignados.length,
       distanciaTotal: 0,
       tiempoEstimado: 0,
-      frecuencia: 'unica',
+      frecuencia: "personalizada",
+      puntos: [], // Required field
+      updatedAt: new Date(), // Required field
       createdAt: new Date()
-    };
+    });
     
-    await addRuta(nuevaRuta);
     setIsOpen(false);
     setNombreRuta("");
     setFechaRecogida(format(new Date(), "yyyy-MM-dd"));

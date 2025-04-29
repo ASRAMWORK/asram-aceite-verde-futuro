@@ -28,12 +28,12 @@ import {
 import { toast } from "sonner";
 import { Ingreso } from "@/types";
 
-type IngresosFormProps = {
+export type IngresosFormProps = {
   onSubmit: (data: Partial<Omit<Ingreso, "id">>) => void;
   onCancel: () => void;
-  onClose?: () => void; // Add onClose prop to match usage
+  onClose?: () => void;
   initialData?: Partial<Omit<Ingreso, "id">>;
-  isOpen?: boolean; // Add isOpen prop to match usage
+  isOpen?: boolean;
 };
 
 const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: IngresosFormProps) => {
@@ -55,16 +55,16 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
     },
   });
 
-  const addIngreso = async (data) => {
+  const addIngreso = async (data: Partial<Omit<Ingreso, "id">>) => {
     try {
       setIsSubmitting(true);
       
       const nuevoIngreso = {
         ...data,
-        fecha: new Date(data.fecha),
-        cantidad: parseFloat(data.cantidad),
-        iva: parseFloat(data.iva),
-        total: parseFloat(data.total),
+        fecha: data.fecha instanceof Date ? data.fecha : new Date(data.fecha as any),
+        cantidad: parseFloat(data.cantidad as any),
+        iva: parseFloat(data.iva as any),
+        total: parseFloat(data.total as any),
         estado: data.estado || "pendiente",
         tipo: data.tipo || 'general',
         createdAt: new Date(),
@@ -122,7 +122,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PP")
+                        format(new Date(field.value), "PP")
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -133,7 +133,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value}
+                    selected={field.value ? new Date(field.value) : undefined}
                     onSelect={field.onChange}
                     disabled={(date) => date > new Date()}
                     initialFocus

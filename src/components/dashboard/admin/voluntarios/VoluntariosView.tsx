@@ -124,11 +124,11 @@ const VoluntariosView = () => {
                             <TableCell>
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
-                                <span>{voluntario.diasDisponibles?.join(", ")}</span>
+                                <div className="text-sm text-gray-500">{voluntario.diasDisponibles?.join(", ") || "No especificado"}</div>
                               </div>
                               <div className="flex items-center gap-1 mt-1">
                                 <Clock className="h-4 w-4" />
-                                <span>{voluntario.horasDisponibles}</span>
+                                <div className="text-sm text-gray-500">{voluntario.horasDisponibles?.join(", ") || "No especificado"}</div>
                               </div>
                             </TableCell>
                             <TableCell>

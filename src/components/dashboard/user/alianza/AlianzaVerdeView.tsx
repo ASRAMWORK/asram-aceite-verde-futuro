@@ -562,7 +562,7 @@ const AlianzaVerdeView = () => {
                               <div className="text-xs text-muted-foreground">{alianza.tipo}</div>
                             </td>
                             <td className="py-3">{alianza.barrio}, {alianza.distrito}</td>
-                            <td className="py-3">{alianza.numParticipantes || 'N/A'}</td>
+                            <td className="py-3">{alianza.numParticipantes || alianza.numEstudiantes || "N/A"}</td>
                             <td className="py-3">{getCertificationBadge(alianza.certificaciones)}</td>
                             <td className="py-3 text-right">
                               <Button variant="ghost" size="sm" className="text-asram">

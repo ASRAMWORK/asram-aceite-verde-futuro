@@ -70,9 +70,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
         
         <div className="flex-1">
           <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-            <h2 className="text-2xl font-semibold">
-              {trabajador.nombre} {trabajador.apellidos}
-            </h2>
+            <h2 className="text-3xl font-bold pb-2">{trabajador.nombre} {trabajador.apellido}</h2>
             <Badge variant={trabajador.activo ? "default" : "secondary"} className={
               trabajador.activo ? "bg-green-100 text-green-800 w-fit" : "bg-red-100 text-red-800 w-fit"
             }>
@@ -91,7 +89,7 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
           <div className="flex flex-col md:flex-row gap-4 mt-4">
             <div className="flex items-center gap-2 text-gray-600">
               <Mail className="h-4 w-4" />
-              <span>{trabajador.email}</span>
+              <div className="text-muted-foreground">{trabajador.email} | {trabajador.apellido}</div>
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <Phone className="h-4 w-4" />
@@ -129,11 +127,11 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">DNI/NIE</div>
-                  <div className="font-medium">{trabajador.dni}</div>
+                  <div className="text-gray-700 truncate">{trabajador.dni}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Fecha de nacimiento</div>
-                  <div className="font-medium">{formatDate(trabajador.fechaNacimiento)}</div>
+                  <div className="text-gray-700 truncate">{trabajador.fechaNacimiento ? format(new Date(trabajador.fechaNacimiento), 'dd/MM/yyyy') : '-'}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Dirección</div>
@@ -149,15 +147,15 @@ const TrabajadorDetalle: React.FC<TrabajadorDetalleProps> = ({ trabajador, onEdi
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Tipo de contrato</div>
-                  <div className="font-medium capitalize">{trabajador.tipoContrato}</div>
+                  <div className="text-gray-700 truncate">{trabajador.tipoContrato || '-'}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Tipo de jornada</div>
-                  <div className="font-medium capitalize">{trabajador.tipoJornada}</div>
+                  <div className="text-gray-700 truncate">{trabajador.tipoJornada || '-'}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm text-gray-500">Fecha de alta</div>
-                  <div className="font-medium">{formatDate(trabajador.fechaAlta)}</div>
+                  <div className="text-gray-700 truncate">{trabajador.fechaAlta ? format(new Date(trabajador.fechaAlta), 'dd/MM/yyyy') : '-'}</div>
                 </div>
               </CardContent>
             </Card>

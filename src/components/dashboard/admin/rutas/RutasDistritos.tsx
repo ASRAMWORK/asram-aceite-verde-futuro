@@ -259,7 +259,22 @@ const RutasDistritos = () => {
       await updateRuta(selectedRuta.id, dataToSubmit);
       setIsEditingRuta(false);
     } else {
-      await addRuta(dataToSubmit as Omit<Ruta, 'id'>);
+      await addRuta({
+        nombre: `Ruta ${formData.distrito} ${formData.fecha ? format(new Date(formData.fecha), 'dd/MM/yyyy') : 'Sin fecha'}`,
+        distrito: formData.distrito || "",
+        fecha: formData.fecha ? new Date(formData.fecha) : undefined,
+        hora: formData.hora || "",
+        recogedores: formData.recogedores || "",
+        clientes: formData.clientes || [],
+        puntosRecogida: formData.clientes.length,
+        distanciaTotal: 0,
+        tiempoEstimado: 0,
+        completada: false,
+        frecuencia: "semanal",
+        puntos: [], // Required field
+        createdAt: new Date(),
+        updatedAt: new Date() // Required field
+      });
       setIsAddingRuta(false);
     }
     
@@ -351,6 +366,10 @@ const RutasDistritos = () => {
       ...formData,
       clientes: clientesObjetos
     });
+  };
+
+  const handleOpenDetalles = (cliente: any) => {
+    // ... keep existing code
   };
 
   return (

@@ -1,3 +1,4 @@
+
 export type UserRole = 
   | "admin" 
   | "user" 
@@ -8,7 +9,8 @@ export type UserRole =
   | "escolar" 
   | "usuario" 
   | "administrador"
-  | "comercial";
+  | "comercial"
+  | "superadmin";
 
 export interface Usuario {
   id: string;
@@ -34,7 +36,11 @@ export interface Usuario {
   nombreAdministracion?: string;
   createdAt: any;
   updatedAt: any;
+  fechaRegistro?: Date;
+  ultimoAcceso?: Date;
 }
+
+export type UserProfile = Omit<Usuario, 'id'>;
 
 export interface PuntoVerde {
   id: string;
@@ -79,6 +85,8 @@ export interface Voluntario {
   fechaNacimiento: any;
   createdAt: any;
   updatedAt: any;
+  diasDisponibles?: string[];
+  horasDisponibles?: string[];
 }
 
 export interface Trabajador {
@@ -108,8 +116,8 @@ export interface Trabajador {
   rutasAsignadas?: string[];
   salarioBase?: number;
   cuentaBancaria?: string;
-  metodoPago?: string;
-  frecuenciaPago?: string;
+  metodoPago?: "efectivo" | "transferencia" | "otro";
+  frecuenciaPago?: "mensual" | "semanal" | "quincenal";
   diaCobro?: number;
   beneficios?: string[];
   createdAt: any;
@@ -170,8 +178,8 @@ export interface TrabajadorPago {
 export interface Turno {
   id: string;
   trabajadorId: string;
-  nombreTrabajador: string;
-  trabajadorNombre: string;
+  nombreTrabajador?: string;
+  trabajadorNombre?: string;
   dia: string;
   horaInicio: string;
   horaFin: string;
@@ -207,6 +215,10 @@ export interface Instalacion {
   numPorteria?: number;
   createdAt: any;
   updatedAt: any;
+  litrosRecogidos?: number;
+  estado?: string;
+  fechaInstalacion?: Date;
+  litrosCapacidad?: number;
 }
 
 export interface Factura {
@@ -286,6 +298,7 @@ export interface AlianzaEscolarType {
   fechaInicio?: Date;
   estado?: string;
   litrosRecolectados?: number;
+  numParticipantes?: number;
   createdAt: any;
   updatedAt: any;
 }
@@ -345,6 +358,7 @@ export interface Recogida {
   distrito?: string;
   barrio?: string;
   horaInicio?: string;
+  hora?: string;
   completada?: boolean;
   estado?: string;
   clienteId?: string;
@@ -421,3 +435,68 @@ export interface TallerProgramado {
   createdAt: any;
   updatedAt: any;
 }
+
+export interface ComunidadVecinos {
+  id: string;
+  nombre: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  numViviendas: number;
+  administrador: string;
+  telefono: string;
+  email: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface HorarioVoluntario {
+  id: string;
+  voluntarioId: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Incidencia {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  estado: string;
+  prioridad: string;
+  asignadoA: string;
+  reportadoPor: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Tarea {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  estado: string;
+  prioridad: string;
+  asignadoA: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Project {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  cliente?: string;
+  fechaInicio?: Date;
+  fechaFin?: Date;
+  presupuesto?: number;
+  responsable?: string;
+  estado: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+

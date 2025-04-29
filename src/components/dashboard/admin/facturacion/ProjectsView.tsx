@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -493,32 +492,36 @@ export const ProjectsView = ({ onEditProject }: ProjectsViewProps) => {
       {/* Dialogs for adding financial transactions */}
       {isIngresoDialogOpen && (
         <IngresosForm 
-          isOpen={isIngresoDialogOpen}
+          isOpen={true} 
           onClose={() => setIsIngresoDialogOpen(false)}
-          initialData={{
-            concepto: "",
-            cantidad: 0,
-            tipo: "",
-            fecha: new Date().toISOString().split("T")[0],
-            cliente: projects.find(p => p.id === selectedProjectId)?.cliente || "",
-            origen: selectedProjectId || ""
+          initialData={{ 
+            concepto: "", 
+            cantidad: 0, 
+            tipo: selectedProjectId || "", 
+            fecha: new Date(), 
+            cliente: "", 
+            origen: selectedProjectId || "" 
           }}
+          onSubmit={handleAddIngreso}
+          onCancel={() => setIsIngresoDialogOpen(false)}
         />
       )}
       
       {isGastoDialogOpen && (
         <GastosForm 
-          isOpen={isGastoDialogOpen}
+          isOpen={true} 
           onClose={() => setIsGastoDialogOpen(false)}
-          initialData={{
-            concepto: "",
-            cantidad: 0,
-            tipo: selectedProjectId || "",
-            fecha: new Date().toISOString().split("T")[0],
-            proveedor: "",
-            numFactura: "",
-            notas: ""
+          initialData={{ 
+            concepto: "", 
+            cantidad: 0, 
+            tipo: selectedProjectId || "", 
+            fecha: new Date(), 
+            proveedor: "", 
+            numFactura: "", 
+            notas: "" 
           }}
+          onSubmit={handleAddGasto}
+          onCancel={() => setIsGastoDialogOpen(false)}
         />
       )}
     </div>

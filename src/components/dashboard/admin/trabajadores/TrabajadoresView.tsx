@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { PlusCircle, Search, Filter, User, X, Edit, Trash2, Truck, Calendar, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -274,7 +273,7 @@ const TrabajadoresView = () => {
                             </Avatar>
                           </TableCell>
                           <TableCell className="font-medium">
-                            {trabajador.nombre} {trabajador.apellidos}
+                            {trabajador.nombre} {trabajador.apellido}
                           </TableCell>
                           <TableCell>{trabajador.dni}</TableCell>
                           <TableCell>

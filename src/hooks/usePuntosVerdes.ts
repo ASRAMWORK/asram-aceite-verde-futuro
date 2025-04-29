@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -34,14 +33,27 @@ export function usePuntosVerdes(administradorId?: string) {
         const data = doc.data() as Record<string, any>;
         puntosData.push({ 
           id: doc.id, 
-          distrito: data.distrito || '',
-          barrio: data.barrio || '',
-          direccion: data.direccion || '',
-          numViviendas: data.numViviendas || 0,
-          numContenedores: data.numContenedores || 0,
-          telefono: data.telefono || '',
-          litrosRecogidos: data.litrosRecogidos || 0,
-          administradorId: data.administradorId || null,
+          nombre: data.nombre || "",
+          ciudad: data.ciudad || "",
+          provincia: data.provincia || "",
+          codigoPostal: data.codigoPostal || "",
+          pais: data.pais || "",
+          latitud: data.latitud || 0,
+          longitud: data.longitud || 0,
+          tipo: data.tipo || "",
+          descripcion: data.descripcion || "",
+          horario: data.horario || "",
+          email: data.email || "",
+          contacto: data.contacto || "",
+          activo: data.activo !== undefined ? data.activo : true,
+          distrito: data.distrito,
+          barrio: data.barrio,
+          direccion: data.direccion,
+          numViviendas: data.numViviendas,
+          numContenedores: data.numContenedores,
+          telefono: data.telefono,
+          litrosRecogidos: data.litrosRecogidos,
+          administradorId: data.administradorId,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt
         });
