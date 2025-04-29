@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { 
@@ -45,8 +46,11 @@ export function useRecogidas() {
           completada: data.completada || false,
           estado: data.estado || '',
           clienteId: data.clienteId || '',
+          rutaId: data.rutaId || '',
+          esRecogidaZona: data.esRecogidaZona || false,
           createdAt: data.createdAt?.toDate(),
-          updatedAt: data.updatedAt?.toDate()
+          updatedAt: data.updatedAt?.toDate(),
+          fecha: data.fecha?.toDate() || data.fechaRecogida?.toDate()
         });
       });
       
@@ -65,13 +69,17 @@ export function useRecogidas() {
         ...nuevaRecogida,
         estadoRecogida: nuevaRecogida.estadoRecogida || "pendiente",
         fechaRecogida: nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date(),
+        fecha: nuevaRecogida.fecha || nuevaRecogida.fechaRecogida || new Date(),
+        completada: false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
       
       await addDoc(collection(db, "recogidas"), recogidaData);
       
-      toast.success("Recogida programada correctamente");
+      if (!nuevaRecogida.esRecogidaZona) {
+        toast.success("Recogida programada correctamente");
+      }
       await loadRecogidasData();
       return true;
     } catch (err) {
@@ -122,7 +130,26 @@ export function useRecogidas() {
         updatedAt: serverTimestamp()
       });
       
+      // Also update any recogidas associated with this client in this route
+      const recogidasQuery = query(
+        collection(db, "recogidas"),
+        where("rutaId", "==", rutaId),
+        where("clienteId", "==", clienteId)
+      );
+      
+      const recogidasSnap = await getDocs(recogidasQuery);
+      
+      const updatePromises = recogidasSnap.docs.map(recogidaDoc =>
+        updateDoc(doc(db, "recogidas", recogidaDoc.id), {
+          litrosRecogidos: litros,
+          updatedAt: serverTimestamp()
+        })
+      );
+      
+      await Promise.all(updatePromises);
+      
       toast.success("Litros registrados correctamente");
+      await loadRecogidasData();
       return true;
     } catch (err) {
       console.error("Error actualizando litros en ruta:", err);
@@ -148,6 +175,7 @@ export function useRecogidas() {
     try {
       await updateDoc(doc(db, "recogidas", id), {
         estadoRecogida: "completada",
+        completada: true,
         litrosRecogidos,
         fechaCompletada: new Date(),
         updatedAt: serverTimestamp()
@@ -167,10 +195,49 @@ export function useRecogidas() {
     return completarRecogida(id, litrosRecogidos);
   };
 
+  const completarRecogidasRuta = async (rutaId: string) => {
+    try {
+      const recogidasQuery = query(
+        collection(db, "recogidas"),
+        where("rutaId", "==", rutaId)
+      );
+      
+      const recogidasSnap = await getDocs(recogidasQuery);
+      
+      const updatePromises = recogidasSnap.docs.map(recogidaDoc => {
+        const recogidaData = recogidaDoc.data();
+        return updateDoc(doc(db, "recogidas", recogidaDoc.id), {
+          estadoRecogida: "completada",
+          completada: true,
+          fechaCompletada: new Date(),
+          updatedAt: serverTimestamp()
+        });
+      });
+      
+      await Promise.all(updatePromises);
+      
+      toast.success("Todas las recogidas de la ruta completadas");
+      await loadRecogidasData();
+      return true;
+    } catch (err) {
+      console.error("Error completando recogidas de ruta:", err);
+      toast.error("Error al completar las recogidas");
+      return false;
+    }
+  };
+
   const getTotalLitrosRecogidos = () => {
     return recogidas.reduce((total, recogida) => {
       return total + (recogida.litrosRecogidos || 0);
     }, 0);
+  };
+  
+  const getTotalLitrosRecogidosPorRuta = (rutaId: string) => {
+    return recogidas
+      .filter(recogida => recogida.rutaId === rutaId)
+      .reduce((total, recogida) => {
+        return total + (recogida.litrosRecogidos || 0);
+      }, 0);
   };
 
   const getLitrosRecolectadosPorDistrito = () => {
@@ -189,7 +256,7 @@ export function useRecogidas() {
   };
 
   const calcularPromedioLitrosPorRecogida = () => {
-    const recogidasCompletadas = recogidas.filter(r => r.estadoRecogida === "completada");
+    const recogidasCompletadas = recogidas.filter(r => r.estadoRecogida === "completada" || r.completada);
     if (recogidasCompletadas.length === 0) return 0;
     
     const totalLitros = recogidasCompletadas.reduce((sum, r) => sum + (r.litrosRecogidos || 0), 0);
@@ -208,6 +275,10 @@ export function useRecogidas() {
     return recogidas.filter(recogida => recogida.clienteId === clienteId);
   };
 
+  const getRecogidasByRutaId = (rutaId: string) => {
+    return recogidas.filter(recogida => recogida.rutaId === rutaId);
+  };
+
   useEffect(() => {
     loadRecogidasData();
   }, []);
@@ -222,8 +293,11 @@ export function useRecogidas() {
     deleteRecogida,
     completarRecogida,
     completeRecogida,
+    completarRecogidasRuta,
     getRecogidasByClientId,
+    getRecogidasByRutaId,
     getTotalLitrosRecogidos,
+    getTotalLitrosRecogidosPorRuta,
     getLitrosRecolectadosPorDistrito,
     calcularPromedioLitrosPorRecogida,
     calcularPromedioLitrosPorPeriodo,

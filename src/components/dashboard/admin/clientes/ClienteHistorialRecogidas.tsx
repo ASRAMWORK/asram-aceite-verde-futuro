@@ -1,161 +1,122 @@
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter
-} from "@/components/ui/card";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { useRecogidas } from '@/hooks/useRecogidas';
-import { Droplet, MapPin, Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import type { Recogida, Usuario } from '@/types';
 import RecogidaClienteButton from './RecogidaClienteButton';
+import type { Usuario } from '@/types';
 
 interface ClienteHistorialRecogidasProps {
-  clienteId: string;
-  clienteNombre?: string;
-  cliente?: Usuario;
+  cliente: Usuario;
 }
 
-const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({
-  clienteId,
-  clienteNombre,
-  cliente
-}) => {
-  const { recogidas, loading } = useRecogidas();
+const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ cliente }) => {
+  const { recogidas, getRecogidasByClientId } = useRecogidas();
   
-  // Filter recogidas for this client
-  const clienteRecogidas = recogidas.filter(r => r.clienteId === clienteId);
+  // Obtener recogidas para este cliente
+  const recogidasCliente = getRecogidasByClientId(cliente.id);
   
-  // Sort by date (most recent first)
-  const sortedRecogidas = [...clienteRecogidas].sort((a, b) => {
-    const dateA = a.fechaRecogida ? new Date(a.fechaRecogida).getTime() : 0;
-    const dateB = b.fechaRecogida ? new Date(b.fechaRecogida).getTime() : 0;
-    return dateB - dateA;
-  });
-
-  // Calculate total liters collected
-  const totalLitros = clienteRecogidas.reduce((sum, recogida) => 
-    sum + (recogida.litrosRecogidos || 0), 0);
-
+  // Format date helper
   const formatDate = (date: Date | undefined | null) => {
-    if (!date) return "N/A";
+    if (!date) return 'N/A';
     try {
-      return format(new Date(date), "dd/MM/yyyy", { locale: es });
+      return format(date, 'dd/MM/yyyy', { locale: es });
     } catch (error) {
-      return "Fecha inválida";
+      console.error('Error formatting date:', error);
+      return 'N/A';
     }
   };
-
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex justify-center py-6">
-            <p>Cargando historial de recogidas...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  
+  const getEstadoColor = (completada: boolean) => {
+    return completada ? 
+      'bg-green-100 text-green-800 hover:bg-green-200' : 
+      'bg-amber-100 text-amber-800 hover:bg-amber-200';
+  };
+  
+  // Calcular total de litros recogidos
+  const totalLitros = recogidasCliente.reduce((sum, r) => sum + (r.litrosRecogidos || 0), 0);
+  
+  // Ordenar por fecha más reciente primero
+  const recogidasOrdenadas = [...recogidasCliente].sort((a, b) => {
+    const fechaA = a.fecha || a.fechaRecogida;
+    const fechaB = b.fecha || b.fechaRecogida;
+    
+    if (!fechaA && !fechaB) return 0;
+    if (!fechaA) return 1;
+    if (!fechaB) return -1;
+    
+    return fechaB.getTime() - fechaA.getTime();
+  });
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl flex items-center justify-between">
-          <div className="flex items-center">
-            <Droplet className="h-5 w-5 mr-2 text-cyan-500" />
-            Historial de Recogidas 
-            {clienteNombre && <span className="ml-2 font-normal text-muted-foreground">- {clienteNombre}</span>}
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Historial de Recogidas</CardTitle>
+            <CardDescription>
+              Historial de recogidas para {cliente.nombre}
+            </CardDescription>
           </div>
-          <Badge className="bg-cyan-500">{totalLitros} litros</Badge>
-        </CardTitle>
-        <CardDescription>
-          Registro histórico de recogidas realizadas para este cliente
-        </CardDescription>
+          <RecogidaClienteButton 
+            cliente={cliente} 
+            variant="outline" 
+          />
+        </div>
       </CardHeader>
       <CardContent>
-        {sortedRecogidas.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Este cliente no tiene recogidas registradas</p>
-            {cliente && (
-              <div className="mt-4">
-                <RecogidaClienteButton cliente={cliente} />
-              </div>
-            )}
-          </div>
+        {recogidasOrdenadas.length === 0 ? (
+          <p className="text-center py-4 text-muted-foreground">No hay recogidas registradas para este cliente</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Fecha</TableHead>
-                <TableHead>Dirección</TableHead>
-                <TableHead>Distrito/Barrio</TableHead>
-                <TableHead className="text-right">Litros</TableHead>
-                <TableHead>Estado</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedRecogidas.map((recogida) => (
-                <TableRow key={recogida.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                      {formatDate(recogida.fechaRecogida)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                      {recogida.direccion || recogida.direccionRecogida || "N/A"}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {recogida.distrito} / {recogida.barrio}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {recogida.litrosRecogidos || 0} L
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={
-                      recogida.estadoRecogida === "completada" 
-                        ? "bg-green-100 text-green-800 hover:bg-green-200" 
-                        : recogida.estadoRecogida === "cancelada"
-                          ? "bg-red-100 text-red-800 hover:bg-red-200"
-                          : "bg-amber-100 text-amber-800 hover:bg-amber-200"
-                    }>
-                      {recogida.estadoRecogida === "completada" 
-                        ? "Completada" 
-                        : recogida.estadoRecogida === "cancelada" 
-                          ? "Cancelada" 
-                          : "Pendiente"}
-                    </Badge>
-                  </TableCell>
+          <>
+            <div className="text-sm mb-4">
+              <p className="font-medium">Total de litros recogidos: <span className="font-bold">{totalLitros}</span> litros</p>
+            </div>
+            <Table>
+              <TableCaption>Historial de recogidas de aceite</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Dirección</TableHead>
+                  <TableHead>Litros</TableHead>
+                  <TableHead>Estado</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {recogidasOrdenadas.map((recogida) => (
+                  <TableRow key={recogida.id}>
+                    <TableCell>{formatDate(recogida.fecha || recogida.fechaRecogida)}</TableCell>
+                    <TableCell>{recogida.direccion || recogida.direccionRecogida}</TableCell>
+                    <TableCell>{recogida.litrosRecogidos || 'Pendiente'}</TableCell>
+                    <TableCell>
+                      <Badge className={getEstadoColor(!!recogida.completada)}>
+                        {recogida.completada ? 'Completada' : 'Pendiente'}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </>
         )}
       </CardContent>
-      <CardFooter className="flex justify-end pt-4">
-        {cliente && (
-          <RecogidaClienteButton cliente={cliente} />
-        )}
-      </CardFooter>
     </Card>
   );
 };

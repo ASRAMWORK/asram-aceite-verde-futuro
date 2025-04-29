@@ -631,209 +631,291 @@ const GestionClientes = () => {
         </CardFooter>
       </Card>
 
-      <Dialog open={isEditingUsuario} onOpenChange={setIsEditingUsuario}>
-        <DialogContent className="sm:max-w-[600px]">
+      {/* Cliente Details Dialog */}
+      <Dialog 
+        open={!!selectedUsuario} 
+        onOpenChange={(open) => !open && setSelectedUsuario(null)}
+      >
+        <DialogContent className="sm:max-w-[900px]">
           <DialogHeader>
-            <DialogTitle>Editar cliente</DialogTitle>
+            <DialogTitle>Detalles del Cliente</DialogTitle>
             <DialogDescription>
-              Actualiza los datos del cliente seleccionado
+              Información completa del cliente seleccionado
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nombre">Nombre</Label>
-                <Input
-                  id="nombre"
-                  name="nombre"
-                  value={formData.nombre || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tipo">Tipo de cliente</Label>
-                <Select
-                  value={formData.tipo || ""}
-                  onValueChange={(value) => handleSelectChange("tipo", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tipos.map((tipo) => (
-                      <SelectItem key={tipo} value={tipo}>
-                        {tipo}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <Separator />
-            <h3 className="text-lg font-medium">Datos de contacto</h3>
-            
-            <div className="space-y-2">
-              <Label htmlFor="direccion">Dirección</Label>
-              <Input
-                id="direccion"
-                name="direccion"
-                value={formData.direccion || ""}
-                onChange={handleInputChange}
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="distrito">Distrito</Label>
-                <Select
-                  value={formData.distrito || ""}
-                  onValueChange={(value) => handleSelectChange("distrito", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona distrito" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {distritos.map((distrito) => (
-                      <SelectItem key={distrito} value={distrito}>
-                        {distrito}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="barrio">Barrio</Label>
-                <Select
-                  value={formData.barrio || ""}
-                  onValueChange={(value) => handleSelectChange("barrio", value)}
-                  disabled={!formData.distrito}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona barrio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredBarrios.map((barrio) => (
-                      <SelectItem key={barrio} value={barrio}>
-                        {barrio}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="telefono">Teléfono</Label>
-                <Input
-                  id="telefono"
-                  name="telefono"
-                  value={formData.telefono || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Correo electrónico</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-            
-            <Separator />
-            <h3 className="text-lg font-medium">Datos de servicio</h3>
-            
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="numViviendas">Nº de viviendas</Label>
-                <Input
-                  id="numViviendas"
-                  name="numViviendas"
-                  type="number"
-                  value={formData.numViviendas || 0}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="numContenedores">Nº de contenedores</Label>
-                <Input
-                  id="numContenedores"
-                  name="numContenedores"
-                  type="number"
-                  value={formData.numContenedores || 0}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="litrosRecogidos">Litros recogidos</Label>
-                <Input
-                  id="litrosRecogidos"
-                  name="litrosRecogidos"
-                  type="number"
-                  value={formData.litrosRecogidos || 0}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="frecuenciaRecogida">Frecuencia de recogida</Label>
-              <Select
-                value={formData.frecuenciaRecogida || ""}
-                onValueChange={(value) => handleSelectChange("frecuenciaRecogida", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona frecuencia" />
-                </SelectTrigger>
-                <SelectContent>
-                  {frecuencias.map((frecuencia) => (
-                    <SelectItem key={frecuencia} value={frecuencia}>
-                      {frecuencia}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="activo" className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  id="activo"
-                  name="activo"
-                  className="h-4 w-4 rounded border-gray-300 text-asram focus:ring-asram"
-                  checked={formData.activo !== false}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    activo: e.target.checked
-                  })}
-                />
-                <span className="ml-2">Cliente activo</span>
-              </Label>
-            </div>
-          </div>
+
+          {selectedUsuario && (
+            <Tabs defaultValue="informacion">
+              <TabsList className="mb-4">
+                <TabsTrigger value="informacion">Información</TabsTrigger>
+                <TabsTrigger value="aceite">Aceite</TabsTrigger>
+                <TabsTrigger value="contacto">Contacto</TabsTrigger>
+                <TabsTrigger value="recogidas">Historial Recogidas</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="informacion" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nombre">Nombre</Label>
+                    <Input
+                      id="nombre"
+                      name="nombre"
+                      value={formData.nombre || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo">Tipo de cliente</Label>
+                    <Select
+                      value={formData.tipo || ""}
+                      onValueChange={(value) => handleSelectChange("tipo", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tipos.map((tipo) => (
+                          <SelectItem key={tipo} value={tipo}>
+                            {tipo}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <Separator />
+                <h3 className="text-lg font-medium">Datos de contacto</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="direccion">Dirección</Label>
+                  <Input
+                    id="direccion"
+                    name="direccion"
+                    value={formData.direccion || ""}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="distrito">Distrito</Label>
+                    <Select
+                      value={formData.distrito || ""}
+                      onValueChange={(value) => handleSelectChange("distrito", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona distrito" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {distritos.map((distrito) => (
+                          <SelectItem key={distrito} value={distrito}>
+                            {distrito}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="barrio">Barrio</Label>
+                    <Select
+                      value={formData.barrio || ""}
+                      onValueChange={(value) => handleSelectChange("barrio", value)}
+                      disabled={!formData.distrito}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona barrio" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredBarrios.map((barrio) => (
+                          <SelectItem key={barrio} value={barrio}>
+                            {barrio}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Input
+                      id="telefono"
+                      name="telefono"
+                      value={formData.telefono || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Correo electrónico</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                
+                <Separator />
+                <h3 className="text-lg font-medium">Datos de servicio</h3>
+                
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="numViviendas">Nº de viviendas</Label>
+                    <Input
+                      id="numViviendas"
+                      name="numViviendas"
+                      type="number"
+                      value={formData.numViviendas || 0}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="numContenedores">Nº de contenedores</Label>
+                    <Input
+                      id="numContenedores"
+                      name="numContenedores"
+                      type="number"
+                      value={formData.numContenedores || 0}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="litrosRecogidos">Litros recogidos</Label>
+                    <Input
+                      id="litrosRecogidos"
+                      name="litrosRecogidos"
+                      type="number"
+                      value={formData.litrosRecogidos || 0}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="frecuenciaRecogida">Frecuencia de recogida</Label>
+                  <Select
+                    value={formData.frecuenciaRecogida || ""}
+                    onValueChange={(value) => handleSelectChange("frecuenciaRecogida", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona frecuencia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {frecuencias.map((frecuencia) => (
+                        <SelectItem key={frecuencia} value={frecuencia}>
+                          {frecuencia}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="activo" className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id="activo"
+                      name="activo"
+                      className="h-4 w-4 rounded border-gray-300 text-asram focus:ring-asram"
+                      checked={formData.activo !== false}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        activo: e.target.checked
+                      })}
+                    />
+                    <span className="ml-2">Cliente activo</span>
+                  </Label>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="aceite" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="litrosAceite">Litros de aceite</Label>
+                    <Input
+                      id="litrosAceite"
+                      name="litrosAceite"
+                      type="number"
+                      value={formData.litrosAceite || 0}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fechaAceite">Fecha de aceite</Label>
+                    <Input
+                      id="fechaAceite"
+                      name="fechaAceite"
+                      type="date"
+                      value={formData.fechaAceite || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="contacto" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="direccion">Dirección</Label>
+                    <Input
+                      id="direccion"
+                      name="direccion"
+                      value={formData.direccion || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Input
+                      id="telefono"
+                      name="telefono"
+                      value={formData.telefono || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Correo electrónico</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contacto">Contacto</Label>
+                    <Input
+                      id="contacto"
+                      name="contacto"
+                      value={formData.contacto || ""}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="recogidas" className="space-y-4">
+                <ClienteHistorialRecogidas cliente={selectedUsuario} />
+              </TabsContent>
+            </Tabs>
+          )}
           
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => {
-                setIsEditingUsuario(false);
-                resetForm();
+                setSelectedUsuario(null);
               }}
             >
-              Cancelar
-            </Button>
-            <Button 
-              className="bg-asram hover:bg-asram-700"
-              onClick={handleSubmit}
-            >
-              Actualizar
+              Cerrar
             </Button>
           </DialogFooter>
         </DialogContent>

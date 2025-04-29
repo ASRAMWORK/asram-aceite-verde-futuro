@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -88,6 +87,7 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
               barrio: cliente.barrio,
               nombre: cliente.nombre,
               telefono: cliente.telefono,
+              clienteId: cliente.id
             }}
           />
         </DialogContent>
