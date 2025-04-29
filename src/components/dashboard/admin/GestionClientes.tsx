@@ -64,6 +64,7 @@ import { AddClienteForm } from "./AddClienteForm";
 import type { Usuario, PuntoVerde, Instalacion } from "@/types";
 import { distritos, distritosConBarrios, getBarriosByDistrito } from "@/data/madridDistritos";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ClienteHistorialRecogidas from "./clientes/ClienteHistorialRecogidas";
 
 const tipos = [
   "Comunidad de Vecinos",

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,23 +15,38 @@ import { distritosConBarrios, getBarriosByDistrito } from '@/data/madridDistrito
 interface RecogidaFormProps {
   onSubmit: (formData: any) => void;
   onCancel: () => void;
+  initialData?: {
+    direccion?: string;
+    distrito?: string;
+    barrio?: string;
+    nombre?: string;
+    telefono?: string;
+    [key: string]: any;
+  };
 }
 
-const RecogidaForm: React.FC<RecogidaFormProps> = ({ onSubmit, onCancel }) => {
+const RecogidaForm: React.FC<RecogidaFormProps> = ({ onSubmit, onCancel, initialData = {} }) => {
   const [formData, setFormData] = useState({
     tipoBusqueda: 'individual',
     fecha: new Date(),
     hora: '',
-    distrito: '',
-    barrio: '',
-    direccion: '',
-    nombreLugar: '',
+    distrito: initialData.distrito || '',
+    barrio: initialData.barrio || '',
+    direccion: initialData.direccion || '',
+    nombreLugar: initialData.nombre || '',
     clienteId: '',
-    telefono: '',
+    telefono: initialData.telefono || '',
     litrosEstimados: 0
   });
   
   const [disponibleBarrios, setDisponibleBarrios] = useState<string[]>([]);
+  
+  // Initialize disponibleBarrios if distrito is provided in initialData
+  useEffect(() => {
+    if (initialData.distrito) {
+      setDisponibleBarrios(getBarriosByDistrito(initialData.distrito));
+    }
+  }, [initialData.distrito]);
   
   const handleTipoChange = (tipo: string) => {
     setFormData(prev => ({ ...prev, tipoBusqueda: tipo }));
