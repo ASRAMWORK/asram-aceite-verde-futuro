@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -25,6 +26,7 @@ export function useTurnos() {
           dia: data.dia,
           horaInicio: data.horaInicio,
           horaFin: data.horaFin,
+          descripcion: data.descripcion || '', // Added missing required field
           rutaId: data.rutaId,
           vehiculoId: data.vehiculoId,
           createdAt: data.createdAt,

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { UserProfile } from '@/types';
+import { UserProfile, UserRole } from '@/types';
 
 export function useUserProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -24,12 +24,15 @@ export function useUserProfile() {
         
         if (docSnap.exists()) {
           const userData = docSnap.data();
+          const role = userData.role as UserRole;
+          
           const profileData: UserProfile = {
             id: docRef.id,
+            userId: user.uid,
             email: userData.email || user.email || '',
-            role: (userData.role as UserProfile['role']) || 'usuario',
+            role: role || 'client', // Using 'client' as default role from UserRole enum
             nombre: userData.nombre || '',
-            apellido: userData.apellido || '',
+            apellidos: userData.apellidos || userData.apellido || '',
             telefono: userData.telefono || '',
             direccion: userData.direccion || '',
             ciudad: userData.ciudad || '',
@@ -38,8 +41,8 @@ export function useUserProfile() {
             pais: userData.pais || '',
             activo: userData.activo !== undefined ? userData.activo : true,
             tipo: userData.tipo || '',
-            createdAt: userData.createdAt,
-            updatedAt: userData.updatedAt,
+            createdAt: userData.createdAt || new Date(),
+            updatedAt: userData.updatedAt || new Date(),
             // If the type doesn't have nombreAdministracion, it will be ignored when used
             ...userData
           };

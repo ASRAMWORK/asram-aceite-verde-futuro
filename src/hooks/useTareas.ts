@@ -32,9 +32,14 @@ export function useTareas() {
           completada: data.completada || false,
           fechaCompletada: data.fechaCompletada,
           fechaAsignacion: data.fechaAsignacion?.toDate(),
-          fechaLimite: data.fechaLimite,
+          // Remove fechaLimite as it's not in the Tarea interface
           createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          updatedAt: data.updatedAt,
+          // Adding required fields
+          fechaInicio: data.fechaInicio || data.fecha?.toDate() || new Date(),
+          horaInicio: data.horaInicio || '',
+          horaFin: data.horaFin || '',
+          fechaFin: data.fechaFin
         });
       });
       

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -24,7 +25,6 @@ export function useTrabajadores() {
           nombre: data.nombre || '',
           // Handle both apellido and apellidos for backward compatibility
           apellidos: data.apellidos || data.apellido || '',
-          apellido: data.apellido || data.apellidos || '',
           dni: data.dni || '',
           fechaNacimiento: data.fechaNacimiento,
           email: data.email || '',
@@ -46,7 +46,13 @@ export function useTrabajadores() {
           ciudad: data.ciudad || '',
           provincia: data.provincia || '',
           codigoPostal: data.codigoPostal || '',
-          pais: data.pais || ''
+          pais: data.pais || '',
+          // Add additional required fields with default values
+          puesto: data.puesto || data.cargo || '',
+          salario: data.salario || data.salarioBase || 0,
+          numeroCuenta: data.numeroCuenta || data.cuentaBancaria || '',
+          documentoIdentidad: data.documentoIdentidad || data.dni || '',
+          fechaBaja: data.fechaBaja
         });
       });
       

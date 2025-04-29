@@ -22,7 +22,7 @@ export const useComunidadForm = () => {
     correoContacto: '',
     telefono: '',
     email: '',
-    administrador: ''
+    administradorId: '' // Changed 'administrador' to 'administradorId' to match the interface
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

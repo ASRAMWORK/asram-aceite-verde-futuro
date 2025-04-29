@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
@@ -23,7 +24,7 @@ export function useVoluntarios() {
         voluntariosData.push({ 
           id: doc.id, 
           nombre: data.nombre || '',
-          apellido: data.apellido || data.apellidos || '',
+          apellidos: data.apellidos || data.apellido || '',
           email: data.email || '',
           telefono: data.telefono || '',
           direccion: data.direccion || '',
@@ -32,14 +33,17 @@ export function useVoluntarios() {
           codigoPostal: data.codigoPostal || '',
           pais: data.pais || '',
           activo: data.activo ?? true,
-          dni: data.dni || '',
+          // dni is now part of Voluntario interface
           fechaNacimiento: data.fechaNacimiento,
           diasDisponibles: data.diasDisponibles || [],
           horasDisponibles: data.horasDisponibles || '',
+          // Required by Voluntario interface
+          disponibilidad: data.disponibilidad || data.diasDisponibles || [],
           habilidades: data.habilidades || [],
           experiencia: data.experiencia || '',
           estado: data.estado || 'activo',
           fechaAlta: data.fechaAlta || new Date(),
+          horasContribuidas: data.horasContribuidas || 0,
           createdAt: data.createdAt || data.fechaAlta || new Date(),
           updatedAt: data.updatedAt || new Date()
         });

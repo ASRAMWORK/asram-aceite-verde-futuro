@@ -29,12 +29,13 @@ export interface Usuario {
   litrosAceite?: number;
   fechaAceite?: Date;
   apellido?: string;
+  apellidos?: string;
   litrosAportados?: number;
   pais?: string;
   frecuenciaRecogida?: string;
 }
 
-export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador" | "user" | "hotel" | "asociacion" | "escolar";
+export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador" | "user" | "hotel" | "asociacion" | "escolar" | "usuario";
 
 export interface PuntoVerde {
   id: string;
@@ -309,7 +310,9 @@ export interface Voluntario {
   pais?: string;
   ciudad?: string;
   provincia?: string;
-  apellido?: string; // For backward compatibility
+  dni?: string;
+  fechaNacimiento?: Date;
+  estado?: string;
 }
 
 export interface Tarea {
@@ -332,6 +335,7 @@ export interface Tarea {
   fechaAsignacion?: Date;
   fecha?: Date;
   fechaCompletada?: Date;
+  fechaLimite?: Date;
 }
 
 export interface UserProfile {
@@ -371,6 +375,9 @@ export interface UserProfile {
   apellido?: string;
   litrosAportados?: number;
   puntosVerdes?: number;
+  tipo?: string;
+  activo?: boolean;
+  pais?: string;
 }
 
 export interface ComunidadVecinos {
@@ -445,4 +452,60 @@ export interface Gasto {
   iva?: number;
   total?: number;
   metodoPago?: string;
+}
+
+export interface HorarioVoluntario {
+  id: string;
+  voluntarioId: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+  fecha?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  notas?: string;
+  estado?: string;
+  actividad?: string;
+}
+
+export interface Incidencia {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  estado: string;
+  prioridad: string;
+  asignadoA: string;
+  reportadoPor: string;
+  tipo: string;
+  trabajadorId: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Reunion {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  hora: string;
+  duracion: number;
+  ubicacion: string;
+  participantes: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Vehiculo {
+  id: string;
+  matricula: string;
+  modelo: string;
+  tipo: string;
+  capacidad: number;
+  estado: string;
+  ultimaRevision?: Date;
+  proximaRevision?: Date;
+  conductorAsignado?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
