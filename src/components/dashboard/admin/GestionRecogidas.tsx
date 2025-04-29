@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { StatsCard } from './stats/StatsCard';
 import { es } from 'date-fns/locale';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -102,7 +102,7 @@ const GestionRecogidas = () => {
             cliente: cliente.nombre,
             direccionRecogida: cliente.direccion,
             horaRecogida: data.hora,
-            litrosEstimados: cliente.litrosEstimados,
+            litrosEstimados: cliente.litrosEstimados || 0,
             estadoRecogida: 'pendiente',
             rutaId: data.rutaId,
             esRecogidaZona: true,
@@ -206,295 +206,123 @@ const GestionRecogidas = () => {
           className="bg-card"
         />
         <StatsCard 
-          title="Litros Totales Recogidos"
+          title="Litros Totales"
           value={totalLitros}
+          suffix="L"
           icon={TrendingUp}
           className="bg-card"
         />
         <StatsCard 
-          title="Media Litros/Mes"
-          value={promedioLitrosMes.toFixed(2)}
+          title="Pendientes"
+          value={recogidasPendientes}
           icon={Clock}
-          description="Litros promedio por mes"
           className="bg-card"
         />
       </div>
 
-      {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Nueva Recogida</CardTitle>
-            <CardDescription>Registra una nueva recogida de aceite</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RecogidaForm onCancel={() => setShowForm(false)} onSubmit={handleAddRecogida} />
-          </CardContent>
-        </Card>
-      )}
+      {/* Formulario de nueva recogida */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Nueva recogida</DialogTitle>
+            <DialogDescription>
+              Programar una nueva recogida de aceite usado
+            </DialogDescription>
+          </DialogHeader>
+          <RecogidaForm 
+            onCancel={() => setShowForm(false)} 
+            onSubmit={handleAddRecogida}
+          />
+        </DialogContent>
+      </Dialog>
 
-      <div className="flex flex-wrap items-center gap-4 mb-4">
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4" />
-          <span className="text-sm font-medium">Filtrar por mes:</span>
-        </div>
-        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Todos los meses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Todos los meses</SelectItem>
-            {months.map((month) => (
-              <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={selectedYear} onValueChange={setSelectedYear}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Año" />
-          </SelectTrigger>
-          <SelectContent>
-            {years.map((year) => (
-              <SelectItem key={year} value={year}>{year}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Tabs defaultValue="pendientes" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="pendientes">Pendientes</TabsTrigger>
-          <TabsTrigger value="completadas">Completadas</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="pendientes">
-          <Card>
-            <CardContent className="pt-6">
-              <RecogidasList 
-                recogidas={filteredRecogidas.filter(r => !r.completada)}
-                onCompleteRecogida={handleCompleteRecogida}
-                showActions={true}
-                formatDate={formatDate}
-                onViewDetails={(id) => setSelectedRecogida(id)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="completadas">
-          <Card>
-            <CardContent className="pt-6">
-              <RecogidasList 
-                recogidas={filteredRecogidas.filter(r => r.completada)}
-                showActions={false}
-                formatDate={formatDate}
-                onViewDetails={(id) => setSelectedRecogida(id)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Historial de Rutas Dialog */}
+      {/* Historial de Rutas */}
       <Dialog open={showHistorialRutas} onOpenChange={setShowHistorialRutas}>
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[700px] h-[600px]">
           <DialogHeader>
             <DialogTitle>Historial de Rutas</DialogTitle>
             <DialogDescription>
-              Historial de rutas completadas
+              Rutas completadas y sus recogidas asociadas
             </DialogDescription>
           </DialogHeader>
-
-          <ScrollArea className="h-[500px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Distrito</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Puntos</TableHead>
-                  <TableHead>Litros</TableHead>
-                  <TableHead>Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rutasCompletadas.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center">No hay rutas completadas</TableCell>
-                  </TableRow>
-                ) : (
-                  rutasCompletadas.map(ruta => (
-                    <TableRow key={ruta.id}>
-                      <TableCell>{ruta.nombre}</TableCell>
-                      <TableCell>{ruta.distrito}</TableCell>
-                      <TableCell>{formatDate(ruta.fecha)}</TableCell>
-                      <TableCell>{ruta.puntosRecogida}</TableCell>
-                      <TableCell>{calcularTotalLitrosRuta(ruta.id)} L</TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => setSelectedRuta(ruta.id)}
-                        >
-                          Ver Detalle
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-
-      {/* Detalle de Ruta Dialog */}
-      <Dialog open={!!selectedRuta} onOpenChange={(open) => !open && setSelectedRuta(null)}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Detalle de Ruta</DialogTitle>
-            <DialogDescription>
-              Recogidas asociadas a esta ruta
-            </DialogDescription>
-          </DialogHeader>
-
-          <ScrollArea className="h-[500px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Dirección</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Litros</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {selectedRuta && getRecogidasPorRuta(selectedRuta).map(recogida => (
-                  <TableRow key={recogida.id}>
-                    <TableCell>{recogida.cliente || recogida.nombreContacto}</TableCell>
-                    <TableCell>{recogida.direccion || recogida.direccionRecogida}</TableCell>
-                    <TableCell>{formatDate(recogida.fecha)}</TableCell>
-                    <TableCell>{recogida.litrosRecogidos || 0} L</TableCell>
-                  </TableRow>
+          <ScrollArea className="h-[500px] pr-4">
+            {rutasCompletadas.length > 0 ? (
+              <div className="space-y-6">
+                {rutasCompletadas.map(ruta => (
+                  <Card key={ruta.id} className="border-l-4 border-l-green-500">
+                    <CardHeader>
+                      <div className="flex justify-between items-center">
+                        <CardTitle>{ruta.nombre || `Ruta ${ruta.distrito}`}</CardTitle>
+                        <Badge>{formatDate(ruta.fecha)}</Badge>
+                      </div>
+                      <CardDescription>
+                        {ruta.completada ? 'Completada' : 'Pendiente'} • {ruta.clientes?.length || 0} clientes • {ruta.litrosTotales || 0}L recogidos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead>Dirección</TableHead>
+                            <TableHead className="text-right">Litros</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {ruta.clientes && ruta.clientes.map((cliente: any, idx: number) => (
+                            <TableRow key={cliente.id || idx}>
+                              <TableCell>{cliente.nombre}</TableCell>
+                              <TableCell>{cliente.direccion}</TableCell>
+                              <TableCell className="text-right">{cliente.litros || 0}L</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                        <tfoot>
+                          <tr>
+                            <td colSpan={2} className="text-right font-medium py-2">Total:</td>
+                            <td className="text-right font-bold py-2">{ruta.litrosTotales || 0}L</td>
+                          </tr>
+                        </tfoot>
+                      </Table>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell colSpan={3} className="text-right font-bold">Total Litros:</TableCell>
-                  <TableCell className="font-bold">
-                    {selectedRuta && calcularTotalLitrosRuta(selectedRuta)} L
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
-            </Table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No hay rutas completadas en el historial
+              </div>
+            )}
           </ScrollArea>
         </DialogContent>
       </Dialog>
 
-      {/* Recogida Details Dialog */}
-      <Dialog open={!!selectedRecogida && !showCompletarDialog} onOpenChange={(open) => !open && setSelectedRecogida(null)}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Detalles de Recogida</DialogTitle>
-            <DialogDescription>
-              Información detallada de la recogida seleccionada
-            </DialogDescription>
-          </DialogHeader>
-
-          {recogidaDetails && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Cliente</h3>
-                  <p>{recogidaDetails.cliente || recogidaDetails.nombreContacto || 'N/A'}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Fecha</h3>
-                  <p>{formatDate(recogidaDetails.fecha)}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Dirección</h3>
-                  <p>{recogidaDetails.direccion || recogidaDetails.direccionRecogida || 'N/A'}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Estado</h3>
-                  <p>{recogidaDetails.completada ? 'Completada' : 'Pendiente'}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Distrito</h3>
-                  <p>{recogidaDetails.distrito || 'N/A'}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Barrio</h3>
-                  <p>{recogidaDetails.barrio || 'N/A'}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Contacto</h3>
-                  <p>{recogidaDetails.telefonoContacto || 'N/A'}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Email</h3>
-                  <p>{recogidaDetails.emailContacto || 'N/A'}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Litros Recogidos</h3>
-                  <p>{recogidaDetails.litrosRecogidos || 'No completada'}</p>
-                </div>
-                {recogidaDetails.rutaId && (
-                  <div>
-                    <h3 className="font-semibold text-sm text-gray-500">Ruta</h3>
-                    <Badge>Recogida por zona</Badge>
-                  </div>
-                )}
-              </div>
-
-              {recogidaDetails.notasAdicionales && (
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Notas adicionales</h3>
-                  <p>{recogidaDetails.notasAdicionales}</p>
-                </div>
-              )}
-
-              {recogidaDetails.completada && recogidaDetails.fechaCompletada && (
-                <div>
-                  <h3 className="font-semibold text-sm text-gray-500">Fecha de completado</h3>
-                  <p>{formatDate(recogidaDetails.fechaCompletada)}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Completar Recogida Dialog */}
+      {/* Dialog para completar recogida */}
       <AlertDialog open={showCompletarDialog} onOpenChange={setShowCompletarDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Completar Recogida</AlertDialogTitle>
+            <AlertDialogTitle>Completar recogida</AlertDialogTitle>
             <AlertDialogDescription>
-              Introduce los litros recogidos y confirma para completar esta recogida.
+              Introduce la cantidad de litros recogidos para completar esta recogida
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
           <div className="py-4">
-            <Label htmlFor="litrosRecogidos" className="text-sm font-medium">
-              Litros Recogidos
-            </Label>
-            <Input
-              id="litrosRecogidos"
-              type="number"
-              min="0"
-              value={litrosCompletados}
-              onChange={(e) => setLitrosCompletados(Number(e.target.value))}
-              className="mt-1"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="litros">Litros recogidos</Label>
+              <Input 
+                id="litros" 
+                type="number" 
+                min="0" 
+                step="0.1"
+                value={litrosCompletados}
+                onChange={e => setLitrosCompletados(Number(e.target.value))}
+              />
+            </div>
           </div>
-          
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => {
               setShowCompletarDialog(false);
               setSelectedRecogida(null);
-              setLitrosCompletados(0);
             }}>
               Cancelar
             </AlertDialogCancel>
@@ -504,6 +332,16 @@ const GestionRecogidas = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Output for debugging */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="text-xs opacity-50">
+          <p>Selected Month: {selectedMonth}</p>
+          <p>Selected Year: {selectedYear}</p>
+          <p>Total Recogidas: {recogidas.length}</p>
+          <p>Filtered Recogidas: {filteredRecogidas.length}</p>
+        </div>
+      )}
     </div>
   );
 };

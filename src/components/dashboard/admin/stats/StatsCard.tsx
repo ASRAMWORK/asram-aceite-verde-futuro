@@ -1,29 +1,39 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
-  value: string | number;
+  value: number | string;
   icon: LucideIcon;
-  description?: string;
+  suffix?: string;
+  prefix?: string;
   className?: string;
 }
 
-export function StatsCard({ title, value, icon: Icon, description, className }: StatsCardProps) {
+export const StatsCard: React.FC<StatsCardProps> = ({
+  title,
+  value,
+  icon: Icon,
+  suffix,
+  prefix,
+  className,
+}) => {
   return (
-    <Card className={className}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
-        )}
+    <Card className={cn("overflow-hidden", className)}>
+      <CardContent className="p-6">
+        <div className="flex items-center space-x-2">
+          <Icon className="h-5 w-5 text-muted-foreground" />
+          <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
+        </div>
+        <div className="mt-2 flex items-baseline">
+          <p className="text-3xl font-semibold">
+            {prefix}{typeof value === 'number' ? value.toLocaleString() : value}{suffix}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
-}
+};

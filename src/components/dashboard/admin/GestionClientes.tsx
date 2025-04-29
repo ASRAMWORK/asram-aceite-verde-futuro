@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
@@ -5,7 +6,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, UserRound, Edit, Ban, CheckCircle, Oil } from 'lucide-react';
+import { Plus, Search, UserRound, Edit, Ban, CheckCircle, Droplet } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUsuarios } from '@/hooks/useUsuarios';
 import { Usuario } from '@/types';
@@ -318,13 +319,11 @@ const filteredClientes = clientes.filter(cliente => {
             setSelectedUsuario(null);
           }}
         >
-          <Oil className="mr-2 h-4 w-4" />
+          <Droplet className="mr-2 h-4 w-4" />
           Programar recogida de aceite
         </Button>
         
-        {selectedUsuario && (
-          <ClienteHistorialRecogidas cliente={selectedUsuario} />
-        )}
+        <ClienteHistorialRecogidas cliente={selectedUsuario} />
       </div>
     )}
   </SheetContent>

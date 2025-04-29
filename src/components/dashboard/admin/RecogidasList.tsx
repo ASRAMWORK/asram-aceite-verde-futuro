@@ -1,119 +1,83 @@
 
 import React from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Check, Eye } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, Info } from "lucide-react";
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { Recogida } from '@/types';
 
 interface RecogidasListProps {
-  recogidas: any[];
-  onCompleteRecogida?: (id: string) => void;
+  recogidas: Recogida[];
+  onComplete?: (id: string) => void;
   onViewDetails?: (id: string) => void;
-  showActions?: boolean;
-  formatDate?: (date: Date | string | null | undefined) => string;
 }
 
-const RecogidasList = ({ 
+const RecogidasList: React.FC<RecogidasListProps> = ({ 
   recogidas, 
-  onCompleteRecogida, 
-  onViewDetails,
-  showActions = true,
-  formatDate = (date) => date ? String(date) : "N/A"
-}: RecogidasListProps) => {
-  const [selectedRecogidaId, setSelectedRecogidaId] = React.useState<string | null>(null);
-
-  const handleCompleteClick = (id: string) => {
-    setSelectedRecogidaId(id);
-  };
-
-  const confirmComplete = () => {
-    if (selectedRecogidaId && onCompleteRecogida) {
-      onCompleteRecogida(selectedRecogidaId);
+  onComplete, 
+  onViewDetails 
+}) => {
+  
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return "Sin fecha";
+    try {
+      return format(new Date(date), "dd/MM/yyyy", { locale: es });
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return "Fecha inválida";
     }
-    setSelectedRecogidaId(null);
   };
-
+  
   return (
-    <>
+    <div className="overflow-x-auto">
       <Table>
-        <TableHeader className="bg-slate-50">
+        <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
+            <TableHead>Cliente</TableHead>
             <TableHead>Fecha</TableHead>
-            <TableHead>Distrito</TableHead>
             <TableHead>Dirección</TableHead>
             <TableHead>Estado</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
+            <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {recogidas.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                No hay recogidas {showActions ? 'pendientes' : 'completadas'}
+              <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                No hay recogidas para mostrar
               </TableCell>
             </TableRow>
           ) : (
             recogidas.map((recogida) => (
-              <TableRow key={recogida.id} className="hover:bg-slate-50">
-                <TableCell className="font-medium">
-                  {recogida.id.substring(0, 6)}
-                </TableCell>
+              <TableRow key={recogida.id}>
+                <TableCell>{recogida.cliente}</TableCell>
+                <TableCell>{formatDate(recogida.fechaRecogida || recogida.fecha)}</TableCell>
+                <TableCell>{recogida.direccionRecogida || recogida.direccion}</TableCell>
                 <TableCell>
-                  {formatDate(recogida.fecha)}
-                </TableCell>
-                <TableCell>{recogida.distrito || 'Sin asignar'}</TableCell>
-                <TableCell>
-                  {recogida.direccion || recogida.direccionRecogida || 'No especificada'}
-                </TableCell>
-                <TableCell>
-                  <Badge 
-                    className={
-                      recogida.completada 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-yellow-100 text-yellow-800"
-                    }
-                  >
-                    {recogida.completada ? 'Completada' : 'Pendiente'}
+                  <Badge variant={recogida.estadoRecogida === "completada" || recogida.completada ? "success" : "outline"}>
+                    {recogida.estadoRecogida === "completada" || recogida.completada ? "Completada" : "Pendiente"}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="text-[#ee970d] border-[#ee970d]/30 hover:bg-[#ee970d]/10"
-                      onClick={() => onViewDetails && onViewDetails(recogida.id)}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Detalles
-                    </Button>
-                    
-                    {showActions && !recogida.completada && (
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="text-green-600 border-green-300 hover:bg-green-50"
-                        onClick={() => handleCompleteClick(recogida.id)}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    {onViewDetails && (
+                      <Button variant="ghost" size="sm" onClick={() => onViewDetails(recogida.id)}>
+                        <Info className="h-4 w-4 mr-1" />
+                        Detalles
+                      </Button>
+                    )}
+                    {onComplete && !recogida.completada && (
+                      <Button variant="outline" size="sm" onClick={() => onComplete(recogida.id)}>
+                        <CheckCircle className="h-4 w-4 mr-1" />
                         Completar
                       </Button>
                     )}
@@ -124,25 +88,7 @@ const RecogidasList = ({
           )}
         </TableBody>
       </Table>
-
-      <AlertDialog open={!!selectedRecogidaId} onOpenChange={() => setSelectedRecogidaId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar recogida</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Está seguro de que desea marcar esta recogida como completada?
-              Esta acción moverá el registro a recogidas realizadas.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmComplete}>
-              Confirmar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    </div>
   );
 };
 
