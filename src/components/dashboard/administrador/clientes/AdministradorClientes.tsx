@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Card, CardContent, CardHeader, CardTitle, 
@@ -28,6 +29,7 @@ const AdministradorClientes = () => {
     try {
       await loadUsuariosData();
       setShowForm(false);
+      setShowAddClienteForm(false);
     } catch (error) {
       console.error("Error loading usuarios data:", error);
     }

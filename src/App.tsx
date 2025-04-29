@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, ensureAdminUser, isAdminEmail, db } from "@/lib/firebase";
@@ -30,6 +30,7 @@ import Tienda from "./pages/tienda/Tienda";
 
 const queryClient = new QueryClient();
 
+// Create protected route components that use hooks inside Router context
 const ProtectedAdminRoute = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -106,19 +107,43 @@ const ProtectedAdministradorRoute = () => {
   return isAdministrador ? <AdministradorDashboard /> : <Navigate to="/login" />;
 };
 
+// User dashboard component with authentication handling
+const ProtectedUserDashboard = () => {
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      }
+      setLoading(false);
+    });
+    
+    return () => unsubscribe();
+  }, [navigate]);
+  
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+  
+  return <UserDashboard />;
+};
+
+// Main App component
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin/dashboard" element={<ProtectedAdminRoute />} />
-            <Route path="/user/dashboard" element={<UserDashboard />} />
+            <Route path="/user/dashboard" element={<ProtectedUserDashboard />} />
             <Route path="/administrador/dashboard" element={<ProtectedAdministradorRoute />} />
             
             <Route path="/about" element={<About />} />
@@ -137,9 +162,9 @@ const App = () => (
             
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+        </TooltipProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

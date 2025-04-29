@@ -1,4 +1,3 @@
-
 export interface ComunidadVecinos {
   id: string;
   nombre: string;
@@ -40,7 +39,7 @@ export interface Incidencia {
   tipo: string;
   createdAt: Date;
   updatedAt: Date;
-  trabajadorId?: string; // Added missing property
+  trabajadorId?: string;
 }
 
 export interface Ruta {
@@ -143,12 +142,12 @@ export interface Usuario {
   distrito?: string;
   barrio?: string;
   pais?: string;
-  nombreAdministracion?: string; // Added missing property
-  litrosAportados?: number; // Added missing property
-  frecuenciaRecogida?: string; // Added missing property
-  litrosRecogidos?: number; // Added missing property
-  numViviendas?: number; // Added missing property
-  numContenedores?: number; // Added missing property
+  nombreAdministracion?: string;
+  litrosAportados?: number;
+  frecuenciaRecogida?: string;
+  litrosRecogidos?: number;
+  numViviendas?: number;
+  numContenedores?: number;
 }
 
 export interface Instalacion {
@@ -172,8 +171,15 @@ export interface Instalacion {
   proximaRecogida?: Date;
   createdAt: Date;
   updatedAt: Date;
-  numViviendas?: number; // Added missing property
-  numContenedores?: number; // Added missing property
+  numViviendas?: number;
+  numContenedores?: number;
+  numPorteria?: number;
+  pais?: string;
+  latitud?: number;
+  longitud?: number;
+  descripcion?: string;
+  horario?: string;
+  activo?: boolean;
 }
 
 export interface AlianzaVerde {
@@ -196,9 +202,9 @@ export interface AlianzaVerde {
   estado: string;
   createdAt: Date;
   updatedAt: Date;
-  numEstudiantes?: number; // Added missing property
-  talleresRealizados?: number; // Added missing property
-  certificaciones?: string[] | any; // Added missing property
+  numEstudiantes?: number;
+  talleresRealizados?: number;
+  certificaciones?: string[] | any;
 }
 
 export interface CalleApadrinada {
@@ -215,10 +221,10 @@ export interface CalleApadrinada {
   observaciones: string;
   createdAt: Date;
   updatedAt: Date;
-  padrino?: string; // Added missing property
-  precio?: number; // Added missing property
-  fechaRenovacion?: Date; // Added missing property
-  descripcion?: string; // Added missing property
+  padrino?: string;
+  precio?: number;
+  fechaRenovacion?: Date;
+  descripcion?: string;
 }
 
 export interface Ingreso {
@@ -234,9 +240,9 @@ export interface Ingreso {
   origen?: string;
   createdAt: Date;
   updatedAt: Date;
-  numFactura?: string; // Added missing property
-  iva?: number; // Added missing property
-  total?: number; // Added missing property
+  numFactura?: string;
+  iva?: number;
+  total?: number;
 }
 
 export interface Gasto {
@@ -254,7 +260,7 @@ export interface Gasto {
   tipo: string;
   createdAt: Date;
   updatedAt: Date;
-  numFactura?: string; // Added missing property
+  numFactura?: string;
 }
 
 export interface TallerProgramado {
@@ -308,7 +314,7 @@ export interface TrabajadorFormProps {
 export interface ClienteFormProps {
   onSubmit: (data: any) => void;
   initialData?: any;
-  onCancel?: () => void; // Added missing property
+  onCancel?: () => void;
 }
 
 export interface Turno {
@@ -320,6 +326,13 @@ export interface Turno {
   trabajadorId?: string;
   createdAt: Date;
   updatedAt: Date;
+  trabajadorNombre?: string;
+  rutaId?: string;
+  vehiculoId?: string;
+  fecha?: Date;
+  estado?: string;
+  distrito?: string;
+  dia?: string;
 }
 
 export interface TrabajadorPago {
@@ -334,6 +347,7 @@ export interface TrabajadorPago {
   periodo: string;
   createdAt: Date;
   updatedAt: Date;
+  tipo?: string;
 }
 
 export interface Vehiculo {
@@ -349,7 +363,7 @@ export interface Vehiculo {
   estado: string;
   createdAt: Date;
   updatedAt: Date;
-  conductorAsignado?: string; // Added missing property
+  conductorAsignado?: string;
 }
 
 export interface Voluntario {
@@ -395,7 +409,7 @@ export interface HorarioVoluntario {
   ubicacion: string;
   createdAt: Date;
   updatedAt: Date;
-  voluntarioNombre?: string; // Added missing property
+  voluntarioNombre?: string;
 }
 
 export interface Reunion {
@@ -412,6 +426,12 @@ export interface Reunion {
   estado: string;
   createdAt: Date;
   updatedAt: Date;
+  tipoUsuario?: string;
+  nombreCentro?: string;
+  responsable?: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
 }
 
 export interface UserProfile {
@@ -462,7 +482,8 @@ export type UserRole =
   | 'asociacion'
   | 'escolar'
   | 'administrador'
-  | 'comercial'; // Added missing role
+  | 'comercial'
+  | 'superadmin';
 
 // Fix for admin/rutas/RutasDistritos.tsx
 export interface RutaRecogida extends Ruta {

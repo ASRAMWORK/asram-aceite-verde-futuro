@@ -102,21 +102,25 @@ const RutasDistritos = () => {
       return;
     }
 
-    // Make sure this object has the completada property
-    const nuevaRuta = {
+    // Fixed version of nuevaRuta object with all required properties
+    const nuevaRuta: Omit<Ruta, "id"> = {
       nombre: nombreRuta,
       distrito: distritoSeleccionado,
+      barrios: [],
+      puntos: puntosSeleccionados,
+      distancia: 0,
+      tiempoEstimado: 0,
+      tipoRuta: "recogida",
+      estado: "programada",
       fecha: fechaRecogida,
-      hora: "",
+      hora: "09:00",
       recogedores: "",
       clientes: puntosSeleccionados,
       puntosRecogida: puntosSeleccionados.length,
       distanciaTotal: 0,
-      tiempoEstimado: 0,
       frecuencia: "semanal",
       completada: false,
       litrosTotales: 0,
-      puntos: puntosSeleccionados,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -247,7 +251,7 @@ const RutasDistritos = () => {
                     <CalendarComponent
                       mode="single"
                       selected={fechaRecogida}
-                      onSelect={setFechaRecogida}
+                      onSelect={(date) => date && setFechaRecogida(date)}
                       disabled={(date) => date < new Date()}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
@@ -351,7 +355,7 @@ const RutasDistritos = () => {
                           variant="outline"
                           size="icon"
                           onClick={() =>
-                            handleUpdateRutaRecogida(ruta.id, {
+                            handleUpdateRuta(ruta.id, {
                               nombre: "Nueva Ruta",
                             })
                           }

@@ -16,16 +16,15 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase"; // Updated import path
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { UserRole } from "@/types";
 
 interface AuthContextProps {
   currentUser: any;
   loading: boolean;
-  signUp: (email: string, pass: string, displayName: string) => Promise<any>;
-  login: (email: string, pass: string) => Promise<any>;
-  logout: () => Promise<void>;
+  signUp: (email: string, pass: string, displayName: string, callback?: () => void) => Promise<any>;
+  login: (email: string, pass: string, callback?: () => void) => Promise<any>;
+  logout: (callback?: () => void) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   isAdmin: () => boolean;
 }
@@ -49,7 +48,6 @@ interface Props {
 export const AuthProvider = ({ children }: Props) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -60,7 +58,7 @@ export const AuthProvider = ({ children }: Props) => {
     return unsubscribe;
   }, []);
 
-  const signUp = async (email: string, pass: string, displayName: string) => {
+  const signUp = async (email: string, pass: string, displayName: string, callback?: () => void) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -72,7 +70,7 @@ export const AuthProvider = ({ children }: Props) => {
       });
       setCurrentUser(userCredential.user);
       toast.success("Usuario creado correctamente");
-      navigate("/dashboard");
+      if (callback) callback();
       return userCredential.user;
     } catch (error: any) {
       toast.error("Error al crear usuario: " + error.message);
@@ -80,21 +78,21 @@ export const AuthProvider = ({ children }: Props) => {
     }
   };
 
-  const login = async (email: string, pass: string) => {
+  const login = async (email: string, pass: string, callback?: () => void) => {
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       toast.success("Sesión iniciada correctamente");
-      navigate("/dashboard");
+      if (callback) callback();
     } catch (error: any) {
       toast.error("Error al iniciar sesión: " + error.message);
     }
   };
 
-  const logout = async () => {
+  const logout = async (callback?: () => void) => {
     try {
       await signOut(auth);
       toast.success("Sesión cerrada correctamente");
-      navigate("/login");
+      if (callback) callback();
     } catch (error: any) {
       toast.error("Error al cerrar sesión: " + error.message);
     }
