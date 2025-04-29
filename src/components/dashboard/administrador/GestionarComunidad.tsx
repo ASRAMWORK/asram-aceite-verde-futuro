@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
@@ -8,10 +8,11 @@ import { ComunidadLocationForm } from './comunidad/ComunidadLocationForm';
 import { ComunidadStatsForm } from './comunidad/ComunidadStatsForm';
 import { ComunidadContactForm } from './comunidad/ComunidadContactForm';
 import { useComunidadForm } from '@/hooks/useComunidadForm';
+import type { ComunidadVecinos } from '@/types';
 
 const GestionarComunidad = () => {
-  const { formData, isLoading, handleChange, handleSubmit } = useComunidadForm();
-
+  const { formData, isLoading, handleChange, handleSubmit, loading } = useComunidadForm();
+  
   // Extract only the needed properties for each form component
   const basicInfoProps = {
     nombre: formData.nombre || '',
@@ -37,6 +38,11 @@ const GestionarComunidad = () => {
     nombreAdministracion: formData.nombreAdministracion || '',
     correoContacto: formData.correoContacto || ''
   };
+  
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleSubmit(formData as ComunidadVecinos);
+  };
 
   return (
     <div>
@@ -44,7 +50,7 @@ const GestionarComunidad = () => {
       
       <Card>
         <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={onSubmit} className="space-y-6">
             <ComunidadBasicInfoForm 
               formData={basicInfoProps} 
               onChange={handleChange} 

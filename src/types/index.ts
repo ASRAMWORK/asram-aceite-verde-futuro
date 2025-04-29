@@ -86,7 +86,7 @@ export interface ComunidadVecinos {
   updatedAt: any;
 }
 
-// Remove duplicate UserProfile
+// Define UserProfile as same as Usuario
 export type UserProfile = Usuario;
 
 export interface PuntoVerde {
@@ -131,7 +131,7 @@ export interface Voluntario {
   dni: string;
   fechaNacimiento: any;
   diasDisponibles?: string[];
-  horasDisponibles?: string | string[];
+  horasDisponibles?: string;
   habilidades?: string[];
   experiencia?: string;
   estado?: string;
@@ -488,34 +488,6 @@ export interface TallerProgramado {
   updatedAt: any;
 }
 
-export interface ComunidadVecinos {
-  id: string;
-  nombre: string;
-  direccion: string;
-  ciudad: string;
-  provincia: string;
-  codigoPostal: string;
-  numViviendas: number;
-  administrador: string;
-  telefono: string;
-  email: string;
-  cif?: string;
-  distrito?: string;
-  barrio?: string;
-  numeroPorteria?: number;
-  totalViviendas?: number;
-  nombreAdministracion?: string;
-  correoContacto?: string;
-  litrosRecogidos?: number;
-  beneficiosMedioambientales?: {
-    co2: number;
-    agua: number;
-    energia: number;
-  };
-  createdAt: any;
-  updatedAt: any;
-}
-
 export interface HorarioVoluntario {
   id: string;
   voluntarioId: string;
@@ -560,4 +532,9 @@ export interface Incidencia {
   trabajadorId?: string;
 }
 
-// Removed duplicate UserProfile definition
+export interface ProjectsViewProps {
+  onOpenProjectForm: () => void;
+  onEditProject: (project: any) => void;
+}
+
+// Removed duplicate UserProfile type definition

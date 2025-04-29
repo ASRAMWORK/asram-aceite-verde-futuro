@@ -52,9 +52,18 @@ interface VoluntarioFormProps {
 }
 
 const VoluntarioForm = ({ onSubmit, onCancel, initialData }: VoluntarioFormProps) => {
+  // Convert any horasDisponibles array to string if needed
+  const processedInitialData = initialData ? {
+    ...initialData,
+    apellidos: initialData.apellido,
+    horasDisponibles: Array.isArray(initialData.horasDisponibles) 
+      ? initialData.horasDisponibles.join(", ")
+      : initialData.horasDisponibles || ""
+  } : null;
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+    defaultValues: processedInitialData || {
       nombre: "",
       apellidos: "",
       email: "",

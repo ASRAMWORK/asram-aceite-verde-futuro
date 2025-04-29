@@ -1,9 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, where, increment } from 'firebase/firestore';
+import { 
+  collection, getDocs, query, orderBy, addDoc, updateDoc, 
+  doc, deleteDoc, serverTimestamp, where, getDoc 
+} from 'firebase/firestore';
 import { toast } from 'sonner';
-import type { Ruta, Recogida } from '@/types';
+import type { Ruta } from '@/types';
 
 export function useRutas() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
@@ -14,100 +17,57 @@ export function useRutas() {
     try {
       setLoading(true);
       const rutasRef = collection(db, "rutas");
-      const rutasSnap = await getDocs(query(rutasRef, orderBy("fecha", "desc")));
+      const rutasQuery = query(rutasRef, orderBy("createdAt", "desc"));
+      const rutasSnap = await getDocs(rutasQuery);
       
       const rutasData: Ruta[] = [];
       rutasSnap.forEach((doc) => {
         const data = doc.data();
         rutasData.push({
           id: doc.id,
-          nombre: data.nombre || '',
-          distrito: data.distrito || '',
-          barrios: data.barrios || [],
-          puntos: data.puntos || [], // Added default empty array for puntos
-          fecha: data.fecha?.toDate() || new Date(),
-          hora: data.hora || '',
-          recogedores: data.recogedores || '',
-          clientes: data.clientes || [],
-          puntosRecogida: data.puntosRecogida || 0,
-          distanciaTotal: data.distanciaTotal || 0,
-          tiempoEstimado: data.tiempoEstimado || 0,
-          frecuencia: data.frecuencia || 'semanal',
-          completada: data.completada || false,
-          litrosTotales: data.litrosTotales || 0,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          nombre: data.nombre,
+          distrito: data.distrito,
+          barrios: data.barrios,
+          fecha: data.fecha?.toDate(),
+          hora: data.hora,
+          recogedores: data.recogedores,
+          clientes: data.clientes,
+          puntosRecogida: data.puntosRecogida,
+          distanciaTotal: data.distanciaTotal,
+          tiempoEstimado: data.tiempoEstimado,
+          frecuencia: data.frecuencia,
+          completada: data.completada,
+          litrosTotales: data.litrosTotales,
+          puntos: data.puntos || [], // Add empty array as default
+          createdAt: data.createdAt?.toDate(),
+          updatedAt: data.updatedAt?.toDate()
         });
       });
       
       setRutas(rutasData);
     } catch (err) {
       console.error("Error cargando rutas:", err);
-      setError("Error al cargar datos de rutas");
+      setError("Error al cargar las rutas");
     } finally {
       setLoading(false);
     }
   };
 
-  const addRuta = async (nuevaRuta: Omit<Ruta, "id">) => {
+  const addRuta = async (ruta: Omit<Ruta, "id">) => {
     try {
-      const rutaData = {
-        ...nuevaRuta,
-        puntos: nuevaRuta.puntos || [],
-        updatedAt: nuevaRuta.updatedAt || serverTimestamp()
-      };
+      await addDoc(collection(db, "rutas"), {
+        ...ruta,
+        puntos: ruta.puntos || [], // Ensure puntos is included
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
       
-      const docRef = await addDoc(collection(db, "rutas"), rutaData);
-      
-      if (nuevaRuta.clientes && nuevaRuta.clientes.length > 0) {
-        const recogidas = nuevaRuta.clientes.map(cliente => ({
-          rutaId: docRef.id,
-          clienteId: cliente.id,
-          nombreLugar: cliente.nombre,
-          direccion: cliente.direccion,
-          distrito: nuevaRuta.distrito,
-          fecha: nuevaRuta.fecha,
-          litrosRecogidos: 0,
-          estado: 'pendiente',
-          createdAt: serverTimestamp()
-        }));
-
-        for (const recogida of recogidas) {
-          await addDoc(collection(db, "recogidas"), recogida);
-        }
-      }
-      
-      toast.success("Ruta añadida correctamente");
+      toast.success("Ruta creada correctamente");
       await loadRutas();
       return true;
     } catch (err) {
       console.error("Error añadiendo ruta:", err);
-      toast.error("Error al añadir la ruta");
-      return false;
-    }
-  };
-
-  const updateRutaRecogida = async (rutaId: string, clienteId: string, litros: number) => {
-    try {
-      const recogidasRef = collection(db, "recogidas");
-      const q = query(recogidasRef, 
-        where("rutaId", "==", rutaId),
-        where("clienteId", "==", clienteId)
-      );
-      
-      const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
-        const recogidaDoc = snapshot.docs[0];
-        await updateDoc(doc(db, "recogidas", recogidaDoc.id), {
-          litrosRecogidos: litros,
-          estado: 'completada',
-          fechaCompletada: serverTimestamp()
-        });
-      }
-      
-      return true;
-    } catch (err) {
-      console.error("Error actualizando recogida:", err);
+      toast.error("Error al crear la ruta");
       return false;
     }
   };
@@ -127,37 +87,42 @@ export function useRutas() {
       return false;
     }
   };
-  
-  const completeRuta = async (id: string, litrosTotales: number = 0) => {
+
+  const updateRutaRecogida = async (rutaId: string, clienteId: string, litros: number) => {
     try {
-      const ruta = rutas.find(r => r.id === id);
-      if (!ruta) throw new Error('Ruta no encontrada');
-
-      await updateDoc(doc(db, "rutas", id), {
-        completada: true,
-        litrosTotales,
-        fechaCompletada: serverTimestamp(),
+      // First get the route document
+      const rutaRef = doc(db, "rutas", rutaId);
+      const rutaSnap = await getDoc(rutaRef);
+      
+      if (!rutaSnap.exists()) {
+        toast.error("La ruta no existe");
+        return false;
+      }
+      
+      const rutaData = rutaSnap.data();
+      const clientes = rutaData.clientes || [];
+      
+      // Update the specific client's litros
+      const clientesActualizados = clientes.map((cliente: any) => 
+        cliente.id === clienteId ? { ...cliente, litros } : cliente
+      );
+      
+      // Update the route with new clients data
+      await updateDoc(rutaRef, {
+        clientes: clientesActualizados,
         updatedAt: serverTimestamp()
       });
-
-      // Update district statistics
-      const statsRef = doc(db, "estadisticas", ruta.distrito);
-      await updateDoc(statsRef, {
-        litrosTotales: increment(litrosTotales),
-        rutasCompletadas: increment(1),
-        updatedAt: serverTimestamp()
-      });
-
-      toast.success(`Ruta completada con éxito - ${litrosTotales}L recogidos`);
+      
+      toast.success("Litros registrados correctamente");
       await loadRutas();
       return true;
     } catch (err) {
-      console.error("Error completando ruta:", err);
-      toast.error("Error al completar la ruta");
+      console.error("Error actualizando litros en ruta:", err);
+      toast.error("Error al registrar los litros");
       return false;
     }
   };
-  
+
   const deleteRuta = async (id: string) => {
     try {
       await deleteDoc(doc(db, "rutas", id));
@@ -171,6 +136,25 @@ export function useRutas() {
     }
   };
 
+  const completeRuta = async (id: string, litrosTotales: number) => {
+    try {
+      await updateDoc(doc(db, "rutas", id), {
+        completada: true,
+        fechaCompletada: new Date(),
+        litrosTotales: litrosTotales,
+        updatedAt: serverTimestamp()
+      });
+      
+      toast.success("Ruta marcada como completada");
+      await loadRutas();
+      return true;
+    } catch (err) {
+      console.error("Error completando ruta:", err);
+      toast.error("Error al completar la ruta");
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadRutas();
   }, []);
@@ -179,11 +163,11 @@ export function useRutas() {
     rutas,
     loading,
     error,
-    loadRutas,
     addRuta,
     updateRuta,
-    completeRuta,
+    updateRutaRecogida,
     deleteRuta,
-    updateRutaRecogida
+    completeRuta,
+    loadRutas
   };
 }

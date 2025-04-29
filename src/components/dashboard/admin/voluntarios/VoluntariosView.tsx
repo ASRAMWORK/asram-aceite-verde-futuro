@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { Calendar, Clock, Trash2, Edit, UserPlus } from "lucide-react";
 import VoluntarioForm from "./VoluntarioForm";
 import AsignacionTareas from "./AsignacionTareas";
 import HorariosVoluntarios from "./HorariosVoluntarios";
-import type { Voluntario, Tarea } from "@/types";
+import type { Voluntario } from "@/types";
 
 const VoluntariosView = () => {
   const [showForm, setShowForm] = useState(false);
@@ -16,15 +17,52 @@ const VoluntariosView = () => {
   const [activeTab, setActiveTab] = useState("inscripciones");
   const { voluntarios, loading, addVoluntario, updateVoluntario, deleteVoluntario } = useVoluntarios();
 
-  const handleAddVoluntario = async (data: Omit<Voluntario, "id">) => {
-    const success = await addVoluntario(data);
+  const handleAddVoluntario = async (data: any) => {
+    // Map form fields to expected structure
+    const voluntarioData = {
+      nombre: data.nombre,
+      apellido: data.apellidos, // Convert apellidos to apellido
+      email: data.email,
+      telefono: data.telefono,
+      direccion: data.direccion || "",
+      ciudad: "",
+      provincia: "",
+      codigoPostal: data.codigoPostal || "",
+      pais: "España",
+      activo: data.activo,
+      dni: "",
+      fechaNacimiento: null,
+      diasDisponibles: data.diasDisponibles,
+      horasDisponibles: data.horasDisponibles,
+      habilidades: data.habilidades || [],
+      experiencia: data.experiencia || "",
+      estado: "activo",
+      fechaAlta: new Date()
+    };
+    
+    const success = await addVoluntario(voluntarioData);
     if (success) {
       setShowForm(false);
     }
   };
 
-  const handleUpdateVoluntario = async (id: string, data: Partial<Voluntario>) => {
-    const success = await updateVoluntario(id, data);
+  const handleUpdateVoluntario = async (id: string, data: any) => {
+    // Map form fields to expected structure
+    const voluntarioData = {
+      nombre: data.nombre,
+      apellido: data.apellidos, // Convert apellidos to apellido
+      email: data.email,
+      telefono: data.telefono,
+      direccion: data.direccion || "",
+      codigoPostal: data.codigoPostal || "",
+      activo: data.activo,
+      diasDisponibles: data.diasDisponibles,
+      horasDisponibles: data.horasDisponibles,
+      habilidades: data.habilidades || [],
+      experiencia: data.experiencia || ""
+    };
+    
+    const success = await updateVoluntario(id, voluntarioData);
     if (success) {
       setEditingVoluntario(null);
       setShowForm(false);
@@ -40,6 +78,13 @@ const VoluntariosView = () => {
   const handleEditVoluntario = (voluntario: Voluntario) => {
     setEditingVoluntario(voluntario);
     setShowForm(true);
+  };
+
+  // Helper function to safely format horasDisponibles
+  const formatHorasDisponibles = (horasDisponibles?: string | string[]) => {
+    if (!horasDisponibles) return "No especificado";
+    if (Array.isArray(horasDisponibles)) return horasDisponibles.join(", ");
+    return horasDisponibles;
   };
 
   return (
@@ -104,7 +149,7 @@ const VoluntariosView = () => {
                               </div>
                               <div className="flex items-center gap-1 mt-1">
                                 <Clock className="h-4 w-4" />
-                                <div className="text-sm text-gray-500">{voluntario.horasDisponibles?.join(", ") || "No especificado"}</div>
+                                <div className="text-sm text-gray-500">{formatHorasDisponibles(voluntario.horasDisponibles)}</div>
                               </div>
                             </TableCell>
                             <TableCell>
