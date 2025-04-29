@@ -63,7 +63,8 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
                 <TableCell>{formatDate(recogida.fechaRecogida || recogida.fecha)}</TableCell>
                 <TableCell>{recogida.direccionRecogida || recogida.direccion}</TableCell>
                 <TableCell>
-                  <Badge variant={recogida.estadoRecogida === "completada" || recogida.completada ? "success" : "outline"}>
+                  <Badge variant={recogida.estadoRecogida === "completada" || recogida.completada ? "default" : "outline"} 
+                         className={recogida.estadoRecogida === "completada" || recogida.completada ? "bg-green-500 hover:bg-green-600" : ""}>
                     {recogida.estadoRecogida === "completada" || recogida.completada ? "Completada" : "Pendiente"}
                   </Badge>
                 </TableCell>

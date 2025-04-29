@@ -1,357 +1,566 @@
-
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, CardContent, CardHeader, CardTitle, 
-  CardDescription 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, UserRound, Edit, Ban, CheckCircle, Droplet } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useUsuarios } from '@/hooks/useUsuarios';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Search, UserPlus, User, Edit, Trash2, RefreshCcw, Filter } from 'lucide-react';
+import { useClientes } from '@/hooks/useClientes';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import RecogidaClienteButton from './clientes/RecogidaClienteButton';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
+import { useDebounce } from '@/hooks/useDebounce';
 import { Usuario } from '@/types';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet"
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import ClienteForm from './ClienteForm';
-import ClienteHistorialRecogidas from './ClienteHistorialRecogidas';
-import { toast } from 'sonner';
 
-const AdministradorClientes = () => {
-  const [showForm, setShowForm] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('todos');
-  const { usuarios, loadUsuariosData, updateUsuario } = useUsuarios();
-  const [selectedUsuario, setSelectedUsuario] = useState<Usuario | null>(null);
-  const [selectedUsuarioToEdit, setSelectedUsuarioToEdit] = useState<Usuario | null>(null);
-  const [showRecogerAceite, setShowRecogerAceite] = useState(false);
-  
-  // Calculate statistics
-  const totalUsuarios = usuarios.length;
-  const usuariosActivos = usuarios.filter(u => u.activo).length;
-  const usuariosInactivos = usuarios.filter(u => !u.activo).length;
+const GestionClientes = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAddingClient, setIsAddingClient] = useState(false);
+  const [isEditingClient, setIsEditingClient] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Usuario | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+  const [distritoFilter, setDistritoFilter] = useState('');
+  const [barrioFilter, setBarrioFilter] = useState('');
+  const [formData, setFormData] = useState({
+    id: '',
+    nombre: '',
+    email: '',
+    telefono: '',
+    direccion: '',
+    distrito: '',
+    barrio: '',
+  });
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const {
+    clientes,
+    loading,
+    error,
+    loadClientesData,
+    addCliente,
+    updateCliente,
+    deleteCliente,
+    getDistritosUnicos,
+    getBarriosUnicos,
+  } = useClientes();
+  const { toast } = useToast();
 
-  const handleClienteSubmit = async () => {
-    // After successful client creation, refresh the list
+  useEffect(() => {
+    if (selectedClient) {
+      setFormData({
+        id: selectedClient.id,
+        nombre: selectedClient.nombre,
+        email: selectedClient.email,
+        telefono: selectedClient.telefono,
+        direccion: selectedClient.direccion,
+        distrito: selectedClient.distrito,
+        barrio: selectedClient.barrio,
+      });
+    }
+  }, [selectedClient]);
+
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return "Sin fecha";
     try {
-      await loadUsuariosData();
-      setShowForm(false);
-    } catch (error) {
-      console.error("Error loading usuarios data:", error);
+      return format(new Date(date), "dd/MM/yyyy", { locale: es });
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return "Fecha inválida";
     }
   };
 
-  const handleToggleActivoUsuario = async (usuario: Usuario) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleAddClient = async () => {
     try {
-      await updateUsuario(usuario.id, { activo: !usuario.activo });
-      toast.success(`Cliente ${usuario.activo ? 'desactivado' : 'activado'} correctamente`);
+      await addCliente(formData);
+      setIsAddingClient(false);
+      setFormData({
+        id: '',
+        nombre: '',
+        email: '',
+        telefono: '',
+        direccion: '',
+        distrito: '',
+        barrio: '',
+      });
+      toast({
+        title: "Cliente añadido",
+        description: "El cliente se ha añadido correctamente.",
+      })
     } catch (error) {
-      console.error("Error toggling usuario activo:", error);
-      toast.error("Error al cambiar el estado del cliente");
+      console.error("Error al crear cliente:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se ha podido añadir el cliente.",
+      })
     }
   };
 
-  // Add a new function to render Punto Verde specific information
-const PuntoVerdeInfo = ({ usuario }: { usuario: Usuario }) => {
-  if (usuario.tipo !== "punto_verde") return null;
-  
-  return (
-    <div className="mt-4 p-4 bg-muted rounded-md">
-      <h3 className="font-semibold mb-2">Información de Punto Verde</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Distrito</p>
-          <p>{usuario.distrito || 'No especificado'}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Barrio</p>
-          <p>{usuario.barrio || 'No especificado'}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Nº de Viviendas</p>
-          <p>{usuario.numViviendas || 0}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Nº de Contenedores</p>
-          <p>{usuario.numContenedores || 0}</p>
-        </div>
-        {usuario.puntoVerdeId && (
-          <div>
-            <p className="text-sm text-muted-foreground">ID Punto Verde</p>
-            <p>{usuario.puntoVerdeId}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+  const handleEditClient = (cliente: Usuario) => {
+    setSelectedClient(cliente);
+    setIsEditingClient(true);
+  };
 
-  // Add a tab for Puntos Verdes in the component
-const clienteTabs = [
-  { value: "todos", label: "Todos" },
-  { value: "particulares", label: "Particulares" },
-  { value: "negocios", label: "Negocios" },
-  { value: "administradores", label: "Administradores" },
-  { value: "puntos_verdes", label: "Puntos Verdes" },
-  { value: "activos", label: "Activos" },
-  { value: "inactivos", label: "Inactivos" }
-];
+  const handleUpdateClient = async () => {
+    try {
+      if (!selectedClient) {
+        console.warn("No client selected for update.");
+        return;
+      }
 
-  const clientes = usuarios;
+      await updateCliente(selectedClient.id, formData);
+      setIsEditingClient(false);
+      setSelectedClient(null);
+      setFormData({
+        id: '',
+        nombre: '',
+        email: '',
+        telefono: '',
+        direccion: '',
+        distrito: '',
+        barrio: '',
+      });
+      toast({
+        title: "Cliente actualizado",
+        description: "El cliente se ha actualizado correctamente.",
+      })
+    } catch (error) {
+      console.error("Error al actualizar cliente:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se ha podido actualizar el cliente.",
+      })
+    }
+  };
 
-  // Update the filtering function to handle Puntos Verdes
-const filteredClientes = clientes.filter(cliente => {
-  // Filter by search term
-  const matchesSearchTerm = cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (cliente.email && cliente.email.toLowerCase().includes(searchTerm.toLowerCase()));
-  
-  // Filter by tab
-  let matchesTab = false;
-  switch (activeTab) {
-    case "todos":
-      matchesTab = true;
-      break;
-    case "particulares":
-      matchesTab = cliente.tipo === "particular";
-      break;
-    case "negocios":
-      matchesTab = cliente.tipo === "negocio";
-      break;
-    case "administradores":
-      matchesTab = cliente.tipo === "administrador";
-      break;
-    case "puntos_verdes":
-      matchesTab = cliente.tipo === "punto_verde";
-      break;
-    case "activos":
-      matchesTab = cliente.activo === true;
-      break;
-    case "inactivos":
-      matchesTab = cliente.activo === false;
-      break;
-  }
-  
-  return matchesSearchTerm && matchesTab;
-}).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  const handleDeleteClient = (id: string) => {
+    setClientToDelete(id);
+  };
+
+  const confirmDeleteClient = async () => {
+    if (clientToDelete) {
+      try {
+        await deleteCliente(clientToDelete);
+        setClientToDelete(null);
+        toast({
+          title: "Cliente eliminado",
+          description: "El cliente se ha eliminado correctamente.",
+        })
+      } catch (error) {
+        console.error("Error al eliminar cliente:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se ha podido eliminar el cliente.",
+        })
+      }
+    }
+  };
+
+  const filteredClientes = clientes.filter(cliente => {
+    const matchesSearch =
+      cliente.nombre.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      cliente.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      cliente.telefono.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      cliente.direccion.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+
+    const matchesDistrito = !distritoFilter || cliente.distrito === distritoFilter;
+    const matchesBarrio = !barrioFilter || cliente.barrio === barrioFilter;
+
+    return matchesSearch && matchesDistrito && matchesBarrio;
+  });
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Gestión de Clientes</h2>
-          <p className="text-sm text-muted-foreground">
-            Total: {totalUsuarios} | Activos: {usuariosActivos} | Inactivos: {usuariosInactivos}
+          <h2 className="text-3xl font-bold tracking-tight">Gestión de Clientes</h2>
+          <p className="text-muted-foreground">
+            Administra los clientes registrados en el sistema
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Añadir Cliente
+        <Button onClick={() => setIsAddingClient(true)} className="bg-[#ee970d] hover:bg-[#e08500]">
+          <UserPlus className="mr-2 h-4 w-4" />
+          Añadir Cliente
         </Button>
       </div>
-
-      {showForm ? (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Nuevo Cliente</CardTitle>
-            <CardDescription>Ingrese los datos del cliente</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ClienteForm onCancel={() => setShowForm(false)} onSubmit={handleClienteSubmit} />
-          </CardContent>
-        </Card>
-      ) : null}
 
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <CardTitle>Mis Clientes</CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar clientes..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          <CardTitle>Buscar Clientes</CardTitle>
+          <CardDescription>
+            Busca clientes por nombre, email, teléfono o dirección
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              type="text"
+              placeholder="Buscar cliente..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="distritoFilter">Filtrar por Distrito</Label>
+              <Select value={distritoFilter} onValueChange={setDistritoFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos los distritos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos los distritos</SelectItem>
+                  {getDistritosUnicos().map((distrito) => (
+                    <SelectItem key={distrito} value={distrito}>{distrito}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="barrioFilter">Filtrar por Barrio</Label>
+              <Select value={barrioFilter} onValueChange={setBarrioFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos los barrios" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos los barrios</SelectItem>
+                  {getBarriosUnicos(distritoFilter).map((barrio) => (
+                    <SelectItem key={barrio} value={barrio}>{barrio}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <Tabs defaultValue="todos" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              {clienteTabs.map(tab => (
-                <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <div className="divide-y divide-border">
-            {filteredClientes.map(cliente => (
-              <div key={cliente.id} className="py-2 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <UserRound className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">{cliente.nombre}</p>
-                    <p className="text-sm text-muted-foreground">{cliente.email || 'No email'}</p>
-                  </div>
-                </div>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={() => setSelectedUsuario(cliente)}>
-                    Ver detalles
-                  </Button>
-                </SheetTrigger>
-              </div>
-            ))}
-          </div>
+          <Button
+            variant="outline"
+            className="w-full md:w-auto"
+            onClick={() => {
+              setDistritoFilter('');
+              setBarrioFilter('');
+              setSearchQuery('');
+            }}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Limpiar Filtros
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Update the user detail view to show Punto Verde information */}
-<Sheet open={!!selectedUsuario} onOpenChange={() => setSelectedUsuario(null)}>
-  <SheetContent className="sm:max-w-lg">
-    <SheetHeader className="mb-4">
-      <SheetTitle>Detalles del Cliente</SheetTitle>
-      <SheetDescription>
-        Información de contacto y gestión del cliente
-      </SheetDescription>
-    </SheetHeader>
-    
-    {selectedUsuario && (
-      <div className="space-y-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-xl font-bold">{selectedUsuario.nombre}</h2>
-            <p className="text-muted-foreground">
-              {selectedUsuario.tipo === "punto_verde" ? "Punto Verde" : 
-               selectedUsuario.tipo === "particular" ? "Cliente particular" : 
-               selectedUsuario.tipo === "negocio" ? "Negocio" : 
-               selectedUsuario.tipo === "administrador" ? "Administrador de fincas" : 
-               "Cliente"}
-            </p>
-          </div>
-          
-          <Badge 
-            variant={selectedUsuario.activo ? "default" : "outline"}
-            className={selectedUsuario.activo ? "bg-green-500" : ""}
-          >
-            {selectedUsuario.activo ? "Activo" : "Inactivo"}
-          </Badge>
-        </div>
-        
-        <Separator />
-        
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-            <p>{selectedUsuario.email || "No especificado"}</p>
-          </div>
-          
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Teléfono</h3>
-            <p>{selectedUsuario.telefono || "No especificado"}</p>
-          </div>
-          
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Dirección</h3>
-            <p>{selectedUsuario.direccion || "No especificada"}</p>
-          </div>
-          
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Ciudad/Provincia</h3>
-            <p>{selectedUsuario.ciudad || "Madrid"}, {selectedUsuario.provincia || "Madrid"}</p>
-          </div>
-          
-          {selectedUsuario.contacto && (
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Persona de contacto</h3>
-              <p>{selectedUsuario.contacto}</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Clientes</CardTitle>
+          <CardDescription>
+            Clientes registrados en el sistema
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <p className="text-muted-foreground">Cargando clientes...</p>
             </div>
-          )}
-          
-          {selectedUsuario.role && (
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Rol</h3>
-              <p>{selectedUsuario.role}</p>
+          ) : error ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="text-center">
+                <p className="text-red-500 mb-2">{error}</p>
+                <Button onClick={loadClientesData}>
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                  Reintentar
+                </Button>
+              </div>
             </div>
+          ) : filteredClientes.length === 0 ? (
+            <div className="flex justify-center items-center h-32">
+              <p className="text-muted-foreground">
+                No se encontraron clientes con los filtros aplicados.
+              </p>
+            </div>
+          ) : (
+            <ScrollArea>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Teléfono</TableHead>
+                    <TableHead>Dirección</TableHead>
+                    <TableHead>Distrito</TableHead>
+                    <TableHead>Barrio</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredClientes.map((cliente) => (
+                    <TableRow key={cliente.id}>
+                      <TableCell>{cliente.nombre}</TableCell>
+                      <TableCell>{cliente.email}</TableCell>
+                      <TableCell>{cliente.telefono}</TableCell>
+                      <TableCell>{cliente.direccion}</TableCell>
+                      <TableCell>{cliente.distrito}</TableCell>
+                      <TableCell>{cliente.barrio}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <RecogidaClienteButton cliente={cliente} size="icon" />
+                          <Button variant="outline" size="sm" onClick={() => handleEditClient(cliente)}>
+                            <Edit className="h-4 w-4 mr-1" />
+                            Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => handleDeleteClient(cliente.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Eliminar
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
           )}
-        </div>
-        
-        {selectedUsuario.tipo === "punto_verde" && (
-          <PuntoVerdeInfo usuario={selectedUsuario} />
-        )}
-        
-        <Separator />
-        
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium">Acciones</h3>
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setSelectedUsuarioToEdit(selectedUsuario);
-                setSelectedUsuario(null);
-              }}
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Editar información
-            </Button>
-            
-            <Button 
-              variant={selectedUsuario.activo ? "default" : "secondary"} 
-              onClick={() => handleToggleActivoUsuario(selectedUsuario)}
-              className={selectedUsuario.activo ? "bg-red-500 hover:bg-red-600" : ""}
-            >
-              {selectedUsuario.activo ? 
-                <><Ban className="mr-2 h-4 w-4" /> Desactivar cliente</> : 
-                <><CheckCircle className="mr-2 h-4 w-4" /> Activar cliente</>
-              }
-            </Button>
-          </div>
-        </div>
-        
-        <Button 
-          variant="outline" 
-          className="w-full mt-4" 
-          onClick={() => {
-            setShowRecogerAceite(true);
-            setSelectedUsuario(null);
-          }}
-        >
-          <Droplet className="mr-2 h-4 w-4" />
-          Programar recogida de aceite
-        </Button>
-        
-        <ClienteHistorialRecogidas cliente={selectedUsuario} />
-      </div>
-    )}
-  </SheetContent>
-</Sheet>
+        </CardContent>
+      </Card>
 
-      {/* Formulario de edición */}
-      <Sheet open={!!selectedUsuarioToEdit} onOpenChange={() => setSelectedUsuarioToEdit(null)}>
-        <SheetContent className="sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Editar Cliente</SheetTitle>
-            <SheetDescription>
-              Modifica la información del cliente.
-            </SheetDescription>
-          </SheetHeader>
-          {selectedUsuarioToEdit && (
-            <ClienteForm
-              usuario={selectedUsuarioToEdit}
-              onCancel={() => setSelectedUsuarioToEdit(null)}
-              onSubmit={async () => {
-                await loadUsuariosData();
-                setSelectedUsuarioToEdit(null);
-              }}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* Dialog para añadir cliente */}
+      <Dialog open={isAddingClient} onOpenChange={setIsAddingClient}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Añadir Cliente</DialogTitle>
+            <DialogDescription>
+              Añade un nuevo cliente al sistema
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="nombre">Nombre</Label>
+                <Input
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="telefono">Teléfono</Label>
+                <Input
+                  id="telefono"
+                  name="telefono"
+                  value={formData.telefono}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="direccion">Dirección</Label>
+                <Input
+                  id="direccion"
+                  name="direccion"
+                  value={formData.direccion}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="distrito">Distrito</Label>
+                <Input
+                  id="distrito"
+                  name="distrito"
+                  value={formData.distrito}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="barrio">Barrio</Label>
+                <Input
+                  id="barrio"
+                  name="barrio"
+                  value={formData.barrio}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="secondary" onClick={() => setIsAddingClient(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" onClick={handleAddClient} className="bg-[#ee970d] hover:bg-[#e08500]">
+              Añadir
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para editar cliente */}
+      <Dialog open={isEditingClient} onOpenChange={setIsEditingClient}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Editar Cliente</DialogTitle>
+            <DialogDescription>
+              Edita la información del cliente
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="nombre">Nombre</Label>
+                <Input
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="telefono">Teléfono</Label>
+                <Input
+                  id="telefono"
+                  name="telefono"
+                  value={formData.telefono}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="direccion">Dirección</Label>
+                <Input
+                  id="direccion"
+                  name="direccion"
+                  value={formData.direccion}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="distrito">Distrito</Label>
+                <Input
+                  id="distrito"
+                  name="distrito"
+                  value={formData.distrito}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="barrio">Barrio</Label>
+                <Input
+                  id="barrio"
+                  name="barrio"
+                  value={formData.barrio}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="secondary" onClick={() => setIsEditingClient(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" onClick={handleUpdateClient} className="bg-[#ee970d] hover:bg-[#e08500]">
+              Guardar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Alert Dialog para confirmar la eliminación */}
+      <AlertDialog open={!!clientToDelete} onOpenChange={(open) => !open && setClientToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará el cliente permanentemente. No podrás recuperarlo después.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteClient} className="bg-red-600 hover:bg-red-700">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
-export default AdministradorClientes;
+export default GestionClientes;

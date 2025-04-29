@@ -55,21 +55,21 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
 
   return (
     <>
-      <Button
-        variant={variant}
-        size={size}
-        onClick={() => setIsDialogOpen(true)}
-        className={variant === "default" ? "bg-cyan-600 hover:bg-cyan-700" : ""}
-      >
-        {size === "icon" ? <Droplet className="h-4 w-4" /> : (
-          <>
-            <Droplet className="mr-2 h-4 w-4" />
-            Programar Recogida
-          </>
-        )}
-      </Button>
-      
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Button
+          variant={variant}
+          size={size}
+          onClick={() => setIsDialogOpen(true)}
+          className={variant === "default" ? "bg-cyan-600 hover:bg-cyan-700" : ""}
+        >
+          {size === "icon" ? <Droplet className="h-4 w-4" /> : (
+            <>
+              <Droplet className="mr-2 h-4 w-4" />
+              Programar Recogida
+            </>
+          )}
+        </Button>
+        
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Programar Recogida</DialogTitle>
