@@ -13,7 +13,7 @@ import type { ComunidadVecinos } from '@/types';
 const GestionarComunidad = () => {
   const { formData, isLoading, handleChange, handleSubmit, loading } = useComunidadForm();
   
-  // Extract only the needed properties for each form component
+  // Extract only the needed properties for each form component - updated to match interface
   const basicInfoProps = {
     nombre: formData.nombre || '',
     cif: formData.cif || '',

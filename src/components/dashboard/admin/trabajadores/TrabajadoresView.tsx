@@ -70,11 +70,11 @@ const TrabajadoresView = () => {
     const matchesSearch = 
       searchTerm === "" ||
       trabajador.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      trabajador.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      trabajador.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (trabajador.apellidos && trabajador.apellidos.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (trabajador.dni && trabajador.dni.toLowerCase().includes(searchTerm.toLowerCase())) ||
       trabajador.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesRol = rolFilter === "" || trabajador.roles.includes(rolFilter as any);
+    const matchesRol = rolFilter === "" || (trabajador.roles && trabajador.roles.includes(rolFilter as any));
     const matchesEstado = estadoFilter === "" || 
       (estadoFilter === "activo" && trabajador.activo) || 
       (estadoFilter === "inactivo" && !trabajador.activo);
@@ -266,14 +266,14 @@ const TrabajadoresView = () => {
                         <TableRow key={trabajador.id}>
                           <TableCell>
                             <Avatar className="h-9 w-9">
-                              <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellido}`} />
+                              <AvatarImage src={trabajador.foto} alt={`${trabajador.nombre} ${trabajador.apellidos}`} />
                               <AvatarFallback>
-                                {trabajador.nombre.charAt(0)}{trabajador.apellido.charAt(0)}
+                                {trabajador.nombre.charAt(0)}{trabajador.apellidos?.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
                           </TableCell>
                           <TableCell className="font-medium">
-                            {trabajador.nombre} {trabajador.apellido}
+                            {trabajador.nombre} {trabajador.apellidos}
                           </TableCell>
                           <TableCell>{trabajador.dni}</TableCell>
                           <TableCell>

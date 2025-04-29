@@ -54,7 +54,7 @@ const VoluntarioForm = ({ onSubmit, onCancel, initialData }: VoluntarioFormProps
   // Convert any horasDisponibles array to string if needed
   const processedInitialData = initialData ? {
     ...initialData,
-    apellidos: initialData.apellido,
+    apellidos: initialData.apellidos || "", 
     horasDisponibles: initialData.horasDisponibles || ""
   } : null;
   

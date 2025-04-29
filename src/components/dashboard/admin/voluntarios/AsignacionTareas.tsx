@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -54,10 +55,13 @@ const AsignacionTareas: React.FC<AsignacionTareasProps> = ({ voluntarios }) => {
     const nuevaTarea = {
       titulo: data.titulo,
       descripcion: data.descripcion,
-      fecha: new Date(data.fecha),
+      fechaInicio: new Date(data.fecha),
+      fecha: new Date(data.fecha), // For compatibility
+      horaInicio: "09:00", // Default value
+      horaFin: "18:00", // Default value
       estado: "pendiente",
       prioridad: data.prioridad,
-      asignadoA: voluntario.nombre,
+      asignadoA: [voluntario.nombre], // This field expects a string array
       voluntarioId: data.voluntarioId,
       voluntarioNombre: voluntario.nombre,
       completada: false,

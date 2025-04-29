@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -88,36 +87,47 @@ const beneficiosOptions = [
 ];
 
 const TrabajadorForm = ({ onSubmit, onCancel, initialData, vehiculos = [], rutas = [] }: TrabajadorFormProps) => {
+  // Process the initial data before setting form defaults
+  const processedInitialData = initialData ? {
+    ...initialData,
+    // Ensure fields match expected types:
+    rutasAsignadas: Array.isArray(initialData.rutasAsignadas) ? initialData.rutasAsignadas : [],
+    metodoPago: (initialData.metodoPago as "efectivo" | "transferencia" | "otro") || "efectivo",
+    frecuenciaPago: (initialData.frecuenciaPago as "mensual" | "semanal" | "quincenal") || "mensual",
+    diaCobro: Number(initialData.diaCobro) || 1,
+    // ... other field transformations as needed
+  } : null;
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: initialData?.email || "",
-      nombre: initialData?.nombre || "",
-      apellido: initialData?.apellido || "",
-      telefono: initialData?.telefono || "",
-      direccion: initialData?.direccion || "",
-      ciudad: initialData?.ciudad || "",
-      provincia: initialData?.provincia || "",
-      codigoPostal: initialData?.codigoPostal || "",
-      pais: initialData?.pais || "España",
-      dni: initialData?.dni || "",
-      fechaNacimiento: initialData?.fechaNacimiento ? new Date(initialData.fechaNacimiento) : undefined,
-      cargo: initialData?.cargo || "",
-      departamento: initialData?.departamento || "",
-      activo: initialData ? initialData.activo : true,
-      fechaAlta: initialData?.fechaAlta ? new Date(initialData.fechaAlta) : new Date(),
-      tipoContrato: initialData?.tipoContrato || "indefinido",
-      tipoJornada: initialData?.tipoJornada || "completa",
-      roles: initialData?.roles || ["recolector"],
-      vehiculoAsignado: initialData?.vehiculoAsignado || undefined,
-      rutasAsignadas: initialData?.rutasAsignadas || [],
-      salarioBase: initialData?.salarioBase,
-      cuentaBancaria: initialData?.cuentaBancaria || "",
-      metodoPago: initialData?.metodoPago || "transferencia",
-      frecuenciaPago: initialData?.frecuenciaPago || "mensual",
-      diaCobro: initialData?.diaCobro || 1,
-      beneficios: initialData?.beneficios || [],
-      foto: initialData?.foto || "",
+      email: processedInitialData?.email || "",
+      nombre: processedInitialData?.nombre || "",
+      apellido: processedInitialData?.apellido || "",
+      telefono: processedInitialData?.telefono || "",
+      direccion: processedInitialData?.direccion || "",
+      ciudad: processedInitialData?.ciudad || "",
+      provincia: processedInitialData?.provincia || "",
+      codigoPostal: processedInitialData?.codigoPostal || "",
+      pais: processedInitialData?.pais || "España",
+      dni: processedInitialData?.dni || "",
+      fechaNacimiento: processedInitialData?.fechaNacimiento ? new Date(processedInitialData.fechaNacimiento) : undefined,
+      cargo: processedInitialData?.cargo || "",
+      departamento: processedInitialData?.departamento || "",
+      activo: processedInitialData ? processedInitialData.activo : true,
+      fechaAlta: processedInitialData?.fechaAlta ? new Date(processedInitialData.fechaAlta) : new Date(),
+      tipoContrato: processedInitialData?.tipoContrato || "indefinido",
+      tipoJornada: processedInitialData?.tipoJornada || "completa",
+      roles: processedInitialData?.roles || ["recolector"],
+      vehiculoAsignado: processedInitialData?.vehiculoAsignado || undefined,
+      rutasAsignadas: processedInitialData?.rutasAsignadas || [],
+      salarioBase: processedInitialData?.salarioBase,
+      cuentaBancaria: processedInitialData?.cuentaBancaria || "",
+      metodoPago: processedInitialData?.metodoPago || "transferencia",
+      frecuenciaPago: processedInitialData?.frecuenciaPago || "mensual",
+      diaCobro: processedInitialData?.diaCobro || 1,
+      beneficios: processedInitialData?.beneficios || [],
+      foto: processedInitialData?.foto || "",
     },
   });
 

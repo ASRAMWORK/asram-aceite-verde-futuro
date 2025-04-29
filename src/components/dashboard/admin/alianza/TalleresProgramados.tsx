@@ -30,45 +30,65 @@ const TalleresProgramados = () => {
   const { alianzas } = useAlianzaVerde();
   const [activeTab, setActiveTab] = useState<'programados' | 'completados'>('programados');
 
-  // Mock data - replace with actual data from your backend
+  // Mock data - updated to match TallerProgramado interface
   const talleres: TallerProgramado[] = [
     {
       id: "1",
       titulo: "Reciclaje Creativo",
-      centro: "CEIP García Lorca",
+      descripcion: "Taller de reciclaje creativo para estudiantes",
+      fecha: new Date("2025-05-15"),
+      horaInicio: "10:00",
+      horaFin: "12:00",
+      lugar: "CEIP García Lorca",
+      capacidad: 25,
+      inscritos: 0, 
+      alianzaId: "1",
+      alianzaNombre: "CEIP García Lorca",
+      ponente: "María García",
+      estado: "programado",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Additional fields
       fechaHora: new Date("2025-05-15"),
       duracion: 120,
       numAsistentes: 25,
-      materiales: ["Material 1", "Material 2"],
-      instructor: "María García",
-      estado: "programado",
-      // Compatible fields
-      direccion: "Calle del Colegio 1, Madrid",
+      centro: "CEIP García Lorca",
       nombreCentro: "CEIP García Lorca",
+      direccion: "Calle del Colegio 1, Madrid",
       contacto: "María García",
+      instructor: "María García",
       telefono: "912345678",
       email: "contacto@garcialorca.edu",
-      createdAt: null,
-      updatedAt: null
+      materiales: ["Material 1", "Material 2"]
     },
     {
       id: "2",
       titulo: "Mini Huerto Escolar",
-      centro: "IES Ramiro de Maeztu",
+      descripcion: "Taller de huerto escolar sostenible",
+      fecha: new Date("2025-05-22"),
+      horaInicio: "09:00",
+      horaFin: "10:30",
+      lugar: "IES Ramiro de Maeztu",
+      capacidad: 30,
+      inscritos: 0,
+      alianzaId: "2",
+      alianzaNombre: "IES Ramiro de Maeztu",
+      ponente: "Juan Pérez",
+      estado: "programado",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Additional fields
       fechaHora: new Date("2025-05-22"),
       duracion: 90,
       numAsistentes: 30,
-      materiales: ["Material 1", "Material 2"],
-      instructor: "Juan Pérez",
-      estado: "programado",
-      // Compatible fields
-      direccion: "Calle de Serrano 127, Madrid",
+      centro: "IES Ramiro de Maeztu",
       nombreCentro: "IES Ramiro de Maeztu",
+      direccion: "Calle de Serrano 127, Madrid",
       contacto: "Juan Pérez",
+      instructor: "Juan Pérez",
       telefono: "913456789",
       email: "contacto@ramirodemaeztu.edu",
-      createdAt: null,
-      updatedAt: null
+      materiales: ["Material 1", "Material 2"]
     }
   ];
 

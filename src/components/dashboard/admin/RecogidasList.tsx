@@ -1,95 +1,109 @@
 
 import React from 'react';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Info } from "lucide-react";
+import { Calendar, Clock, MapPin, Check, Info } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { Recogida } from '@/types';
+import type { Recogida } from '@/types';
 
 interface RecogidasListProps {
   recogidas: Recogida[];
-  onViewDetails?: (id: string) => void;
-  onComplete?: (id: string) => void;
+  onComplete: (id: string) => void;
+  onViewDetails: (id: string) => void;
 }
 
-const RecogidasList: React.FC<RecogidasListProps> = ({ 
-  recogidas,
-  onViewDetails,
-  onComplete
-}) => {
-  
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return "Sin fecha";
-    try {
-      return format(new Date(date), "dd/MM/yyyy", { locale: es });
-    } catch (e) {
-      console.error("Error formatting date:", e);
-      return "Fecha inválida";
-    }
-  };
-  
+const RecogidasList: React.FC<RecogidasListProps> = ({ recogidas, onComplete, onViewDetails }) => {
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Cliente</TableHead>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Dirección</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {recogidas.length === 0 ? (
+    <Card>
+      <CardContent className="pt-6">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                No hay recogidas para mostrar
-              </TableCell>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Fecha y Hora</TableHead>
+              <TableHead>Dirección</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Cantidad</TableHead>
+              <TableHead>Acciones</TableHead>
             </TableRow>
-          ) : (
-            recogidas.map((recogida) => (
-              <TableRow key={recogida.id}>
-                <TableCell>{recogida.cliente}</TableCell>
-                <TableCell>{formatDate(recogida.fechaRecogida || recogida.fecha)}</TableCell>
-                <TableCell>{recogida.direccionRecogida || recogida.direccion}</TableCell>
-                <TableCell>
-                  <Badge variant={recogida.estadoRecogida === "completada" || recogida.completada ? "default" : "outline"} 
-                         className={recogida.estadoRecogida === "completada" || recogida.completada ? "bg-green-500 hover:bg-green-600" : ""}>
-                    {recogida.estadoRecogida === "completada" || recogida.completada ? "Completada" : "Pendiente"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    {onViewDetails && (
-                      <Button variant="ghost" size="sm" onClick={() => onViewDetails(recogida.id)}>
-                        <Info className="h-4 w-4 mr-1" />
-                        Detalles
-                      </Button>
-                    )}
-                    {onComplete && !recogida.completada && (
-                      <Button variant="outline" size="sm" onClick={() => onComplete(recogida.id)}>
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        Completar
-                      </Button>
-                    )}
-                  </div>
+          </TableHeader>
+          <TableBody>
+            {recogidas.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  No hay recogidas pendientes
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
+            ) : (
+              recogidas.map((recogida) => (
+                <TableRow key={recogida.id}>
+                  <TableCell className="font-medium">{recogida.cliente}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {recogida.fechaRecogida ? format(new Date(recogida.fechaRecogida), 'dd/MM/yyyy') : 'Sin fecha'}
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground mt-1">
+                      <Clock className="mr-2 h-4 w-4" />
+                      {recogida.horaRecogida}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-start">
+                      <MapPin className="mr-2 h-4 w-4 mt-0.5 text-muted-foreground" />
+                      <div>
+                        <div>{recogida.direccionRecogida}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {recogida.distrito}, {recogida.barrio}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={recogida.estadoRecogida === 'pendiente' ? 'outline' : 'default'}
+                      className={recogida.estadoRecogida === 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}
+                    >
+                      {recogida.estadoRecogida === 'pendiente' ? 'Pendiente' : 'Completada'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{recogida.cantidadAproximada} litros</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onComplete(recogida.id)}
+                        disabled={recogida.completada}
+                      >
+                        <Check className="mr-1 h-4 w-4" />
+                        Completar
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onViewDetails(recogida.id)}
+                      >
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 };
 

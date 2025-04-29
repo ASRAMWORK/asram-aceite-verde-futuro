@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,7 @@ const VoluntariosView = () => {
     // Map form fields to expected structure
     const voluntarioData = {
       nombre: data.nombre,
-      apellido: data.apellidos, // Convert apellidos to apellido
+      apellidos: data.apellidos,
       email: data.email,
       telefono: data.telefono,
       direccion: data.direccion || "",
@@ -30,13 +29,12 @@ const VoluntariosView = () => {
       codigoPostal: data.codigoPostal || "",
       pais: "España",
       activo: data.activo,
-      dni: "",
-      fechaNacimiento: null,
-      diasDisponibles: data.diasDisponibles,
-      horasDisponibles: data.horasDisponibles,
+      diasDisponibles: data.diasDisponibles || [],
+      disponibilidad: data.diasDisponibles || [],
+      horasDisponibles: data.horasDisponibles || "",
       habilidades: data.habilidades || [],
       experiencia: data.experiencia || "",
-      estado: "activo",
+      horasContribuidas: 0,
       fechaAlta: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()
@@ -52,7 +50,7 @@ const VoluntariosView = () => {
     // Map form fields to expected structure
     const voluntarioData = {
       nombre: data.nombre,
-      apellido: data.apellidos, // Convert apellidos to apellido
+      apellidos: data.apellidos,
       email: data.email,
       telefono: data.telefono,
       direccion: data.direccion || "",
@@ -147,7 +145,7 @@ const VoluntariosView = () => {
                             <TableCell>
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
-                                <div className="text-sm text-gray-500">{voluntario.diasDisponibles?.join(", ") || "No especificado"}</div>
+                                <div className="text-sm text-gray-500">{voluntario.diasDisponibles?.join(", ") || voluntario.disponibilidad?.join(", ") || "No especificado"}</div>
                               </div>
                               <div className="flex items-center gap-1 mt-1">
                                 <Clock className="h-4 w-4" />

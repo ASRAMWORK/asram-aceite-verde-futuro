@@ -1,3 +1,4 @@
+
 export interface Usuario {
   id: string;
   nombre: string;
@@ -205,9 +206,10 @@ export interface TallerProgramado {
   estado: string;
   createdAt: Date;
   updatedAt: Date;
-  fechaHora?: Date; // Added for TallerForm compatibility
-  numAsistentes?: number; // Added for TallerForm compatibility
-  centro?: string; // Added for TallerForm compatibility
+  // Additional fields needed
+  fechaHora?: Date;
+  numAsistentes?: number;
+  centro?: string;
   nombreCentro?: string;
   direccion?: string;
   contacto?: string;
@@ -221,7 +223,7 @@ export interface TallerProgramado {
 export interface Trabajador {
   id: string;
   nombre: string;
-  apellidos: string; // Corrected from apellido to apellidos
+  apellidos: string;
   email: string;
   telefono: string;
   direccion: string;
@@ -239,11 +241,10 @@ export interface Trabajador {
   activo: boolean;
   createdAt: Date;
   updatedAt: Date;
-  vehiculoAsignado?: string;
   // Additional fields needed based on errors
   dni?: string;
   foto?: string;
-  roles: string[];
+  roles?: string[];
   fechaContratacion?: Date;
   tipoContrato?: string;
   tipoJornada?: string;
@@ -252,10 +253,11 @@ export interface Trabajador {
   cargo?: string;
   salarioBase?: number;
   cuentaBancaria?: string;
-  metodoPago?: string;
-  frecuenciaPago?: string;
-  diaCobro?: string;
+  metodoPago?: "efectivo" | "transferencia" | "otro";
+  frecuenciaPago?: "mensual" | "semanal" | "quincenal";
+  diaCobro?: number;
   beneficios?: string[];
+  vehiculoAsignado?: string;
 }
 
 export interface Turno {
@@ -300,6 +302,14 @@ export interface Voluntario {
   fechaAlta: Date;
   horasContribuidas: number;
   activo: boolean;
+  // Additional properties needed
+  diasDisponibles?: string[];
+  horasDisponibles?: string | string[];
+  experiencia?: string;
+  codigoPostal?: string;
+  pais?: string;
+  ciudad?: string;
+  provincia?: string;
 }
 
 export interface Tarea {
@@ -320,6 +330,8 @@ export interface Tarea {
   voluntarioNombre?: string;
   completada?: boolean;
   fechaAsignacion?: Date;
+  fecha?: Date;
+  fechaCompletada?: Date;
 }
 
 export interface UserProfile {
@@ -334,6 +346,7 @@ export interface UserProfile {
   codigoPostal: string;
   createdAt: Date;
   updatedAt: Date;
+  nombreAdministracion?: string;
 }
 
 export interface ComunidadVecinos {
@@ -348,6 +361,23 @@ export interface ComunidadVecinos {
   activo: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // Additional properties needed
+  ciudad?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  distrito?: string;
+  barrio?: string;
+  cif?: string;
+  numeroPorteria?: number;
+  totalViviendas?: number;
+  correoContacto?: string;
+  nombreAdministracion?: string;
+  litrosRecogidos?: number;
+  beneficiosMedioambientales?: {
+    co2Reducido?: number;
+    aguaAhorrada?: number;
+    energiaAhorrada?: number;
+  };
 }
 
 export interface Ingreso {

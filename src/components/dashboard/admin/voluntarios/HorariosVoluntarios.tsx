@@ -36,7 +36,7 @@ const HorariosVoluntarios = () => {
 
   const voluntariosOptions = voluntarios.map(voluntario => ({
     value: voluntario.id,
-    label: `${voluntario.nombre} ${voluntario.apellido}`,
+    label: `${voluntario.nombre} ${voluntario.apellidos}`,
   }));
 
   // Fix filtering logic to use the dia property instead of fecha
@@ -119,7 +119,7 @@ const HorariosVoluntarios = () => {
           <TableBody>
             {horariosFiltrados.map((horario) => {
               const voluntario = voluntarios.find(v => v.id === horario.voluntarioId);
-              const voluntarioNombre = voluntario ? `${voluntario.nombre} ${voluntario.apellido}` : 'Desconocido';
+              const voluntarioNombre = voluntario ? `${voluntario.nombre} ${voluntario.apellidos}` : 'Desconocido';
               
               // Determine how to format the date based on available properties
               let fechaMostrar = 'Sin fecha';
