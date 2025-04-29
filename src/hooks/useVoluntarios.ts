@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
@@ -32,19 +33,15 @@ export function useVoluntarios() {
           codigoPostal: data.codigoPostal || '',
           pais: data.pais || '',
           activo: data.activo ?? true,
-          // dni is now part of Voluntario interface
           fechaNacimiento: data.fechaNacimiento,
           diasDisponibles: data.diasDisponibles || [],
           horasDisponibles: data.horasDisponibles || '',
-          // Required by Voluntario interface
           disponibilidad: data.disponibilidad || data.diasDisponibles || [],
           habilidades: data.habilidades || [],
           experiencia: data.experiencia || '',
           estado: data.estado || 'activo',
           fechaAlta: data.fechaAlta || new Date(),
-          horasContribuidas: data.horasContribuidas || 0,
-          createdAt: data.createdAt || data.fechaAlta || new Date(),
-          updatedAt: data.updatedAt || new Date()
+          horasContribuidas: data.horasContribuidas || 0
         });
       });
       
@@ -60,7 +57,7 @@ export function useVoluntarios() {
   const addVoluntario = async (nuevoVoluntario: Omit<Voluntario, "id">) => {
     try {
       // Handle the apellidos -> apellido renaming if needed
-      const voluntarioData: any = { 
+      const voluntarioData = { 
         ...nuevoVoluntario,
         // Store timestamps in Firestore but don't include in the Voluntario type
         _createdAt: serverTimestamp(),
@@ -89,7 +86,7 @@ export function useVoluntarios() {
       // Handle the apellidos -> apellido renaming if needed
       const voluntarioData: any = { 
         ...data,
-        updatedAt: serverTimestamp()
+        _updatedAt: serverTimestamp()
       };
 
       // Check for fechaAlta and convert it if needed
