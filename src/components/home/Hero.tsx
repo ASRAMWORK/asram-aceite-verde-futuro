@@ -50,8 +50,8 @@ const Hero = () => {
               variants={fadeInUp}
               className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
             >
-              <span className="text-gray-800">Reciclaje de Aceite</span>
-              <span className="block text-asram mt-2">para un Madrid Sostenible</span>
+              <span className="text-gray-800">Asociacion para el Reciclaje de Aceite</span>
+              <span className="block text-asram mt-2">en Madrid Madrid </span>
             </motion.h1>
             
             <motion.p 
