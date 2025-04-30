@@ -119,8 +119,9 @@ const GoogleMapLocations: React.FC<GoogleMapLocationsProps> = ({
         });
         
         // Add click listener to show info window
+        // Fix: Cast marker to any to resolve type issue with MVCObject
         marker.addListener("click", () => {
-          infoWindow.open(map, marker);
+          infoWindow.open(map, marker as any);
         });
         
         markersRef.current.push(marker);

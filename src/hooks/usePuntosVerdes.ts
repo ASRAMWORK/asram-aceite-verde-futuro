@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
-import type { PuntoVerde } from '@/types';
+import type { PuntoVerde, Usuario } from '@/types';
 import { toast } from 'sonner';
 import { useUsuarios } from './useUsuarios';
 import { geocodeAddress } from '@/lib/googleMaps';
@@ -124,8 +125,9 @@ export function usePuntosVerdes(administradorId?: string) {
       // Add punto verde to puntosVerdes collection
       const puntoRef = await addDoc(collection(db, "puntosVerdes"), puntoData);
       
-      // Also create a user record as a client
-      await addUsuario({
+      // Create a user-like record omitting the latitud/longitud properties
+      // that are not part of the Usuario type expected by addUsuario
+      const usuarioData = {
         nombre: `Punto Verde - ${nuevoPunto.direccion}`,
         email: nuevoPunto.email || "",
         telefono: nuevoPunto.telefono || "",
@@ -140,15 +142,15 @@ export function usePuntosVerdes(administradorId?: string) {
         barrio: nuevoPunto.barrio,
         numViviendas: nuevoPunto.numViviendas,
         numContenedores: nuevoPunto.numContenedores,
-        puntosVerdes: 0, // Changed from puntoVerdeId
+        puntosVerdes: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
         fechaRegistro: new Date(),
-        userId: `temp-${Date.now()}`,  // Adding required userId property
-        uid: `temp-${Date.now()}`,      // Adding required uid property
-        latitud: nuevoPunto.latitud,
-        longitud: nuevoPunto.longitud,
-      });
+        userId: `temp-${Date.now()}`,
+        uid: `temp-${Date.now()}`
+      };
+      
+      await addUsuario(usuarioData);
       
       toast.success("Punto verde añadido correctamente");
       await loadPuntosVerdesData();
