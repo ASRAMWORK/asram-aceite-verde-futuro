@@ -20,7 +20,9 @@ import {
   Users,
   Hotel,
   Coffee,
-  Home
+  Home,
+  Award,
+  Droplet
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
