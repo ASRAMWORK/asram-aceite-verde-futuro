@@ -1,63 +1,82 @@
-export type UserRole = 
-  | 'superadmin' 
-  | 'admin' 
-  | 'administrador' 
-  | 'admin_finca' 
-  | 'user' 
-  | 'comunidad' 
-  | 'comercial' 
-  | 'restaurante' 
-  | 'hotel' 
-  | 'asociacion' 
-  | 'escolar' 
-  | 'punto_verde' 
-  | 'client';
-
 export interface UserProfile {
   id: string;
   userId: string;
+  uid?: string; // Add for compatibility
   email: string;
-  role: UserRole;
-  nombre: string;
+  nombre?: string;
   apellidos?: string;
   telefono?: string;
-  administradorId?: string;
   direccion?: string;
   ciudad?: string;
   provincia?: string;
   codigoPostal?: string;
   pais?: string;
-  activo: boolean;
-  tipo: string;
-  createdAt: Date;
-  updatedAt: Date;
-  nombreAdministracion?: string;
-  codigo?: string;
-  aprobado?: boolean;
-}
-
-export interface Usuario {
-  id: string;
-  uid?: string;
-  email: string;
-  role: UserRole;
-  nombre: string;
-  apellidos?: string;
-  telefono?: string;
-  administradorId?: string;
-  direccion?: string;
-  ciudad?: string;
-  provincia?: string;
-  codigoPostal?: string;
-  pais?: string;
-  activo: boolean;
+  role?: UserRole;
+  activo?: boolean;
   tipo?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  administradorId?: string; // Add this field
+
+  // Add fields used in UserProfileView
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  frecuenciaRecogida?: string;
+  litrosAportados?: number;
+  puntosVerdes?: number;
+  
+  // Restaurants fields
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  
+  // Hotel fields
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  
+  // Association fields
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  
+  // School fields
+  nombreCentro?: string;
+  tipoEscolar?: string;
+  numAlumnos?: number;
+  participaAlianzaVerde?: boolean;
+  
+  // Administrator fields
   nombreAdministracion?: string;
-  codigo?: string;
-  aprobado?: boolean;
+  cif?: string;
 }
+
+// Añadir alias para UserRole para RegisterForm.tsx
+export type UserRole = 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'client' | 'comercial' | 
+  'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
+
+// Alias for Usuario (used in many components)
+export type Usuario = UserProfile & {
+  id: string;
+  nombre: string;
+  apellidos?: string; // Ensuring consistency (no "apellido" singular)
+  tipo?: string;
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  frecuenciaRecogida?: string;
+  activo?: boolean;
+  fechaRegistro?: Date;
+  contacto?: string;
+  uid: string; // Making sure uid is required as its used in components
+  litrosEstimados?: number;
+  userId: string; // Adding required userId property
+  cif?: string; // Adding property for CIF (fiscal ID)
+  nombreAdministracion?: string; // Adding administrative name property
+  administradorId?: string; // Add this field for multi-tenancy
+};
 
 export interface ComunidadVecinos {
   id: string;
