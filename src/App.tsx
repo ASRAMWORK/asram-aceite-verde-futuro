@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,8 +27,8 @@ import Apadrina from "./pages/colabora/Apadrina";
 import Detergente from "./pages/colabora/Detergente";
 import Contacto from "./pages/colabora/Contacto";
 import Tienda from "./pages/tienda/Tienda";
-import { toast } from 'react-toastify';
-import Loader2 from '@/components/ui/Loader2';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
@@ -170,7 +171,7 @@ const ProtectedAdministradorRoute = () => {
   }
 
   if (!isAdministrador) {
-    toast.error("No tienes permisos para acceder al panel de administrador de fincas");
+    toast("No tienes permisos para acceder al panel de administrador de fincas");
     return <Navigate to="/login" />;
   }
 

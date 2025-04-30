@@ -6,6 +6,14 @@ import PanelControl from './panel/PanelControl';
 import GestionComunidades from './comunidades/GestionComunidades';
 import InformesPanel from './informes/InformesPanel';
 
+interface ComponentWithAdminIdProps {
+  adminId?: string;
+}
+
+const PanelControlWithAdminId = (props: ComponentWithAdminIdProps) => <PanelControl {...props} />;
+const GestionComunidadesWithAdminId = (props: ComponentWithAdminIdProps) => <GestionComunidades {...props} />;
+const InformesPanelWithAdminId = (props: ComponentWithAdminIdProps) => <InformesPanel {...props} />;
+
 const AdministradorPanel = () => {
   const [activeTab, setActiveTab] = useState("panel");
   const { profile, loading } = useUserProfile();
@@ -51,15 +59,15 @@ const AdministradorPanel = () => {
         </TabsList>
         
         <TabsContent value="panel" className="mt-6">
-          <PanelControl adminId={profile?.id} />
+          <PanelControlWithAdminId adminId={profile?.id} />
         </TabsContent>
         
         <TabsContent value="comunidades" className="mt-6">
-          <GestionComunidades adminId={profile?.id} />
+          <GestionComunidadesWithAdminId adminId={profile?.id} />
         </TabsContent>
         
         <TabsContent value="informes" className="mt-6">
-          <InformesPanel adminId={profile?.id} />
+          <InformesPanelWithAdminId adminId={profile?.id} />
         </TabsContent>
       </Tabs>
     </div>

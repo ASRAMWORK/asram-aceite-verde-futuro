@@ -38,14 +38,14 @@ export function useUsuarios() {
       
       const usuariosData: Usuario[] = [];
       usuariosSnap.forEach((doc) => {
-        const data = doc.data();
+        const data = doc.data() as Record<string, any>;
         usuariosData.push({
           id: doc.id,
-          ...data as Usuario,
+          ...data as Partial<Usuario>,
           createdAt: data.createdAt?.toDate(),
           updatedAt: data.updatedAt?.toDate(),
           fechaRegistro: data.fechaRegistro?.toDate()
-        });
+        } as Usuario);
       });
       
       setUsuarios(usuariosData);
@@ -69,7 +69,7 @@ export function useUsuarios() {
     return usuarios.filter(usuario => usuario.role === role);
   };
 
-  const addUsuario = async (usuario: Omit<Usuario, "id">) => {
+  const addUsuario = async (usuario: Omit<Usuario, "id"> & { administradorId?: string }) => {
     try {
       // Si es un admin_finca quien está creando el usuario, se asocia automáticamente
       const usuarioData = {
@@ -90,7 +90,7 @@ export function useUsuarios() {
     }
   };
 
-  const addCliente = async (cliente: Omit<Usuario, "id">) => {
+  const addCliente = async (cliente: Omit<Usuario, "id"> & { administradorId?: string }) => {
     try {
       // Si es un admin_finca quien está creando el cliente, se asocia automáticamente
       const clienteData = {
