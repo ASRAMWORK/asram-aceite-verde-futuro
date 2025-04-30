@@ -131,6 +131,9 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
         
         // Si no hay distrito seleccionado o coincide con el día
         if (!selectedDistrito || selectedDistrito === distritoForThisDay) {
+          // Si hay barrio seleccionado, pero estamos simulando recogidas a nivel distrito
+          // (en simulación no tenemos datos por barrio), retornar false
+          if (selectedBarrio) return false;
           return true;
         }
       }
@@ -167,6 +170,9 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
       
       // Solo devolver detalles si coincide con los filtros
       if (!selectedDistrito || distrito === selectedDistrito) {
+        // Si hay barrio seleccionado y estamos en modo simulación, no mostrar detalles
+        if (selectedBarrio) return null;
+        
         return {
           distrito: distrito,
           barrio: "",
@@ -194,11 +200,28 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
     
     // Para cada distrito, encontrar los días con recogida
     Object.values(distritosMap).forEach(distrito => {
+      // Si hay un distrito seleccionado y no es este, lo omitimos
+      if (selectedDistrito && selectedDistrito !== distrito) return;
+      
+      // Si hay un barrio seleccionado y estamos en modo simulación, saltamos
+      if (selectedBarrio && recogidas.length === 0) return;
+      
       const diasParaDistrito = daysInMonth.filter(day => {
-        // Si hay un distrito seleccionado y no es este, lo omitimos
-        if (selectedDistrito && selectedDistrito !== distrito) return false;
+        // Verificar si hay recogida real
+        if (recogidas.length > 0) {
+          return recogidas.some(r => {
+            if (!r.fecha) return false;
+            
+            const recogidaDate = safeDate(r.fecha);
+            if (!recogidaDate) return false;
+            
+            return isSameDay(recogidaDate, day) && 
+              r.distrito === distrito &&
+              (!selectedBarrio || r.barrio === selectedBarrio);
+          });
+        }
         
-        // Verificar si hay recogida (simulada o real)
+        // Verificar recogida simulada
         const dayOfMonth = day.getDate();
         
         // Si el día del mes corresponde a este distrito y no es fin de semana
@@ -218,6 +241,13 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
   };
 
   const diasPorDistrito = getDiasRecogidaPorDistrito();
+
+  // Efecto para limpiar el barrio cuando se cambia de distrito
+  useEffect(() => {
+    if (selectedDistrito === "") {
+      setSelectedBarrio("");
+    }
+  }, [selectedDistrito]);
 
   return (
     <Card className="w-full max-w-7xl mx-auto bg-white/90 backdrop-blur-sm shadow-lg border border-[#ee970d]/20">
@@ -268,7 +298,10 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
             <DistritoBarrioFilter
               selectedDistrito={selectedDistrito}
               selectedBarrio={selectedBarrio}
-              onDistritoChange={setSelectedDistrito}
+              onDistritoChange={(distrito) => {
+                setSelectedDistrito(distrito);
+                setSelectedBarrio(""); // Limpiar barrio al cambiar distrito
+              }}
               onBarrioChange={setSelectedBarrio}
             />
             
@@ -289,6 +322,14 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
                   <span>Fin de semana</span>
                 </li>
               </ul>
+              {selectedDistrito && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <Badge className="bg-[#ee970d] text-white">
+                    {selectedDistrito}
+                    {selectedBarrio ? ` - ${selectedBarrio}` : ''}
+                  </Badge>
+                </div>
+              )}
             </div>
           </div>
 
@@ -320,6 +361,8 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
                   <CardTitle className="text-lg font-medium">Días de recogida por distrito</CardTitle>
                   <CardDescription>
                     Listado completo de los días programados para {format(selectedDate || new Date(), 'MMMM yyyy', { locale: es })}
+                    {selectedDistrito && ` - ${selectedDistrito}`}
+                    {selectedBarrio && ` - ${selectedBarrio}`}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-6">
