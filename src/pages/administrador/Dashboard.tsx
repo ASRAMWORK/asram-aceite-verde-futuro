@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Calendar, Loader2 } from "lucide-react";
+import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Calendar } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -27,7 +27,7 @@ const AdministradorDashboardPage = () => {
       
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists() || (userDoc.data().role !== "administrador" && userDoc.data().role !== "admin_finca")) {
+        if (!userDoc.exists() || userDoc.data().role !== "administrador") {
           toast.error("No tienes permisos para acceder a este panel");
           navigate("/login");
         }
@@ -73,10 +73,7 @@ const AdministradorDashboardPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen dash-gradient flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-lg">Cargando panel de administrador...</p>
-        </div>
+        <p className="text-lg">Cargando...</p>
       </div>
     );
   }
@@ -96,8 +93,7 @@ const AdministradorDashboardPage = () => {
               </div>
               <div>
                 <p className="font-medium text-sm">Bienvenido</p>
-                <p className="text-xs text-gray-500">{profile?.nombreAdministracion || profile?.nombre || "Administrador de Fincas"}</p>
-                {profile?.id && <p className="text-xs text-gray-400">ID: {profile.id.substring(0, 8)}...</p>}
+                <p className="text-xs text-gray-500">{profile?.nombreAdministracion || "Administrador de Fincas"}</p>
               </div>
             </div>
           </div>

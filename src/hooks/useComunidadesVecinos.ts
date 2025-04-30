@@ -18,8 +18,8 @@ export const useComunidadesVecinos = () => {
       let comunidadesRef;
       let comunidadSnapshot;
       
-      // Si el usuario es administrador de fincas, solo muestra sus comunidades
-      if (profile?.role === 'admin_finca') {
+      // If user is an admin, only show their communities
+      if (profile?.role === 'administrador') {
         comunidadesRef = collection(db, 'comunidadesVecinos');
         comunidadSnapshot = await getDocs(
           query(
@@ -29,7 +29,7 @@ export const useComunidadesVecinos = () => {
           )
         );
       } else {
-        // Para superadmins u otros roles, muestra todas las comunidades
+        // For super admins or other roles, show all communities
         comunidadesRef = collection(db, 'comunidadesVecinos');
         comunidadSnapshot = await getDocs(query(comunidadesRef, orderBy('nombre')));
       }
@@ -56,7 +56,7 @@ export const useComunidadesVecinos = () => {
 
   const addComunidad = async (comunidad: Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      // Añade el ID del administrador actual a la comunidad si es un administrador
+      // Add the current administrator ID to the community if it's an administrator
       const comunidadData = {
         ...comunidad,
         administradorId: profile?.id || null,

@@ -25,11 +25,11 @@ const LoginForm = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Obtener rol del usuario desde Firestore
+      // Get user role from Firestore
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const userRole = userDoc.exists() ? userDoc.data().role : null;
       
-      // Redirección basada en el rol de usuario
+      // Route based on user role
       if (isAdminEmail(user.email)) {
         navigate("/admin/dashboard");
         toast.success("Inicio de sesión de administrador exitoso");
@@ -38,7 +38,7 @@ const LoginForm = () => {
         toast.success("Bienvenido, Superadministrador");
       } else if (userRole === "admin_finca" || userRole === "administrador") {
         navigate("/administrador/dashboard");
-        toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
+        toast.success("Bienvenido, Administrador de Fincas");
       } else {
         navigate("/user/dashboard");
         toast.success("Inicio de sesión exitoso");

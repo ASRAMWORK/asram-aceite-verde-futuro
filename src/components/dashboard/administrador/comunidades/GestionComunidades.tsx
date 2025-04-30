@@ -1,47 +1,102 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
+import { Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import GestionarComunidad from '../GestionarComunidad';
+import DistritoBarrioFilter from '@/components/calendario/filters/DistritoBarrioFilter';
 
-interface GestionComunidadesProps {
-  adminId?: string;
-}
+const GestionComunidades = () => {
+  const [showForm, setShowForm] = useState(false);
+  const { comunidades } = useComunidadesVecinos();
+  const [selectedDistrito, setSelectedDistrito] = useState('');
+  const [selectedBarrio, setSelectedBarrio] = useState('');
 
-const GestionComunidades = ({ adminId }: GestionComunidadesProps) => {
-  const { comunidades, loading } = useComunidadesVecinos();
-  
-  if (loading) {
-    return <div>Cargando comunidades...</div>;
-  }
+  const filteredComunidades = comunidades.filter(com => {
+    if (selectedDistrito && com.distrito !== selectedDistrito) return false;
+    if (selectedBarrio && com.barrio !== selectedBarrio) return false;
+    return true;
+  });
+
+  const handleFormSuccess = () => {
+    setShowForm(false);
+  };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Gestión de Comunidades</h2>
-      
-      <div className="bg-white rounded-lg border shadow-sm p-4">
-        <h3 className="text-lg font-medium mb-4">Mis comunidades ({comunidades.length})</h3>
-        
-        {comunidades.length > 0 ? (
-          <div className="space-y-3">
-            {comunidades.map(comunidad => (
-              <div key={comunidad.id} className="p-3 border rounded-md hover:bg-gray-50">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium">{comunidad.nombre}</h4>
-                    <p className="text-sm text-gray-500">{comunidad.direccion}, {comunidad.ciudad}</p>
-                  </div>
-                  <span className="text-sm bg-green-100 text-green-800 py-1 px-2 rounded">
-                    {comunidad.numViviendas || 0} viviendas
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center py-8 text-gray-500">
-            No hay comunidades registradas. Cree una nueva comunidad para empezar.
-          </p>
-        )}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-[#ee970d]">Gestión de Comunidades</h2>
+        <Dialog open={showForm} onOpenChange={setShowForm}>
+          <DialogTrigger asChild>
+            <Button className="bg-[#ee970d] hover:bg-[#ee970d]/90">
+              <Plus className="h-4 w-4 mr-2" /> Nueva Comunidad
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Añadir Nueva Comunidad</DialogTitle>
+            </DialogHeader>
+            <GestionarComunidad />
+          </DialogContent>
+        </Dialog>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Filtrar Comunidades</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DistritoBarrioFilter
+            selectedDistrito={selectedDistrito}
+            selectedBarrio={selectedBarrio}
+            onDistritoChange={setSelectedDistrito}
+            onBarrioChange={setSelectedBarrio}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Comunidades</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Dirección</TableHead>
+                <TableHead>Distrito</TableHead>
+                <TableHead>Barrio</TableHead>
+                <TableHead className="text-right">Viviendas</TableHead>
+                <TableHead className="text-right">Litros Recogidos</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredComunidades.map((comunidad) => (
+                <TableRow key={comunidad.id}>
+                  <TableCell className="font-medium">{comunidad.nombre}</TableCell>
+                  <TableCell>{comunidad.direccion}</TableCell>
+                  <TableCell>{comunidad.distrito}</TableCell>
+                  <TableCell>{comunidad.barrio}</TableCell>
+                  <TableCell className="text-right">{comunidad.numViviendas}</TableCell>
+                  <TableCell className="text-right">{comunidad.litrosRecogidos}L</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };

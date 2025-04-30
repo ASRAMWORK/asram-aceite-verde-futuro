@@ -6,14 +6,6 @@ import PanelControl from './panel/PanelControl';
 import GestionComunidades from './comunidades/GestionComunidades';
 import InformesPanel from './informes/InformesPanel';
 
-interface ComponentWithAdminIdProps {
-  adminId?: string;
-}
-
-const PanelControlWithAdminId = (props: ComponentWithAdminIdProps) => <PanelControl {...props} />;
-const GestionComunidadesWithAdminId = (props: ComponentWithAdminIdProps) => <GestionComunidades {...props} />;
-const InformesPanelWithAdminId = (props: ComponentWithAdminIdProps) => <InformesPanel {...props} />;
-
 const AdministradorPanel = () => {
   const [activeTab, setActiveTab] = useState("panel");
   const { profile, loading } = useUserProfile();
@@ -31,8 +23,7 @@ const AdministradorPanel = () => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-[#ee970d]">Panel de Administrador de Fincas</h1>
         <p className="text-gray-600">
-          Bienvenido, {profile?.nombreAdministracion || profile?.nombre || 'Administrador'}
-          {profile?.id && <span className="text-xs text-gray-400 ml-2">(ID: {profile.id})</span>}
+          Bienvenido, {profile?.nombreAdministracion || 'Administrador'}
         </p>
       </div>
 
@@ -59,15 +50,15 @@ const AdministradorPanel = () => {
         </TabsList>
         
         <TabsContent value="panel" className="mt-6">
-          <PanelControlWithAdminId adminId={profile?.id} />
+          <PanelControl />
         </TabsContent>
         
         <TabsContent value="comunidades" className="mt-6">
-          <GestionComunidadesWithAdminId adminId={profile?.id} />
+          <GestionComunidades />
         </TabsContent>
         
         <TabsContent value="informes" className="mt-6">
-          <InformesPanelWithAdminId adminId={profile?.id} />
+          <InformesPanel />
         </TabsContent>
       </Tabs>
     </div>

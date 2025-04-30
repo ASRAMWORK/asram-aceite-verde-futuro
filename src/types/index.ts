@@ -16,7 +16,6 @@ export interface UserProfile {
   tipo?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  administradorId?: string; // Add this field
 
   // Add fields used in UserProfileView
   distrito?: string;
@@ -75,7 +74,6 @@ export type Usuario = UserProfile & {
   userId: string; // Adding required userId property
   cif?: string; // Adding property for CIF (fiscal ID)
   nombreAdministracion?: string; // Adding administrative name property
-  administradorId?: string; // Add this field for multi-tenancy
 };
 
 export interface ComunidadVecinos {

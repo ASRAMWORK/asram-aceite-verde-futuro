@@ -39,7 +39,6 @@ import {
   MapPin, 
   PenLine, 
   Percent, 
-  Search,
   Trash2, 
   Users
 } from "lucide-react";
@@ -64,7 +63,6 @@ const AdministradoresFincas = () => {
   const [isAddingAdmin, setIsAddingAdmin] = useState(false);
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Usuario | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<AdminFormData>({
     nombre: "",
     apellidos: "",
@@ -75,20 +73,7 @@ const AdministradoresFincas = () => {
   
   // Filter usuarios to only show those with admin_finca role
   const adminFincas = usuarios.filter(user => user.role === 'admin_finca');
-  
-  // Filter active admin_finca users
-  const activeAdminFincas = adminFincas.filter(admin => admin.activo !== false);
-  
-  // Filter by search term
-  const filteredAdmins = adminFincas.filter(admin => 
-    admin.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    admin.apellidos?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    admin.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    admin.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  
   const totalAdmins = adminFincas.length;
-  const activeAdmins = adminFincas.filter(admin => admin.activo !== false).length;
   
   const getAdminFullName = (admin: Usuario) => {
     return `${admin.nombre || ""} ${admin.apellidos || ""}`.trim();
@@ -156,12 +141,6 @@ const AdministradoresFincas = () => {
     }
   };
   
-  const handleViewAdminDetails = (adminId: string) => {
-    // Aquí iría la navegación a la página de detalles del administrador
-    console.log("Ver detalles del administrador:", adminId);
-    // Esta funcionalidad se implementará en una tarea posterior
-  };
-  
   const handleExportData = (format: 'pdf' | 'excel') => {
     alert(`Exportando datos en formato ${format}. Esta función estará disponible próximamente.`);
   };
@@ -183,7 +162,7 @@ const AdministradoresFincas = () => {
                 Añadir Administrador
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[700px]">
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Añadir nuevo administrador de fincas</DialogTitle>
                 <DialogDescription>
@@ -191,89 +170,51 @@ const AdministradoresFincas = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nombre">Nombre <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="nombre"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="apellidos">Apellidos <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="apellidos"
-                      name="apellidos"
-                      value={formData.apellidos}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input
+                    id="nombre"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="apellidos">Apellidos</Label>
+                  <Input
+                    id="apellidos"
+                    name="apellidos"
+                    value={formData.apellidos}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    required
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="telefono">Teléfono</Label>
-                    <Input
-                      id="telefono"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="direccion">Dirección</Label>
-                    <Input
-                      id="direccion"
-                      name="direccion"
-                      value={formData.direccion}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="telefono">Teléfono</Label>
+                  <Input
+                    id="telefono"
+                    name="telefono"
+                    value={formData.telefono}
+                    onChange={handleInputChange}
+                  />
                 </div>
-                
-                {/* Nueva sección para mostrar administradores activos */}
-                <div className="mt-6 border-t pt-4">
-                  <h3 className="text-md font-medium mb-2">Administradores de Fincas Activos ({activeAdminFincas.length})</h3>
-                  <div className="max-h-40 overflow-y-auto border rounded-md">
-                    {activeAdminFincas.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nombre</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Teléfono</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {activeAdminFincas.map((admin) => (
-                            <TableRow key={admin.id}>
-                              <TableCell className="font-medium">{admin.nombre} {admin.apellidos}</TableCell>
-                              <TableCell>{admin.email}</TableCell>
-                              <TableCell>{admin.telefono}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <p className="text-center py-4 text-sm text-muted-foreground">
-                        No hay administradores activos registrados
-                      </p>
-                    )}
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="direccion">Dirección</Label>
+                  <Input
+                    id="direccion"
+                    name="direccion"
+                    value={formData.direccion}
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
               <DialogFooter>
@@ -297,7 +238,7 @@ const AdministradoresFincas = () => {
           </Dialog>
           
           <Dialog open={isEditingAdmin} onOpenChange={setIsEditingAdmin}>
-            <DialogContent className="sm:max-w-[700px]">
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Editar administrador de fincas</DialogTitle>
                 <DialogDescription>
@@ -305,89 +246,51 @@ const AdministradoresFincas = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nombre-edit">Nombre <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="nombre-edit"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="apellidos-edit">Apellidos <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="apellidos-edit"
-                      name="apellidos"
-                      value={formData.apellidos}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="nombre-edit">Nombre</Label>
+                  <Input
+                    id="nombre-edit"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="apellidos-edit">Apellidos</Label>
+                  <Input
+                    id="apellidos-edit"
+                    name="apellidos"
+                    value={formData.apellidos}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email-edit">Email <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="email-edit">Email</Label>
                   <Input
                     id="email-edit"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    required
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="telefono-edit">Teléfono</Label>
-                    <Input
-                      id="telefono-edit"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="direccion-edit">Dirección</Label>
-                    <Input
-                      id="direccion-edit"
-                      name="direccion"
-                      value={formData.direccion}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="telefono-edit">Teléfono</Label>
+                  <Input
+                    id="telefono-edit"
+                    name="telefono"
+                    value={formData.telefono}
+                    onChange={handleInputChange}
+                  />
                 </div>
-                
-                {/* Nueva sección para mostrar administradores activos */}
-                <div className="mt-6 border-t pt-4">
-                  <h3 className="text-md font-medium mb-2">Administradores de Fincas Activos ({activeAdminFincas.length})</h3>
-                  <div className="max-h-40 overflow-y-auto border rounded-md">
-                    {activeAdminFincas.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nombre</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Teléfono</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {activeAdminFincas.map((admin) => (
-                            <TableRow key={admin.id} className={selectedAdmin?.id === admin.id ? "bg-muted" : ""}>
-                              <TableCell className="font-medium">{admin.nombre} {admin.apellidos}</TableCell>
-                              <TableCell>{admin.email}</TableCell>
-                              <TableCell>{admin.telefono}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <p className="text-center py-4 text-sm text-muted-foreground">
-                        No hay administradores activos registrados
-                      </p>
-                    )}
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="direccion-edit">Dirección</Label>
+                  <Input
+                    id="direccion-edit"
+                    name="direccion"
+                    value={formData.direccion}
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
               <DialogFooter>
@@ -421,52 +324,18 @@ const AdministradoresFincas = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card className="bg-gradient-to-br from-white to-amber-50/30">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Administradores Registrados
+              Administradores de Fincas
             </CardTitle>
             <Users className="h-4 w-4 text-asram" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-asram">{totalAdmins}</div>
             <p className="text-xs text-muted-foreground">
-              total en el sistema
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-white to-blue-50/30">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Administradores Activos
-            </CardTitle>
-            <Users className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-500">{activeAdmins}</div>
-            <p className="text-xs text-muted-foreground">
-              en funcionamiento
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-white to-green-50/30">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Comunidades Gestionadas
-            </CardTitle>
-            <MapPin className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">
-              {/* Número total de comunidades gestionadas por todos los administradores */}
-              {/* Esta información vendría de otro hook o cálculo */}
-              -
-            </div>
-            <p className="text-xs text-muted-foreground">
-              en total
+              administradores activos
             </p>
           </CardContent>
         </Card>
@@ -483,18 +352,6 @@ const AdministradoresFincas = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nombre, email o ID..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-          
           {loading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -507,38 +364,22 @@ const AdministradoresFincas = () => {
                     <TableHead>Nombre</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Teléfono</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Comunidades</TableHead>
                     <TableHead>Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredAdmins.length === 0 ? (
+                  {adminFincas.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center">
+                      <TableCell colSpan={4} className="text-center">
                         No hay administradores de fincas registrados
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredAdmins.map((administrador) => (
+                    adminFincas.map((administrador) => (
                       <TableRow key={administrador.id}>
                         <TableCell>{administrador.nombre} {administrador.apellidos}</TableCell>
                         <TableCell>{administrador.email}</TableCell>
                         <TableCell>{administrador.telefono}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            administrador.activo !== false 
-                              ? "bg-green-100 text-green-800" 
-                              : "bg-red-100 text-red-800"
-                          }`}>
-                            {administrador.activo !== false ? "Activo" : "Inactivo"}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {/* Número de comunidades gestionadas por este administrador */}
-                          {/* Esta información vendría de otro hook o cálculo */}
-                          -
-                        </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <Button 
@@ -554,13 +395,6 @@ const AdministradoresFincas = () => {
                               onClick={() => handleDeleteAdmin(administrador.id)}
                             >
                               <Trash2 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="icon"
-                              onClick={() => handleViewAdminDetails(administrador.id)}
-                            >
-                              <Users className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
