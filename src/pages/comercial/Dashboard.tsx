@@ -36,9 +36,21 @@ const Dashboard = () => {
               if (!usuariosSnap.empty && usuariosSnap.docs[0].data().role === "comercial") {
                 setIsComercial(true);
               } else {
-                // Not authorized as comercial
-                toast.error("No tienes permisos para acceder al panel de comercial");
-                navigate("/login");
+                // Additional check by email as fallback
+                const emailQuery = query(
+                  collection(db, "usuarios"),
+                  where("email", "==", user.email)
+                );
+                
+                const emailSnap = await getDocs(emailQuery);
+                
+                if (!emailSnap.empty && emailSnap.docs[0].data().role === "comercial") {
+                  setIsComercial(true);
+                } else {
+                  // Not authorized as comercial
+                  toast.error("No tienes permisos para acceder al panel de comercial");
+                  navigate("/login");
+                }
               }
             }
           } catch (error) {

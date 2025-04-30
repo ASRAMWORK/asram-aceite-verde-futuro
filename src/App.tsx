@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -188,13 +189,13 @@ const ProtectedComercialRoute = () => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           try {
-            // Check first in "users" collection using the UID as document ID
+            // Check in "users" collection first
             const userDoc = await getDoc(doc(db, "users", user.uid));
             
             if (userDoc.exists() && userDoc.data().role === "comercial") {
               setIsComercial(true);
             } else {
-              // If not found, check in "usuarios" collection by UID field
+              // Check in "usuarios" collection by uid
               const usuariosQuery = query(
                 collection(db, "usuarios"),
                 where("uid", "==", user.uid)
@@ -204,6 +205,18 @@ const ProtectedComercialRoute = () => {
               
               if (!usuariosSnap.empty && usuariosSnap.docs[0].data().role === "comercial") {
                 setIsComercial(true);
+              } else {
+                // Additional check by email as fallback
+                const emailQuery = query(
+                  collection(db, "usuarios"),
+                  where("email", "==", user.email)
+                );
+                
+                const emailSnap = await getDocs(emailQuery);
+                
+                if (!emailSnap.empty && emailSnap.docs[0].data().role === "comercial") {
+                  setIsComercial(true);
+                }
               }
             }
           } catch (error) {

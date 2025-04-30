@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -32,7 +33,7 @@ const LoginForm = () => {
         return;
       }
       
-      // Check in "users" collection
+      // Check in "users" collection by UID
       const userDoc = await getDoc(doc(db, "users", user.uid));
       
       if (userDoc.exists()) {
@@ -47,25 +48,52 @@ const LoginForm = () => {
         } else if (userRole === "comercial") {
           navigate("/comercial/dashboard");
           toast.success("Bienvenido, Comercial");
+          return;
         } else {
           navigate("/user/dashboard");
           toast.success("Inicio de sesión exitoso");
         }
       } else {
-        // If not found in "users", check in "usuarios" collection
-        const usuariosDoc = await getDoc(doc(db, "usuarios", user.uid));
+        // If not found in "users" by UID, check in "usuarios" collection
+        const usuariosQuery = query(
+          collection(db, "usuarios"),
+          where("uid", "==", user.uid)
+        );
         
-        if (usuariosDoc.exists()) {
-          const userRole = usuariosDoc.data().role;
+        const usuariosSnap = await getDocs(usuariosQuery);
+        
+        if (!usuariosSnap.empty) {
+          const userData = usuariosSnap.docs[0].data();
+          const userRole = userData.role;
           
           if (userRole === "comercial") {
             navigate("/comercial/dashboard");
             toast.success("Bienvenido, Comercial");
+            return;
           } else {
             navigate("/user/dashboard");
             toast.success("Inicio de sesión exitoso");
           }
         } else {
+          // If not found by UID, check by email in "usuarios" collection as a fallback
+          const emailQuery = query(
+            collection(db, "usuarios"),
+            where("email", "==", email)
+          );
+          
+          const emailSnap = await getDocs(emailQuery);
+          
+          if (!emailSnap.empty) {
+            const userData = emailSnap.docs[0].data();
+            const userRole = userData.role;
+            
+            if (userRole === "comercial") {
+              navigate("/comercial/dashboard");
+              toast.success("Bienvenido, Comercial");
+              return;
+            }
+          }
+          
           // Default to user dashboard if no specific role found
           navigate("/user/dashboard");
           toast.success("Inicio de sesión exitoso");
