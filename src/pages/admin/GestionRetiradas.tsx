@@ -88,7 +88,7 @@ const GestionRetiradas = () => {
         nombre: values.nombre,
         fecha: values.fecha,
         distrito: values.distrito,
-        barrios: values.zonas || [],
+        barrios: values.zonas || [], // Make sure this is properly assigned as an array
         hora: values.hora,
         recogedores: values.recogedorId,
         clientes: [],
