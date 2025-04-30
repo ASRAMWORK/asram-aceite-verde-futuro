@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { BarChart, CalendarDays, Clock, Plus, Search, X, FileText, ChevronLeft, ChevronRight, CircleDollarSign, Receipt, ArrowUpDown } from "lucide-react";
+import { BarChart, CalendarDays, Clock, Plus, Search, X, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from "date-fns";
@@ -22,7 +22,7 @@ const FacturacionView = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
-  const { ingresos, gastos, loading, getFinancialSummary } = useFacturacion();
+  const { ingresos, gastos, loading } = useFacturacion();
   const { projects } = useProjects();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -38,12 +38,6 @@ const FacturacionView = () => {
     .reduce((sum, gasto) => sum + gasto.cantidad, 0);
     
   const balance = totalIngresos - totalGastos;
-
-  const totalIngresosAllTime = ingresos.reduce((sum, ingreso) => sum + ingreso.cantidad, 0);
-  const totalGastosAllTime = gastos.reduce((sum, gasto) => sum + gasto.cantidad, 0);
-  const balanceAllTime = totalIngresosAllTime - totalGastosAllTime;
-
-  const financialSummary = getFinancialSummary();
 
   const filteredIngresos = ingresos.filter((ingreso) =>
     ingreso.concepto.toLowerCase().includes(searchTerm.toLowerCase())
@@ -150,152 +144,92 @@ const FacturacionView = () => {
       <div className="container py-10">
         {currentTab === "overview" ? (
           <div className="grid gap-6">
-            {/* Monthly and All Time Overview Cards */}
-            <div className="grid grid-cols-1 gap-6">
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="bg-gradient-to-r from-[#EE970D]/10 to-transparent flex items-center justify-between">
-                  <CardTitle className="text-2xl font-bold">
-                    Visión general de {format(selectedDate, "MMMM yyyy", { locale: es })}
-                  </CardTitle>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => handleDateChange(-1)}
-                      className="border-[#EE970D]/20 hover:bg-[#EE970D]/10 hover:border-[#EE970D]"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => handleDateChange(1)}
-                      className="border-[#EE970D]/20 hover:bg-[#EE970D]/10 hover:border-[#EE970D]"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+            <Card className="col-span-2 shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-[#EE970D]/10 to-transparent flex items-center justify-between">
+                <CardTitle className="text-2xl font-bold">
+                  Visión general de {format(selectedDate, "MMMM yyyy", { locale: es })}
+                </CardTitle>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => handleDateChange(-1)}
+                    className="border-[#EE970D]/20 hover:bg-[#EE970D]/10 hover:border-[#EE970D]"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => handleDateChange(1)}
+                    className="border-[#EE970D]/20 hover:bg-[#EE970D]/10 hover:border-[#EE970D]"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="rounded-xl bg-gradient-to-br from-green-50 to-white p-6 shadow-md border border-green-100 flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-green-800">Ingresos</h3>
+                      <div className="p-2 rounded-full bg-green-100 text-green-600">
+                        <FileText className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <p className="text-4xl font-bold mt-4 text-green-600">
+                      {totalIngresos.toLocaleString('es-ES')}€
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Ingresos del mes
+                    </p>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="rounded-xl bg-gradient-to-br from-green-50 to-white p-6 shadow-md border border-green-100 flex flex-col">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-green-800">Ingresos</h3>
-                        <div className="p-2 rounded-full bg-green-100 text-green-600">
-                          <CircleDollarSign className="h-5 w-5" />
-                        </div>
+                  
+                  <div className="rounded-xl bg-gradient-to-br from-red-50 to-white p-6 shadow-md border border-red-100 flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-red-800">Gastos</h3>
+                      <div className="p-2 rounded-full bg-red-100 text-red-600">
+                        <FileText className="h-5 w-5" />
                       </div>
-                      <p className="text-4xl font-bold mt-4 text-green-600">
-                        {totalIngresos.toLocaleString('es-ES')}€
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Ingresos del mes
-                      </p>
                     </div>
-                    
-                    <div className="rounded-xl bg-gradient-to-br from-red-50 to-white p-6 shadow-md border border-red-100 flex flex-col">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-red-800">Gastos</h3>
-                        <div className="p-2 rounded-full bg-red-100 text-red-600">
-                          <Receipt className="h-5 w-5" />
-                        </div>
-                      </div>
-                      <p className="text-4xl font-bold mt-4 text-red-600">
-                        {totalGastos.toLocaleString('es-ES')}€
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Gastos del mes
-                      </p>
-                    </div>
-                    
-                    <div className="rounded-xl bg-gradient-to-br from-amber-50 to-white p-6 shadow-md border border-amber-100 flex flex-col">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-[#EE970D]">Balance</h3>
-                        <div className="p-2 rounded-full bg-amber-100 text-[#EE970D]">
-                          <ArrowUpDown className="h-5 w-5" />
-                        </div>
-                      </div>
-                      <p className={`text-4xl font-bold mt-4 ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {balance.toLocaleString('es-ES')}€
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Balance del mes
-                      </p>
-                    </div>
+                    <p className="text-4xl font-bold mt-4 text-red-600">
+                      {totalGastos.toLocaleString('es-ES')}€
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Gastos del mes
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* All Time Overview Card */}
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent flex items-center justify-between">
-                  <CardTitle className="text-2xl font-bold">
-                    Acumulado Total 
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="rounded-xl bg-gradient-to-br from-green-50 to-white p-6 shadow-md border border-green-100 flex flex-col">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-green-800">Ingresos Totales</h3>
-                        <div className="p-2 rounded-full bg-green-100 text-green-600">
-                          <CircleDollarSign className="h-5 w-5" />
-                        </div>
+                  
+                  <div className="rounded-xl bg-gradient-to-br from-amber-50 to-white p-6 shadow-md border border-amber-100 flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-[#EE970D]">Balance</h3>
+                      <div className="p-2 rounded-full bg-amber-100 text-[#EE970D]">
+                        <FileText className="h-5 w-5" />
                       </div>
-                      <p className="text-4xl font-bold mt-4 text-green-600">
-                        {totalIngresosAllTime.toLocaleString('es-ES')}€
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Ingresos acumulados
-                      </p>
                     </div>
-                    
-                    <div className="rounded-xl bg-gradient-to-br from-red-50 to-white p-6 shadow-md border border-red-100 flex flex-col">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-red-800">Gastos Totales</h3>
-                        <div className="p-2 rounded-full bg-red-100 text-red-600">
-                          <Receipt className="h-5 w-5" />
-                        </div>
-                      </div>
-                      <p className="text-4xl font-bold mt-4 text-red-600">
-                        {totalGastosAllTime.toLocaleString('es-ES')}€
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Gastos acumulados
-                      </p>
-                    </div>
-                    
-                    <div className="rounded-xl bg-gradient-to-br from-amber-50 to-white p-6 shadow-md border border-amber-100 flex flex-col">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-[#EE970D]">Balance Total</h3>
-                        <div className="p-2 rounded-full bg-amber-100 text-[#EE970D]">
-                          <ArrowUpDown className="h-5 w-5" />
-                        </div>
-                      </div>
-                      <p className={`text-4xl font-bold mt-4 ${balanceAllTime >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {balanceAllTime.toLocaleString('es-ES')}€
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Balance acumulado
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-gradient-to-br from-blue-50 to-white p-6 shadow-md border border-blue-100 flex flex-col">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-blue-800">Ingresos proyectados</h3>
-                        <div className="p-2 rounded-full bg-blue-100 text-blue-600">
-                          <BarChart className="h-5 w-5" />
-                        </div>
-                      </div>
-                      <p className="text-4xl font-bold mt-4 text-blue-600">{projectedRevenue.toLocaleString('es-ES')}€</p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Proyectos activos
-                      </p>
-                    </div>
+                    <p className={`text-4xl font-bold mt-4 ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {balance.toLocaleString('es-ES')}€
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Balance del mes
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                  
+                  <div className="col-span-full rounded-xl bg-gradient-to-br from-blue-50 to-white p-6 shadow-md border border-blue-100 flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-blue-800">Ingresos proyectados</h3>
+                      <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                        <BarChart className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <p className="text-4xl font-bold mt-4 text-blue-600">{projectedRevenue.toLocaleString('es-ES')}€</p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Ingresos proyectados de todos los proyectos activos
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             
             <Card className="col-span-2 shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="bg-gradient-to-r from-[#EE970D]/10 to-transparent flex items-center justify-between">
