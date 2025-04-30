@@ -11,7 +11,8 @@ import {
   doc, 
   serverTimestamp,
   orderBy,
-  Timestamp
+  Timestamp,
+  setDoc
 } from 'firebase/firestore';
 import { 
   createUserWithEmailAndPassword, 
@@ -100,7 +101,7 @@ export function useComerciales() {
       
       const uid = userCredential.user.uid;
       
-      // 2. Guardar datos en Firestore
+      // 2. Guardar datos en Firestore tanto en "usuarios" como en "users"
       const docRef = await addDoc(collection(db, "usuarios"), {
         ...restData,
         uid, // Guardar el UID de autenticación
@@ -111,6 +112,17 @@ export function useComerciales() {
         saldo: 0,
         comisionesTotales: 0,
         comisionesPendientes: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      
+      // También guardar en la colección "users" para mantener consistencia
+      await setDoc(doc(db, "users", uid), {
+        ...restData,
+        role: "comercial" as UserRole,
+        codigo,
+        activo: true,
+        aprobado: false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });

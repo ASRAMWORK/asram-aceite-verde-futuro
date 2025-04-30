@@ -39,6 +39,9 @@ const LoginForm = () => {
       } else if (userRole === "admin_finca" || userRole === "administrador") {
         navigate("/administrador/dashboard");
         toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
+      } else if (userRole === "comercial") {
+        navigate("/comercial/dashboard");
+        toast.success("Bienvenido, Comercial");
       } else {
         navigate("/user/dashboard");
         toast.success("Inicio de sesión exitoso");

@@ -188,9 +188,17 @@ const ProtectedComercialRoute = () => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           try {
+            // Buscar en la colección "users"
             const userDoc = await getDoc(doc(db, "users", user.uid));
+            
             if (userDoc.exists() && userDoc.data().role === "comercial") {
               setIsComercial(true);
+            } else {
+              // Si no existe en "users", buscar en la colección "usuarios"
+              const usuariosDoc = await getDoc(doc(db, "usuarios", user.uid));
+              if (usuariosDoc.exists() && usuariosDoc.data().role === "comercial") {
+                setIsComercial(true);
+              }
             }
           } catch (error) {
             console.error("Error checking role:", error);

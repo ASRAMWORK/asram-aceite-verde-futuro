@@ -19,9 +19,20 @@ const Dashboard = () => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           try {
+            // Buscar en la colección "users" primero
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && 
-                (userDoc.data().role === "comercial")) {
+            
+            // Si no existe en "users", buscar en la colección "usuarios"
+            if (!userDoc.exists()) {
+              const usuariosDoc = await getDoc(doc(db, "usuarios", user.uid));
+              if (usuariosDoc.exists() && usuariosDoc.data().role === "comercial") {
+                setIsComercial(true);
+              } else {
+                // No es comercial, redirigir
+                toast.error("No tienes permisos para acceder al panel de comercial");
+                navigate("/login");
+              }
+            } else if (userDoc.data().role === "comercial") {
               setIsComercial(true);
             } else {
               // No es comercial, redirigir
