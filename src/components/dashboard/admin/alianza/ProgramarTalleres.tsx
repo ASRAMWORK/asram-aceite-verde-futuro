@@ -51,7 +51,6 @@ const ProgramarTalleres = () => {
       const centro = alianzas.find(a => a.id === data.organizador);
       
       await addTallerProgramado({
-        id: '',
         titulo: data.titulo || '',
         descripcion: data.descripcion || '',
         fecha: data.fecha || new Date(),

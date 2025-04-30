@@ -1,80 +1,168 @@
+export type UserRole = 
+  | 'superadmin' 
+  | 'admin' 
+  | 'administrador' 
+  | 'admin_finca' 
+  | 'user' 
+  | 'comunidad' 
+  | 'comercial' 
+  | 'restaurante' 
+  | 'hotel' 
+  | 'asociacion' 
+  | 'escolar' 
+  | 'punto_verde' 
+  | 'client';
+
 export interface UserProfile {
   id: string;
   userId: string;
-  uid?: string; // Add for compatibility
   email: string;
-  nombre?: string;
+  role: UserRole;
+  nombre: string;
   apellidos?: string;
   telefono?: string;
+  administradorId?: string;
   direccion?: string;
   ciudad?: string;
   provincia?: string;
   codigoPostal?: string;
   pais?: string;
-  role?: UserRole;
-  activo?: boolean;
-  tipo?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-
-  // Add fields used in UserProfileView
+  activo: boolean;
+  tipo: string;
+  createdAt: Date;
+  updatedAt: Date;
+  nombreAdministracion?: string;
+  codigo?: string;
+  aprobado?: boolean;
+  
+  // Add missing properties for comercial
+  metodoPago?: {
+    tipo: 'banco' | 'paypal' | 'bizum';
+    datos: {
+      banco?: {
+        titular: string;
+        iban: string;
+        swift?: string;
+      };
+      paypal?: {
+        email: string;
+      };
+      bizum?: {
+        telefono: string;
+      };
+    };
+  };
+  saldo?: number;
+  comisionesTotales?: number;
+  comisionesPendientes?: number;
+  
+  // Add missing properties used in other components
   distrito?: string;
   barrio?: string;
   numViviendas?: number;
   numContenedores?: number;
-  frecuenciaRecogida?: string;
-  litrosAportados?: number;
-  puntosVerdes?: number;
-  
-  // Restaurants fields
-  nombreRestaurante?: string;
-  horarioApertura?: string;
+  cif?: string;
+  contacto?: string;
   litrosEstimados?: number;
   
-  // Hotel fields
+  // Missing properties from errors
+  litrosAportados?: number;
+  puntosVerdes?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
   nombreHotel?: string;
   numHabitaciones?: number;
-  
-  // Association fields
   nombreAsociacion?: string;
   tipoAsociacion?: string;
   numMiembros?: number;
-  
-  // School fields
   nombreCentro?: string;
-  tipoEscolar?: string;
   numAlumnos?: number;
+  tipoEscolar?: string;
   participaAlianzaVerde?: boolean;
+  fechaRegistro?: Date;
   
-  // Administrator fields
-  nombreAdministracion?: string;
-  cif?: string;
+  // Adding lat and long for maps
+  latitud?: number;
+  longitud?: number;
 }
 
-// Añadir alias para UserRole para RegisterForm.tsx
-export type UserRole = 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'client' | 'comercial' | 
-  'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
-
-// Alias for Usuario (used in many components)
-export type Usuario = UserProfile & {
+export interface Usuario {
   id: string;
+  uid?: string;
+  email: string;
+  role: UserRole;
   nombre: string;
-  apellidos?: string; // Ensuring consistency (no "apellido" singular)
+  apellidos?: string;
+  telefono?: string;
+  administradorId?: string;
+  direccion?: string;
+  ciudad?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  pais?: string;
+  activo: boolean;
   tipo?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  nombreAdministracion?: string;
+  codigo?: string;
+  aprobado?: boolean;
+  
+  // Add missing properties for comercial
+  metodoPago?: {
+    tipo: 'banco' | 'paypal' | 'bizum';
+    datos: {
+      banco?: {
+        titular: string;
+        iban: string;
+        swift?: string;
+      };
+      paypal?: {
+        email: string;
+      };
+      bizum?: {
+        telefono: string;
+      };
+    };
+  };
+  saldo?: number;
+  comisionesTotales?: number;
+  comisionesPendientes?: number;
+  
+  // Add missing properties used in other components
   distrito?: string;
   barrio?: string;
   numViviendas?: number;
   numContenedores?: number;
-  frecuenciaRecogida?: string;
-  activo?: boolean;
-  fechaRegistro?: Date;
+  cif?: string;
   contacto?: string;
-  uid: string; // Making sure uid is required as its used in components
   litrosEstimados?: number;
-  userId: string; // Adding required userId property
-  cif?: string; // Adding property for CIF (fiscal ID)
-  nombreAdministracion?: string; // Adding administrative name property
-};
+  
+  // Missing properties from errors
+  litrosAportados?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
+  fechaRegistro?: Date;
+  userId?: string;
+  
+  // For puntos verdes - kept only one instance
+  puntosVerdes?: number;
+  
+  // Adding lat and long for maps
+  latitud?: number;
+  longitud?: number;
+}
 
 export interface ComunidadVecinos {
   id: string;
@@ -559,4 +647,26 @@ export interface Vehiculo {
   conductorAsignado?: string;
   createdAt?: any;
   updatedAt?: any;
+}
+
+export interface ClienteCaptado {
+  id: string;
+  comercialId: string;
+  clienteId: string;
+  nombreCliente: string;
+  fechaRegistro: Date;
+  planContratado: string;
+  estado: 'activo' | 'inactivo';
+  litrosRecogidos: number;
+}
+
+export interface Comision {
+  id: string;
+  comercialId: string;
+  clienteId: string;
+  nombreCliente: string;
+  litrosRecogidos: number;
+  importe: number;
+  estado: 'pendiente' | 'abonado';
+  fecha: Date;
 }

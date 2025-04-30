@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -52,11 +53,19 @@ const TalleresProgramados = () => {
     const nuevoTaller: Omit<TallerProgramado, 'id'> = {
       titulo: '',
       fecha: new Date(),
-      hora: '', // Using hora property
+      hora: '', 
       duracion: 60,
-      ubicacion: '',
+      lugar: '',
       aforo: 0,
-      estado: 'programado',
+      organizador: '',
+      tipo: '',
+      responsable: '',
+      contactoTelefono: '',
+      contactoEmail: '',
+      participantes: 0,
+      gratuito: true,
+      precio: 0,
+      completado: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -92,16 +101,19 @@ const TalleresProgramados = () => {
       titulo: tallerEditando.titulo || '',
       descripcion: tallerEditando.descripcion || '',
       fecha: tallerEditando.fecha || new Date(),
-      hora: tallerEditando.hora || '', // Use hora instead of horaInicio
+      hora: tallerEditando.hora || '',
       duracion: tallerEditando.duracion || 60,
-      ubicacion: tallerEditando.ubicacion || '',
+      lugar: tallerEditando.lugar || '',
       aforo: tallerEditando.aforo || 0,
       participantes: tallerEditando.participantes || 0,
       organizador: tallerEditando.organizador || '',
-      contacto: tallerEditando.contacto || '',
-      telefono: tallerEditando.telefono || '',
-      email: tallerEditando.email || '',
-      estado: tallerEditando.estado || 'programado',
+      tipo: tallerEditando.tipo || '',
+      responsable: tallerEditando.responsable || '',
+      contactoTelefono: tallerEditando.contactoTelefono || '',
+      contactoEmail: tallerEditando.contactoEmail || '',
+      gratuito: tallerEditando.gratuito ?? true,
+      precio: tallerEditando.precio || 0,
+      completado: tallerEditando.completado || false,
       createdAt: tallerEditando.createdAt || new Date(),
       updatedAt: new Date()
     };
@@ -212,12 +224,12 @@ const TalleresProgramados = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="ubicacion">Ubicación</Label>
+                <Label htmlFor="lugar">Lugar</Label>
                 <Input
                   type="text"
-                  id="ubicacion"
-                  name="ubicacion"
-                  value={tallerEditando.ubicacion || ''}
+                  id="lugar"
+                  name="lugar"
+                  value={tallerEditando.lugar || ''}
                   onChange={handleInputChange}
                 />
               </div>
@@ -267,7 +279,7 @@ const TalleresProgramados = () => {
               <TableRow>
                 <TableHead>Título</TableHead>
                 <TableHead>Fecha y Hora</TableHead>
-                <TableHead>Ubicación</TableHead>
+                <TableHead>Lugar</TableHead>
                 <TableHead>Asistentes</TableHead>
                 <TableHead>Organizador</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
@@ -280,7 +292,7 @@ const TalleresProgramados = () => {
                   <TableCell>
                     {formatFechaHora(taller.fecha, taller.hora)}
                   </TableCell>
-                  <TableCell>{taller.ubicacion}</TableCell>
+                  <TableCell>{taller.lugar}</TableCell>
                   <TableCell>{taller.participantes || 0}</TableCell>
                   <TableCell>{taller.organizador || 'No asignado'}</TableCell>
                   <TableCell className="text-right">
