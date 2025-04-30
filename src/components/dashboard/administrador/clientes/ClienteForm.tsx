@@ -26,7 +26,7 @@ import { Usuario } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
-  apellidos: z.string().min(2, 'Los apellidos son obligatorios'), // Changed from apellido to apellidos
+  apellidos: z.string().min(2, 'Los apellidos son obligatorios'),
   telefono: z.string().min(9, 'Teléfono no válido'),
   email: z.string().email('Email no válido'),
   direccion: z.string().min(5, 'La dirección es obligatoria'),
@@ -34,6 +34,7 @@ const clienteSchema = z.object({
   barrio: z.string().min(1, 'El barrio es obligatorio'),
   codigoPostal: z.string().min(5, 'Código postal no válido'),
   frecuenciaRecogida: z.string(),
+  tipo: z.string().min(1, 'El tipo de cliente es obligatorio'),
   notas: z.string().optional(),
 });
 
@@ -45,13 +46,24 @@ interface ClienteFormProps {
   clienteId?: string;
 }
 
+const tipos = [
+  'Bar',
+  'Restaurante',
+  'Hotel',
+  'Asociación',
+  'Administración de Fincas',
+  'Centro Escolar', 
+  'Comunidad de Vecinos',
+  'Usuario Particular'
+];
+
 const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId }) => {
   const { addUsuario, updateUsuario, usuarios } = useUsuarios();
   
   const defaultValues: ClienteFormValues = clienteId 
     ? usuarios.find(u => u.id === clienteId) || {
         nombre: '',
-        apellidos: '', // Changed from apellido to apellidos
+        apellidos: '',
         telefono: '',
         email: '',
         direccion: '',
@@ -59,11 +71,12 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
         barrio: '',
         codigoPostal: '',
         frecuenciaRecogida: 'mensual',
+        tipo: '',
         notas: '',
       }
     : {
         nombre: '',
-        apellidos: '', // Changed from apellido to apellidos
+        apellidos: '',
         telefono: '',
         email: '',
         direccion: '',
@@ -71,6 +84,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
         barrio: '',
         codigoPostal: '',
         frecuenciaRecogida: 'mensual',
+        tipo: 'Comunidad de Vecinos',
         notas: '',
       };
   
@@ -84,7 +98,6 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
       if (clienteId) {
         await updateUsuario(clienteId, {
           ...data,
-          tipo: 'comunidad',
           activo: true,
         });
         toast.success('Cliente actualizado correctamente');
@@ -99,7 +112,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           barrio: data.barrio,
           codigoPostal: data.codigoPostal,
           frecuenciaRecogida: data.frecuenciaRecogida,
-          tipo: 'comunidad',
+          tipo: data.tipo,
           activo: true,
           role: 'user',
           ciudad: '',
@@ -108,7 +121,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           createdAt: new Date(),
           updatedAt: new Date(),
           uid: `temp-${Date.now()}`,
-          userId: `temp-${Date.now()}` // Adding the required userId property
+          userId: `temp-${Date.now()}`
         });
         toast.success('Cliente añadido correctamente');
       }
@@ -138,7 +151,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           
           <FormField
             control={form.control}
-            name="apellidos" // Changed from apellido to apellidos
+            name="apellidos"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Apellidos</FormLabel>
@@ -150,6 +163,29 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="tipo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo de Cliente</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione tipo de cliente" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {tipos.map((tipo) => (
+                    <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField

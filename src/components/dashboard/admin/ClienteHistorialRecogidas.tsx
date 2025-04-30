@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Droplet, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Usuario } from '@/types';
 
@@ -51,10 +51,20 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
     }
   }, [cliente, recogidas]);
   
-  const formatDate = (date: Date | undefined) => {
+  const formatDate = (date: Date | string | undefined) => {
     if (!date) return "Sin fecha";
+    
     try {
-      return format(new Date(date), "dd/MM/yyyy", { locale: es });
+      // Convert to Date object if it's a string or timestamp
+      const dateObj = typeof date === 'string' ? new Date(date) : 
+                     date instanceof Date ? date : new Date();
+      
+      // Check if the date is valid before formatting
+      if (!isValid(dateObj)) {
+        return "Fecha inválida";
+      }
+      
+      return format(dateObj, "dd/MM/yyyy", { locale: es });
     } catch (e) {
       console.error("Error formatting date:", e);
       return "Fecha inválida";
