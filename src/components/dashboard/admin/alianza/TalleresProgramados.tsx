@@ -52,7 +52,7 @@ const TalleresProgramados = () => {
     const nuevoTaller: Omit<TallerProgramado, 'id'> = {
       titulo: '',
       fecha: new Date(),
-      hora: '', // Using hora instead of horaInicio
+      hora: '', // Using hora property
       duracion: 60,
       ubicacion: '',
       aforo: 0,
@@ -92,7 +92,7 @@ const TalleresProgramados = () => {
       titulo: tallerEditando.titulo || '',
       descripcion: tallerEditando.descripcion || '',
       fecha: tallerEditando.fecha || new Date(),
-      hora: tallerEditando.hora || '', // Using hora instead of horaInicio
+      hora: tallerEditando.hora || '', // Use hora instead of horaInicio
       duracion: tallerEditando.duracion || 60,
       ubicacion: tallerEditando.ubicacion || '',
       aforo: tallerEditando.aforo || 0,
@@ -278,7 +278,7 @@ const TalleresProgramados = () => {
                 <TableRow key={taller.id}>
                   <TableCell className="font-medium">{taller.titulo}</TableCell>
                   <TableCell>
-                    {formatFechaHora(taller.fecha, taller.hora)} {/* Use fecha and hora instead of fechaHora */}
+                    {formatFechaHora(taller.fecha, taller.hora)}
                   </TableCell>
                   <TableCell>{taller.ubicacion}</TableCell>
                   <TableCell>{taller.participantes || 0}</TableCell>

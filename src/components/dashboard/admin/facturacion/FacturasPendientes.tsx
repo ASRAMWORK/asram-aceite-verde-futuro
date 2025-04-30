@@ -19,6 +19,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -215,9 +216,9 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <tbody>
                         {ingresosPendientes.map((ingreso) => (
                           <tr key={ingreso.id} className="border-t hover:bg-muted/50">
-                            <TableCell className="font-medium">
+                            <td className="p-2 font-medium">
                               {ingreso.numeroFactura || 'Sin número'}
-                            </TableCell>
+                            </td>
                             <td className="p-2">{ingreso.concepto}</td>
                             <td className="p-2">{ingreso.cliente || '-'}</td>
                             <td className="p-2">
@@ -279,9 +280,9 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <tbody>
                         {gastosPendientes.map((gasto) => (
                           <tr key={gasto.id} className="border-t hover:bg-muted/50">
-                            <TableCell className="font-medium">
+                            <td className="p-2 font-medium">
                               {gasto.numeroFactura || 'Sin número'}
-                            </TableCell>
+                            </td>
                             <td className="p-2">{gasto.concepto}</td>
                             <td className="p-2">{gasto.proveedor || '-'}</td>
                             <td className="p-2">
@@ -352,6 +353,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                     <FormControl>
                       <Input placeholder="Describe el concepto de la factura" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -366,6 +368,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input type="number" step="0.01" min="0" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -379,6 +382,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -394,6 +398,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input placeholder="Nombre del cliente" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -407,6 +412,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input placeholder="Nombre del proveedor" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -422,6 +428,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input placeholder="Ej: F-2023/123" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -475,6 +482,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                     <FormControl>
                       <Textarea placeholder="Notas adicionales sobre la factura" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

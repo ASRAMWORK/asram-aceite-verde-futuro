@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Table,
@@ -15,7 +16,8 @@ import { User, UserCheck, UserX } from "lucide-react";
 
 const ComercialView = () => {
   const { usuarios, updateUsuario } = useUsuarios();
-  const comerciales = usuarios.filter(user => user.role === 'user');
+  // Update this line to filter by 'comercial' role since we added it to the UserRole type
+  const comerciales = usuarios.filter(user => user.role === 'comercial');
 
   const handleToggleStatus = async (userId: string, isActive: boolean) => {
     await updateUsuario(userId, { activo: !isActive });

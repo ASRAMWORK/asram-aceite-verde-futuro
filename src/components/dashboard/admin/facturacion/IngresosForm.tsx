@@ -45,9 +45,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
       fecha: new Date(),
       concepto: "",
       cantidad: 0,
-      iva: 0,
-      total: 0,
-      metodoPago: "",
+      // Changed properties to match our updated Ingreso interface
       notas: "",
       estado: "pendiente",
       categoria: "general",
@@ -63,10 +61,6 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
         ...data,
         fecha: data.fecha instanceof Date ? data.fecha : new Date(data.fecha as any),
         cantidad: parseFloat(data.cantidad as any),
-        iva: parseFloat(data.iva as any),
-        total: parseFloat(data.total as any),
-        estado: data.estado || "pendiente",
-        tipo: data.tipo || 'general',
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -137,6 +131,7 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
                     onSelect={field.onChange}
                     disabled={(date) => date > new Date()}
                     initialFocus
+                    className={cn("p-3 pointer-events-auto")}
                   />
                 </PopoverContent>
               </Popover>
@@ -173,52 +168,47 @@ const IngresosForm = ({ onSubmit, onCancel, initialData, isOpen, onClose }: Ingr
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="iva"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>IVA</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="total"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         <FormField
           control={form.control}
-          name="metodoPago"
+          name="estado"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Método de Pago</FormLabel>
+              <FormLabel>Estado</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un método" />
+                    <SelectValue placeholder="Estado del ingreso" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="efectivo">Efectivo</SelectItem>
-                    <SelectItem value="tarjeta">Tarjeta de Crédito</SelectItem>
-                    <SelectItem value="transferencia">Transferencia Bancaria</SelectItem>
-                    <SelectItem value="cheque">Cheque</SelectItem>
+                    <SelectItem value="pendiente">Pendiente</SelectItem>
+                    <SelectItem value="cobrada">Cobrada</SelectItem>
+                    <SelectItem value="cancelada">Cancelada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="categoria"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoría</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una categoría" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General</SelectItem>
+                    <SelectItem value="venta">Venta</SelectItem>
+                    <SelectItem value="servicio">Servicio</SelectItem>
+                    <SelectItem value="subvencion">Subvención</SelectItem>
                     <SelectItem value="otro">Otro</SelectItem>
                   </SelectContent>
                 </Select>

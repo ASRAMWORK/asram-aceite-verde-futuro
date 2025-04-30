@@ -1,4 +1,3 @@
-
 export interface UserProfile {
   id: string;
   uid: string;
@@ -40,6 +39,7 @@ export type Usuario = UserProfile & {
   fechaRegistro?: Date;
   contacto?: string;
   uid: string; // Making sure uid is required as its used in components
+  litrosEstimados?: number;
 };
 
 export interface ComunidadVecinos {
@@ -106,6 +106,8 @@ export interface Recogida {
   fechaCompletada?: Date;
   hora?: string;
   estado?: string;
+  rutaId?: string;
+  notasAdicionales?: string;
 }
 
 export interface Informe {
@@ -264,6 +266,13 @@ export interface Ingreso {
   notas?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  // Adding missing properties
+  categoria?: string;
+  origen?: string;
+  iva?: number;
+  total?: number;
+  metodoPago?: string;
+  tipo?: string;
 }
 
 export interface Gasto {
@@ -278,6 +287,110 @@ export interface Gasto {
   numFactura?: string;
   observaciones?: string;
   categoriaGasto?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  // Adding missing properties
+  categoria?: string;
+  tipo?: string;
+  iva?: number;
+  total?: number;
+  metodoPago?: number;
+  notas?: string;
+}
+
+// Add missing interfaces for Instalacion, Ruta, Trabajador, Voluntario, etc.
+
+export interface Instalacion {
+  id: string;
+  nombre: string;
+  tipo: string;
+  direccion: string;
+  ciudad: string;
+  descripcion?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Ruta {
+  id: string;
+  nombre: string;
+  distrito?: string;
+  barrios?: string[];
+  fecha: Date;
+  hora: string;
+  recogedores: string;
+  clientes: any[];
+  puntosRecogida: number;
+  distanciaTotal: number;
+  tiempoEstimado: string;
+  frecuencia: string;
+  completada: boolean;
+  litrosTotales: number;
+  puntos: any[];
+  createdAt: Date;
+  updatedAt: Date;
+  tipo: string;
+}
+
+export interface Trabajador {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  dni: string;
+  fechaIngreso: Date;
+  puesto: string;
+  salario: number;
+  activo: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TrabajadorPago {
+  id: string;
+  trabajadorId: string;
+  fecha: Date;
+  concepto: string;
+  cantidad: number;
+  estado: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Turno {
+  id: string;
+  trabajadorId: string;
+  fecha: Date;
+  horaInicio: string;
+  horaFin: string;
+  descripcion?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Voluntario {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  disponibilidad: string[];
+  habilidades: string[];
+  activo: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Tarea {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fechaInicio: Date;
+  fechaFin?: Date;
+  voluntarioId?: string;
+  estado: string;
+  prioridad: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
