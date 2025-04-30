@@ -34,6 +34,7 @@ export interface UserProfile {
   nombreAdministracion?: string;
   codigo?: string;
   aprobado?: boolean;
+  photoURL?: string; // Added photoURL property
   
   // Add missing properties for comercial
   metodoPago?: {

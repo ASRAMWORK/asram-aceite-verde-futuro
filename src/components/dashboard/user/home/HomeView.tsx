@@ -6,7 +6,7 @@ import ImpactCharts from "./components/ImpactCharts";
 import ServiceFeatures from "./components/ServiceFeatures";
 import RecogidaCalendar from "@/components/calendario/RecogidaCalendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, BarChart, Info } from "lucide-react";
+import { CalendarDays, BarChart, Info, Droplet, BookOpen, RecycleIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const HomeView = () => {
