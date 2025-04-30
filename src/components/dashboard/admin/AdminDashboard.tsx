@@ -8,13 +8,14 @@ import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { useTrabajadores } from "@/hooks/useTrabajadores";
 import { useInstalaciones } from "@/hooks/useInstalaciones";
 import { useFacturacion } from "@/hooks/useFacturacion";
-import { Building, Briefcase, Users, Home, CalendarDays, User, FileText, Bell, AlertCircle, Droplet } from "lucide-react";
+import { Building, Briefcase, Users, Home, CalendarDays, User, FileText, Bell, AlertCircle, Droplet, Map } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { useRecogidas } from "@/hooks/useRecogidas";
+import MapaLocalizaciones from "./mapa/MapaLocalizaciones";
 
 const AdminDashboard = () => {
   const { puntosVerdes, loading: loadingPuntos } = usePuntosVerdes();
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
   const { instalaciones, loading: loadingInstalaciones } = useInstalaciones();
   const { ingresos, gastos, loading: loadingFacturacion } = useFacturacion();
   const { recogidas, getTotalLitrosRecogidos } = useRecogidas();
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   // Calculate statistics - now counts all registered users plus active community clients
   const clientesActivos = usuarios.filter(u => u.activo).length;
@@ -221,11 +223,23 @@ const AdminDashboard = () => {
           </p>
         </div>
         
-        {/* Notifications bell */}
-        <div className="flex items-center gap-4">
+        {/* Nav tabs for main sections */}
+        <div className="flex items-center space-x-2">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList>
+              <TabsTrigger value="dashboard" className="px-3">
+                <FileText className="h-4 w-4 mr-1" /> Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="map" className="px-3">
+                <Map className="h-4 w-4 mr-1" /> Mapa
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          {/* Notifications bell */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="relative">
+              <Button variant="outline" size="icon" className="relative ml-2">
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 px-1 min-w-5 h-5 flex items-center justify-center bg-red-500">
@@ -270,281 +284,285 @@ const AdminDashboard = () => {
               </ScrollArea>
             </PopoverContent>
           </Popover>
-          
-          <Button variant="default" className="bg-asram hover:bg-asram-700">
-            Actualizar datos
-          </Button>
         </div>
       </div>
 
-      {/* Cards de estadísticas generales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-asram hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clientes Activos</CardTitle>
-            <Building className="h-5 w-5 text-asram" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "..." : clientesActivos}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total usuarios registrados
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contenedores Instalados</CardTitle>
-            <Home className="h-5 w-5 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "..." : totalContenedores}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total contenedores instalados
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Equipo ASRAM</CardTitle>
-            <Users className="h-5 w-5 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "..." : `${totalTrabajadores} / ${totalVoluntarios}`}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Trabajadores / Voluntarios
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Litros Recogidos</CardTitle>
-            <Droplet className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "..." : `${totalLitrosRecogidos}L`}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total litros de aceite recogidos
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Cards de facturación */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-green-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos Mes</CardTitle>
-            <FileText className="h-5 w-5 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {isLoading ? "..." : `${ingresosDelMes.toLocaleString()}€`}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-red-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gastos Mes</CardTitle>
-            <FileText className="h-5 w-5 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-500">
-              {isLoading ? "..." : `${gastosDelMes.toLocaleString()}€`}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-blue-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Previsión Anual</CardTitle>
-            <FileText className="h-5 w-5 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {isLoading ? "..." : `${previsionAnual.toLocaleString()}€`}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-amber-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pendiente Cobro</CardTitle>
-            <FileText className="h-5 w-5 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-500">
-              {isLoading ? "..." : `${pendienteCobro.toLocaleString()}€`}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs con gráficas mejoradas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle>Evolución Financiera</CardTitle>
-            <CardDescription>
-              Ingresos y gastos de los últimos 6 meses
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Chart
-              type="line"
-              data={financialData}
-              options={{
-                maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    grid: {
-                      color: "rgba(0,0,0,0.05)",
-                    },
-                    ticks: {
-                      callback: (value) => `${value}€`,
-                    }
-                  },
-                  x: {
-                    grid: {
-                      display: false
-                    }
-                  }
-                },
-                plugins: {
-                  legend: {
-                    position: "top",
-                    align: "end"
-                  },
-                  tooltip: {
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    padding: 12,
-                    usePointStyle: true,
-                    callbacks: {
-                      label: function(context) {
-                        return `${context.dataset.label}: ${context.raw}€`;
-                      }
-                    }
-                  }
-                },
-              }}
-              className="h-80"
-            />
-          </CardContent>
-        </Card>
-
-        <Tabs defaultValue="recogidas" className="flex flex-col h-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="recogidas">Recogidas por Distrito</TabsTrigger>
-            <TabsTrigger value="usuarios">Usuarios por Tipo</TabsTrigger>
-          </TabsList>
-          
-          <Card className="flex-grow hover:shadow-lg transition-shadow">
-            <TabsContent value="recogidas" className="m-0 h-full">
-              <CardHeader>
-                <CardTitle>Aceite Recogido por Distrito</CardTitle>
-                <CardDescription>
-                  Distribución de litros recogidos por cada distrito
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <Chart
-                  type="bar"
-                  data={litrosChartData}
-                  options={{
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: false,
-                      },
-                      tooltip: {
-                        backgroundColor: "rgba(0,0,0,0.8)",
-                        padding: 12,
-                        callbacks: {
-                          label: function(context) {
-                            return `${context.raw} litros`;
-                          }
-                        }
-                      }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        grid: {
-                          color: "rgba(0,0,0,0.05)",
-                        },
-                        ticks: {
-                          callback: (value) => `${value}L`,
-                        }
-                      },
-                      x: {
-                        grid: {
-                          display: false
-                        }
-                      }
-                    },
-                  }}
-                  className="h-80"
-                />
-              </CardContent>
-            </TabsContent>
-            
-            <TabsContent value="usuarios" className="m-0 h-full">
-              <CardHeader>
-                <CardTitle>Distribución de Usuarios</CardTitle>
-                <CardDescription>
-                  Tipos de usuarios registrados en el sistema
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <Chart
-                  type="doughnut"
-                  data={usersChartData}
-                  options={{
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'right',
-                        labels: {
-                          boxWidth: 15,
-                          padding: 15
-                        }
-                      },
-                      tooltip: {
-                        backgroundColor: "rgba(0,0,0,0.8)",
-                        padding: 12,
-                        callbacks: {
-                          label: function(context) {
-                            const percentage = Math.round((context.parsed / context.dataset.data.reduce((a, b) => a + b, 0)) * 100);
-                            return `${context.label}: ${context.raw} (${percentage}%)`;
-                          }
-                        }
-                      }
-                    },
-                    cutout: '60%',
-                    animation: {
-                      animateScale: true,
-                      animateRotate: true
-                    }
-                  }}
-                  className="h-80"
-                />
-              </CardContent>
-            </TabsContent>
+      {/* Main content based on active tab */}
+      <TabsContent value="dashboard" className="mt-0 p-0">
+        {/* Cards de estadísticas generales */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-l-4 border-l-asram hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Clientes Activos</CardTitle>
+              <Building className="h-5 w-5 text-asram" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : clientesActivos}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Total usuarios registrados
+              </p>
+            </CardContent>
           </Card>
-        </Tabs>
-      </div>
+
+          <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Contenedores Instalados</CardTitle>
+              <Home className="h-5 w-5 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : totalContenedores}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Total contenedores instalados
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Equipo ASRAM</CardTitle>
+              <Users className="h-5 w-5 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : `${totalTrabajadores} / ${totalVoluntarios}`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Trabajadores / Voluntarios
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Litros Recogidos</CardTitle>
+              <Droplet className="h-4 w-4 text-purple-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : `${totalLitrosRecogidos}L`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Total litros de aceite recogidos
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Cards de facturación */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+          <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-green-50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Ingresos Mes</CardTitle>
+              <FileText className="h-5 w-5 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {isLoading ? "..." : `${ingresosDelMes.toLocaleString()}€`}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-red-50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Gastos Mes</CardTitle>
+              <FileText className="h-5 w-5 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-500">
+                {isLoading ? "..." : `${gastosDelMes.toLocaleString()}€`}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-blue-50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Previsión Anual</CardTitle>
+              <FileText className="h-5 w-5 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                {isLoading ? "..." : `${previsionAnual.toLocaleString()}€`}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-amber-50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pendiente Cobro</CardTitle>
+              <FileText className="h-5 w-5 text-amber-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-amber-500">
+                {isLoading ? "..." : `${pendienteCobro.toLocaleString()}€`}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tabs con gráficas mejoradas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle>Evolución Financiera</CardTitle>
+              <CardDescription>
+                Ingresos y gastos de los últimos 6 meses
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Chart
+                type="line"
+                data={financialData}
+                options={{
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      grid: {
+                        color: "rgba(0,0,0,0.05)",
+                      },
+                      ticks: {
+                        callback: (value) => `${value}€`,
+                      }
+                    },
+                    x: {
+                      grid: {
+                        display: false
+                      }
+                    }
+                  },
+                  plugins: {
+                    legend: {
+                      position: "top",
+                      align: "end"
+                    },
+                    tooltip: {
+                      backgroundColor: "rgba(0,0,0,0.8)",
+                      padding: 12,
+                      usePointStyle: true,
+                      callbacks: {
+                        label: function(context) {
+                          return `${context.dataset.label}: ${context.raw}€`;
+                        }
+                      }
+                    }
+                  },
+                }}
+                className="h-80"
+              />
+            </CardContent>
+          </Card>
+
+          <Tabs defaultValue="recogidas" className="flex flex-col h-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="recogidas">Recogidas por Distrito</TabsTrigger>
+              <TabsTrigger value="usuarios">Usuarios por Tipo</TabsTrigger>
+            </TabsList>
+            
+            <Card className="flex-grow hover:shadow-lg transition-shadow">
+              <TabsContent value="recogidas" className="m-0 h-full">
+                <CardHeader>
+                  <CardTitle>Aceite Recogido por Distrito</CardTitle>
+                  <CardDescription>
+                    Distribución de litros recogidos por cada distrito
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <Chart
+                    type="bar"
+                    data={litrosChartData}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                        tooltip: {
+                          backgroundColor: "rgba(0,0,0,0.8)",
+                          padding: 12,
+                          callbacks: {
+                            label: function(context) {
+                              return `${context.raw} litros`;
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          grid: {
+                            color: "rgba(0,0,0,0.05)",
+                          },
+                          ticks: {
+                            callback: (value) => `${value}L`,
+                          }
+                        },
+                        x: {
+                          grid: {
+                            display: false
+                          }
+                        }
+                      },
+                    }}
+                    className="h-80"
+                  />
+                </CardContent>
+              </TabsContent>
+              
+              <TabsContent value="usuarios" className="m-0 h-full">
+                <CardHeader>
+                  <CardTitle>Distribución de Usuarios</CardTitle>
+                  <CardDescription>
+                    Tipos de usuarios registrados en el sistema
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <Chart
+                    type="doughnut"
+                    data={usersChartData}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'right',
+                          labels: {
+                            boxWidth: 15,
+                            padding: 15
+                          }
+                        },
+                        tooltip: {
+                          backgroundColor: "rgba(0,0,0,0.8)",
+                          padding: 12,
+                          callbacks: {
+                            label: function(context) {
+                              const percentage = Math.round((context.parsed / context.dataset.data.reduce((a, b) => a + b, 0)) * 100);
+                              return `${context.label}: ${context.raw} (${percentage}%)`;
+                            }
+                          }
+                        }
+                      },
+                      cutout: '60%',
+                      animation: {
+                        animateScale: true,
+                        animateRotate: true
+                      }
+                    }}
+                    className="h-80"
+                  />
+                </CardContent>
+              </TabsContent>
+            </Card>
+          </Tabs>
+        </div>
+      </TabsContent>
+
+      {/* Map tab content */}
+      <TabsContent value="map" className="mt-0 p-0">
+        <MapaLocalizaciones />
+      </TabsContent>
     </div>
   );
 };

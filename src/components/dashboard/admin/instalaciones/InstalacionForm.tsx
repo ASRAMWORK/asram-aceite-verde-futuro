@@ -17,7 +17,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { AddressInput } from "@/components/ui/address-input";
 import { Textarea } from "@/components/ui/textarea";
+import { AddressComponent } from "@/lib/googleMaps";
 
 const formSchema = z.object({
   nombre: z.string().min(2, {
@@ -121,6 +123,38 @@ const InstalacionForm: React.FC<InstalacionFormProps> = ({ instalacion, onClose 
     },
   });
 
+  const handleAddressSelected = (addressData: AddressComponent) => {
+    if (addressData.direccionCompleta) {
+      form.setValue("direccion", addressData.direccionCompleta);
+    }
+    if (addressData.ciudad) {
+      form.setValue("ciudad", addressData.ciudad);
+    }
+    if (addressData.provincia) {
+      form.setValue("provincia", addressData.provincia);
+    }
+    if (addressData.pais) {
+      form.setValue("pais", addressData.pais);
+    }
+    if (addressData.codigoPostal) {
+      form.setValue("codigoPostal", addressData.codigoPostal);
+    }
+    if (addressData.distrito) {
+      form.setValue("distrito", addressData.distrito);
+    }
+    if (addressData.barrio) {
+      form.setValue("barrio", addressData.barrio);
+    }
+    if (addressData.latitud) {
+      form.setValue("latitud", addressData.latitud);
+    }
+    if (addressData.longitud) {
+      form.setValue("longitud", addressData.longitud);
+    }
+    
+    toast.success("Dirección autocompletada con éxito");
+  };
+
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     if (instalacion) {
       // Update existing instalacion
@@ -196,7 +230,11 @@ const InstalacionForm: React.FC<InstalacionFormProps> = ({ instalacion, onClose 
               <FormItem>
                 <FormLabel>Dirección</FormLabel>
                 <FormControl>
-                  <Input placeholder="Dirección completa" {...field} />
+                  <AddressInput 
+                    placeholder="Buscar dirección..." 
+                    {...field} 
+                    onAddressSelected={handleAddressSelected}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
