@@ -1,12 +1,18 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import DistritoBarrioFilter from "./filters/DistritoBarrioFilter";
 import { useRecogidas } from "@/hooks/useRecogidas";
-import { format, isSameDay, isWeekend, isValid } from "date-fns";
+import { format, isSameDay, isWeekend, isValid, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
 import CalendarDay from "./calendar/CalendarDay";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { CalendarDays, ListFilter } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 interface RecogidaCalendarProps {
   isAdmin?: boolean;
@@ -18,6 +24,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
   const [selectedBarrio, setSelectedBarrio] = useState("");
   const { recogidas, loadRecogidasData } = useRecogidas();
   const [showNoRecogidasMessage, setShowNoRecogidasMessage] = useState(false);
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   
   // Mapeo de números de día a distritos para simular datos
   const distritosMap: Record<number, string> = {
@@ -42,6 +49,35 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
     19: "Vicálvaro",
     20: "San Blas-Canillejas",
     21: "Barajas"
+  };
+
+  // Generar un horario ficticio para cada distrito
+  const getHoraRecogidaForDistrito = (distrito: string): string => {
+    const distritosHoras: Record<string, string> = {
+      "Centro": "09:00",
+      "Arganzuela": "09:30",
+      "Retiro": "10:00",
+      "Salamanca": "10:30",
+      "Chamartín": "11:00",
+      "Tetuán": "11:30",
+      "Chamberí": "12:00",
+      "Fuencarral-El Pardo": "12:30",
+      "Moncloa-Aravaca": "13:00",
+      "Latina": "13:30",
+      "Carabanchel": "14:00",
+      "Usera": "15:00",
+      "Puente de Vallecas": "15:30",
+      "Moratalaz": "16:00",
+      "Ciudad Lineal": "16:30",
+      "Hortaleza": "17:00",
+      "Villaverde": "17:30",
+      "Villa de Vallecas": "18:00",
+      "Vicálvaro": "18:30",
+      "San Blas-Canillejas": "19:00",
+      "Barajas": "19:30"
+    };
+    
+    return distritosHoras[distrito] || "09:00";
   };
 
   // Si no hay recogidas programadas, crearemos algunas ficticias para mostrar el funcionamiento
@@ -118,7 +154,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
     
     if (recogida) {
       return {
-        distrito: recogida.distrito,
+        distrito: recogida.distrito || '',
         barrio: recogida.barrio,
         hora: recogida.horaInicio || '09:00'
       };
@@ -134,7 +170,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
         return {
           distrito: distrito,
           barrio: "",
-          hora: "09:00"
+          hora: getHoraRecogidaForDistrito(distrito)
         };
       }
     }
@@ -142,12 +178,78 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
     return null;
   };
 
+  // Generar lista de días con recogida para el mes actual
+  const getDiasRecogidaPorDistrito = () => {
+    const diasRecogida: Record<string, Date[]> = {};
+    
+    if (!selectedDate) return diasRecogida;
+    
+    const firstDayOfMonth = startOfMonth(selectedDate);
+    const lastDayOfMonth = endOfMonth(selectedDate);
+    
+    const daysInMonth = eachDayOfInterval({
+      start: firstDayOfMonth,
+      end: lastDayOfMonth
+    });
+    
+    // Para cada distrito, encontrar los días con recogida
+    Object.values(distritosMap).forEach(distrito => {
+      const diasParaDistrito = daysInMonth.filter(day => {
+        // Si hay un distrito seleccionado y no es este, lo omitimos
+        if (selectedDistrito && selectedDistrito !== distrito) return false;
+        
+        // Verificar si hay recogida (simulada o real)
+        const dayOfMonth = day.getDate();
+        
+        // Si el día del mes corresponde a este distrito y no es fin de semana
+        if (dayOfMonth >= 1 && dayOfMonth <= 21 && !isWeekend(day)) {
+          return distritosMap[dayOfMonth] === distrito;
+        }
+        
+        return false;
+      });
+      
+      if (diasParaDistrito.length > 0) {
+        diasRecogida[distrito] = diasParaDistrito;
+      }
+    });
+    
+    return diasRecogida;
+  };
+
+  const diasPorDistrito = getDiasRecogidaPorDistrito();
+
   return (
-    <Card className="w-full max-w-6xl mx-auto bg-white/70 backdrop-blur-sm shadow-lg border border-[#ee970d]/20">
+    <Card className="w-full max-w-7xl mx-auto bg-white/90 backdrop-blur-sm shadow-lg border border-[#ee970d]/20">
       <CardHeader className="border-b border-[#ee970d]/10 pb-4">
-        <CardTitle className="text-2xl font-bold text-center text-[#ee970d]">
-          Calendario de Recogidas 2025
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-2xl font-bold text-[#ee970d]">
+            Calendario de Recogidas 2025
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant={viewMode === "calendar" ? "default" : "outline"}
+              onClick={() => setViewMode("calendar")}
+              className={viewMode === "calendar" ? "bg-[#ee970d] hover:bg-[#ee970d]/90" : ""}
+            >
+              <CalendarDays className="h-4 w-4 mr-2" />
+              Calendario
+            </Button>
+            <Button
+              size="sm"
+              variant={viewMode === "list" ? "default" : "outline"}
+              onClick={() => setViewMode("list")}
+              className={viewMode === "list" ? "bg-[#ee970d] hover:bg-[#ee970d]/90" : ""}
+            >
+              <ListFilter className="h-4 w-4 mr-2" />
+              Lista
+            </Button>
+          </div>
+        </div>
+        <CardDescription>
+          Consulta las fechas programadas para la recogida de aceite usado en tu zona
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         {showNoRecogidasMessage && (
@@ -161,7 +263,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
           </div>
         )}
         
-        <div className="grid md:grid-cols-[300px,1fr] gap-6">
+        <div className="grid lg:grid-cols-[300px,1fr] gap-6">
           <div className="space-y-6">
             <DistritoBarrioFilter
               selectedDistrito={selectedDistrito}
@@ -190,42 +292,105 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
             </div>
           </div>
 
-          <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              locale={es}
-              className="rounded-md border w-full h-full"
-              components={{
-                Day: ({ date, ...props }) => (
-                  <CalendarDay
-                    day={date.getDate()}
-                    isWeekend={isWeekend(date)}
-                    hasRecogida={hasRecogidaOnDate(date)}
-                    recogidaDetails={getRecogidaDetails(date)}
-                    {...props}
-                  />
-                ),
-              }}
-            />
+          <div>
+            {viewMode === "calendar" ? (
+              <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-white">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  locale={es}
+                  className="rounded-md border w-full h-full"
+                  components={{
+                    Day: ({ date, ...props }) => (
+                      <CalendarDay
+                        day={date.getDate()}
+                        isWeekend={isWeekend(date)}
+                        hasRecogida={hasRecogidaOnDate(date)}
+                        recogidaDetails={getRecogidaDetails(date)}
+                        {...props}
+                      />
+                    ),
+                  }}
+                />
+              </div>
+            ) : (
+              <Card className="shadow-sm border-[#ee970d]/10">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium">Días de recogida por distrito</CardTitle>
+                  <CardDescription>
+                    Listado completo de los días programados para {format(selectedDate || new Date(), 'MMMM yyyy', { locale: es })}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pb-6">
+                  <ScrollArea className="h-[450px] pr-4">
+                    <div className="space-y-6">
+                      {Object.keys(diasPorDistrito).length > 0 ? (
+                        Object.entries(diasPorDistrito).map(([distrito, dias]) => (
+                          <div key={distrito} className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-[#ee970d]">{distrito}</Badge>
+                              <span className="text-sm text-gray-500">
+                                {getHoraRecogidaForDistrito(distrito)} hrs
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {dias.map((dia, i) => (
+                                <div 
+                                  key={i}
+                                  onClick={() => setSelectedDate(dia)}
+                                  className={`
+                                    px-3 py-1.5 border rounded-md cursor-pointer 
+                                    ${isSameDay(dia, selectedDate || new Date()) 
+                                      ? 'bg-[#ee970d]/10 border-[#ee970d] font-medium' 
+                                      : 'border-gray-200 hover:bg-gray-50'
+                                    }
+                                  `}
+                                >
+                                  <div className="text-sm font-medium">{format(dia, 'd', { locale: es })}</div>
+                                  <div className="text-xs text-gray-500">{format(dia, 'EEEE', { locale: es })}</div>
+                                </div>
+                              ))}
+                            </div>
+                            <Separator className="my-4" />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          No hay días de recogida para los filtros seleccionados.
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
         
         {/* Detalles de la fecha seleccionada */}
         {selectedDate && (
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h3 className="text-lg font-medium mb-2">
+          <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 className="text-xl font-medium mb-3">
               {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })}
             </h3>
             {hasRecogidaOnDate(selectedDate) ? (
-              <div className="flex items-center gap-2 text-green-600">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span className="font-medium">
-                  Recogida programada en {getRecogidaDetails(selectedDate)?.distrito}
-                  {getRecogidaDetails(selectedDate)?.barrio ? `, ${getRecogidaDetails(selectedDate)?.barrio}` : ''}
-                  {' - '}{getRecogidaDetails(selectedDate)?.hora} hrs
-                </span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="font-medium">
+                    Recogida programada en {getRecogidaDetails(selectedDate)?.distrito}
+                    {getRecogidaDetails(selectedDate)?.barrio ? `, ${getRecogidaDetails(selectedDate)?.barrio}` : ''}
+                  </span>
+                </div>
+                <div className="pl-5">
+                  <p className="text-gray-700">
+                    <span className="font-medium">Hora:</span> {getRecogidaDetails(selectedDate)?.hora} hrs
+                  </p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Recuerda tener preparado tu aceite usado en botellas de plástico bien cerradas.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-gray-500">

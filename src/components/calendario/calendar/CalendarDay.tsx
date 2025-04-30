@@ -27,7 +27,7 @@ const CalendarDay = ({
   recogidaDetails 
 }: CalendarDayProps) => {
   if (!day) {
-    return <div className="h-16" />;
+    return <div className="h-20" />; // Increased height for better visibility
   }
 
   return (
@@ -36,18 +36,18 @@ const CalendarDay = ({
         <TooltipTrigger asChild>
           <div
             className={cn(
-              "h-16 p-2 border rounded-md transition-colors relative overflow-hidden",
+              "h-20 p-2 border rounded-md transition-colors relative overflow-hidden",
               isWeekend ? "bg-gray-50" : "bg-white",
-              hasRecogida ? "border-[#ee970d] shadow-sm" : "border-gray-200",
-              "hover:shadow-md cursor-pointer"
+              hasRecogida ? "border-[#ee970d] shadow-md" : "border-gray-200",
+              "hover:shadow-lg cursor-pointer"
             )}
           >
             {hasRecogida && (
-              <div className="absolute inset-0 w-1.5 bg-[#ee970d] left-0"></div>
+              <div className="absolute inset-0 w-2 bg-[#ee970d] left-0"></div>
             )}
             <div className="flex flex-col h-full">
               <span className={cn(
-                "text-sm font-medium",
+                "text-base font-medium",
                 isWeekend ? "text-gray-400" : "text-gray-700",
                 hasRecogida && "font-bold text-[#ee970d]"
               )}>
@@ -61,6 +61,11 @@ const CalendarDay = ({
                   {recogidaDetails?.distrito || 'Recogida'}
                 </Badge>
               )}
+              {hasRecogida && recogidaDetails?.barrio && (
+                <span className="text-xs text-gray-500 truncate mt-1">
+                  {recogidaDetails.barrio}
+                </span>
+              )}
             </div>
           </div>
         </TooltipTrigger>
@@ -71,7 +76,7 @@ const CalendarDay = ({
               {recogidaDetails.barrio && (
                 <p className="text-gray-600">{recogidaDetails.barrio}</p>
               )}
-              <p className="text-gray-600">Hora: {recogidaDetails.hora}</p>
+              <p className="text-gray-600 font-semibold">Hora: {recogidaDetails.hora}</p>
             </div>
           </TooltipContent>
         )}
