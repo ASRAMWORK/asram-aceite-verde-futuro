@@ -64,6 +64,23 @@ export interface UserProfile {
   cif?: string;
   contacto?: string;
   litrosEstimados?: number;
+  
+  // Missing properties from errors
+  litrosAportados?: number;
+  puntosVerdes?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
+  fechaRegistro?: Date;
 }
 
 export interface Usuario {
@@ -117,6 +134,27 @@ export interface Usuario {
   cif?: string;
   contacto?: string;
   litrosEstimados?: number;
+  
+  // Missing properties from errors
+  litrosAportados?: number;
+  puntosVerdes?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
+  fechaRegistro?: Date;
+  userId?: string;
+  
+  // For puntos verdes
+  puntosVerdes?: number;
 }
 
 export interface ComunidadVecinos {
@@ -602,4 +640,26 @@ export interface Vehiculo {
   conductorAsignado?: string;
   createdAt?: any;
   updatedAt?: any;
+}
+
+export interface ClienteCaptado {
+  id: string;
+  comercialId: string;
+  clienteId: string;
+  nombreCliente: string;
+  fechaRegistro: Date;
+  planContratado: string;
+  estado: 'activo' | 'inactivo';
+  litrosRecogidos: number;
+}
+
+export interface Comision {
+  id: string;
+  comercialId: string;
+  clienteId: string;
+  nombreCliente: string;
+  litrosRecogidos: number;
+  importe: number;
+  estado: 'pendiente' | 'abonado';
+  fecha: Date;
 }

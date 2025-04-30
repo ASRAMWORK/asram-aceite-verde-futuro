@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 import { Copy, Share2, Download } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react"; // Updated import
+import { QRCodeSVG } from "qrcode.react"; // This is the correct import
 
 const CodigoReferidoView = () => {
   const { profile } = useUserProfile();
@@ -40,16 +40,31 @@ const CodigoReferidoView = () => {
   
   const downloadQRCode = () => {
     if (qrRef.current) {
-      const canvas = qrRef.current.querySelector("canvas");
-      if (canvas) {
-        const url = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `codigo-referido-asram-${codigo}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("Código QR descargado");
+      const svg = qrRef.current.querySelector("svg");
+      if (svg) {
+        // Create a canvas element to convert SVG to PNG
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const img = new Image();
+        
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx?.drawImage(img, 0, 0);
+          const pngFile = canvas.toDataURL("image/png");
+          
+          // Create download link
+          const link = document.createElement("a");
+          link.href = pngFile;
+          link.download = `codigo-referido-asram-${codigo}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success("Código QR descargado");
+        };
+        
+        img.src = "data:image/svg+xml;base64," + btoa(svgData);
       }
     }
   };

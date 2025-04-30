@@ -1,164 +1,120 @@
 
 import { useState, useEffect } from 'react';
+import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { 
-  collection, 
-  getDocs, 
-  query, 
-  where, 
-  addDoc, 
-  updateDoc, 
-  doc, 
-  serverTimestamp,
-  orderBy
-} from 'firebase/firestore';
-import { toast } from 'sonner';
-import { Comision } from '@/types/comercial';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import { useAuth } from '@/contexts/AuthContext';
+import type { Comision } from '@/types/comercial';
 
-export function useComisiones() {
+export const useComisiones = () => {
   const [comisiones, setComisiones] = useState<Comision[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { profile } = useUserProfile();
+  const { currentUser } = useAuth();
 
-  const loadComisionesData = async (comercialId?: string) => {
+  const fetchComisiones = async (comercialId?: string) => {
     try {
       setLoading(true);
-      
+      const comisionesRef = collection(db, 'comisiones');
       let comisionesQuery;
       
-      // If comercialId is provided, filter by it
       if (comercialId) {
-        comisionesQuery = query(
-          collection(db, "comisiones"),
-          where("comercialId", "==", comercialId),
-          orderBy("fecha", "desc")
-        );
-      } 
-      // If user is comercial, show only their comisiones
-      else if (profile?.role === 'comercial') {
-        comisionesQuery = query(
-          collection(db, "comisiones"),
-          where("comercialId", "==", profile.id),
-          orderBy("fecha", "desc")
-        );
-      } 
-      // For superadmin, show all
-      else {
-        comisionesQuery = query(
-          collection(db, "comisiones"),
-          orderBy("fecha", "desc")
-        );
+        // Si se proporciona un ID específico, filtrar por ese comercial
+        comisionesQuery = query(comisionesRef, where('comercialId', '==', comercialId));
+      } else if (currentUser) {
+        // Si no se proporciona ID pero hay un usuario autenticado, filtrar por ese usuario
+        comisionesQuery = query(comisionesRef, where('comercialId', '==', currentUser.uid));
+      } else {
+        // Si no hay filtro ni usuario, obtener todos (solo para admin)
+        comisionesQuery = comisionesRef;
       }
       
-      const comisionesSnap = await getDocs(comisionesQuery);
+      const querySnapshot = await getDocs(comisionesQuery);
+      const comisionesList: Comision[] = [];
       
-      const comisionesData: Comision[] = [];
-      comisionesSnap.forEach((doc) => {
-        const data = doc.data();
-        comisionesData.push({
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as Comision;
+        comisionesList.push({
           id: doc.id,
           comercialId: data.comercialId,
           clienteId: data.clienteId,
           nombreCliente: data.nombreCliente,
-          litrosRecogidos: data.litrosRecogidos || 0,
-          importe: data.importe || 0,
-          estado: data.estado || 'pendiente',
-          fecha: data.fecha?.toDate() || new Date()
+          litrosRecogidos: data.litrosRecogidos,
+          importe: data.importe,
+          estado: data.estado,
+          fecha: data.fecha instanceof Date ? 
+            data.fecha : 
+            new Date(data.fecha),
         });
       });
       
-      setComisiones(comisionesData);
-      setError(null);
-    } catch (err) {
-      console.error("Error cargando comisiones:", err);
-      setError("Error al cargar datos de comisiones");
+      setComisiones(comisionesList);
+    } catch (error) {
+      console.error('Error al obtener comisiones:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const addComision = async (comisionData: Partial<Comision>) => {
+  useEffect(() => {
+    fetchComisiones();
+  }, [currentUser?.uid]);
+
+  const addComision = async (comision: Omit<Comision, 'id'>) => {
     try {
-      const docRef = await addDoc(collection(db, "comisiones"), {
-        ...comisionData,
-        fecha: serverTimestamp(),
-        estado: 'pendiente'
+      const comisionRef = await addDoc(collection(db, 'comisiones'), {
+        ...comision,
+        fecha: new Date(),
       });
       
-      toast.success("Comisión añadida correctamente");
-      await loadComisionesData();
-      return docRef.id;
-    } catch (err) {
-      console.error("Error añadiendo comisión:", err);
-      toast.error("Error al añadir comisión");
-      throw err;
+      const newComision: Comision = {
+        id: comisionRef.id,
+        ...comision,
+        fecha: new Date(),
+      };
+      
+      setComisiones((prevComisiones) => [...prevComisiones, newComision]);
+      return newComision;
+    } catch (error) {
+      console.error('Error al añadir comisión:', error);
+      throw error;
     }
   };
 
   const updateComision = async (id: string, data: Partial<Comision>) => {
     try {
-      await updateDoc(doc(db, "comisiones", id), {
-        ...data,
-        updatedAt: serverTimestamp()
-      });
+      await updateDoc(doc(db, 'comisiones', id), data);
       
-      toast.success("Comisión actualizada correctamente");
-      await loadComisionesData();
-    } catch (err) {
-      console.error("Error actualizando comisión:", err);
-      toast.error("Error al actualizar comisión");
-      throw err;
+      setComisiones((prevComisiones) => 
+        prevComisiones.map((comision) => 
+          comision.id === id ? { ...comision, ...data } : comision
+        )
+      );
+    } catch (error) {
+      console.error('Error al actualizar comisión:', error);
+      throw error;
     }
   };
 
-  const marcarComisionAbonada = async (id: string) => {
-    try {
-      await updateDoc(doc(db, "comisiones", id), {
-        estado: 'abonado',
-        updatedAt: serverTimestamp()
-      });
-      
-      toast.success("Comisión marcada como abonada");
-      await loadComisionesData();
-    } catch (err) {
-      console.error("Error marcando comisión como abonada:", err);
-      toast.error("Error al actualizar comisión");
-      throw err;
-    }
-  };
-
-  const getComisionesByComercialId = (comercialId: string) => {
-    return comisiones.filter(comision => comision.comercialId === comercialId);
-  };
-
-  const getComisionesTotalesByComercialId = (comercialId: string) => {
+  // Obtener total de comisiones pendientes
+  const getComisionesPendientes = () => {
     return comisiones
-      .filter(comision => comision.comercialId === comercialId)
+      .filter(comision => comision.estado === 'pendiente')
       .reduce((total, comision) => total + comision.importe, 0);
   };
 
-  const getComisionesPendientesByComercialId = (comercialId: string) => {
+  // Obtener total de comisiones abonadas
+  const getComisionesAbonadas = () => {
     return comisiones
-      .filter(comision => comision.comercialId === comercialId && comision.estado === 'pendiente')
+      .filter(comision => comision.estado === 'abonado')
       .reduce((total, comision) => total + comision.importe, 0);
   };
-
-  useEffect(() => {
-    loadComisionesData();
-  }, [profile?.id]);
 
   return {
     comisiones,
     loading,
-    error,
-    loadComisionesData,
+    fetchComisiones,
     addComision,
     updateComision,
-    marcarComisionAbonada,
-    getComisionesByComercialId,
-    getComisionesTotalesByComercialId,
-    getComisionesPendientesByComercialId
+    getComisionesPendientes,
+    getComisionesAbonadas,
   };
-}
+};
