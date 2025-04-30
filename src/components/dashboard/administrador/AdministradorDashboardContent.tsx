@@ -11,6 +11,7 @@ import AdministradorEstadisticas from './estadisticas/AdministradorEstadisticas'
 import AdministradorPerfil from './perfil/AdministradorPerfil';
 import InformesPanel from './informes/InformesPanel';
 import GestionComunidades from './comunidades/GestionComunidades';
+import ReunionesView from '../admin/reuniones/ReunionesView';
 
 interface AdministradorDashboardContentProps {
   activeTab?: string;
@@ -37,6 +38,8 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
       return <AdministradorPerfil />;
     case 'gestionComunidades':
       return <GestionComunidades />;
+    case 'reuniones':
+      return <ReunionesView />;
     default:
       return (
         <div className="container mx-auto px-4 py-8">
@@ -46,6 +49,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
               <TabsTrigger value="gestionar">Gestionar Comunidad</TabsTrigger>
               <TabsTrigger value="informes">Informes y Contratos</TabsTrigger>
               <TabsTrigger value="recogidas">Recogidas</TabsTrigger>
+              <TabsTrigger value="reuniones">Reuniones</TabsTrigger>
             </TabsList>
             <TabsContent value="comunidades">
               <MisComunidades />
@@ -58,6 +62,9 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
             </TabsContent>
             <TabsContent value="recogidas">
               <AdministradorRecogidas />
+            </TabsContent>
+            <TabsContent value="reuniones">
+              <ReunionesView />
             </TabsContent>
           </Tabs>
         </div>
