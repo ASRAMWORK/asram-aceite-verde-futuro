@@ -17,7 +17,7 @@ const HomeView = () => {
       
       <Tabs defaultValue="impact" className="space-y-6">
         <div className="flex justify-center">
-          <TabsList>
+          <TabsList className="bg-gray-100/70">
             <TabsTrigger value="impact" className="flex items-center gap-1">
               <BarChart className="h-4 w-4" />
               <span>Impacto Ambiental</span>
@@ -34,9 +34,14 @@ const HomeView = () => {
         </div>
         
         <TabsContent value="impact" className="mt-0">
-          <Card>
+          <Card className="border-t-4 border-green-500 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">Tu Impacto Ambiental</CardTitle>
+              <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                  <BarChart className="h-5 w-5 text-green-600" />
+                </div>
+                Tu Impacto Ambiental
+              </CardTitle>
               <CardDescription>
                 Visualización de tu contribución al medio ambiente
               </CardDescription>
@@ -48,9 +53,14 @@ const HomeView = () => {
         </TabsContent>
         
         <TabsContent value="calendar" className="mt-0">
-          <Card>
+          <Card className="border-t-4 border-blue-500 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">Calendario de Recogidas</CardTitle>
+              <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <CalendarDays className="h-5 w-5 text-blue-600" />
+                </div>
+                Calendario de Recogidas
+              </CardTitle>
               <CardDescription>
                 Fechas programadas para la recogida de aceite en tu zona
               </CardDescription>
@@ -62,9 +72,14 @@ const HomeView = () => {
         </TabsContent>
         
         <TabsContent value="services" className="mt-0">
-          <Card>
+          <Card className="border-t-4 border-purple-500 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">Nuestros Servicios</CardTitle>
+              <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                  <Info className="h-5 w-5 text-purple-600" />
+                </div>
+                Nuestros Servicios
+              </CardTitle>
               <CardDescription>
                 Descubre todos los servicios que ofrecemos
               </CardDescription>
@@ -76,13 +91,13 @@ const HomeView = () => {
         </TabsContent>
       </Tabs>
       
-      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl text-amber-800">Beneficios e Impacto Ambiental</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
                 <Droplet className="w-6 h-6 text-green-600" />
               </div>
@@ -92,7 +107,7 @@ const HomeView = () => {
               </p>
             </div>
             
-            <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
                 <RecycleIcon className="w-6 h-6 text-blue-600" />
               </div>
@@ -102,7 +117,7 @@ const HomeView = () => {
               </p>
             </div>
             
-            <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-4">
                 <BookOpen className="w-6 h-6 text-purple-600" />
               </div>
