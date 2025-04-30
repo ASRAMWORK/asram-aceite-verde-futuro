@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Droplet, Calendar } from 'lucide-react';
-import { format, isValid } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Usuario } from '@/types';
 
@@ -55,9 +55,22 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
     if (!date) return "Sin fecha";
     
     try {
-      // Convert to Date object if it's a string or timestamp
-      const dateObj = typeof date === 'string' ? new Date(date) : 
-                     date instanceof Date ? date : new Date();
+      // Ensure date is properly parsed no matter the format
+      let dateObj;
+      
+      if (typeof date === 'string') {
+        // Try to parse with parseISO first (handles ISO format strings)
+        dateObj = parseISO(date);
+        
+        // If not valid (e.g., for timestamps as strings), try with new Date()
+        if (!isValid(dateObj)) {
+          dateObj = new Date(date);
+        }
+      } else if (date instanceof Date) {
+        dateObj = date;
+      } else {
+        return "Formato de fecha inválido";
+      }
       
       // Check if the date is valid before formatting
       if (!isValid(dateObj)) {
@@ -67,7 +80,7 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
       return format(dateObj, "dd/MM/yyyy", { locale: es });
     } catch (e) {
       console.error("Error formatting date:", e);
-      return "Fecha inválida";
+      return "Error en formato de fecha";
     }
   };
   

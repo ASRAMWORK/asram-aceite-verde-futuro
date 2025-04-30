@@ -22,7 +22,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Usuario } from '@/types';
+import { Usuario, UserRole } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
@@ -35,6 +35,7 @@ const clienteSchema = z.object({
   codigoPostal: z.string().min(5, 'Código postal no válido'),
   frecuenciaRecogida: z.string(),
   tipo: z.string().min(1, 'El tipo de cliente es obligatorio'),
+  role: z.string().min(1, 'El rol es obligatorio'),
   notas: z.string().optional(),
 });
 
@@ -57,6 +58,15 @@ const tipos = [
   'Usuario Particular'
 ];
 
+const roles = [
+  { value: 'user', label: 'Usuario' },
+  { value: 'admin_finca', label: 'Administrador de Fincas' },
+  { value: 'comercial', label: 'Comercial' },
+  { value: 'trabajador', label: 'Trabajador' },
+  { value: 'superadmin', label: 'Superadministrador' },
+  { value: 'centro_escolar', label: 'Centro Escolar' },
+];
+
 const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId }) => {
   const { addUsuario, updateUsuario, usuarios } = useUsuarios();
   
@@ -72,6 +82,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
         codigoPostal: '',
         frecuenciaRecogida: 'mensual',
         tipo: '',
+        role: 'user',
         notas: '',
       }
     : {
@@ -85,6 +96,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
         codigoPostal: '',
         frecuenciaRecogida: 'mensual',
         tipo: 'Comunidad de Vecinos',
+        role: 'user',
         notas: '',
       };
   
@@ -114,7 +126,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           frecuenciaRecogida: data.frecuenciaRecogida,
           tipo: data.tipo,
           activo: true,
-          role: 'user',
+          role: data.role as UserRole,
           ciudad: '',
           provincia: '',
           pais: '',
@@ -164,28 +176,58 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="tipo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipo de Cliente</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione tipo de cliente" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {tipos.map((tipo) => (
-                    <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="tipo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Cliente</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione tipo de cliente" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {tipos.map((tipo) => (
+                      <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rol de Acceso</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione rol de acceso" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {roles.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Este rol determinará a qué dashboard tendrá acceso el usuario
+                </p>
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
