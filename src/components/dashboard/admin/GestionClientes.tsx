@@ -213,10 +213,10 @@ const GestionClientes = () => {
 
   const filteredClientes = clientes.filter(cliente => {
     const matchesSearch =
-      cliente.nombre.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-      cliente.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-      cliente.telefono.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-      cliente.direccion.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+      (cliente.nombre?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase()) ||
+      (cliente.email?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase()) ||
+      (cliente.telefono?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase()) ||
+      (cliente.direccion?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase());
 
     const matchesDistrito = !distritoFilter || cliente.distrito === distritoFilter;
     const matchesBarrio = !barrioFilter || cliente.barrio === barrioFilter;
