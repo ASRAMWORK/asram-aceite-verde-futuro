@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -65,7 +66,7 @@ const GestionRetiradas = () => {
       nombre: "",
       fecha: new Date(),
       distrito: "",
-      zonas: [],
+      zonas: [] as string[],  // Explicitly typing as string array
       hora: "08:00",
       recogedorId: "",
       tiempoEstimado: 60,
@@ -88,7 +89,7 @@ const GestionRetiradas = () => {
         nombre: values.nombre,
         fecha: values.fecha,
         distrito: values.distrito,
-        barrios: values.zonas, // Fixed here - using values.zonas directly (it's already an array)
+        barrios: values.zonas,
         hora: values.hora,
         recogedores: values.recogedorId,
         clientes: [],
@@ -118,6 +119,9 @@ const GestionRetiradas = () => {
       });
     }
   };
+
+  // Create a state for the selected zones
+  const [selectedZones, setSelectedZones] = useState<string[]>([]);
 
   return (
     <div className="container mx-auto py-10">
@@ -255,25 +259,30 @@ const GestionRetiradas = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Zonas de Retirada</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      // Ensure this is an array before setting it
-                      const selectedValues = Array.isArray(value) ? value : [value];
-                      field.onChange(selectedValues);
-                    }}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona las zonas" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {distritos.map((distrito) => (
-                        <SelectItem key={distrito} value={distrito}>{distrito}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 gap-2">
+                    {distritos.map((distrito) => (
+                      <div key={distrito} className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox"
+                          id={distrito}
+                          value={distrito}
+                          checked={field.value.includes(distrito)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const isChecked = e.target.checked;
+                            
+                            const newZones = isChecked
+                              ? [...field.value, value]
+                              : field.value.filter(v => v !== value);
+                              
+                            field.onChange(newZones);
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor={distrito} className="text-sm">{distrito}</label>
+                      </div>
+                    ))}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -287,7 +296,12 @@ const GestionRetiradas = () => {
                   <FormItem>
                     <FormLabel>Tiempo Estimado (minutos)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Ej: 60" {...field} onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)} />
+                      <Input 
+                        type="number" 
+                        placeholder="Ej: 60" 
+                        value={field.value}
+                        onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
