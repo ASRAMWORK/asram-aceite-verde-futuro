@@ -91,7 +91,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
       } else {
         await addUsuario({
           nombre: data.nombre,
-          apellidos: data.apellidos, // Changed from apellido to apellidos
+          apellidos: data.apellidos,
           telefono: data.telefono,
           email: data.email,
           direccion: data.direccion,
@@ -107,7 +107,8 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           pais: '',
           createdAt: new Date(),
           updatedAt: new Date(),
-          uid: `temp-${Date.now()}` // Adding required uid property with a temporary value
+          uid: `temp-${Date.now()}`, // Adding required uid property with a temporary value
+          userId: `temp-${Date.now()}` // Adding required userId property with a temporary value
         });
         toast.success('Cliente añadido correctamente');
       }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { 
@@ -13,48 +12,39 @@ export function useRecogidas() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Make sure that the Recogida object doesn't include properties that aren't in the interface
   const loadRecogidasData = async () => {
     try {
       setLoading(true);
       const recogidasRef = collection(db, "recogidas");
       const recogidasSnap = await getDocs(query(recogidasRef, orderBy("fechaRecogida", "desc")));
       
-      const recogidasData: Recogida[] = [];
+      const recogidasItems: Recogida[] = [];
       recogidasSnap.forEach((doc) => {
-        const data = doc.data();
-        recogidasData.push({
+        recogidasItems.push({
           id: doc.id,
-          cliente: data.cliente || '',
-          direccionRecogida: data.direccionRecogida || '',
-          horaRecogida: data.horaRecogida || '',
-          cantidadAproximada: data.cantidadAproximada || 0,
-          tipoAceite: data.tipoAceite || '',
-          nombreContacto: data.nombreContacto || '',
-          telefonoContacto: data.telefonoContacto || '',
-          emailContacto: data.emailContacto || '',
-          notasAdicionales: data.notasAdicionales || '',
-          estadoRecogida: data.estadoRecogida || 'pendiente',
-          fechaRecogida: data.fechaRecogida?.toDate(),
-          fechaSolicitud: data.fechaSolicitud?.toDate(),
-          fechaCompletada: data.fechaCompletada?.toDate(),
-          litrosRecogidos: data.litrosRecogidos || 0,
-          direccion: data.direccion || '',
-          distrito: data.distrito || '',
-          barrio: data.barrio || '',
-          horaInicio: data.horaInicio || '',
-          hora: data.hora || '',
-          completada: data.completada || false,
-          estado: data.estado || '',
-          clienteId: data.clienteId || '',
-          rutaId: data.rutaId || '',
-          esRecogidaZona: data.esRecogidaZona || false,
-          createdAt: data.createdAt?.toDate(),
-          updatedAt: data.updatedAt?.toDate(),
-          fecha: data.fecha?.toDate() || data.fechaRecogida?.toDate()
+          clienteId: doc.data().clienteId || "",
+          comunidadId: doc.data().comunidadId || "",
+          fechaRecogida: doc.data().fechaRecogida?.toDate() || new Date(),
+          tipoResiduo: doc.data().tipoResiduo || "aceite",
+          cantidad: doc.data().cantidad || 0,
+          observaciones: doc.data().observaciones || "",
+          createdAt: doc.data().createdAt,
+          updatedAt: doc.data().updatedAt,
+          // Add additional data that might be in Firestore
+          fecha: doc.data().fecha?.toDate(),
+          completada: doc.data().completada || false,
+          estadoRecogida: doc.data().estadoRecogida || "",
+          distrito: doc.data().distrito || "",
+          barrio: doc.data().barrio || "",
+          direccion: doc.data().direccion || "",
+          litrosRecogidos: doc.data().litrosRecogidos || 0,
+          tipoAceite: doc.data().tipoAceite || "",
+          fechaSolicitud: doc.data().fechaSolicitud?.toDate() || new Date(),
         });
       });
       
-      setRecogidas(recogidasData);
+      setRecogidas(recogidasItems);
     } catch (err) {
       console.error("Error cargando recogidas:", err);
       setError("Error al cargar los datos de recogidas");

@@ -45,6 +45,10 @@ export interface UserProfile {
   tipoEscolar?: string;
   numAlumnos?: number;
   participaAlianzaVerde?: boolean;
+  
+  // Administrator fields
+  nombreAdministracion?: string;
+  cif?: string;
 }
 
 // Añadir alias para UserRole para RegisterForm.tsx
@@ -67,6 +71,9 @@ export type Usuario = UserProfile & {
   contacto?: string;
   uid: string; // Making sure uid is required as its used in components
   litrosEstimados?: number;
+  userId: string; // Adding required userId property
+  cif?: string; // Adding property for CIF (fiscal ID)
+  nombreAdministracion?: string; // Adding administrative name property
 };
 
 export interface ComunidadVecinos {
@@ -157,6 +164,7 @@ export interface Recogida {
   rutaId?: string;
   notasAdicionales?: string;
   tipoAceite?: string;
+  fechaSolicitud?: Date; // Add missing property
 }
 
 export interface Informe {
@@ -528,6 +536,7 @@ export interface HorarioVoluntario {
   disponible: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  fecha?: Date; // Add the missing fecha property
 }
 
 export interface Incidencia {

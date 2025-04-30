@@ -124,6 +124,7 @@ export function AddClienteForm({ isOpen, onClose, onSuccess }: AddClienteFormPro
         distrito: formData.distrito,
         barrio: formData.barrio,
         uid: "", // Adding required uid property
+        userId: "", // Adding required userId property
         activo: true,
         numViviendas: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numViviendas?.toString() || "0") : undefined,
         numContenedores: formData.tipo === "Comunidad de Vecinos" ? parseInt(formData.numContenedores?.toString() || "0") : undefined,
