@@ -1,6 +1,7 @@
 export interface UserProfile {
   id: string;
-  uid: string;
+  userId: string;
+  uid?: string; // Add for compatibility
   email: string;
   nombre?: string;
   apellidos?: string;
@@ -10,16 +11,13 @@ export interface UserProfile {
   provincia?: string;
   codigoPostal?: string;
   pais?: string;
-  role?: 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'client' | 'comercial';
-  nombreAdministracion?: string;
-  cif?: string;
-  direccionAdministracion?: string;
-  telefonoAdministracion?: string;
-  emailAdministracion?: string;
-  logoUrl?: string;
-  createdAt?: any;
-  updatedAt?: any;
-  // Add user profile related fields
+  role?: UserRole;
+  activo?: boolean;
+  tipo?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  // Add fields used in UserProfileView
   distrito?: string;
   barrio?: string;
   numViviendas?: number;
@@ -27,17 +25,21 @@ export interface UserProfile {
   frecuenciaRecogida?: string;
   litrosAportados?: number;
   puntosVerdes?: number;
+  
   // Restaurants fields
   nombreRestaurante?: string;
   horarioApertura?: string;
   litrosEstimados?: number;
+  
   // Hotel fields
   nombreHotel?: string;
   numHabitaciones?: number;
+  
   // Association fields
   nombreAsociacion?: string;
   tipoAsociacion?: string;
   numMiembros?: number;
+  
   // School fields
   nombreCentro?: string;
   tipoEscolar?: string;
@@ -46,7 +48,8 @@ export interface UserProfile {
 }
 
 // Añadir alias para UserRole para RegisterForm.tsx
-export type UserRole = 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'client' | 'comercial';
+export type UserRole = 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'client' | 'comercial' | 
+  'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
 
 // Alias for Usuario (used in many components)
 export type Usuario = UserProfile & {
@@ -153,6 +156,7 @@ export interface Recogida {
   estado?: string;
   rutaId?: string;
   notasAdicionales?: string;
+  tipoAceite?: string;
 }
 
 export interface Informe {
@@ -512,4 +516,45 @@ export interface Tarea {
   horaFin?: string;
   voluntarioNombre?: string;
   fechaAsignacion?: Date;
+}
+
+export interface HorarioVoluntario {
+  id: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+  voluntarioId?: string;
+  voluntarioNombre?: string;
+  disponible: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Incidencia {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  estado: string;
+  prioridad: string;
+  asignadoA: string;
+  reportadoPor: string;
+  tipo: string;
+  trabajadorId: string;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
+export interface Vehiculo {
+  id: string;
+  matricula: string;
+  modelo: string;
+  tipo: string;
+  capacidad: number;
+  estado: string;
+  ultimaRevision?: Date;
+  proximaRevision?: Date;
+  conductorAsignado?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }

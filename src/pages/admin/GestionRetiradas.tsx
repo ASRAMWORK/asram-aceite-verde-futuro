@@ -85,6 +85,7 @@ const GestionRetiradas = () => {
       completada: false,
       litrosTotales: 0,
       puntos: [], // Add the missing puntos property
+      tipo: "distrito", // Add the missing tipo property
       updatedAt: new Date(), // Add the missing updatedAt property
       createdAt: new Date() // Added the missing createdAt property
     };

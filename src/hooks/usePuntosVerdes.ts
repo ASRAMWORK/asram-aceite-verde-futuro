@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -106,7 +105,7 @@ export function usePuntosVerdes(administradorId?: string) {
         barrio: nuevoPunto.barrio,
         numViviendas: nuevoPunto.numViviendas,
         numContenedores: nuevoPunto.numContenedores,
-        puntoVerdeId: puntoRef.id,
+        puntosVerdes: 0, // Changed from puntoVerdeId
         createdAt: new Date(),
         updatedAt: new Date(),
         fechaRegistro: new Date()
