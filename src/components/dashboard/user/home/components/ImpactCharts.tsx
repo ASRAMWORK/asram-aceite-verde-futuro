@@ -12,8 +12,8 @@ const ImpactCharts = () => {
   ];
 
   const participationData = [
-    { name: "Participan", value: 35, color: "#ee970d" },
-    { name: "No Participan", value: 65, color: "#f3f4f6" },
+    { name: "Participan", value: 15, color: "#ee970d" },
+    { name: "No Participan", value: 85, color: "#f3f4f6" },
   ];
 
   return (

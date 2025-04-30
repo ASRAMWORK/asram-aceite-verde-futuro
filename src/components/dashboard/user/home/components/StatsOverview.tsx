@@ -13,7 +13,7 @@ const StatsOverview = () => {
             <CardTitle className="text-lg">Población Impactada</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-[#ee970d]">3.2M</div>
+            <div className="text-3xl font-bold text-[#ee970d]">7M</div>
             <p className="text-gray-600">Habitantes en Madrid</p>
           </CardContent>
         </Card>
@@ -35,7 +35,7 @@ const StatsOverview = () => {
             <CardTitle className="text-lg">Participación</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-[#ee970d]">35%</div>
+            <div className="text-3xl font-bold text-[#ee970d]">15%</div>
             <p className="text-gray-600">De hogares participando</p>
           </CardContent>
         </Card>
