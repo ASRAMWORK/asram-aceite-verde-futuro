@@ -1,39 +1,19 @@
 
 export interface ComercialUser {
   id: string;
-  uid?: string;  // ID de autenticación de Firebase
   nombre: string;
-  apellidos?: string;
+  apellidos: string;
   email: string;
-  telefono?: string;
+  telefono: string;
   fechaRegistro: Date;
   codigo: string;
   activo: boolean;
   aprobado: boolean;
-  saldo?: number;
-  comisionesTotales?: number;
-  comisionesPendientes?: number;
-  metodoPago?: {
-    tipo: 'banco' | 'paypal' | 'bizum';
-    datos: {
-      banco?: {
-        titular: string;
-        iban: string;
-        swift?: string;
-      };
-      paypal?: {
-        email: string;
-      };
-      bizum?: {
-        telefono: string;
-      };
-    };
-  } | null;
-  datosPersonalizados?: {
-    comision?: number;
-    zonas?: string[];
-    [key: string]: any;
-  };
+  saldo: number;
+  comisionesTotales: number;
+  comisionesPendientes: number;
+  metodoPago: MetodoPago | null;
+  datosPersonalizados?: Record<string, any>;
 }
 
 export interface ClienteCaptado {
@@ -56,4 +36,31 @@ export interface Comision {
   importe: number;
   estado: 'pendiente' | 'abonado';
   fecha: Date;
+}
+
+export interface MetodoPago {
+  tipo: 'banco' | 'paypal' | 'bizum';
+  datos: {
+    banco?: {
+      titular: string;
+      iban: string;
+      swift?: string;
+    };
+    paypal?: {
+      email: string;
+    };
+    bizum?: {
+      telefono: string;
+    };
+  };
+}
+
+export interface ProductoServicio {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  comisionBase: number;
+  comisionPorcentual: boolean;
+  activo: boolean;
 }

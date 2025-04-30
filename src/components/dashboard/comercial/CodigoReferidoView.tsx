@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 import { Copy, Share2, Download } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react"; // This is the correct import
+import QRCode from "qrcode.react";
 
 const CodigoReferidoView = () => {
   const { profile } = useUserProfile();
@@ -40,31 +40,16 @@ const CodigoReferidoView = () => {
   
   const downloadQRCode = () => {
     if (qrRef.current) {
-      const svg = qrRef.current.querySelector("svg");
-      if (svg) {
-        // Create a canvas element to convert SVG to PNG
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const img = new Image();
-        
-        img.onload = function() {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx?.drawImage(img, 0, 0);
-          const pngFile = canvas.toDataURL("image/png");
-          
-          // Create download link
-          const link = document.createElement("a");
-          link.href = pngFile;
-          link.download = `codigo-referido-asram-${codigo}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          toast.success("Código QR descargado");
-        };
-        
-        img.src = "data:image/svg+xml;base64," + btoa(svgData);
+      const canvas = qrRef.current.querySelector("canvas");
+      if (canvas) {
+        const url = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `codigo-referido-asram-${codigo}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Código QR descargado");
       }
     }
   };
@@ -116,7 +101,7 @@ const CodigoReferidoView = () => {
         </CardHeader>
         <CardContent className="text-center">
           <div ref={qrRef} className="bg-white p-4 rounded-lg inline-block mb-6">
-            <QRCodeSVG value={shareUrl} size={200} />
+            <QRCode value={shareUrl} size={200} />
           </div>
           <div>
             <Button onClick={downloadQRCode} className="w-full">

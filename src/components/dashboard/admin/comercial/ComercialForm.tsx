@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { X, Eye, EyeOff } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 import { useComerciales } from "@/hooks/useComerciales";
 import { ComercialUser } from "@/types/comercial";
@@ -44,8 +44,6 @@ const ComercialForm = ({ comercialId, onClose }: ComercialFormProps) => {
   const [nombre, setNombre] = useState("");
   const [apellidos, setApellidos] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [telefono, setTelefono] = useState("");
   const [activo, setActivo] = useState(true);
   const [aprobado, setAprobado] = useState(false);
@@ -75,23 +73,18 @@ const ComercialForm = ({ comercialId, onClose }: ComercialFormProps) => {
     }
   }, [comercialId, getComercialById]);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      const comercialData: Partial<ComercialUser> & { password?: string } = {
+      const comercialData: Partial<ComercialUser> = {
         nombre,
         apellidos,
         email,
         telefono,
         activo,
         aprobado,
-        password: password || undefined, // Solo incluir si hay contraseña
       };
 
       if (comisionPersonalizada) {
@@ -104,11 +97,6 @@ const ComercialForm = ({ comercialId, onClose }: ComercialFormProps) => {
         await updateComercial(comercialId, comercialData);
         toast.success("Comercial actualizado correctamente");
       } else {
-        if (!password) {
-          toast.error("La contraseña es obligatoria para crear un nuevo comercial");
-          setSubmitting(false);
-          return;
-        }
         await addComercial(comercialData);
         toast.success("Comercial añadido correctamente");
       }
@@ -172,32 +160,6 @@ const ComercialForm = ({ comercialId, onClose }: ComercialFormProps) => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                </div>
-
-                <div>
-                  <Label htmlFor="password">
-                    {comercialId ? "Contraseña (dejar en blanco para mantener actual)" : "Contraseña"}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required={!comercialId}
-                      className="pr-10"
-                      placeholder={comercialId ? "••••••••" : ""}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
                 </div>
 
                 <div>

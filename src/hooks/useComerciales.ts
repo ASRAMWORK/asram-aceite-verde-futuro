@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { db, auth } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { 
   collection, 
   getDocs, 
@@ -10,19 +10,12 @@ import {
   updateDoc, 
   doc, 
   serverTimestamp,
-  orderBy,
-  Timestamp
+  orderBy
 } from 'firebase/firestore';
-import { 
-  createUserWithEmailAndPassword, 
-  updateEmail, 
-  updatePassword 
-} from 'firebase/auth';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { ComercialUser, ClienteCaptado, Comision } from '@/types/comercial';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { UserRole } from '@/types';
 
 export function useComerciales() {
   const [comerciales, setComerciales] = useState<ComercialUser[]>([]);
@@ -60,8 +53,7 @@ export function useComerciales() {
           comisionesTotales: data.comisionesTotales || 0,
           comisionesPendientes: data.comisionesPendientes || 0,
           metodoPago: data.metodoPago || null,
-          datosPersonalizados: data.datosPersonalizados,
-          uid: data.uid || ''
+          datosPersonalizados: data.datosPersonalizados
         });
       });
       
@@ -79,32 +71,14 @@ export function useComerciales() {
     return comerciales.find(comercial => comercial.id === id) || null;
   };
 
-  const addComercial = async (comercialData: Partial<ComercialUser> & { password?: string }) => {
+  const addComercial = async (comercialData: Partial<ComercialUser>) => {
     try {
-      setLoading(true);
-      const { password, ...restData } = comercialData;
-      
-      if (!password || !comercialData.email) {
-        throw new Error("Email y contraseña son obligatorios para crear un comercial");
-      }
-      
       // Generate unique referral code
       const codigo = generateUniqueCode();
       
-      // 1. Crear usuario en Firebase Authentication
-      const userCredential = await createUserWithEmailAndPassword(
-        auth, 
-        comercialData.email,
-        password
-      );
-      
-      const uid = userCredential.user.uid;
-      
-      // 2. Guardar datos en Firestore
       const docRef = await addDoc(collection(db, "usuarios"), {
-        ...restData,
-        uid, // Guardar el UID de autenticación
-        role: "comercial" as UserRole,
+        ...comercialData,
+        role: "comercial",
         codigo,
         activo: true,
         aprobado: false,
@@ -118,44 +92,17 @@ export function useComerciales() {
       toast.success("Comercial añadido correctamente");
       await loadComercialesData();
       return docRef.id;
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error añadiendo comercial:", err);
-      if (err.code === 'auth/email-already-in-use') {
-        toast.error("El correo electrónico ya está en uso");
-      } else {
-        toast.error(`Error al añadir comercial: ${err.message || 'Error desconocido'}`);
-      }
+      toast.error("Error al añadir comercial");
       throw err;
-    } finally {
-      setLoading(false);
     }
   };
 
-  const updateComercial = async (id: string, data: Partial<ComercialUser> & { password?: string }) => {
+  const updateComercial = async (id: string, data: Partial<ComercialUser>) => {
     try {
-      setLoading(true);
-      const { password, ...updateData } = data;
-      const currentComercial = comerciales.find(c => c.id === id);
-      
-      if (!currentComercial) {
-        throw new Error("Comercial no encontrado");
-      }
-      
-      // Si hay un cambio de correo o contraseña y el usuario tiene uid, actualizar en Auth
-      if (currentComercial.uid && (password || (data.email && data.email !== currentComercial.email))) {
-        try {
-          // Necesitaríamos que el usuario esté autenticado para actualizar correo/contraseña
-          // Esta implementación requiere más lógica de autenticación para funcionar completamente
-          console.log("Se requiere actualizar auth, pero requiere autenticación previa del usuario");
-        } catch (authError) {
-          console.error("Error actualizando autenticación:", authError);
-          // Continuar con actualización de datos en Firestore
-        }
-      }
-      
-      // Actualizar datos en Firestore
       await updateDoc(doc(db, "usuarios", id), {
-        ...updateData,
+        ...data,
         updatedAt: serverTimestamp()
       });
       
@@ -165,8 +112,6 @@ export function useComerciales() {
       console.error("Error actualizando comercial:", err);
       toast.error("Error al actualizar comercial");
       throw err;
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -34,53 +34,6 @@ export interface UserProfile {
   nombreAdministracion?: string;
   codigo?: string;
   aprobado?: boolean;
-  
-  // Add missing properties for comercial
-  metodoPago?: {
-    tipo: 'banco' | 'paypal' | 'bizum';
-    datos: {
-      banco?: {
-        titular: string;
-        iban: string;
-        swift?: string;
-      };
-      paypal?: {
-        email: string;
-      };
-      bizum?: {
-        telefono: string;
-      };
-    };
-  };
-  saldo?: number;
-  comisionesTotales?: number;
-  comisionesPendientes?: number;
-  
-  // Add missing properties used in other components
-  distrito?: string;
-  barrio?: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  cif?: string;
-  contacto?: string;
-  litrosEstimados?: number;
-  
-  // Missing properties from errors
-  litrosAportados?: number;
-  puntosVerdes?: number;
-  frecuenciaRecogida?: string;
-  nombreRestaurante?: string;
-  horarioApertura?: string;
-  nombreHotel?: string;
-  numHabitaciones?: number;
-  nombreAsociacion?: string;
-  tipoAsociacion?: string;
-  numMiembros?: number;
-  nombreCentro?: string;
-  numAlumnos?: number;
-  tipoEscolar?: string;
-  participaAlianzaVerde?: boolean;
-  fechaRegistro?: Date;
 }
 
 export interface Usuario {
@@ -104,56 +57,6 @@ export interface Usuario {
   nombreAdministracion?: string;
   codigo?: string;
   aprobado?: boolean;
-  
-  // Add missing properties for comercial
-  metodoPago?: {
-    tipo: 'banco' | 'paypal' | 'bizum';
-    datos: {
-      banco?: {
-        titular: string;
-        iban: string;
-        swift?: string;
-      };
-      paypal?: {
-        email: string;
-      };
-      bizum?: {
-        telefono: string;
-      };
-    };
-  };
-  saldo?: number;
-  comisionesTotales?: number;
-  comisionesPendientes?: number;
-  
-  // Add missing properties used in other components
-  distrito?: string;
-  barrio?: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  cif?: string;
-  contacto?: string;
-  litrosEstimados?: number;
-  
-  // Missing properties from errors
-  litrosAportados?: number;
-  frecuenciaRecogida?: string;
-  nombreRestaurante?: string;
-  horarioApertura?: string;
-  nombreHotel?: string;
-  numHabitaciones?: number;
-  nombreAsociacion?: string;
-  tipoAsociacion?: string;
-  numMiembros?: number;
-  nombreCentro?: string;
-  numAlumnos?: number;
-  tipoEscolar?: string;
-  participaAlianzaVerde?: boolean;
-  fechaRegistro?: Date;
-  userId?: string;
-  
-  // For puntos verdes - kept only one instance
-  puntosVerdes?: number;
 }
 
 export interface ComunidadVecinos {
@@ -639,26 +542,4 @@ export interface Vehiculo {
   conductorAsignado?: string;
   createdAt?: any;
   updatedAt?: any;
-}
-
-export interface ClienteCaptado {
-  id: string;
-  comercialId: string;
-  clienteId: string;
-  nombreCliente: string;
-  fechaRegistro: Date;
-  planContratado: string;
-  estado: 'activo' | 'inactivo';
-  litrosRecogidos: number;
-}
-
-export interface Comision {
-  id: string;
-  comercialId: string;
-  clienteId: string;
-  nombreCliente: string;
-  litrosRecogidos: number;
-  importe: number;
-  estado: 'pendiente' | 'abonado';
-  fecha: Date;
 }

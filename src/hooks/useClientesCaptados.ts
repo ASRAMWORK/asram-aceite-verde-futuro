@@ -1,139 +1,144 @@
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useAuth } from '@/contexts/AuthContext';
-import type { ClienteCaptado } from '@/types/comercial';
+import { 
+  collection, 
+  getDocs, 
+  query, 
+  where, 
+  addDoc, 
+  updateDoc, 
+  doc, 
+  serverTimestamp,
+  orderBy
+} from 'firebase/firestore';
+import { toast } from 'sonner';
+import { ClienteCaptado } from '@/types/comercial';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
-export const useClientesCaptados = () => {
-  const [clientesCaptados, setClientesCaptados] = useState<ClienteCaptado[]>([]);
+export function useClientesCaptados() {
+  const [clientes, setClientes] = useState<ClienteCaptado[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth(); // Use user instead of currentUser to match AuthContext
+  const [error, setError] = useState<string | null>(null);
+  const { profile } = useUserProfile();
 
-  const fetchClientesCaptados = async (comercialId?: string) => {
+  const loadClientesData = async (comercialId?: string) => {
     try {
       setLoading(true);
-      const clientesRef = collection(db, 'clientesCaptados');
+      
       let clientesQuery;
       
+      // If comercialId is provided, filter by it
       if (comercialId) {
-        // Si se proporciona un ID específico, filtrar por ese comercial
-        clientesQuery = query(clientesRef, where('comercialId', '==', comercialId));
-      } else if (user) {
-        // Si no se proporciona ID pero hay un usuario autenticado, filtrar por ese usuario
-        clientesQuery = query(clientesRef, where('comercialId', '==', user.uid));
-      } else {
-        // Si no hay filtro ni usuario, obtener todos (solo para admin)
-        clientesQuery = clientesRef;
+        clientesQuery = query(
+          collection(db, "clientesCaptados"),
+          where("comercialId", "==", comercialId),
+          orderBy("fechaRegistro", "desc")
+        );
+      } 
+      // If user is comercial, show only their clients
+      else if (profile?.role === 'comercial') {
+        clientesQuery = query(
+          collection(db, "clientesCaptados"),
+          where("comercialId", "==", profile.id),
+          orderBy("fechaRegistro", "desc")
+        );
+      } 
+      // For superadmin, show all
+      else {
+        clientesQuery = query(
+          collection(db, "clientesCaptados"),
+          orderBy("fechaRegistro", "desc")
+        );
       }
       
-      const querySnapshot = await getDocs(clientesQuery);
-      const clientes: ClienteCaptado[] = [];
+      const clientesSnap = await getDocs(clientesQuery);
       
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as ClienteCaptado;
-        clientes.push({
+      const clientesData: ClienteCaptado[] = [];
+      clientesSnap.forEach((doc) => {
+        const data = doc.data();
+        clientesData.push({
           id: doc.id,
           comercialId: data.comercialId,
           clienteId: data.clienteId,
           nombreCliente: data.nombreCliente,
-          fechaRegistro: data.fechaRegistro instanceof Date ? 
-            data.fechaRegistro : 
-            new Date(data.fechaRegistro),
-          planContratado: data.planContratado,
-          estado: data.estado,
-          litrosRecogidos: data.litrosRecogidos,
+          fechaRegistro: data.fechaRegistro?.toDate() || new Date(),
+          planContratado: data.planContratado || 'Básico',
+          estado: data.estado || 'activo',
+          litrosRecogidos: data.litrosRecogidos || 0
         });
       });
       
-      setClientesCaptados(clientes);
-    } catch (error) {
-      console.error('Error al obtener clientes captados:', error);
+      setClientes(clientesData);
+      setError(null);
+    } catch (err) {
+      console.error("Error cargando clientes captados:", err);
+      setError("Error al cargar datos de clientes captados");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchClientesCaptados();
-  }, [user?.uid]);
-
-  const addClienteCaptado = async (cliente: Omit<ClienteCaptado, 'id'>) => {
+  const addClienteCaptado = async (clienteData: Partial<ClienteCaptado>) => {
     try {
-      const clienteRef = await addDoc(collection(db, 'clientesCaptados'), {
-        ...cliente,
-        fechaRegistro: new Date(),
-        litrosRecogidos: 0,
+      const docRef = await addDoc(collection(db, "clientesCaptados"), {
+        ...clienteData,
+        fechaRegistro: serverTimestamp()
       });
       
-      const newCliente: ClienteCaptado = {
-        id: clienteRef.id,
-        ...cliente,
-        fechaRegistro: new Date(),
-        litrosRecogidos: 0,
-      };
-      
-      setClientesCaptados((prevClientes) => [...prevClientes, newCliente]);
-      return newCliente;
-    } catch (error) {
-      console.error('Error al añadir cliente captado:', error);
-      throw error;
+      toast.success("Cliente captado añadido correctamente");
+      await loadClientesData();
+      return docRef.id;
+    } catch (err) {
+      console.error("Error añadiendo cliente captado:", err);
+      toast.error("Error al añadir cliente captado");
+      throw err;
     }
   };
 
   const updateClienteCaptado = async (id: string, data: Partial<ClienteCaptado>) => {
     try {
-      await updateDoc(doc(db, 'clientesCaptados', id), data);
+      await updateDoc(doc(db, "clientesCaptados", id), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
       
-      setClientesCaptados((prevClientes) => 
-        prevClientes.map((cliente) => 
-          cliente.id === id ? { ...cliente, ...data } : cliente
-        )
-      );
-    } catch (error) {
-      console.error('Error al actualizar cliente captado:', error);
-      throw error;
+      toast.success("Cliente captado actualizado correctamente");
+      await loadClientesData();
+    } catch (err) {
+      console.error("Error actualizando cliente captado:", err);
+      toast.error("Error al actualizar cliente captado");
+      throw err;
     }
   };
 
-  const deleteClienteCaptado = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'clientesCaptados', id));
-      setClientesCaptados((prevClientes) => 
-        prevClientes.filter((cliente) => cliente.id !== id)
-      );
-    } catch (error) {
-      console.error('Error al eliminar cliente captado:', error);
-      throw error;
-    }
+  const getClientesByComercialId = (comercialId: string) => {
+    return clientes.filter(cliente => cliente.comercialId === comercialId);
   };
-  
-  // Add the missing methods that are being used in components
+
   const getTotalLitrosByComercialId = (comercialId: string) => {
-    return clientesCaptados
+    return clientes
       .filter(cliente => cliente.comercialId === comercialId)
       .reduce((total, cliente) => total + cliente.litrosRecogidos, 0);
   };
-  
+
   const getTotalClientesByComercialId = (comercialId: string) => {
-    return clientesCaptados.filter(cliente => cliente.comercialId === comercialId).length;
-  };
-  
-  const getClientesByComercialId = (comercialId: string) => {
-    return clientesCaptados.filter(cliente => cliente.comercialId === comercialId);
+    return clientes.filter(cliente => cliente.comercialId === comercialId).length;
   };
 
+  useEffect(() => {
+    loadClientesData();
+  }, [profile?.id]);
+
   return {
-    clientesCaptados,
+    clientes,
     loading,
-    fetchClientesCaptados,
+    error,
+    loadClientesData,
     addClienteCaptado,
     updateClienteCaptado,
-    deleteClienteCaptado,
-    getTotalLitrosByComercialId,
-    getTotalClientesByComercialId,
     getClientesByComercialId,
-    // For backward compatibility with existing components
-    clientes: clientesCaptados
+    getTotalLitrosByComercialId,
+    getTotalClientesByComercialId
   };
-};
+}
