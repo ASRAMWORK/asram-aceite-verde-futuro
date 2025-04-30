@@ -8,7 +8,7 @@ import type { ClienteCaptado } from '@/types/comercial';
 export const useClientesCaptados = () => {
   const [clientesCaptados, setClientesCaptados] = useState<ClienteCaptado[]>([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { user } = useAuth(); // Use user instead of currentUser to match AuthContext
 
   const fetchClientesCaptados = async (comercialId?: string) => {
     try {
@@ -19,9 +19,9 @@ export const useClientesCaptados = () => {
       if (comercialId) {
         // Si se proporciona un ID específico, filtrar por ese comercial
         clientesQuery = query(clientesRef, where('comercialId', '==', comercialId));
-      } else if (currentUser) {
+      } else if (user) {
         // Si no se proporciona ID pero hay un usuario autenticado, filtrar por ese usuario
-        clientesQuery = query(clientesRef, where('comercialId', '==', currentUser.uid));
+        clientesQuery = query(clientesRef, where('comercialId', '==', user.uid));
       } else {
         // Si no hay filtro ni usuario, obtener todos (solo para admin)
         clientesQuery = clientesRef;
@@ -56,7 +56,7 @@ export const useClientesCaptados = () => {
 
   useEffect(() => {
     fetchClientesCaptados();
-  }, [currentUser?.uid]);
+  }, [user?.uid]);
 
   const addClienteCaptado = async (cliente: Omit<ClienteCaptado, 'id'>) => {
     try {
@@ -107,6 +107,21 @@ export const useClientesCaptados = () => {
       throw error;
     }
   };
+  
+  // Add the missing methods that are being used in components
+  const getTotalLitrosByComercialId = (comercialId: string) => {
+    return clientesCaptados
+      .filter(cliente => cliente.comercialId === comercialId)
+      .reduce((total, cliente) => total + cliente.litrosRecogidos, 0);
+  };
+  
+  const getTotalClientesByComercialId = (comercialId: string) => {
+    return clientesCaptados.filter(cliente => cliente.comercialId === comercialId).length;
+  };
+  
+  const getClientesByComercialId = (comercialId: string) => {
+    return clientesCaptados.filter(cliente => cliente.comercialId === comercialId);
+  };
 
   return {
     clientesCaptados,
@@ -115,5 +130,10 @@ export const useClientesCaptados = () => {
     addClienteCaptado,
     updateClienteCaptado,
     deleteClienteCaptado,
+    getTotalLitrosByComercialId,
+    getTotalClientesByComercialId,
+    getClientesByComercialId,
+    // For backward compatibility with existing components
+    clientes: clientesCaptados
   };
 };

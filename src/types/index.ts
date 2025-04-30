@@ -153,7 +153,7 @@ export interface Usuario {
   fechaRegistro?: Date;
   userId?: string;
   
-  // For puntos verdes
+  // For puntos verdes - keep only one instance
   puntosVerdes?: number;
 }
 

@@ -8,7 +8,7 @@ import type { Comision } from '@/types/comercial';
 export const useComisiones = () => {
   const [comisiones, setComisiones] = useState<Comision[]>([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { user } = useAuth(); // Use user instead of currentUser to match AuthContext
 
   const fetchComisiones = async (comercialId?: string) => {
     try {
@@ -19,9 +19,9 @@ export const useComisiones = () => {
       if (comercialId) {
         // Si se proporciona un ID específico, filtrar por ese comercial
         comisionesQuery = query(comisionesRef, where('comercialId', '==', comercialId));
-      } else if (currentUser) {
+      } else if (user) {
         // Si no se proporciona ID pero hay un usuario autenticado, filtrar por ese usuario
-        comisionesQuery = query(comisionesRef, where('comercialId', '==', currentUser.uid));
+        comisionesQuery = query(comisionesRef, where('comercialId', '==', user.uid));
       } else {
         // Si no hay filtro ni usuario, obtener todos (solo para admin)
         comisionesQuery = comisionesRef;
@@ -56,7 +56,7 @@ export const useComisiones = () => {
 
   useEffect(() => {
     fetchComisiones();
-  }, [currentUser?.uid]);
+  }, [user?.uid]);
 
   const addComision = async (comision: Omit<Comision, 'id'>) => {
     try {
@@ -94,6 +94,16 @@ export const useComisiones = () => {
     }
   };
 
+  // Marcar comisión como abonada
+  const marcarComisionAbonada = async (id: string) => {
+    try {
+      await updateComision(id, { estado: 'abonado' });
+    } catch (error) {
+      console.error('Error al marcar comisión como abonada:', error);
+      throw error;
+    }
+  };
+
   // Obtener total de comisiones pendientes
   const getComisionesPendientes = () => {
     return comisiones
@@ -107,6 +117,23 @@ export const useComisiones = () => {
       .filter(comision => comision.estado === 'abonado')
       .reduce((total, comision) => total + comision.importe, 0);
   };
+  
+  // Add missing methods required by the components
+  const getComisionesByComercialId = (comercialId: string) => {
+    return comisiones.filter(comision => comision.comercialId === comercialId);
+  };
+  
+  const getComisionesPendientesByComercialId = (comercialId: string) => {
+    return comisiones
+      .filter(comision => comision.comercialId === comercialId && comision.estado === 'pendiente')
+      .reduce((total, comision) => total + comision.importe, 0);
+  };
+  
+  const getComisionesAbonadasByComercialId = (comercialId: string) => {
+    return comisiones
+      .filter(comision => comision.comercialId === comercialId && comision.estado === 'abonado')
+      .reduce((total, comision) => total + comision.importe, 0);
+  };
 
   return {
     comisiones,
@@ -114,7 +141,11 @@ export const useComisiones = () => {
     fetchComisiones,
     addComision,
     updateComision,
+    marcarComisionAbonada,
     getComisionesPendientes,
     getComisionesAbonadas,
+    getComisionesByComercialId,
+    getComisionesPendientesByComercialId,
+    getComisionesAbonadasByComercialId
   };
 };
