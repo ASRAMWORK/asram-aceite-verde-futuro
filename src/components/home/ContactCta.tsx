@@ -55,14 +55,14 @@ const ContactCta = () => {
                 <div className="bg-white/10 p-2 rounded-full">
                   <Phone className="h-5 w-5" />
                 </div>
-                <span>91 XXX XX XX</span>
+                <span>695831784</span>
               </div>
               
               <div className="flex items-center gap-3 text-white">
                 <div className="bg-white/10 p-2 rounded-full">
                   <Mail className="h-5 w-5" />
                 </div>
-                <span>info@asram.org</span>
+                <span>info@asramadrid.com</span>
               </div>
               
               <div className="flex items-center gap-3 text-white">
