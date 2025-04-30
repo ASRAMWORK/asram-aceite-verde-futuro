@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { 
-  collection, getDocs, query, orderBy, addDoc, updateDoc, 
+import { collection, getDocs, query, orderBy, addDoc, updateDoc, 
   doc, deleteDoc, serverTimestamp, where, getDoc 
 } from 'firebase/firestore';
 import { toast } from 'sonner';
@@ -19,32 +18,20 @@ export function useRecogidas() {
       const recogidasRef = collection(db, "recogidas");
       const recogidasSnap = await getDocs(query(recogidasRef, orderBy("fechaRecogida", "desc")));
       
-      const recogidasItems: Recogida[] = [];
+      const recogidasData: Recogida[] = [];
       recogidasSnap.forEach((doc) => {
-        recogidasItems.push({
+        const data = doc.data();
+        recogidasData.push({
           id: doc.id,
-          clienteId: doc.data().clienteId || "",
-          comunidadId: doc.data().comunidadId || "",
-          fechaRecogida: doc.data().fechaRecogida?.toDate() || new Date(),
-          tipoResiduo: doc.data().tipoResiduo || "aceite",
-          cantidad: doc.data().cantidad || 0,
-          observaciones: doc.data().observaciones || "",
-          createdAt: doc.data().createdAt,
-          updatedAt: doc.data().updatedAt,
-          // Add additional data that might be in Firestore
-          fecha: doc.data().fecha?.toDate(),
-          completada: doc.data().completada || false,
-          estadoRecogida: doc.data().estadoRecogida || "",
-          distrito: doc.data().distrito || "",
-          barrio: doc.data().barrio || "",
-          direccion: doc.data().direccion || "",
-          litrosRecogidos: doc.data().litrosRecogidos || 0,
-          tipoAceite: doc.data().tipoAceite || "",
-          fechaSolicitud: doc.data().fechaSolicitud?.toDate() || new Date(),
+          ...data as Recogida,
+          fechaRecogida: data.fechaRecogida?.toDate(),
+          createdAt: data.createdAt?.toDate(),
+          updatedAt: data.updatedAt?.toDate(),
+          fechaSolicitud: data.fechaSolicitud?.toDate() // Handle the fechaSolicitud field
         });
       });
       
-      setRecogidas(recogidasItems);
+      setRecogidas(recogidasData);
     } catch (err) {
       console.error("Error cargando recogidas:", err);
       setError("Error al cargar los datos de recogidas");

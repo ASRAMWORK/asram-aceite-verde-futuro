@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -123,7 +122,8 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
           createdAt: new Date(),
           updatedAt: new Date(),
           fechaRegistro: new Date(),
-          uid: "" // Adding required uid property
+          uid: `temp-${Date.now()}`, // Adding required uid property
+          userId: `temp-${Date.now()}` // Adding required userId property
         });
         toast.success('Cliente añadido correctamente');
       }

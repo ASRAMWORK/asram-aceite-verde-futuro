@@ -27,14 +27,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { CalendarIcon } from "@radix-ui/react-icons"
+import { CalendarIcon } from "lucide-react";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from "@/components/ui/use-toast"
-import { useDistritos } from '@/hooks/useDistritos';
 import { useTrabajadores } from '@/hooks/useTrabajadores';
 import { useRutas } from '@/hooks/useRutas';
 import { Ruta } from '@/types';
+
+// Create the hook import for useDistritos
+import { useDistritos } from '@/hooks/useDistritos';
 
 const formSchema = z.object({
   nombre: z.string().min(3, { message: "El nombre debe tener al menos 3 caracteres" }),
@@ -96,7 +98,7 @@ const GestionRetiradas = () => {
         frecuencia: values.frecuencia,
         completada: false,
         litrosTotales: 0,
-        puntos: [],
+        puntos: [], // This should be an array not a string
         createdAt: new Date(),
         updatedAt: new Date(),
         tipo: 'recogida' // Adding required tipo property

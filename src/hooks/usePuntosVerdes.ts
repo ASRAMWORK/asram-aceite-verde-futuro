@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -109,8 +110,8 @@ export function usePuntosVerdes(administradorId?: string) {
         createdAt: new Date(),
         updatedAt: new Date(),
         fechaRegistro: new Date(),
-        userId: "",  // Adding required userId property
-        uid: ""      // Adding required uid property
+        userId: `temp-${Date.now()}`,  // Adding required userId property
+        uid: `temp-${Date.now()}`      // Adding required uid property
       });
       
       toast.success("Punto verde añadido correctamente");
