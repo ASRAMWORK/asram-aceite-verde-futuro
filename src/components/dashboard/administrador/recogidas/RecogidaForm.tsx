@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { AddressInput } from '@/components/ui/address-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarIcon } from 'lucide-react';
@@ -20,8 +19,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { AddressComponent } from '@/lib/googleMaps';
-import { toast } from 'sonner';
 
 interface RecogidaFormProps {
   onCancel: () => void;
@@ -43,30 +40,8 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
       cantidadAproximada: 0,
       tipoAceite: 'vegetal',
       notasAdicionales: '',
-      latitud: 0,
-      longitud: 0,
     },
   });
-
-  const handleAddressSelected = (addressData: AddressComponent) => {
-    if (addressData.direccionCompleta) {
-      form.setValue('direccionRecogida', addressData.direccionCompleta);
-    }
-    if (addressData.distrito) {
-      form.setValue('distrito', addressData.distrito);
-    }
-    if (addressData.barrio) {
-      form.setValue('barrio', addressData.barrio);
-    }
-    if (addressData.latitud) {
-      form.setValue('latitud', addressData.latitud);
-    }
-    if (addressData.longitud) {
-      form.setValue('longitud', addressData.longitud);
-    }
-    
-    toast.success("Dirección autocompletada con éxito");
-  };
 
   const handleSubmit = (data: any) => {
     onSubmit({
@@ -128,11 +103,7 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
               <FormItem>
                 <FormLabel>Dirección de recogida</FormLabel>
                 <FormControl>
-                  <AddressInput 
-                    placeholder="Buscar dirección..." 
-                    {...field}
-                    onAddressSelected={handleAddressSelected}
-                  />
+                  <Input placeholder="Calle, número, piso..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -145,9 +116,20 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Distrito</FormLabel>
-                <FormControl>
-                  <Input placeholder="Distrito" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un distrito" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="centro">Centro</SelectItem>
+                    <SelectItem value="chamberi">Chamberí</SelectItem>
+                    <SelectItem value="salamanca">Salamanca</SelectItem>
+                    <SelectItem value="tetuan">Tetuán</SelectItem>
+                    <SelectItem value="chamartin">Chamartín</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

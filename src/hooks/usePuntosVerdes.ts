@@ -2,10 +2,9 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
-import type { PuntoVerde, Usuario, UserRole } from '@/types';
+import type { PuntoVerde } from '@/types';
 import { toast } from 'sonner';
 import { useUsuarios } from './useUsuarios';
-import { geocodeAddress } from '@/lib/googleMaps';
 
 export function usePuntosVerdes(administradorId?: string) {
   const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
@@ -82,40 +81,6 @@ export function usePuntosVerdes(administradorId?: string) {
 
   const addPuntoVerde = async (nuevoPunto: Omit<PuntoVerde, 'id'>) => {
     try {
-      // If the punto has an address but no coordinates, try to geocode it
-      if (nuevoPunto.direccion && (!nuevoPunto.latitud || !nuevoPunto.longitud)) {
-        try {
-          const addressData = await geocodeAddress(nuevoPunto.direccion);
-          if (addressData) {
-            nuevoPunto.latitud = addressData.latitud || 0;
-            nuevoPunto.longitud = addressData.longitud || 0;
-            
-            // Update other address fields if they're not already set
-            if (!nuevoPunto.ciudad && addressData.ciudad) {
-              nuevoPunto.ciudad = addressData.ciudad;
-            }
-            if (!nuevoPunto.provincia && addressData.provincia) {
-              nuevoPunto.provincia = addressData.provincia;
-            }
-            if (!nuevoPunto.pais && addressData.pais) {
-              nuevoPunto.pais = addressData.pais;
-            }
-            if (!nuevoPunto.codigoPostal && addressData.codigoPostal) {
-              nuevoPunto.codigoPostal = addressData.codigoPostal;
-            }
-            if (!nuevoPunto.distrito && addressData.distrito) {
-              nuevoPunto.distrito = addressData.distrito;
-            }
-            if (!nuevoPunto.barrio && addressData.barrio) {
-              nuevoPunto.barrio = addressData.barrio;
-            }
-          }
-        } catch (error) {
-          console.error("Error geocoding address:", error);
-          // Continue with the original data if geocoding fails
-        }
-      }
-      
       const puntoData = {
         ...nuevoPunto,
         litrosRecogidos: 0,
@@ -125,32 +90,29 @@ export function usePuntosVerdes(administradorId?: string) {
       // Add punto verde to puntosVerdes collection
       const puntoRef = await addDoc(collection(db, "puntosVerdes"), puntoData);
       
-      // Create a user-like record omitting the latitud/longitud properties
-      // that are not part of the Usuario type expected by addUsuario
-      const usuarioData: Omit<Usuario, "id"> & { administradorId?: string } = {
+      // Also create a user record as a client
+      await addUsuario({
         nombre: `Punto Verde - ${nuevoPunto.direccion}`,
         email: nuevoPunto.email || "",
         telefono: nuevoPunto.telefono || "",
         direccion: nuevoPunto.direccion,
-        ciudad: nuevoPunto.ciudad || "Madrid",
-        provincia: nuevoPunto.provincia || "Madrid",
-        codigoPostal: nuevoPunto.codigoPostal || "",
+        ciudad: "Madrid",
+        provincia: "Madrid",
+        codigoPostal: "",
         tipo: "punto_verde",
         activo: true,
-        role: "punto_verde" as UserRole, // Explicitly cast as UserRole
+        role: "client",
         distrito: nuevoPunto.distrito,
         barrio: nuevoPunto.barrio,
         numViviendas: nuevoPunto.numViviendas,
         numContenedores: nuevoPunto.numContenedores,
-        puntosVerdes: 0,
+        puntosVerdes: 0, // Changed from puntoVerdeId
         createdAt: new Date(),
         updatedAt: new Date(),
         fechaRegistro: new Date(),
-        userId: `temp-${Date.now()}`,
-        uid: `temp-${Date.now()}`
-      };
-      
-      await addUsuario(usuarioData);
+        userId: `temp-${Date.now()}`,  // Adding required userId property
+        uid: `temp-${Date.now()}`      // Adding required uid property
+      });
       
       toast.success("Punto verde añadido correctamente");
       await loadPuntosVerdesData();
@@ -164,40 +126,6 @@ export function usePuntosVerdes(administradorId?: string) {
 
   const updatePuntoVerde = async (id: string, data: Partial<PuntoVerde>) => {
     try {
-      // If the address was updated but coordinates weren't, try to geocode
-      if (data.direccion && (data.latitud === undefined || data.longitud === undefined)) {
-        try {
-          const addressData = await geocodeAddress(data.direccion);
-          if (addressData) {
-            data.latitud = addressData.latitud;
-            data.longitud = addressData.longitud;
-            
-            // Update other address fields if they weren't explicitly set
-            if (data.ciudad === undefined && addressData.ciudad) {
-              data.ciudad = addressData.ciudad;
-            }
-            if (data.provincia === undefined && addressData.provincia) {
-              data.provincia = addressData.provincia;
-            }
-            if (data.pais === undefined && addressData.pais) {
-              data.pais = addressData.pais;
-            }
-            if (data.codigoPostal === undefined && addressData.codigoPostal) {
-              data.codigoPostal = addressData.codigoPostal;
-            }
-            if (data.distrito === undefined && addressData.distrito) {
-              data.distrito = addressData.distrito;
-            }
-            if (data.barrio === undefined && addressData.barrio) {
-              data.barrio = addressData.barrio;
-            }
-          }
-        } catch (error) {
-          console.error("Error geocoding address:", error);
-          // Continue with the original data if geocoding fails
-        }
-      }
-      
       await updateDoc(doc(db, "puntosVerdes", id), {
         ...data,
         updatedAt: serverTimestamp()

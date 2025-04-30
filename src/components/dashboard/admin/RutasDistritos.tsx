@@ -6,7 +6,7 @@ import {
   TabsList,
   TabsTrigger
 } from "@/components/ui/tabs";
-import RutasDistritosList from './rutas/RutasDistritosList';
+import RutasDistritosList from './rutas/RutasDistritos';
 import RutasPersonalizadas from './rutas/RutasPersonalizadas';
 
 const RutasDistritos = () => {
