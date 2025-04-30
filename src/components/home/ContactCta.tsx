@@ -82,7 +82,7 @@ const ContactCta = () => {
             className="bg-white rounded-xl overflow-hidden shadow-lg"
           >
             <img 
-              src="https://images.unsplash.com/photo-1587290883551-302922335209?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+              src= "https://s11.aconvert.com/convert/p3r68-cdx67/7sd6k-tjg3c.webp" 
               alt="Reciclaje de aceite" 
               className="w-full h-64 object-cover"
             />
