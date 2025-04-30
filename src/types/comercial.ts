@@ -13,22 +13,7 @@ export interface ComercialUser {
   saldo?: number;
   comisionesTotales?: number;
   comisionesPendientes?: number;
-  metodoPago?: {
-    tipo: 'banco' | 'paypal' | 'bizum';
-    datos: {
-      banco?: {
-        titular: string;
-        iban: string;
-        swift?: string;
-      };
-      paypal?: {
-        email: string;
-      };
-      bizum?: {
-        telefono: string;
-      };
-    };
-  } | null;
+  metodoPago?: MetodoPago | null;
   datosPersonalizados?: {
     comision?: number;
     zonas?: string[];
@@ -56,4 +41,31 @@ export interface Comision {
   importe: number;
   estado: 'pendiente' | 'abonado';
   fecha: Date;
+}
+
+export interface MetodoPago {
+  tipo: 'banco' | 'paypal' | 'bizum';
+  datos: {
+    banco?: {
+      titular: string;
+      iban: string;
+      swift?: string;
+    };
+    paypal?: {
+      email: string;
+    };
+    bizum?: {
+      telefono: string;
+    };
+  };
+}
+
+export interface ProductoServicio {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  comisionBase: number;
+  comisionPorcentual: boolean;
+  activo: boolean;
 }
