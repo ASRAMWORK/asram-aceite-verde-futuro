@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Home, Package } from 'lucide-react';
+import { Label } from "@/components/ui/label";
 
 interface ComunidadStatsFormProps {
   formData: {
@@ -18,12 +18,13 @@ export const ComunidadStatsForm: React.FC<ComunidadStatsFormProps> = ({ formData
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Estadísticas</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormItem>
-          <FormLabel className="flex items-center gap-2">
+        <div className="space-y-2">
+          <Label htmlFor="numViviendas" className="flex items-center gap-2">
             <Home className="h-4 w-4" />
             Número de Viviendas
-          </FormLabel>
+          </Label>
           <Input
+            id="numViviendas"
             type="number"
             name="numViviendas"
             value={formData.numViviendas}
@@ -31,14 +32,15 @@ export const ComunidadStatsForm: React.FC<ComunidadStatsFormProps> = ({ formData
             min={0}
             className="bg-background"
           />
-        </FormItem>
+        </div>
         
-        <FormItem>
-          <FormLabel className="flex items-center gap-2">
+        <div className="space-y-2">
+          <Label htmlFor="totalViviendas" className="flex items-center gap-2">
             <Home className="h-4 w-4" />
             Total de Viviendas
-          </FormLabel>
+          </Label>
           <Input
+            id="totalViviendas"
             type="number"
             name="totalViviendas"
             value={formData.totalViviendas}
@@ -46,14 +48,15 @@ export const ComunidadStatsForm: React.FC<ComunidadStatsFormProps> = ({ formData
             min={0}
             className="bg-background"
           />
-        </FormItem>
+        </div>
         
-        <FormItem>
-          <FormLabel className="flex items-center gap-2">
+        <div className="space-y-2">
+          <Label htmlFor="numContenedores" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             Número de Contenedores
-          </FormLabel>
+          </Label>
           <Input
+            id="numContenedores"
             type="number"
             name="numContenedores"
             value={formData.numContenedores || 0}
@@ -61,7 +64,7 @@ export const ComunidadStatsForm: React.FC<ComunidadStatsFormProps> = ({ formData
             min={0}
             className="bg-background"
           />
-        </FormItem>
+        </div>
       </div>
     </div>
   );
