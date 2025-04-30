@@ -27,7 +27,7 @@ const CalendarDay = ({
   recogidaDetails 
 }: CalendarDayProps) => {
   if (!day) {
-    return <div className="h-14" />;
+    return <div className="h-16" />;
   }
 
   return (
@@ -36,7 +36,7 @@ const CalendarDay = ({
         <TooltipTrigger asChild>
           <div
             className={cn(
-              "h-14 p-2 border rounded-md transition-colors relative overflow-hidden",
+              "h-16 p-2 border rounded-md transition-colors relative overflow-hidden",
               isWeekend ? "bg-gray-50" : "bg-white",
               hasRecogida ? "border-[#ee970d] shadow-sm" : "border-gray-200",
               "hover:shadow-md cursor-pointer"
@@ -56,16 +56,16 @@ const CalendarDay = ({
               {hasRecogida && (
                 <Badge 
                   variant="secondary" 
-                  className="mt-auto text-xs bg-amber-50 text-[#ee970d] border-[#ee970d] border"
+                  className="mt-auto text-xs bg-amber-50 text-[#ee970d] border-[#ee970d] border overflow-hidden text-ellipsis whitespace-nowrap"
                 >
-                  Recogida
+                  {recogidaDetails?.distrito || 'Recogida'}
                 </Badge>
               )}
             </div>
           </div>
         </TooltipTrigger>
         {hasRecogida && recogidaDetails && (
-          <TooltipContent className="bg-white border-[#ee970d] shadow-lg">
+          <TooltipContent className="bg-white border-[#ee970d] shadow-lg p-3 max-w-xs">
             <div className="text-sm">
               <p className="font-medium text-[#ee970d]">{recogidaDetails.distrito}</p>
               {recogidaDetails.barrio && (

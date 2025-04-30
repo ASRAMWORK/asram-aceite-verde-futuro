@@ -28,60 +28,39 @@ export interface UserProfile {
   codigoPostal?: string;
   pais?: string;
   activo: boolean;
-  tipo: string;
+  tipo?: string;
   createdAt: Date;
   updatedAt: Date;
-  nombreAdministracion?: string;
-  codigo?: string;
-  aprobado?: boolean;
   photoURL?: string; // Added photoURL property
   
-  // Add missing properties for comercial
-  metodoPago?: {
-    tipo: 'banco' | 'paypal' | 'bizum';
-    datos: {
-      banco?: {
-        titular: string;
-        iban: string;
-        swift?: string;
-      };
-      paypal?: {
-        email: string;
-      };
-      bizum?: {
-        telefono: string;
-      };
-    };
-  };
-  saldo?: number;
-  comisionesTotales?: number;
-  comisionesPendientes?: number;
-  
-  // Add missing properties used in other components
-  distrito?: string;
-  barrio?: string;
+  // Campos específicos por tipo de usuario
+  // Comunidad
   numViviendas?: number;
   numContenedores?: number;
-  cif?: string;
-  contacto?: string;
-  litrosEstimados?: number;
-  
-  // Missing properties from errors
-  litrosAportados?: number;
-  puntosVerdes?: number;
   frecuenciaRecogida?: string;
+  
+  // Restaurante
   nombreRestaurante?: string;
   horarioApertura?: string;
+  litrosEstimados?: number;
+  
+  // Hotel
   nombreHotel?: string;
   numHabitaciones?: number;
+  
+  // Asociación
   nombreAsociacion?: string;
   tipoAsociacion?: string;
   numMiembros?: number;
+  
+  // Escolar
   nombreCentro?: string;
   numAlumnos?: number;
   tipoEscolar?: string;
   participaAlianzaVerde?: boolean;
-  fechaRegistro?: Date;
+  
+  // Para cualquier campo adicional que pueda tener el perfil
+  [key: string]: any;
 }
 
 export interface Usuario {
@@ -138,6 +117,7 @@ export interface Usuario {
   
   // Missing properties from errors
   litrosAportados?: number;
+  puntosVerdes?: number;
   frecuenciaRecogida?: string;
   nombreRestaurante?: string;
   horarioApertura?: string;
@@ -152,9 +132,6 @@ export interface Usuario {
   participaAlianzaVerde?: boolean;
   fechaRegistro?: Date;
   userId?: string;
-  
-  // For puntos verdes - kept only one instance
-  puntosVerdes?: number;
 }
 
 export interface ComunidadVecinos {

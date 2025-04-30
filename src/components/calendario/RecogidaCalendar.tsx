@@ -143,7 +143,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto bg-white/70 backdrop-blur-sm shadow-lg border border-[#ee970d]/20">
+    <Card className="w-full max-w-6xl mx-auto bg-white/70 backdrop-blur-sm shadow-lg border border-[#ee970d]/20">
       <CardHeader className="border-b border-[#ee970d]/10 pb-4">
         <CardTitle className="text-2xl font-bold text-center text-[#ee970d]">
           Calendario de Recogidas 2025
@@ -153,7 +153,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
         {showNoRecogidasMessage && (
           <div className="bg-amber-50 border border-amber-200 p-3 mb-6 rounded-md text-amber-800 text-sm">
             <p className="font-medium">Días de recogida por distrito:</p>
-            <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
+            <ul className="mt-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-1 text-xs">
               {Object.entries(distritosMap).map(([day, distrito]) => (
                 <li key={day}>• Día {day}: Distrito {distrito}</li>
               ))}
@@ -196,7 +196,7 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
               selected={selectedDate}
               onSelect={setSelectedDate}
               locale={es}
-              className="rounded-md border w-full"
+              className="rounded-md border w-full h-full"
               components={{
                 Day: ({ date, ...props }) => (
                   <CalendarDay
@@ -211,6 +211,30 @@ const RecogidaCalendar: React.FC<RecogidaCalendarProps> = ({ isAdmin = false }) 
             />
           </div>
         </div>
+        
+        {/* Detalles de la fecha seleccionada */}
+        {selectedDate && (
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 className="text-lg font-medium mb-2">
+              {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })}
+            </h3>
+            {hasRecogidaOnDate(selectedDate) ? (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span className="font-medium">
+                  Recogida programada en {getRecogidaDetails(selectedDate)?.distrito}
+                  {getRecogidaDetails(selectedDate)?.barrio ? `, ${getRecogidaDetails(selectedDate)?.barrio}` : ''}
+                  {' - '}{getRecogidaDetails(selectedDate)?.hora} hrs
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-gray-500">
+                <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                <span>No hay recogidas programadas para este día</span>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
