@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   id: string;
   uid: string;
@@ -298,17 +299,33 @@ export interface Gasto {
   notas?: string;
 }
 
-// Add missing interfaces for Instalacion, Ruta, Trabajador, Voluntario, etc.
-
+// Now let's add the missing interface for Instalacion
 export interface Instalacion {
   id: string;
   nombre: string;
   tipo: string;
   direccion: string;
   ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  latitud: number;
+  longitud: number;
   descripcion?: string;
+  horario?: string;
+  telefono?: string;
+  email?: string;
+  contacto?: string;
+  activo?: boolean;
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  numPorteria?: number;
   createdAt?: Date;
   updatedAt?: Date;
+  administradorId?: string;
+  litrosRecogidos?: number;
 }
 
 export interface Ruta {
@@ -343,6 +360,29 @@ export interface Trabajador {
   puesto: string;
   salario: number;
   activo: boolean;
+  // Adding missing properties used in components
+  foto?: string;
+  fechaNacimiento?: Date;
+  direccion?: string;
+  ciudad?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  tipoContrato?: string;
+  tipoJornada?: string;
+  fechaAlta?: Date;
+  departamento?: string;
+  cargo?: string;
+  salarioBase?: number;
+  roles?: string[];
+  fechaContratacion?: Date;
+  rutasAsignadas?: string | string[];
+  vehiculoAsignado?: string;
+  metodoPago?: 'efectivo' | 'transferencia' | 'otro';
+  frecuenciaPago?: 'mensual' | 'quincenal' | 'semanal';
+  diaCobro?: number;
+  numeroCuenta?: string;
+  documentoIdentidad?: string;
+  fechaBaja?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -354,6 +394,8 @@ export interface TrabajadorPago {
   concepto: string;
   cantidad: number;
   estado: string;
+  // Adding missing properties
+  tipo: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -364,7 +406,15 @@ export interface Turno {
   fecha: Date;
   horaInicio: string;
   horaFin: string;
-  descripcion?: string;
+  descripcion: string;
+  // Adding missing properties used in components
+  dia: string;
+  rutaId?: string;
+  vehiculoId?: string;
+  nombreTrabajador?: string;
+  trabajadorNombre?: string;
+  distrito?: string;
+  estado?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -394,3 +444,51 @@ export interface Tarea {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+// Add the implementation for the useTalleresProgramados hook
+<lov-write file_path="src/hooks/useTalleresProgramados.ts">
+import { useState, useEffect } from 'react';
+import { TallerProgramado } from '@/types';
+
+export const useTalleresProgramados = () => {
+  const [talleresProgramados, setTalleresProgramados] = useState<TallerProgramado[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate fetching talleres programados
+    setTalleresProgramados([]);
+    setLoading(false);
+  }, []);
+
+  const addTallerProgramado = async (taller: Omit<TallerProgramado, 'id'>) => {
+    // Simulate adding a taller programado
+    const newTaller = {
+      ...taller,
+      id: `taller-${Date.now()}`,
+    };
+    setTalleresProgramados(prev => [...prev, newTaller]);
+    return newTaller;
+  };
+
+  const updateTallerProgramado = async (id: string, data: Partial<TallerProgramado>) => {
+    // Simulate updating a taller programado
+    setTalleresProgramados(prev => 
+      prev.map(taller => taller.id === id ? { ...taller, ...data } : taller)
+    );
+    return true;
+  };
+
+  const deleteTallerProgramado = async (id: string) => {
+    // Simulate deleting a taller programado
+    setTalleresProgramados(prev => prev.filter(taller => taller.id !== id));
+    return true;
+  };
+
+  return {
+    talleresProgramados,
+    loading,
+    addTallerProgramado,
+    updateTallerProgramado,
+    deleteTallerProgramado
+  };
+};
