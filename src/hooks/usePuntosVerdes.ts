@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
-import type { PuntoVerde, Usuario } from '@/types';
+import type { PuntoVerde, Usuario, UserRole } from '@/types';
 import { toast } from 'sonner';
 import { useUsuarios } from './useUsuarios';
 import { geocodeAddress } from '@/lib/googleMaps';
@@ -127,7 +127,7 @@ export function usePuntosVerdes(administradorId?: string) {
       
       // Create a user-like record omitting the latitud/longitud properties
       // that are not part of the Usuario type expected by addUsuario
-      const usuarioData = {
+      const usuarioData: Omit<Usuario, "id"> & { administradorId?: string } = {
         nombre: `Punto Verde - ${nuevoPunto.direccion}`,
         email: nuevoPunto.email || "",
         telefono: nuevoPunto.telefono || "",
@@ -137,7 +137,7 @@ export function usePuntosVerdes(administradorId?: string) {
         codigoPostal: nuevoPunto.codigoPostal || "",
         tipo: "punto_verde",
         activo: true,
-        role: "client",
+        role: "punto_verde" as UserRole, // Explicitly cast as UserRole
         distrito: nuevoPunto.distrito,
         barrio: nuevoPunto.barrio,
         numViviendas: nuevoPunto.numViviendas,
