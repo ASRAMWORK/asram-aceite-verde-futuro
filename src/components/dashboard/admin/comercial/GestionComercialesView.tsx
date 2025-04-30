@@ -13,6 +13,7 @@ import ComercialForm from "./ComercialForm";
 
 const GestionComercialesView = () => {
   const [formOpen, setFormOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("comerciales");
 
   return (
     <div className="space-y-6">
@@ -28,7 +29,7 @@ const GestionComercialesView = () => {
         <ComercialForm onClose={() => setFormOpen(false)} />
       )}
 
-      <Tabs defaultValue="comerciales" className="space-y-6">
+      <Tabs defaultValue="comerciales" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full">
           <TabsTrigger value="comerciales">
             <User className="h-4 w-4 mr-2" />

@@ -31,7 +31,7 @@ const AdminDashboardContent: React.FC<AdminDashboardContentProps> = ({ activeTab
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Tabs defaultValue={activeTab} className="w-full">
+      <Tabs defaultValue={activeTab} value={activeTab} className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="rutas">Rutas y Distritos</TabsTrigger>
           <TabsTrigger value="mapa">Mapa de Localizaciones</TabsTrigger>
