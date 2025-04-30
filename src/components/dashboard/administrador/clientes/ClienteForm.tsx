@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,7 +26,7 @@ import { Usuario } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
-  apellido: z.string().min(2, 'Los apellidos son obligatorios'),
+  apellidos: z.string().min(2, 'Los apellidos son obligatorios'), // Changed from apellido to apellidos
   telefono: z.string().min(9, 'Teléfono no válido'),
   email: z.string().email('Email no válido'),
   direccion: z.string().min(5, 'La dirección es obligatoria'),
@@ -50,7 +51,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
   const defaultValues: ClienteFormValues = clienteId 
     ? usuarios.find(u => u.id === clienteId) || {
         nombre: '',
-        apellido: '',
+        apellidos: '', // Changed from apellido to apellidos
         telefono: '',
         email: '',
         direccion: '',
@@ -62,7 +63,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
       }
     : {
         nombre: '',
-        apellido: '',
+        apellidos: '', // Changed from apellido to apellidos
         telefono: '',
         email: '',
         direccion: '',
@@ -90,7 +91,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
       } else {
         await addUsuario({
           nombre: data.nombre,
-          apellido: data.apellido,
+          apellidos: data.apellidos, // Changed from apellido to apellidos
           telefono: data.telefono,
           email: data.email,
           direccion: data.direccion,
@@ -135,7 +136,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           
           <FormField
             control={form.control}
-            name="apellido"
+            name="apellidos" // Changed from apellido to apellidos
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Apellidos</FormLabel>

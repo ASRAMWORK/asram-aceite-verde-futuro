@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   id: string;
   uid: string;
@@ -58,6 +59,22 @@ export interface ComunidadVecinos {
   createdAt?: any;
   updatedAt?: any;
   litrosRecogidos?: number;
+  // Add the missing properties
+  numViviendas?: number;
+  numContenedores?: number;
+  distrito?: string;
+  barrio?: string;
+  numeroPorteria?: string | number;
+  totalViviendas?: number;
+  nombreAdministracion?: string;
+  correoContacto?: string;
+  beneficiosMedioambientales?: {
+    co2Evitado?: number;
+    arbolesEquivalentes?: number;
+    aguaAhorrada?: number;
+    energiaAhorrada?: number;
+    residuosReciclados?: number;
+  };
 }
 
 export interface Cliente {
@@ -366,6 +383,7 @@ export interface Trabajador {
   ciudad?: string;
   provincia?: string;
   codigoPostal?: string;
+  pais?: string;
   tipoContrato?: string;
   tipoJornada?: string;
   fechaAlta?: Date;
@@ -380,10 +398,12 @@ export interface Trabajador {
   frecuenciaPago?: 'mensual' | 'quincenal' | 'semanal';
   diaCobro?: number;
   numeroCuenta?: string;
+  cuentaBancaria?: string;
   documentoIdentidad?: string;
   fechaBaja?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  beneficios?: string[];
 }
 
 export interface TrabajadorPago {
@@ -429,6 +449,19 @@ export interface Voluntario {
   activo: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  // Adding missing properties
+  direccion?: string;
+  codigoPostal?: string;
+  ciudad?: string;
+  provincia?: string;
+  pais?: string;
+  fechaNacimiento?: Date;
+  diasDisponibles?: string[];
+  horasDisponibles?: string | string[];
+  experiencia?: string;
+  estado?: string;
+  fechaAlta?: Date;
+  horasContribuidas?: number;
 }
 
 export interface Tarea {
@@ -442,4 +475,13 @@ export interface Tarea {
   prioridad: string;
   createdAt?: Date;
   updatedAt?: Date;
+  // Adding missing properties
+  completada?: boolean;
+  asignadoA?: string[] | string;
+  fecha?: Date;
+  fechaCompletada?: Date;
+  horaInicio?: string;
+  horaFin?: string;
+  voluntarioNombre?: string;
+  fechaAsignacion?: Date;
 }
