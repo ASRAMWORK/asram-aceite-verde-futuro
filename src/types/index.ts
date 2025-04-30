@@ -137,7 +137,6 @@ export interface Usuario {
   
   // Missing properties from errors
   litrosAportados?: number;
-  puntosVerdes?: number;
   frecuenciaRecogida?: string;
   nombreRestaurante?: string;
   horarioApertura?: string;
@@ -153,7 +152,7 @@ export interface Usuario {
   fechaRegistro?: Date;
   userId?: string;
   
-  // For puntos verdes - keep only one instance
+  // For puntos verdes - kept only one instance
   puntosVerdes?: number;
 }
 
