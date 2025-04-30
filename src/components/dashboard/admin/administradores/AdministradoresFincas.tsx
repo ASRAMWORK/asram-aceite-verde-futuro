@@ -76,6 +76,9 @@ const AdministradoresFincas = () => {
   // Filter usuarios to only show those with admin_finca role
   const adminFincas = usuarios.filter(user => user.role === 'admin_finca');
   
+  // Filter active admin_finca users
+  const activeAdminFincas = adminFincas.filter(admin => admin.activo !== false);
+  
   // Filter by search term
   const filteredAdmins = adminFincas.filter(admin => 
     admin.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -180,7 +183,7 @@ const AdministradoresFincas = () => {
                 Añadir Administrador
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[700px]">
               <DialogHeader>
                 <DialogTitle>Añadir nuevo administrador de fincas</DialogTitle>
                 <DialogDescription>
@@ -188,51 +191,89 @@ const AdministradoresFincas = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nombre">Nombre</Label>
-                  <Input
-                    id="nombre"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleInputChange}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nombre">Nombre <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="nombre"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="apellidos">Apellidos <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="apellidos"
+                      name="apellidos"
+                      value={formData.apellidos}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="apellidos">Apellidos</Label>
-                  <Input
-                    id="apellidos"
-                    name="apellidos"
-                    value={formData.apellidos}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefono">Teléfono</Label>
-                  <Input
-                    id="telefono"
-                    name="telefono"
-                    value={formData.telefono}
-                    onChange={handleInputChange}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Input
+                      id="telefono"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="direccion">Dirección</Label>
+                    <Input
+                      id="direccion"
+                      name="direccion"
+                      value={formData.direccion}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="direccion">Dirección</Label>
-                  <Input
-                    id="direccion"
-                    name="direccion"
-                    value={formData.direccion}
-                    onChange={handleInputChange}
-                  />
+                
+                {/* Nueva sección para mostrar administradores activos */}
+                <div className="mt-6 border-t pt-4">
+                  <h3 className="text-md font-medium mb-2">Administradores de Fincas Activos ({activeAdminFincas.length})</h3>
+                  <div className="max-h-40 overflow-y-auto border rounded-md">
+                    {activeAdminFincas.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nombre</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Teléfono</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {activeAdminFincas.map((admin) => (
+                            <TableRow key={admin.id}>
+                              <TableCell className="font-medium">{admin.nombre} {admin.apellidos}</TableCell>
+                              <TableCell>{admin.email}</TableCell>
+                              <TableCell>{admin.telefono}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-center py-4 text-sm text-muted-foreground">
+                        No hay administradores activos registrados
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <DialogFooter>
@@ -256,7 +297,7 @@ const AdministradoresFincas = () => {
           </Dialog>
           
           <Dialog open={isEditingAdmin} onOpenChange={setIsEditingAdmin}>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[700px]">
               <DialogHeader>
                 <DialogTitle>Editar administrador de fincas</DialogTitle>
                 <DialogDescription>
@@ -264,51 +305,89 @@ const AdministradoresFincas = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nombre-edit">Nombre</Label>
-                  <Input
-                    id="nombre-edit"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleInputChange}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nombre-edit">Nombre <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="nombre-edit"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="apellidos-edit">Apellidos <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="apellidos-edit"
+                      name="apellidos"
+                      value={formData.apellidos}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="apellidos-edit">Apellidos</Label>
-                  <Input
-                    id="apellidos-edit"
-                    name="apellidos"
-                    value={formData.apellidos}
-                    onChange={handleInputChange}
-                  />
-                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email-edit">Email</Label>
+                  <Label htmlFor="email-edit">Email <span className="text-red-500">*</span></Label>
                   <Input
                     id="email-edit"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefono-edit">Teléfono</Label>
-                  <Input
-                    id="telefono-edit"
-                    name="telefono"
-                    value={formData.telefono}
-                    onChange={handleInputChange}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telefono-edit">Teléfono</Label>
+                    <Input
+                      id="telefono-edit"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="direccion-edit">Dirección</Label>
+                    <Input
+                      id="direccion-edit"
+                      name="direccion"
+                      value={formData.direccion}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="direccion-edit">Dirección</Label>
-                  <Input
-                    id="direccion-edit"
-                    name="direccion"
-                    value={formData.direccion}
-                    onChange={handleInputChange}
-                  />
+                
+                {/* Nueva sección para mostrar administradores activos */}
+                <div className="mt-6 border-t pt-4">
+                  <h3 className="text-md font-medium mb-2">Administradores de Fincas Activos ({activeAdminFincas.length})</h3>
+                  <div className="max-h-40 overflow-y-auto border rounded-md">
+                    {activeAdminFincas.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nombre</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Teléfono</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {activeAdminFincas.map((admin) => (
+                            <TableRow key={admin.id} className={selectedAdmin?.id === admin.id ? "bg-muted" : ""}>
+                              <TableCell className="font-medium">{admin.nombre} {admin.apellidos}</TableCell>
+                              <TableCell>{admin.email}</TableCell>
+                              <TableCell>{admin.telefono}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-center py-4 text-sm text-muted-foreground">
+                        No hay administradores activos registrados
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <DialogFooter>
