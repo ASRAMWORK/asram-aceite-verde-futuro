@@ -22,16 +22,73 @@ import {
   Coffee,
   Home,
   Award,
-  Droplet
+  Droplet,
+  Save
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+
+const profileSchema = z.object({
+  nombre: z.string().min(1, "El nombre es obligatorio"),
+  apellidos: z.string().optional(),
+  email: z.string().email("Email no válido"),
+  telefono: z.string().optional(),
+  direccion: z.string().optional(),
+  codigoPostal: z.string().optional(),
+  ciudad: z.string().optional(),
+  distrito: z.string().optional(),
+  barrio: z.string().optional()
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const UserProfileView = () => {
   const { profile, loading, error } = useUserProfile();
   const [activeTab, setActiveTab] = useState('personal');
+  const [editMode, setEditMode] = useState(false);
+  const { user } = useAuth();
+  
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      nombre: profile?.nombre || '',
+      apellidos: profile?.apellidos || '',
+      email: profile?.email || '',
+      telefono: profile?.telefono || '',
+      direccion: profile?.direccion || '',
+      codigoPostal: profile?.codigoPostal || '',
+      ciudad: profile?.ciudad || '',
+      distrito: profile?.distrito || '',
+      barrio: profile?.barrio || ''
+    }
+  });
+  
+  // Update form values when profile loads
+  React.useEffect(() => {
+    if (profile && !loading) {
+      form.reset({
+        nombre: profile.nombre || '',
+        apellidos: profile.apellidos || '',
+        email: profile.email || '',
+        telefono: profile.telefono || '',
+        direccion: profile.direccion || '',
+        codigoPostal: profile.codigoPostal || '',
+        ciudad: profile.ciudad || '',
+        distrito: profile.distrito || '',
+        barrio: profile.barrio || ''
+      });
+    }
+  }, [profile, loading, form]);
   
   if (loading) {
     return (
@@ -65,6 +122,23 @@ const UserProfileView = () => {
       </Card>
     );
   }
+  
+  const onSubmit = async (data: ProfileFormValues) => {
+    try {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        await updateDoc(userDocRef, {
+          ...data,
+          updatedAt: new Date()
+        });
+        toast.success("Perfil actualizado correctamente");
+        setEditMode(false);
+      }
+    } catch (err) {
+      console.error("Error al actualizar perfil:", err);
+      toast.error("Error al actualizar el perfil");
+    }
+  };
 
   const getRoleBadge = (role: UserRole | string) => {
     const roleStyles: Record<string, string> = {
@@ -120,7 +194,7 @@ const UserProfileView = () => {
   const getInitials = () => {
     const name = profile.nombre || '';
     const surname = profile.apellidos || '';
-    return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase();
+    return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase() || '?';
   };
 
   const userRole = profile?.role as string;
@@ -132,7 +206,23 @@ const UserProfileView = () => {
   });
   
   const handleUpdateProfile = () => {
-    toast.info("Función de edición de perfil en desarrollo");
+    setEditMode(true);
+    setActiveTab('personal');
+  };
+  
+  const cancelEdit = () => {
+    form.reset({
+      nombre: profile.nombre || '',
+      apellidos: profile.apellidos || '',
+      email: profile.email || '',
+      telefono: profile.telefono || '',
+      direccion: profile.direccion || '',
+      codigoPostal: profile.codigoPostal || '',
+      ciudad: profile.ciudad || '',
+      distrito: profile.distrito || '',
+      barrio: profile.barrio || ''
+    });
+    setEditMode(false);
   };
 
   return (
@@ -210,7 +300,159 @@ const UserProfileView = () => {
                   <CardDescription>Datos detallados de tu cuenta</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {renderProfileFields()}
+                  {editMode ? (
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="nombre"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nombre</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Tu nombre" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="apellidos"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Apellidos</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Tus apellidos" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="tu@email.com" {...field} disabled />
+                                </FormControl>
+                                <FormDescription>
+                                  El email no se puede cambiar
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="telefono"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Teléfono</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Tu teléfono" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="direccion"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Dirección</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Tu dirección" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="codigoPostal"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Código Postal</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Código postal" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="ciudad"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Ciudad</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Ciudad" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="distrito"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Distrito</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Distrito" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="barrio"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Barrio</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Barrio" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className="flex justify-end gap-2 mt-4">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={cancelEdit}
+                          >
+                            Cancelar
+                          </Button>
+                          <Button 
+                            type="submit"
+                            className="bg-[#ee970d] hover:bg-[#d28109]"
+                          >
+                            <Save className="h-4 w-4 mr-2" />
+                            Guardar cambios
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  ) : renderProfileFields()}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -280,7 +522,12 @@ const UserProfileView = () => {
                         <p className="font-medium">Notificaciones por correo</p>
                         <p className="text-sm text-gray-500">Recibe actualizaciones sobre recogidas y eventos</p>
                       </div>
-                      <Button variant="outline">Configurar</Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => toast.info("Función en desarrollo")}
+                      >
+                        Configurar
+                      </Button>
                     </div>
                     
                     <div className="flex items-center justify-between py-3 border-b">
@@ -288,7 +535,12 @@ const UserProfileView = () => {
                         <p className="font-medium">Cambiar contraseña</p>
                         <p className="text-sm text-gray-500">Actualiza tu contraseña periódicamente</p>
                       </div>
-                      <Button variant="outline">Cambiar</Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => toast.info("Función en desarrollo")}
+                      >
+                        Cambiar
+                      </Button>
                     </div>
                     
                     <div className="flex items-center justify-between py-3 border-b">
@@ -296,7 +548,12 @@ const UserProfileView = () => {
                         <p className="font-medium">Cambiar email</p>
                         <p className="text-sm text-gray-500">Actualiza tu dirección de correo electrónico</p>
                       </div>
-                      <Button variant="outline">Cambiar</Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => toast.info("Para cambiar tu email, contacta con el soporte")}
+                      >
+                        Cambiar
+                      </Button>
                     </div>
                     
                     <div className="flex items-center justify-between py-3">
@@ -304,7 +561,13 @@ const UserProfileView = () => {
                         <p className="font-medium">Cerrar sesión en todos los dispositivos</p>
                         <p className="text-sm text-gray-500">Cierra todas las sesiones activas</p>
                       </div>
-                      <Button variant="outline" className="text-red-500 border-red-200 hover:bg-red-50">Cerrar sesiones</Button>
+                      <Button 
+                        variant="outline" 
+                        className="text-red-500 border-red-200 hover:bg-red-50"
+                        onClick={() => toast.info("Función en desarrollo")}
+                      >
+                        Cerrar sesiones
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
