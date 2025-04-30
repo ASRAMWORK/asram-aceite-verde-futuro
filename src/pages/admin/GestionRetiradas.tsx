@@ -270,9 +270,7 @@ const GestionRetiradas = () => {
                     </FormControl>
                     <SelectContent>
                       {distritos.map((distrito) => (
-                        <SelectItem key={distrito} value={distrito}>
-                          {distrito}
-                        </SelectItem>
+                        <SelectItem key={distrito} value={distrito}>{distrito}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
