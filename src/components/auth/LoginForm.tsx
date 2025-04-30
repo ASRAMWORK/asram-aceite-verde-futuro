@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -25,26 +24,52 @@ const LoginForm = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Obtener rol del usuario desde Firestore
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const userRole = userDoc.exists() ? userDoc.data().role : null;
-      
-      // Redirección basada en el rol de usuario
+      // Check if user is admin by email first (fastest check)
       if (isAdminEmail(user.email)) {
         navigate("/admin/dashboard");
         toast.success("Inicio de sesión de administrador exitoso");
-      } else if (userRole === "superadmin") {
-        navigate("/admin/dashboard");
-        toast.success("Bienvenido, Superadministrador");
-      } else if (userRole === "admin_finca" || userRole === "administrador") {
-        navigate("/administrador/dashboard");
-        toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
-      } else if (userRole === "comercial") {
-        navigate("/comercial/dashboard");
-        toast.success("Bienvenido, Comercial");
+        setLoading(false);
+        return;
+      }
+      
+      // Check in "users" collection
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      
+      if (userDoc.exists()) {
+        const userRole = userDoc.data().role;
+        
+        if (userRole === "superadmin") {
+          navigate("/admin/dashboard");
+          toast.success("Bienvenido, Superadministrador");
+        } else if (userRole === "admin_finca" || userRole === "administrador") {
+          navigate("/administrador/dashboard");
+          toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
+        } else if (userRole === "comercial") {
+          navigate("/comercial/dashboard");
+          toast.success("Bienvenido, Comercial");
+        } else {
+          navigate("/user/dashboard");
+          toast.success("Inicio de sesión exitoso");
+        }
       } else {
-        navigate("/user/dashboard");
-        toast.success("Inicio de sesión exitoso");
+        // If not found in "users", check in "usuarios" collection
+        const usuariosDoc = await getDoc(doc(db, "usuarios", user.uid));
+        
+        if (usuariosDoc.exists()) {
+          const userRole = usuariosDoc.data().role;
+          
+          if (userRole === "comercial") {
+            navigate("/comercial/dashboard");
+            toast.success("Bienvenido, Comercial");
+          } else {
+            navigate("/user/dashboard");
+            toast.success("Inicio de sesión exitoso");
+          }
+        } else {
+          // Default to user dashboard if no specific role found
+          navigate("/user/dashboard");
+          toast.success("Inicio de sesión exitoso");
+        }
       }
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
