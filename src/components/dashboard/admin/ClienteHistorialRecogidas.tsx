@@ -28,15 +28,15 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
       if (recogidasCliente.length > 0) {
         // Sort recogidas by date (oldest first)
         const sortedRecogidas = [...recogidasCliente].sort((a, b) => {
-          const dateA = a.fechaRecogida || a.fecha || new Date();
-          const dateB = b.fechaRecogida || b.fecha || new Date();
+          const dateA = parseDate(a.fechaRecogida || a.fecha);
+          const dateB = parseDate(b.fechaRecogida || b.fecha);
           return dateA.getTime() - dateB.getTime();
         });
         
         // Get first and last date
-        const firstDate = sortedRecogidas[0].fechaRecogida || sortedRecogidas[0].fecha || new Date();
-        const lastDate = sortedRecogidas[sortedRecogidas.length - 1].fechaRecogida || 
-                        sortedRecogidas[sortedRecogidas.length - 1].fecha || new Date();
+        const firstDate = parseDate(sortedRecogidas[0].fechaRecogida || sortedRecogidas[0].fecha);
+        const lastDate = parseDate(sortedRecogidas[sortedRecogidas.length - 1].fechaRecogida || 
+                        sortedRecogidas[sortedRecogidas.length - 1].fecha);
         
         // Calculate total days between first and last collection
         const totalDays = Math.max(1, Math.ceil((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)));
@@ -51,26 +51,35 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
     }
   }, [cliente, recogidas]);
   
+  // Helper function to parse dates consistently
+  const parseDate = (date: Date | string | undefined) => {
+    if (!date) return new Date();
+    
+    try {
+      if (typeof date === 'string') {
+        // Try to parse with parseISO first (handles ISO format strings)
+        const parsedDate = parseISO(date);
+        
+        // If not valid, try with new Date()
+        if (!isValid(parsedDate)) {
+          return new Date(date);
+        }
+        return parsedDate;
+      } else if (date instanceof Date) {
+        return date;
+      }
+    } catch (e) {
+      console.error("Error parsing date:", e);
+    }
+    return new Date();
+  };
+  
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "Sin fecha";
     
     try {
-      // Ensure date is properly parsed no matter the format
-      let dateObj;
-      
-      if (typeof date === 'string') {
-        // Try to parse with parseISO first (handles ISO format strings)
-        dateObj = parseISO(date);
-        
-        // If not valid (e.g., for timestamps as strings), try with new Date()
-        if (!isValid(dateObj)) {
-          dateObj = new Date(date);
-        }
-      } else if (date instanceof Date) {
-        dateObj = date;
-      } else {
-        return "Formato de fecha inválido";
-      }
+      // Use our helper function to get a Date object
+      const dateObj = parseDate(date);
       
       // Check if the date is valid before formatting
       if (!isValid(dateObj)) {

@@ -64,7 +64,7 @@ const roles = [
   { value: 'comercial', label: 'Comercial' },
   { value: 'trabajador', label: 'Trabajador' },
   { value: 'superadmin', label: 'Superadministrador' },
-  { value: 'centro_escolar', label: 'Centro Escolar' },
+  { value: 'escolar', label: 'Centro Escolar' },
 ];
 
 const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId }) => {
@@ -111,6 +111,8 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
         await updateUsuario(clienteId, {
           ...data,
           activo: true,
+          // Ensure role is properly typed as UserRole
+          role: data.role as UserRole,
         });
         toast.success('Cliente actualizado correctamente');
       } else {
@@ -126,6 +128,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           frecuenciaRecogida: data.frecuenciaRecogida,
           tipo: data.tipo,
           activo: true,
+          // Ensure role is properly typed as UserRole
           role: data.role as UserRole,
           ciudad: '',
           provincia: '',
