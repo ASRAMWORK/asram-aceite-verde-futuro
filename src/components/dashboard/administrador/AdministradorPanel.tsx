@@ -23,7 +23,8 @@ const AdministradorPanel = () => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-[#ee970d]">Panel de Administrador de Fincas</h1>
         <p className="text-gray-600">
-          Bienvenido, {profile?.nombreAdministracion || 'Administrador'}
+          Bienvenido, {profile?.nombreAdministracion || profile?.nombre || 'Administrador'}
+          {profile?.id && <span className="text-xs text-gray-400 ml-2">(ID: {profile.id})</span>}
         </p>
       </div>
 
@@ -50,15 +51,15 @@ const AdministradorPanel = () => {
         </TabsList>
         
         <TabsContent value="panel" className="mt-6">
-          <PanelControl />
+          <PanelControl adminId={profile?.id} />
         </TabsContent>
         
         <TabsContent value="comunidades" className="mt-6">
-          <GestionComunidades />
+          <GestionComunidades adminId={profile?.id} />
         </TabsContent>
         
         <TabsContent value="informes" className="mt-6">
-          <InformesPanel />
+          <InformesPanel adminId={profile?.id} />
         </TabsContent>
       </Tabs>
     </div>

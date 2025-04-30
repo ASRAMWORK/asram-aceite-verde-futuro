@@ -4,17 +4,37 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, query, addDoc, updateDoc, doc, deleteDoc, where, orderBy, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import type { Usuario, UserRole } from '@/types';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 export function useUsuarios() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { profile } = useUserProfile();
 
   const loadUsuariosData = async () => {
     try {
       setLoading(true);
-      const usuariosRef = collection(db, "usuarios");
-      const usuariosSnap = await getDocs(query(usuariosRef, orderBy("nombre")));
+      
+      // Define la consulta base para la colección de usuarios
+      let usuariosQuery;
+      
+      // Si el usuario logueado es admin_finca, solo carga sus propios usuarios si corresponde
+      if (profile?.role === 'admin_finca') {
+        usuariosQuery = query(
+          collection(db, "usuarios"), 
+          where("administradorId", "==", profile.id),
+          orderBy("nombre")
+        );
+      } else {
+        // Para superadmin u otros roles, carga todos los usuarios
+        usuariosQuery = query(
+          collection(db, "usuarios"), 
+          orderBy("nombre")
+        );
+      }
+      
+      const usuariosSnap = await getDocs(usuariosQuery);
       
       const usuariosData: Usuario[] = [];
       usuariosSnap.forEach((doc) => {
@@ -51,11 +71,15 @@ export function useUsuarios() {
 
   const addUsuario = async (usuario: Omit<Usuario, "id">) => {
     try {
-      await addDoc(collection(db, "usuarios"), {
+      // Si es un admin_finca quien está creando el usuario, se asocia automáticamente
+      const usuarioData = {
         ...usuario,
+        administradorId: profile?.role === 'admin_finca' ? profile.id : usuario.administradorId || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      };
+      
+      await addDoc(collection(db, "usuarios"), usuarioData);
       toast.success("Usuario añadido correctamente");
       await loadUsuariosData();
       return true;
@@ -68,11 +92,15 @@ export function useUsuarios() {
 
   const addCliente = async (cliente: Omit<Usuario, "id">) => {
     try {
-      await addDoc(collection(db, "usuarios"), {
+      // Si es un admin_finca quien está creando el cliente, se asocia automáticamente
+      const clienteData = {
         ...cliente,
+        administradorId: profile?.role === 'admin_finca' ? profile.id : cliente.administradorId || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      };
+      
+      await addDoc(collection(db, "usuarios"), clienteData);
       toast.success("Cliente añadido correctamente");
       await loadUsuariosData();
       return true;
@@ -85,6 +113,16 @@ export function useUsuarios() {
 
   const updateUsuario = async (id: string, data: Partial<Usuario>) => {
     try {
+      // Verificar que si el usuario es admin_finca, solo pueda actualizar sus propios usuarios
+      if (profile?.role === 'admin_finca') {
+        const usuarioDoc = doc(db, "usuarios", id);
+        const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
+        if (usuario.empty) {
+          toast.error("No tienes permiso para actualizar este usuario");
+          return false;
+        }
+      }
+      
       await updateDoc(doc(db, "usuarios", id), {
         ...data,
         updatedAt: serverTimestamp()
@@ -101,6 +139,15 @@ export function useUsuarios() {
 
   const deleteUsuario = async (id: string) => {
     try {
+      // Verificar que si el usuario es admin_finca, solo pueda eliminar sus propios usuarios
+      if (profile?.role === 'admin_finca') {
+        const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
+        if (usuario.empty) {
+          toast.error("No tienes permiso para eliminar este usuario");
+          return false;
+        }
+      }
+      
       await deleteDoc(doc(db, "usuarios", id));
       toast.success("Usuario eliminado correctamente");
       await loadUsuariosData();
@@ -130,7 +177,7 @@ export function useUsuarios() {
 
   useEffect(() => {
     loadUsuariosData();
-  }, []);
+  }, [profile?.id]);
 
   return {
     usuarios,
