@@ -18,7 +18,6 @@ import { Ingreso, Gasto } from "@/types";
 import { toast } from "sonner";
 import InformeFinanciero from "./InformeFinanciero";
 import { Chart } from "@/components/ui/chart";
-import { motion } from "framer-motion";
 
 const FacturacionView = () => {
   const [currentTab, setCurrentTab] = useState("overview");
@@ -233,73 +232,32 @@ const FacturacionView = () => {
         </Card>
       </div>
       <div className="hidden space-y-4 md:flex">
-        <Card 
-          variant="sidebar"
-          className="w-[300px] relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#EE970D]/5 to-transparent pointer-events-none"></div>
-          <CardHeader className="relative z-10">
-            <CardTitle className="flex items-center gap-2 text-[#EE970D]">
-              <div className="bg-[#EE970D]/10 p-2 rounded-full">
-                <FileText className="h-5 w-5 text-[#EE970D]" />
-              </div>
-              <span>Facturación</span>
+        <Card className="w-[300px] border-l-4 border-l-[#EE970D] shadow-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-[#EE970D]" />
+              Facturación
             </CardTitle>
-            <CardDescription className="text-gray-600">
-              Resumen de facturación y gestión financiera
+            <CardDescription>
+              Resumen de facturación y gestión de proyectos
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 relative z-10">
+          <CardContent className="space-y-4">
             <Tabs
               value={currentTab}
               onValueChange={(value) => setCurrentTab(value)}
             >
-              <TabsList className="flex flex-col bg-transparent space-y-1">
-                <TabsTrigger 
-                  value="overview" 
-                  className="w-full justify-start rounded-md transition-all duration-200 data-[state=active]:bg-[#EE970D] data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:hover:bg-[#EE970D]/10"
-                >
-                  <div className="flex items-center gap-3">
-                    <BarChart className="h-4 w-4" />
-                    Visión general
-                  </div>
+              <TabsList className="flex flex-col">
+                <TabsTrigger value="overview" className="justify-start data-[state=active]:bg-[#EE970D]/10 data-[state=active]:text-[#EE970D] font-medium">
+                  <BarChart className="mr-2 h-4 w-4" />
+                  Visión general
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="projects" 
-                  className="w-full justify-start rounded-md transition-all duration-200 data-[state=active]:bg-[#EE970D] data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:hover:bg-[#EE970D]/10"
-                >
-                  <div className="flex items-center gap-3">
-                    <CalendarDays className="h-4 w-4" />
-                    Proyectos
-                  </div>
+                <TabsTrigger value="projects" className="justify-start data-[state=active]:bg-[#EE970D]/10 data-[state=active]:text-[#EE970D] font-medium">
+                  <CalendarDays className="mr-2 h-4 w-4" />
+                  Proyectos
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            
-            <div className="pt-4">
-              <Separator />
-              <div className="pt-4 space-y-3">
-                <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wider">Resumen</h4>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Balance este mes:</span>
-                  <span className={`font-semibold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {balance.toLocaleString('es-ES')}€
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Ingresos totales:</span>
-                  <span className="font-semibold text-green-600">
-                    {totalIngresosAllTime.toLocaleString('es-ES')}€
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Gastos totales:</span>
-                  <span className="font-semibold text-red-600">
-                    {totalGastosAllTime.toLocaleString('es-ES')}€
-                  </span>
-                </div>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
