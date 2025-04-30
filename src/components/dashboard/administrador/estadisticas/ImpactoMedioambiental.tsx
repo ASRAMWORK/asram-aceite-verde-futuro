@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Card, 
@@ -17,11 +18,11 @@ const ImpactoMedioambiental = () => {
   // Calculate total environmental metrics
   const totalMetrics = comunidades.reduce(
     (acc, comunidad) => {
-      const beneficios = comunidad.beneficiosMedioambientales || { co2: 0, agua: 0, energia: 0 };
+      const beneficios = comunidad.beneficiosMedioambientales || { co2Evitado: 0, aguaAhorrada: 0, energiaAhorrada: 0 };
       return {
-        co2: acc.co2 + (beneficios.co2 || 0),
-        agua: acc.agua + (beneficios.agua || 0),
-        energia: acc.energia + (beneficios.energia || 0)
+        co2: acc.co2 + (beneficios.co2Evitado || beneficios.co2 || 0),
+        agua: acc.agua + (beneficios.aguaAhorrada || beneficios.agua || 0),
+        energia: acc.energia + (beneficios.energiaAhorrada || beneficios.energia || 0)
       };
     },
     { co2: 0, agua: 0, energia: 0 }

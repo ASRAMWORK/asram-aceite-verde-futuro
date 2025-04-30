@@ -24,22 +24,29 @@ const AdministradorDashboardOverview = () => {
   // Calculate total environmental impact
   const totalImpacto = {
     co2: comunidades.reduce((acc, com) => {
-      // Use co2Reducido if available, otherwise fall back to co2
-      const co2Value = com.beneficiosMedioambientales?.co2Reducido !== undefined 
-        ? com.beneficiosMedioambientales.co2Reducido 
-        : com.beneficiosMedioambientales?.co2 || 0;
+      const beneficios = com.beneficiosMedioambientales || {};
+      // Check co2Evitado and co2Reducido first, fall back to co2
+      const co2Value = beneficios.co2Evitado !== undefined 
+        ? beneficios.co2Evitado 
+        : (beneficios.co2Reducido !== undefined 
+          ? beneficios.co2Reducido 
+          : beneficios.co2 || 0);
       return acc + co2Value;
     }, 0),
     agua: comunidades.reduce((acc, com) => {
-      const aguaValue = com.beneficiosMedioambientales?.aguaAhorrada !== undefined
-        ? com.beneficiosMedioambientales.aguaAhorrada
-        : com.beneficiosMedioambientales?.agua || 0;
+      const beneficios = com.beneficiosMedioambientales || {};
+      // Check aguaAhorrada first, fall back to agua
+      const aguaValue = beneficios.aguaAhorrada !== undefined
+        ? beneficios.aguaAhorrada
+        : beneficios.agua || 0;
       return acc + aguaValue;
     }, 0),
     energia: comunidades.reduce((acc, com) => {
-      const energiaValue = com.beneficiosMedioambientales?.energiaAhorrada !== undefined
-        ? com.beneficiosMedioambientales.energiaAhorrada
-        : com.beneficiosMedioambientales?.energia || 0;
+      const beneficios = com.beneficiosMedioambientales || {};
+      // Check energiaAhorrada first, fall back to energia
+      const energiaValue = beneficios.energiaAhorrada !== undefined
+        ? beneficios.energiaAhorrada
+        : beneficios.energia || 0;
       return acc + energiaValue;
     }, 0)
   };

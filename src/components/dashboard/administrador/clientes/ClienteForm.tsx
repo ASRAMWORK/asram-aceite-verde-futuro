@@ -106,7 +106,8 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           provincia: '',
           pais: '',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          uid: `temp-${Date.now()}` // Adding required uid property with a temporary value
         });
         toast.success('Cliente añadido correctamente');
       }

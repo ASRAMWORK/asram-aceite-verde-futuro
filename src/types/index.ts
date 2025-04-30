@@ -1,4 +1,3 @@
-
 export interface UserProfile {
   id: string;
   uid: string;
@@ -20,6 +19,30 @@ export interface UserProfile {
   logoUrl?: string;
   createdAt?: any;
   updatedAt?: any;
+  // Add user profile related fields
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  frecuenciaRecogida?: string;
+  litrosAportados?: number;
+  puntosVerdes?: number;
+  // Restaurants fields
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  // Hotel fields
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  // Association fields
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  // School fields
+  nombreCentro?: string;
+  tipoEscolar?: string;
+  numAlumnos?: number;
+  participaAlianzaVerde?: boolean;
 }
 
 // Añadir alias para UserRole para RegisterForm.tsx
@@ -74,6 +97,11 @@ export interface ComunidadVecinos {
     aguaAhorrada?: number;
     energiaAhorrada?: number;
     residuosReciclados?: number;
+    // Add the properties that are being used in components
+    co2?: number;
+    co2Reducido?: number;
+    agua?: number;
+    energia?: number;
   };
 }
 
