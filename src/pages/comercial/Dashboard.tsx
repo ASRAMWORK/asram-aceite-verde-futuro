@@ -23,7 +23,6 @@ const Dashboard = () => {
             const userDoc = await getDoc(doc(db, "users", user.uid));
             
             if (userDoc.exists() && userDoc.data().role === "comercial") {
-              console.log("Found comercial in users collection");
               setIsComercial(true);
             } else {
               // If not found as ID, search in "usuarios" collection by uid field
@@ -35,7 +34,6 @@ const Dashboard = () => {
               const usuariosSnap = await getDocs(usuariosQuery);
               
               if (!usuariosSnap.empty && usuariosSnap.docs[0].data().role === "comercial") {
-                console.log("Found comercial in usuarios collection by uid");
                 setIsComercial(true);
               } else {
                 // Additional check by email as fallback
@@ -47,11 +45,9 @@ const Dashboard = () => {
                 const emailSnap = await getDocs(emailQuery);
                 
                 if (!emailSnap.empty && emailSnap.docs[0].data().role === "comercial") {
-                  console.log("Found comercial in usuarios collection by email");
                   setIsComercial(true);
                 } else {
                   // Not authorized as comercial
-                  console.log("Not authorized as comercial");
                   toast.error("No tienes permisos para acceder al panel de comercial");
                   navigate("/login");
                 }
@@ -64,7 +60,6 @@ const Dashboard = () => {
           }
         } else {
           // No está autenticado
-          console.log("User not authenticated");
           navigate("/login");
         }
         setLoading(false);
