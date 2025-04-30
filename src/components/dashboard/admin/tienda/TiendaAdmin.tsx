@@ -55,21 +55,6 @@ const TiendaAdmin = () => {
     }
   };
   
-  const getItemNameByTab = (tab: string): string => {
-    switch (tab) {
-      case "productos":
-        return "Producto";
-      case "formaciones":
-        return "Formación";
-      case "talleres":
-        return "Taller";
-      case "eventos":
-        return "Evento";
-      default:
-        return "Item";
-    }
-  };
-  
   const renderFormByActiveTab = () => {
     switch (activeTab) {
       case "productos":
@@ -186,6 +171,22 @@ const TiendaAdmin = () => {
       </Dialog>
     </div>
   );
+};
+
+// Helper function to get the singular name for the current tab
+const getItemNameByTab = (tab: string): string => {
+  switch (tab) {
+    case "productos":
+      return "Producto";
+    case "formaciones":
+      return "Formación";
+    case "talleres":
+      return "Taller";
+    case "eventos":
+      return "Evento";
+    default:
+      return "Item";
+  }
 };
 
 export default TiendaAdmin;
