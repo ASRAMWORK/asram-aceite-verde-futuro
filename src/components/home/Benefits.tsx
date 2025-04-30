@@ -18,7 +18,7 @@ const Benefits = () => {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                Un solo litro de aceite usado puede llegar a contaminar hasta 1.000 L de agua.
+                Un solo litro de aceite usado puede llegar a contaminar mas de 1.000 L de agua.
               </p>
             </CardContent>
           </Card>
