@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 import { Copy, Share2, Download } from "lucide-react";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react"; // Updated import
 
 const CodigoReferidoView = () => {
   const { profile } = useUserProfile();
@@ -101,7 +101,7 @@ const CodigoReferidoView = () => {
         </CardHeader>
         <CardContent className="text-center">
           <div ref={qrRef} className="bg-white p-4 rounded-lg inline-block mb-6">
-            <QRCode value={shareUrl} size={200} />
+            <QRCodeSVG value={shareUrl} size={200} />
           </div>
           <div>
             <Button onClick={downloadQRCode} className="w-full">

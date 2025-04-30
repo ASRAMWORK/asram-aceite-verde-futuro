@@ -34,6 +34,36 @@ export interface UserProfile {
   nombreAdministracion?: string;
   codigo?: string;
   aprobado?: boolean;
+  
+  // Add missing properties for comercial
+  metodoPago?: {
+    tipo: 'banco' | 'paypal' | 'bizum';
+    datos: {
+      banco?: {
+        titular: string;
+        iban: string;
+        swift?: string;
+      };
+      paypal?: {
+        email: string;
+      };
+      bizum?: {
+        telefono: string;
+      };
+    };
+  };
+  saldo?: number;
+  comisionesTotales?: number;
+  comisionesPendientes?: number;
+  
+  // Add missing properties used in other components
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  cif?: string;
+  contacto?: string;
+  litrosEstimados?: number;
 }
 
 export interface Usuario {
@@ -57,6 +87,36 @@ export interface Usuario {
   nombreAdministracion?: string;
   codigo?: string;
   aprobado?: boolean;
+  
+  // Add missing properties for comercial
+  metodoPago?: {
+    tipo: 'banco' | 'paypal' | 'bizum';
+    datos: {
+      banco?: {
+        titular: string;
+        iban: string;
+        swift?: string;
+      };
+      paypal?: {
+        email: string;
+      };
+      bizum?: {
+        telefono: string;
+      };
+    };
+  };
+  saldo?: number;
+  comisionesTotales?: number;
+  comisionesPendientes?: number;
+  
+  // Add missing properties used in other components
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  cif?: string;
+  contacto?: string;
+  litrosEstimados?: number;
 }
 
 export interface ComunidadVecinos {
