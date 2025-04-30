@@ -6,6 +6,7 @@ import { usePuntosVerdes } from '@/hooks/usePuntosVerdes';
 import { useUsuarios } from '@/hooks/useUsuarios';
 import GoogleMapLocations from '@/components/maps/GoogleMapLocations';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Usuario } from '@/types';
 
 interface Location {
   id: string;
@@ -41,14 +42,18 @@ const MapaLocalizaciones = () => {
       });
       
       // Add usuarios with addresses (only if they have coordinates)
-      usuarios.forEach(usuario => {
-        if (usuario.latitud && usuario.longitud) {
+      usuarios.forEach((usuario: Usuario) => {
+        // Check if the usuario has latitude and longitude properties
+        const lat = (usuario as any).latitud;
+        const lng = (usuario as any).longitud;
+        
+        if (lat && lng) {
           allLocations.push({
             id: usuario.id,
             name: usuario.nombre,
-            address: usuario.direccion,
-            lat: usuario.latitud,
-            lng: usuario.longitud,
+            address: usuario.direccion || '',
+            lat: lat,
+            lng: lng,
             type: usuario.tipo || usuario.role
           });
         }

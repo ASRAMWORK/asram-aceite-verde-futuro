@@ -81,6 +81,10 @@ export interface UserProfile {
   tipoEscolar?: string;
   participaAlianzaVerde?: boolean;
   fechaRegistro?: Date;
+  
+  // Adding lat and long for maps
+  latitud?: number;
+  longitud?: number;
 }
 
 export interface Usuario {
@@ -154,6 +158,10 @@ export interface Usuario {
   
   // For puntos verdes - kept only one instance
   puntosVerdes?: number;
+  
+  // Adding lat and long for maps
+  latitud?: number;
+  longitud?: number;
 }
 
 export interface ComunidadVecinos {
