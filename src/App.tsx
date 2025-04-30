@@ -14,7 +14,7 @@ import UserDashboard from "./pages/user/Dashboard";
 import ComercialDashboard from "./pages/comercial/Dashboard";
 import AdministradorDashboard from "./pages/administrador/Dashboard";
 import NotFound from "./pages/NotFound";
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import { AuthProvider } from '@/contexts/AuthContext';
 import About from "./pages/About";
 import Mision from "./pages/Mision";
@@ -188,15 +188,21 @@ const ProtectedComercialRoute = () => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           try {
-            // Buscar en la colección "users"
+            // Check first in "users" collection using the UID as document ID
             const userDoc = await getDoc(doc(db, "users", user.uid));
             
             if (userDoc.exists() && userDoc.data().role === "comercial") {
               setIsComercial(true);
             } else {
-              // Si no existe en "users", buscar en la colección "usuarios"
-              const usuariosDoc = await getDoc(doc(db, "usuarios", user.uid));
-              if (usuariosDoc.exists() && usuariosDoc.data().role === "comercial") {
+              // If not found, check in "usuarios" collection by UID field
+              const usuariosQuery = query(
+                collection(db, "usuarios"),
+                where("uid", "==", user.uid)
+              );
+              
+              const usuariosSnap = await getDocs(usuariosQuery);
+              
+              if (!usuariosSnap.empty && usuariosSnap.docs[0].data().role === "comercial") {
                 setIsComercial(true);
               }
             }
