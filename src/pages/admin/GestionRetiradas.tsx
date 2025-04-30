@@ -88,7 +88,7 @@ const GestionRetiradas = () => {
         nombre: values.nombre,
         fecha: values.fecha,
         distrito: values.distrito,
-        barrios: values.zonas || [], // Make sure this is properly assigned as an array
+        barrios: values.zonas, // Fixed here - using values.zonas directly (it's already an array)
         hora: values.hora,
         recogedores: values.recogedorId,
         clientes: [],
@@ -256,10 +256,10 @@ const GestionRetiradas = () => {
                 <FormItem>
                   <FormLabel>Zonas de Retirada</FormLabel>
                   <Select
-                    multiple
                     onValueChange={(value) => {
                       // Ensure this is an array before setting it
-                      field.onChange(Array.isArray(value) ? value : [value]);
+                      const selectedValues = Array.isArray(value) ? value : [value];
+                      field.onChange(selectedValues);
                     }}
                     defaultValue={field.value}
                   >
@@ -287,7 +287,7 @@ const GestionRetiradas = () => {
                   <FormItem>
                     <FormLabel>Tiempo Estimado (minutos)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Ej: 60" {...field} />
+                      <Input type="number" placeholder="Ej: 60" {...field} onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
