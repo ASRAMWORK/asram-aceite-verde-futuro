@@ -50,9 +50,8 @@ export const useComunidadForm = () => {
       await addComunidad({
         ...data,
         numViviendas: numViviendas,
-        numContenedores: numContenedores,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        numContenedores: numContenedores
+        // Removed createdAt and updatedAt as they are handled by the useComunidadesVecinos hook
       });
       toast.success('Comunidad creada correctamente');
       return true;
