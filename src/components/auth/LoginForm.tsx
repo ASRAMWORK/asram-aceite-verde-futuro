@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -25,79 +25,23 @@ const LoginForm = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Check if user is admin by email first (fastest check)
+      // Obtener rol del usuario desde Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userRole = userDoc.exists() ? userDoc.data().role : null;
+      
+      // Redirección basada en el rol de usuario
       if (isAdminEmail(user.email)) {
         navigate("/admin/dashboard");
         toast.success("Inicio de sesión de administrador exitoso");
-        setLoading(false);
-        return;
-      }
-      
-      // Check in "users" collection by UID
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      
-      if (userDoc.exists()) {
-        const userRole = userDoc.data().role;
-        
-        if (userRole === "superadmin") {
-          navigate("/admin/dashboard");
-          toast.success("Bienvenido, Superadministrador");
-        } else if (userRole === "admin_finca" || userRole === "administrador") {
-          navigate("/administrador/dashboard");
-          toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
-        } else if (userRole === "comercial") {
-          navigate("/comercial/dashboard");
-          toast.success("Bienvenido, Comercial");
-          return;
-        } else {
-          navigate("/user/dashboard");
-          toast.success("Inicio de sesión exitoso");
-        }
+      } else if (userRole === "superadmin") {
+        navigate("/admin/dashboard");
+        toast.success("Bienvenido, Superadministrador");
+      } else if (userRole === "admin_finca" || userRole === "administrador") {
+        navigate("/administrador/dashboard");
+        toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
       } else {
-        // If not found in "users" by UID, check in "usuarios" collection
-        const usuariosQuery = query(
-          collection(db, "usuarios"),
-          where("uid", "==", user.uid)
-        );
-        
-        const usuariosSnap = await getDocs(usuariosQuery);
-        
-        if (!usuariosSnap.empty) {
-          const userData = usuariosSnap.docs[0].data();
-          const userRole = userData.role;
-          
-          if (userRole === "comercial") {
-            navigate("/comercial/dashboard");
-            toast.success("Bienvenido, Comercial");
-            return;
-          } else {
-            navigate("/user/dashboard");
-            toast.success("Inicio de sesión exitoso");
-          }
-        } else {
-          // If not found by UID, check by email in "usuarios" collection as a fallback
-          const emailQuery = query(
-            collection(db, "usuarios"),
-            where("email", "==", email)
-          );
-          
-          const emailSnap = await getDocs(emailQuery);
-          
-          if (!emailSnap.empty) {
-            const userData = emailSnap.docs[0].data();
-            const userRole = userData.role;
-            
-            if (userRole === "comercial") {
-              navigate("/comercial/dashboard");
-              toast.success("Bienvenido, Comercial");
-              return;
-            }
-          }
-          
-          // Default to user dashboard if no specific role found
-          navigate("/user/dashboard");
-          toast.success("Inicio de sesión exitoso");
-        }
+        navigate("/user/dashboard");
+        toast.success("Inicio de sesión exitoso");
       }
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);

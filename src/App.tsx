@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,7 +14,7 @@ import UserDashboard from "./pages/user/Dashboard";
 import ComercialDashboard from "./pages/comercial/Dashboard";
 import AdministradorDashboard from "./pages/administrador/Dashboard";
 import NotFound from "./pages/NotFound";
-import { doc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { AuthProvider } from '@/contexts/AuthContext';
 import About from "./pages/About";
 import Mision from "./pages/Mision";
@@ -189,35 +188,9 @@ const ProtectedComercialRoute = () => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           try {
-            // Check in "users" collection first
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            
             if (userDoc.exists() && userDoc.data().role === "comercial") {
               setIsComercial(true);
-            } else {
-              // Check in "usuarios" collection by uid
-              const usuariosQuery = query(
-                collection(db, "usuarios"),
-                where("uid", "==", user.uid)
-              );
-              
-              const usuariosSnap = await getDocs(usuariosQuery);
-              
-              if (!usuariosSnap.empty && usuariosSnap.docs[0].data().role === "comercial") {
-                setIsComercial(true);
-              } else {
-                // Additional check by email as fallback
-                const emailQuery = query(
-                  collection(db, "usuarios"),
-                  where("email", "==", user.email)
-                );
-                
-                const emailSnap = await getDocs(emailQuery);
-                
-                if (!emailSnap.empty && emailSnap.docs[0].data().role === "comercial") {
-                  setIsComercial(true);
-                }
-              }
             }
           } catch (error) {
             console.error("Error checking role:", error);

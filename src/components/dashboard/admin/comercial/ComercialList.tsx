@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,17 +18,15 @@ import {
   FileText, 
   Search,
   Users,
-  PieChart,
-  UserPlus
+  PieChart
 } from "lucide-react";
 import { toast } from "sonner";
 import { useComerciales } from "@/hooks/useComerciales";
 import { useClientesCaptados } from "@/hooks/useClientesCaptados";
 import DetalleComercialDialog from "./DetalleComercialDialog";
-import { addSpecificComerciales } from "@/hooks/addSpecificComerciales";
 
 const ComercialList = () => {
-  const { comerciales, loading, toggleComercialStatus, aprobarComercial, loadComercialesData } = useComerciales();
+  const { comerciales, loading, toggleComercialStatus, aprobarComercial } = useComerciales();
   const { getTotalLitrosByComercialId, getTotalClientesByComercialId } = useClientesCaptados();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedComercial, setSelectedComercial] = useState<string | null>(null);
@@ -63,17 +61,6 @@ const ComercialList = () => {
   const handleViewDetails = (comercialId: string) => {
     setSelectedComercial(comercialId);
   };
-  
-  const handleAddSpecificUsers = async () => {
-    try {
-      await addSpecificComerciales();
-      await loadComercialesData(); // Refresh the list
-      toast.success("Usuarios específicos procesados correctamente");
-    } catch (error) {
-      console.error("Error al añadir usuarios específicos:", error);
-      toast.error("Error al procesar usuarios específicos");
-    }
-  };
 
   return (
     <>
@@ -91,14 +78,6 @@ const ComercialList = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-1"
-                onClick={handleAddSpecificUsers}
-              >
-                <UserPlus className="h-4 w-4" />
-                <span>Añadir usuarios específicos</span>
-              </Button>
               <Badge variant="outline" className="bg-gray-100">
                 <Users className="h-3 w-3 mr-1" />
                 {comerciales.length} comerciales

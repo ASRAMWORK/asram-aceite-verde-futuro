@@ -11,15 +11,12 @@ import {
   doc, 
   serverTimestamp,
   orderBy,
-  Timestamp,
-  setDoc,
-  getDoc
+  Timestamp
 } from 'firebase/firestore';
 import { 
   createUserWithEmailAndPassword, 
   updateEmail, 
-  updatePassword,
-  signInWithEmailAndPassword
+  updatePassword 
 } from 'firebase/auth';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
@@ -71,7 +68,7 @@ export function useComerciales() {
       setComerciales(comercialesData);
       setError(null);
     } catch (err) {
-      console.error("Cargando comerciales:", err);
+      console.error("Error cargando comerciales:", err);
       setError("Error al cargar datos de comerciales");
     } finally {
       setLoading(false);
@@ -91,119 +88,44 @@ export function useComerciales() {
         throw new Error("Email y contraseña son obligatorios para crear un comercial");
       }
       
-      // Check if email already exists in usuarios collection
-      const emailCheckQuery = query(
-        collection(db, "usuarios"), 
-        where("email", "==", comercialData.email)
-      );
-      const emailCheckSnap = await getDocs(emailCheckQuery);
-      
-      if (!emailCheckSnap.empty) {
-        toast.error("El correo electrónico ya está registrado como comercial");
-        setLoading(false);
-        return null;
-      }
-      
       // Generate unique referral code
       const codigo = generateUniqueCode();
       
-      try {
-        // 1. Create user in Firebase Authentication
-        const userCredential = await createUserWithEmailAndPassword(
-          auth, 
-          comercialData.email,
-          password
-        );
-        
-        const uid = userCredential.user.uid;
-        
-        // 2. Save data in Firestore in both "usuarios" and "users" collections
-        const commonData = {
-          ...restData,
-          uid, // Save authentication UID
-          role: "comercial" as UserRole,
-          codigo,
-          activo: true,
-          aprobado: true, // Set to true by default for testing
-          saldo: 0,
-          comisionesTotales: 0,
-          comisionesPendientes: 0,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          email: comercialData.email // Ensure email is saved
-        };
-        
-        // Save in "usuarios" collection
-        const docRef = await addDoc(collection(db, "usuarios"), commonData);
-        
-        // Also save in "users" collection with the same uid as the document ID
-        await setDoc(doc(db, "users", uid), commonData);
-        
-        toast.success("Comercial añadido correctamente");
-        await loadComercialesData(); // Reload data to update the table
-        return docRef.id;
-      } catch (authErr: any) {
-        console.error("Error en el proceso de registro:", authErr);
-        
-        if (authErr.code === 'auth/email-already-in-use') {
-          // If auth email exists but not in our database, try to link the accounts
-          try {
-            // Try signing in with provided credentials
-            const userCredential = await signInWithEmailAndPassword(auth, comercialData.email, password);
-            const uid = userCredential.user.uid;
-            
-            // Generate data for both collections
-            const commonData = {
-              ...restData,
-              uid,
-              role: "comercial" as UserRole,
-              codigo: generateUniqueCode(),
-              activo: true,
-              aprobado: true,
-              saldo: 0,
-              comisionesTotales: 0,
-              comisionesPendientes: 0,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-              email: comercialData.email
-            };
-            
-            // Save in "usuarios" collection
-            const docRef = await addDoc(collection(db, "usuarios"), commonData);
-            
-            // Check if user exists in "users" collection, if not create it
-            const userDocRef = doc(db, "users", uid);
-            const userDoc = await getDoc(userDocRef);
-            
-            if (!userDoc.exists()) {
-              await setDoc(userDocRef, commonData);
-            } else {
-              // Update existing user with role
-              await updateDoc(userDocRef, {
-                role: "comercial",
-                updatedAt: serverTimestamp()
-              });
-            }
-            
-            toast.success("Comercial añadido correctamente");
-            await loadComercialesData();
-            return docRef.id;
-          } catch (loginErr) {
-            console.error("Error al enlazar cuenta existente:", loginErr);
-            toast.error("La contraseña proporcionada no coincide con la cuenta existente");
-          }
-        } else {
-          toast.error(`Error al añadir comercial: ${authErr.message || 'Error desconocido'}`);
-        }
-        
-        setLoading(false);
-        return null;
-      }
+      // 1. Crear usuario en Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        comercialData.email,
+        password
+      );
+      
+      const uid = userCredential.user.uid;
+      
+      // 2. Guardar datos en Firestore
+      const docRef = await addDoc(collection(db, "usuarios"), {
+        ...restData,
+        uid, // Guardar el UID de autenticación
+        role: "comercial" as UserRole,
+        codigo,
+        activo: true,
+        aprobado: false,
+        saldo: 0,
+        comisionesTotales: 0,
+        comisionesPendientes: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      
+      toast.success("Comercial añadido correctamente");
+      await loadComercialesData();
+      return docRef.id;
     } catch (err: any) {
       console.error("Error añadiendo comercial:", err);
-      toast.error(`Error al añadir comercial: ${err.message || 'Error desconocido'}`);
-      setLoading(false);
-      return null;
+      if (err.code === 'auth/email-already-in-use') {
+        toast.error("El correo electrónico ya está en uso");
+      } else {
+        toast.error(`Error al añadir comercial: ${err.message || 'Error desconocido'}`);
+      }
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -237,19 +159,6 @@ export function useComerciales() {
         updatedAt: serverTimestamp()
       });
       
-      // Si el usuario tiene uid, también actualizar en la colección "users"
-      if (currentComercial.uid) {
-        const userRef = doc(db, "users", currentComercial.uid);
-        const userDoc = await getDoc(userRef);
-        
-        if (userDoc.exists()) {
-          await updateDoc(userRef, {
-            ...updateData,
-            updatedAt: serverTimestamp()
-          });
-        }
-      }
-      
       toast.success("Comercial actualizado correctamente");
       await loadComercialesData();
     } catch (err) {
@@ -263,29 +172,10 @@ export function useComerciales() {
 
   const toggleComercialStatus = async (id: string, activo: boolean) => {
     try {
-      const comercial = getComercialById(id);
-      if (!comercial) {
-        throw new Error("Comercial no encontrado");
-      }
-      
-      // Update in "usuarios" collection
       await updateDoc(doc(db, "usuarios", id), {
         activo,
         updatedAt: serverTimestamp()
       });
-      
-      // If the user has uid, also update in "users" collection
-      if (comercial.uid) {
-        const userRef = doc(db, "users", comercial.uid);
-        const userDoc = await getDoc(userRef);
-        
-        if (userDoc.exists()) {
-          await updateDoc(userRef, {
-            activo,
-            updatedAt: serverTimestamp()
-          });
-        }
-      }
       
       toast.success(`Comercial ${activo ? 'activado' : 'desactivado'} correctamente`);
       await loadComercialesData();
@@ -298,29 +188,10 @@ export function useComerciales() {
 
   const aprobarComercial = async (id: string) => {
     try {
-      const comercial = getComercialById(id);
-      if (!comercial) {
-        throw new Error("Comercial no encontrado");
-      }
-      
-      // Update in "usuarios" collection
       await updateDoc(doc(db, "usuarios", id), {
         aprobado: true,
         updatedAt: serverTimestamp()
       });
-      
-      // If the user has uid, also update in "users" collection
-      if (comercial.uid) {
-        const userRef = doc(db, "users", comercial.uid);
-        const userDoc = await getDoc(userRef);
-        
-        if (userDoc.exists()) {
-          await updateDoc(userRef, {
-            aprobado: true,
-            updatedAt: serverTimestamp()
-          });
-        }
-      }
       
       toast.success("Comercial aprobado correctamente");
       await loadComercialesData();

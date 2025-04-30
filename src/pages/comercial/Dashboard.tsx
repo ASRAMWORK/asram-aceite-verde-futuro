@@ -5,7 +5,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { doc, getDoc, getDocs, query, where, collection } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import ComercialDashboard from "@/components/dashboard/comercial/ComercialDashboard";
 
@@ -19,39 +19,14 @@ const Dashboard = () => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           try {
-            // Check first in the "users" collection using the uid as the document ID
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            
-            if (userDoc.exists() && userDoc.data().role === "comercial") {
+            if (userDoc.exists() && 
+                (userDoc.data().role === "comercial")) {
               setIsComercial(true);
             } else {
-              // If not found as ID, search in "usuarios" collection by uid field
-              const usuariosQuery = query(
-                collection(db, "usuarios"),
-                where("uid", "==", user.uid)
-              );
-              
-              const usuariosSnap = await getDocs(usuariosQuery);
-              
-              if (!usuariosSnap.empty && usuariosSnap.docs[0].data().role === "comercial") {
-                setIsComercial(true);
-              } else {
-                // Additional check by email as fallback
-                const emailQuery = query(
-                  collection(db, "usuarios"),
-                  where("email", "==", user.email)
-                );
-                
-                const emailSnap = await getDocs(emailQuery);
-                
-                if (!emailSnap.empty && emailSnap.docs[0].data().role === "comercial") {
-                  setIsComercial(true);
-                } else {
-                  // Not authorized as comercial
-                  toast.error("No tienes permisos para acceder al panel de comercial");
-                  navigate("/login");
-                }
-              }
+              // No es comercial, redirigir
+              toast.error("No tienes permisos para acceder al panel de comercial");
+              navigate("/login");
             }
           } catch (error) {
             console.error("Error checking role:", error);
