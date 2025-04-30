@@ -267,26 +267,19 @@ export interface TallerProgramado {
   fecha: Date;
   hora: string;
   duracion: number;
-  ubicacion: string;
-  aforo?: number;
-  capacidad?: number;
-  participantes?: number;
-  organizador?: string;
-  contacto?: string;
-  telefono?: string;
-  email?: string;
-  estado?: string;
-  alianzaId?: string;
-  // Additional fields used in components
-  direccion?: string;
-  fechaHora?: string;
-  nombreCentro?: string;
-  centro?: string;
-  numAsistentes?: number;
-  instructor?: string;
-  horaInicio?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  lugar: string;
+  organizador: string;
+  tipo: string;
+  responsable: string;
+  contactoTelefono: string;
+  contactoEmail: string;
+  aforo: number;
+  participantes: number;
+  gratuito: boolean;
+  precio: number;
+  completado: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CalleApadrinada {

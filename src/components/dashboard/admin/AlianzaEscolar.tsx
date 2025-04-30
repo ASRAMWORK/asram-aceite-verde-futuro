@@ -12,9 +12,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge" // Added Badge import
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from 'sonner';
-import { useAlianzas } from '@/hooks/useAlianzas';
+import { useAlianzaVerde } from '@/hooks/useAlianzaVerde';
 import { AlianzaVerde } from '@/types';
 import {
   Table,
@@ -36,8 +37,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import ProgramarTalleres from './alianza/ProgramarTalleres';
 
 const AlianzaEscolar = () => {
+  const [activeTab, setActiveTab] = useState<string>("centros");
   const [showForm, setShowForm] = useState(false);
   const [nombre, setNombre] = useState('');
   const [tipo, setTipo] = useState('');
@@ -65,7 +68,7 @@ const AlianzaEscolar = () => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [certificaciones, setCertificaciones] = useState<string[]>([]);
 
-  const { alianzas, addAlianza, updateAlianza, deleteAlianza } = useAlianzas();
+  const { alianzas, addAlianzaVerde, updateAlianzaVerde, deleteAlianzaVerde } = useAlianzaVerde();
 
   useEffect(() => {
     if (alianzaSeleccionada) {
@@ -151,11 +154,11 @@ const AlianzaEscolar = () => {
 
     if (alianzaSeleccionada) {
       // Update existing alianza
-      await updateAlianza(alianzaSeleccionada.id, alianzaData);
+      await updateAlianzaVerde(alianzaSeleccionada.id, alianzaData);
       toast.success('Alianza actualizada correctamente');
     } else {
       // Add new alianza
-      await addAlianza(alianzaData);
+      await addAlianzaVerde(alianzaData);
       toast.success('Alianza creada correctamente');
     }
 
@@ -167,6 +170,7 @@ const AlianzaEscolar = () => {
   const handleEdit = (alianza: AlianzaVerde) => {
     setAlianzaSeleccionada(alianza);
     setShowForm(true);
+    setActiveTab("centros");
   };
 
   const handleDelete = (alianza: AlianzaVerde) => {
@@ -176,7 +180,7 @@ const AlianzaEscolar = () => {
 
   const confirmDelete = async () => {
     if (alianzaSeleccionada) {
-      await deleteAlianza(alianzaSeleccionada.id);
+      await deleteAlianzaVerde(alianzaSeleccionada.id);
       toast.success('Alianza eliminada correctamente');
       setShowDeleteAlert(false);
       setAlianzaSeleccionada(null);
@@ -196,315 +200,332 @@ const AlianzaEscolar = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold">Gestión de Alianzas Escolares</h2>
-          <p className="text-muted-foreground">
-            Administra las alianzas con centros educativos
-          </p>
+      <Tabs defaultValue="centros" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="text-3xl font-bold">Gestión de Alianzas Escolares</h2>
+            <p className="text-muted-foreground">
+              Administra las alianzas con centros educativos
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {activeTab === "centros" && (
+              <Button onClick={() => { setShowForm(true); setAlianzaSeleccionada(null); }} className="bg-green-500 hover:bg-green-700 text-white">
+                Nuevo Centro
+              </Button>
+            )}
+          </div>
         </div>
-        <Button onClick={() => { setShowForm(true); setAlianzaSeleccionada(null); }} className="bg-green-500 hover:bg-green-700 text-white">
-          Nueva Alianza
-        </Button>
-      </div>
 
-      {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{alianzaSeleccionada ? 'Editar Alianza' : 'Nueva Alianza Escolar'}</CardTitle>
-            <CardDescription>Ingrese los datos de la alianza</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="nombre">Nombre</Label>
-                  <Input
-                    type="text"
-                    id="nombre"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="tipo">Tipo</Label>
-                  <Select value={tipo} onValueChange={setTipo}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione un tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="colegio">Colegio</SelectItem>
-                      <SelectItem value="instituto">Instituto</SelectItem>
-                      <SelectItem value="universidad">Universidad</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+        <TabsList className="mb-4">
+          <TabsTrigger value="centros">Centros Educativos</TabsTrigger>
+          <TabsTrigger value="talleres">Talleres y Eventos</TabsTrigger>
+        </TabsList>
+      
+        <TabsContent value="centros">
+          {showForm && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>{alianzaSeleccionada ? 'Editar Alianza' : 'Nueva Alianza Escolar'}</CardTitle>
+                <CardDescription>Ingrese los datos de la alianza</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="nombre">Nombre</Label>
+                      <Input
+                        type="text"
+                        id="nombre"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="tipo">Tipo</Label>
+                      <Select value={tipo} onValueChange={setTipo}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione un tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="colegio">Colegio</SelectItem>
+                          <SelectItem value="instituto">Instituto</SelectItem>
+                          <SelectItem value="universidad">Universidad</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="direccion">Dirección</Label>
-                  <Input
-                    type="text"
-                    id="direccion"
-                    value={direccion}
-                    onChange={(e) => setDireccion(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="ciudad">Ciudad</Label>
-                  <Input
-                    type="text"
-                    id="ciudad"
-                    value={ciudad}
-                    onChange={(e) => setCiudad(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="direccion">Dirección</Label>
+                      <Input
+                        type="text"
+                        id="direccion"
+                        value={direccion}
+                        onChange={(e) => setDireccion(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="ciudad">Ciudad</Label>
+                      <Input
+                        type="text"
+                        id="ciudad"
+                        value={ciudad}
+                        onChange={(e) => setCiudad(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="provincia">Provincia</Label>
-                  <Input
-                    type="text"
-                    id="provincia"
-                    value={provincia}
-                    onChange={(e) => setProvincia(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="codigoPostal">Código Postal</Label>
-                  <Input
-                    type="text"
-                    id="codigoPostal"
-                    value={codigoPostal}
-                    onChange={(e) => setCodigoPostal(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="provincia">Provincia</Label>
+                      <Input
+                        type="text"
+                        id="provincia"
+                        value={provincia}
+                        onChange={(e) => setProvincia(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="codigoPostal">Código Postal</Label>
+                      <Input
+                        type="text"
+                        id="codigoPostal"
+                        value={codigoPostal}
+                        onChange={(e) => setCodigoPostal(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="telefono">Teléfono</Label>
-                  <Input
-                    type="tel"
-                    id="telefono"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="telefono">Teléfono</Label>
+                      <Input
+                        type="tel"
+                        id="telefono"
+                        value={telefono}
+                        onChange={(e) => setTelefono(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="contacto">Contacto</Label>
-                  <Input
-                    type="text"
-                    id="contacto"
-                    value={contacto}
-                    onChange={(e) => setContacto(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="numAlumnos">Número de Alumnos</Label>
-                  <Input
-                    type="number"
-                    id="numAlumnos"
-                    value={numAlumnos}
-                    onChange={(e) => setNumAlumnos(Number(e.target.value))}
-                    required
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="contacto">Contacto</Label>
+                      <Input
+                        type="text"
+                        id="contacto"
+                        value={contacto}
+                        onChange={(e) => setContacto(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="numAlumnos">Número de Alumnos</Label>
+                      <Input
+                        type="number"
+                        id="numAlumnos"
+                        value={numAlumnos}
+                        onChange={(e) => setNumAlumnos(Number(e.target.value))}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="numContenedores">Número de Contenedores</Label>
-                  <Input
-                    type="number"
-                    id="numContenedores"
-                    value={numContenedores}
-                    onChange={(e) => setNumContenedores(Number(e.target.value))}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="litrosRecogidos">Litros Recogidos</Label>
-                  <Input
-                    type="number"
-                    id="litrosRecogidos"
-                    value={litrosRecogidos}
-                    onChange={(e) => setLitrosRecogidos(Number(e.target.value))}
-                    required
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="numContenedores">Número de Contenedores</Label>
+                      <Input
+                        type="number"
+                        id="numContenedores"
+                        value={numContenedores}
+                        onChange={(e) => setNumContenedores(Number(e.target.value))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="litrosRecogidos">Litros Recogidos</Label>
+                      <Input
+                        type="number"
+                        id="litrosRecogidos"
+                        value={litrosRecogidos}
+                        onChange={(e) => setLitrosRecogidos(Number(e.target.value))}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="distrito">Distrito</Label>
-                  <Input
-                    type="text"
-                    id="distrito"
-                    value={distrito}
-                    onChange={(e) => setDistrito(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="barrio">Barrio</Label>
-                  <Input
-                    type="text"
-                    id="barrio"
-                    value={barrio}
-                    onChange={(e) => setBarrio(e.target.value)}
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="distrito">Distrito</Label>
+                      <Input
+                        type="text"
+                        id="distrito"
+                        value={distrito}
+                        onChange={(e) => setDistrito(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="barrio">Barrio</Label>
+                      <Input
+                        type="text"
+                        id="barrio"
+                        value={barrio}
+                        onChange={(e) => setBarrio(e.target.value)}
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="numEstudiantes">Número de Estudiantes</Label>
-                  <Input
-                    type="number"
-                    id="numEstudiantes"
-                    value={numEstudiantes}
-                    onChange={(e) => setNumEstudiantes(Number(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="talleresRealizados">Talleres Realizados</Label>
-                  <Input
-                    type="number"
-                    id="talleresRealizados"
-                    value={talleresRealizados}
-                    onChange={(e) => setTalleresRealizados(Number(e.target.value))}
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="numEstudiantes">Número de Estudiantes</Label>
+                      <Input
+                        type="number"
+                        id="numEstudiantes"
+                        value={numEstudiantes}
+                        onChange={(e) => setNumEstudiantes(Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="talleresRealizados">Talleres Realizados</Label>
+                      <Input
+                        type="number"
+                        id="talleresRealizados"
+                        value={talleresRealizados}
+                        onChange={(e) => setTalleresRealizados(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <Label>Certificaciones</Label>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    type="number"
-                    value={certificacionesNivel}
-                    onChange={(e) => setCertificacionesNivel(Number(e.target.value))}
-                    className="w-20"
-                  />
-                  <Button type="button" variant="secondary" onClick={handleAddCertificacion}>
-                    Añadir Nivel
-                  </Button>
-                </div>
-                <div className="flex space-x-2 mt-2">
-                  {certificaciones.map((nivel) => (
-                    <Badge key={nivel} className="gap-0.5">
-                      Nivel {nivel}
-                      <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveCertificacion(nivel)}>
-                        <Trash2 className="h-4 w-4" />
+                  <div>
+                    <Label>Certificaciones</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="number"
+                        value={certificacionesNivel}
+                        onChange={(e) => setCertificacionesNivel(Number(e.target.value))}
+                        className="w-20"
+                      />
+                      <Button type="button" variant="secondary" onClick={handleAddCertificacion}>
+                        Añadir Nivel
                       </Button>
-                    </Badge>
+                    </div>
+                    <div className="flex space-x-2 mt-2">
+                      {certificaciones.map((nivel) => (
+                        <Badge key={nivel} className="gap-0.5">
+                          Nivel {nivel}
+                          <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveCertificacion(nivel)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="numParticipantes">Número de Participantes</Label>
+                    <Input
+                      type="number"
+                      id="numParticipantes"
+                      value={numParticipantes}
+                      onChange={(e) => setNumParticipantes(Number(e.target.value))}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="estado">Estado</Label>
+                    <Input
+                      type="text"
+                      id="estado"
+                      value={estado}
+                      onChange={(e) => setEstado(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="activo">Activo</Label>
+                    <Switch
+                      id="activo"
+                      checked={activo}
+                      onCheckedChange={(checked) => setActivo(checked)}
+                    />
+                  </div>
+
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="secondary" onClick={() => { setShowForm(false); setAlianzaSeleccionada(null); resetForm(); }}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" className="bg-green-500 hover:bg-green-700 text-white">
+                      {alianzaSeleccionada ? 'Actualizar' : 'Guardar'}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Listado de Alianzas Escolares</CardTitle>
+              <CardDescription>Gestiona las alianzas existentes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Contacto</TableHead>
+                    <TableHead>Teléfono</TableHead>
+                    <TableHead>Activo</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {alianzas.map((alianza) => (
+                    <TableRow key={alianza.id}>
+                      <TableCell>{alianza.nombre}</TableCell>
+                      <TableCell>{alianza.tipo}</TableCell>
+                      <TableCell>{alianza.contacto}</TableCell>
+                      <TableCell>{alianza.telefono}</TableCell>
+                      <TableCell>{alianza.activo ? 'Sí' : 'No'}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(alianza)}>
+                          Editar
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(alianza)}>
+                          Eliminar
+                        </Button>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              </div>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-              <div>
-                <Label htmlFor="numParticipantes">Número de Participantes</Label>
-                <Input
-                  type="number"
-                  id="numParticipantes"
-                  value={numParticipantes}
-                  onChange={(e) => setNumParticipantes(Number(e.target.value))}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="estado">Estado</Label>
-                <Input
-                  type="text"
-                  id="estado"
-                  value={estado}
-                  onChange={(e) => setEstado(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="activo">Activo</Label>
-                <Switch
-                  id="activo"
-                  checked={activo}
-                  onCheckedChange={(checked) => setActivo(checked)}
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="secondary" onClick={() => { setShowForm(false); setAlianzaSeleccionada(null); resetForm(); }}>
-                  Cancelar
-                </Button>
-                <Button type="submit" className="bg-green-500 hover:bg-green-700 text-white">
-                  {alianzaSeleccionada ? 'Actualizar' : 'Guardar'}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Listado de Alianzas Escolares</CardTitle>
-          <CardDescription>Gestiona las alianzas existentes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Contacto</TableHead>
-                <TableHead>Teléfono</TableHead>
-                <TableHead>Activo</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {alianzas.map((alianza) => (
-                <TableRow key={alianza.id}>
-                  <TableCell>{alianza.nombre}</TableCell>
-                  <TableCell>{alianza.tipo}</TableCell>
-                  <TableCell>{alianza.contacto}</TableCell>
-                  <TableCell>{alianza.telefono}</TableCell>
-                  <TableCell>{alianza.activo ? 'Sí' : 'No'}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(alianza)}>
-                      Editar
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(alianza)}>
-                      Eliminar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        <TabsContent value="talleres">
+          <ProgramarTalleres />
+        </TabsContent>
+      </Tabs>
 
       <AlertDialog open={showDeleteAlert} onOpenChange={() => setShowDeleteAlert(false)}>
         <AlertDialogContent>
