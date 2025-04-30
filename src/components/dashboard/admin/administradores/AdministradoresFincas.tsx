@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Card,
@@ -70,9 +71,10 @@ const AdministradoresFincas = () => {
     direccion: ""
   });
   
-  const totalAdmins = usuarios.filter(u => u.role === 'admin_finca').length;
+  // Filter usuarios to only show those with admin_finca role
+  const adminFincas = usuarios.filter(user => user.role === 'admin_finca');
+  const totalAdmins = adminFincas.length;
   
-  // Fix usage of apellido to apellidos
   const getAdminFullName = (admin: Usuario) => {
     return `${admin.nombre || ""} ${admin.apellidos || ""}`.trim();
   };
@@ -323,15 +325,15 @@ const AdministradoresFincas = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+        <Card className="bg-gradient-to-br from-white to-amber-50/30">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Administradores de Fincas
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-asram" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalAdmins}</div>
+            <div className="text-2xl font-bold text-asram">{totalAdmins}</div>
             <p className="text-xs text-muted-foreground">
               administradores activos
             </p>
@@ -339,9 +341,12 @@ const AdministradoresFincas = () => {
         </Card>
       </div>
 
-      <Card>
+      <Card variant="sidebar">
         <CardHeader>
-          <CardTitle>Listado de Administradores de Fincas</CardTitle>
+          <CardTitle className="flex items-center">
+            <Users className="mr-2 h-5 w-5 text-asram" />
+            Listado de Administradores de Fincas
+          </CardTitle>
           <CardDescription>
             Administradores con acceso al sistema
           </CardDescription>
@@ -363,17 +368,16 @@ const AdministradoresFincas = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {usuarios.filter(u => u.role === 'admin_finca').length === 0 ? (
+                  {adminFincas.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center">
                         No hay administradores de fincas registrados
                       </TableCell>
                     </TableRow>
                   ) : (
-                    usuarios.filter(u => u.role === 'admin_finca').map((administrador) => (
+                    adminFincas.map((administrador) => (
                       <TableRow key={administrador.id}>
-                        
-  <TableCell>{administrador.nombre} {administrador.apellidos}</TableCell>
+                        <TableCell>{administrador.nombre} {administrador.apellidos}</TableCell>
                         <TableCell>{administrador.email}</TableCell>
                         <TableCell>{administrador.telefono}</TableCell>
                         <TableCell>
