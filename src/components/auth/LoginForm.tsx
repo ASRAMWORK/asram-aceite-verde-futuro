@@ -22,11 +22,14 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
+      console.log("Attempting login for:", email);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log("Login successful for user:", user.uid);
       
       // Check if user is admin by email first (fastest check)
       if (isAdminEmail(user.email)) {
+        console.log("Admin email detected, redirecting to admin dashboard");
         navigate("/admin/dashboard");
         toast.success("Inicio de sesión de administrador exitoso");
         setLoading(false);
@@ -38,6 +41,7 @@ const LoginForm = () => {
       
       if (userDoc.exists()) {
         const userRole = userDoc.data().role;
+        console.log("Found user in users collection with role:", userRole);
         
         if (userRole === "superadmin") {
           navigate("/admin/dashboard");
@@ -46,6 +50,7 @@ const LoginForm = () => {
           navigate("/administrador/dashboard");
           toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
         } else if (userRole === "comercial") {
+          console.log("Redirecting to comercial dashboard");
           navigate("/comercial/dashboard");
           toast.success("Bienvenido, Comercial");
           return;
@@ -54,6 +59,7 @@ const LoginForm = () => {
           toast.success("Inicio de sesión exitoso");
         }
       } else {
+        console.log("User not found in users collection, checking usuarios");
         // If not found in "users" by UID, check in "usuarios" collection
         const usuariosQuery = query(
           collection(db, "usuarios"),
@@ -65,8 +71,10 @@ const LoginForm = () => {
         if (!usuariosSnap.empty) {
           const userData = usuariosSnap.docs[0].data();
           const userRole = userData.role;
+          console.log("Found user in usuarios collection by uid with role:", userRole);
           
           if (userRole === "comercial") {
+            console.log("Redirecting to comercial dashboard");
             navigate("/comercial/dashboard");
             toast.success("Bienvenido, Comercial");
             return;
@@ -86,8 +94,10 @@ const LoginForm = () => {
           if (!emailSnap.empty) {
             const userData = emailSnap.docs[0].data();
             const userRole = userData.role;
+            console.log("Found user in usuarios collection by email with role:", userRole);
             
             if (userRole === "comercial") {
+              console.log("Redirecting to comercial dashboard");
               navigate("/comercial/dashboard");
               toast.success("Bienvenido, Comercial");
               return;
@@ -95,6 +105,7 @@ const LoginForm = () => {
           }
           
           // Default to user dashboard if no specific role found
+          console.log("No specific role found, defaulting to user dashboard");
           navigate("/user/dashboard");
           toast.success("Inicio de sesión exitoso");
         }
