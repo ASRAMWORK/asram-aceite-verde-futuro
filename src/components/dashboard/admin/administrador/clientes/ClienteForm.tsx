@@ -25,159 +25,138 @@ import { Usuario } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
-  apellido: z.string().min(2, 'Los apellidos son obligatorios'),
-  telefono: z.string().min(9, 'Teléfono no válido'),
-  email: z.string().email('Email no válido'),
-  direccion: z.string().min(5, 'La dirección es obligatoria'),
-  distrito: z.string().min(1, 'El distrito es obligatorio'),
-  barrio: z.string().min(1, 'El barrio es obligatorio'),
-  codigoPostal: z.string().min(5, 'Código postal no válido'),
-  frecuenciaRecogida: z.string(),
-  notas: z.string().optional(),
+  apellidos: z.string().min(2, 'Los apellidos son obligatorios'),
+  email: z.string().email('Email no válido').optional().or(z.literal('')),
+  telefono: z.string().min(9, 'Teléfono no válido').optional().or(z.literal('')),
+  direccion: z.string().min(5, 'La dirección es obligatoria').optional().or(z.literal('')),
+  ciudad: z.string().optional().or(z.literal('')),
+  provincia: z.string().optional().or(z.literal('')),
+  codigoPostal: z.string().optional().or(z.literal('')),
 });
 
 type ClienteFormValues = z.infer<typeof clienteSchema>;
 
 interface ClienteFormProps {
   onCancel: () => void;
-  onSubmit: (data: ClienteFormValues) => Promise<void> | void;
-  clienteId?: string;
+  onSubmit: () => Promise<void> | void;
+  usuario?: Usuario;
 }
 
-const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId }) => {
-  const { addUsuario, updateUsuario, usuarios } = useUsuarios();
+const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }) => {
+  const { addUsuario, updateUsuario } = useUsuarios();
   
-  const defaultValues: ClienteFormValues = clienteId 
-    ? usuarios.find(u => u.id === clienteId) || {
-        nombre: '',
-        apellido: '',
-        telefono: '',
-        email: '',
-        direccion: '',
-        distrito: '',
-        barrio: '',
-        codigoPostal: '',
-        frecuenciaRecogida: 'mensual',
-        notas: '',
-      }
-    : {
-        nombre: '',
-        apellido: '',
-        telefono: '',
-        email: '',
-        direccion: '',
-        distrito: '',
-        barrio: '',
-        codigoPostal: '',
-        frecuenciaRecogida: 'mensual',
-        notas: '',
-      };
+  const defaultValues: Partial<ClienteFormValues> = usuario ? {
+    nombre: usuario.nombre || '',
+    apellidos: usuario.apellidos || '',
+    email: usuario.email || '',
+    telefono: usuario.telefono || '',
+    direccion: usuario.direccion || '',
+    ciudad: usuario.ciudad || 'Madrid',
+    provincia: usuario.provincia || 'Madrid',
+    codigoPostal: usuario.codigoPostal || ''
+  } : {
+    nombre: '',
+    apellidos: '',
+    email: '',
+    telefono: '',
+    direccion: '',
+    ciudad: 'Madrid',
+    provincia: 'Madrid',
+    codigoPostal: ''
+  };
   
   const form = useForm<ClienteFormValues>({
     resolver: zodResolver(clienteSchema),
-    defaultValues,
+    defaultValues
   });
 
   const handleSubmit = async (data: ClienteFormValues) => {
     try {
-      if (clienteId) {
-        await updateUsuario(clienteId, {
-          ...data,
-          tipo: 'comunidad',
-          activo: true,
-        });
+      const clienteData: Omit<Usuario, 'id'> = {
+        nombre: data.nombre,
+        apellidos: data.apellidos, // Changed from apellido to apellidos
+        email: data.email,
+        telefono: data.telefono,
+        direccion: data.direccion,
+        codigoPostal: data.codigoPostal,
+        ciudad: data.ciudad,
+        provincia: data.provincia || 'Madrid',
+        pais: 'España',
+        role: 'user',
+        uid: "", // Adding required uid property
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      if (usuario) {
+        await updateUsuario(usuario.id, clienteData);
         toast.success('Cliente actualizado correctamente');
       } else {
-        await addUsuario({
-          nombre: data.nombre,
-          apellido: data.apellido,
-          telefono: data.telefono,
-          email: data.email,
-          direccion: data.direccion,
-          distrito: data.distrito,
-          barrio: data.barrio,
-          codigoPostal: data.codigoPostal,
-          frecuenciaRecogida: data.frecuenciaRecogida,
-          tipo: 'comunidad',
-          activo: true,
-          role: 'user',
-          ciudad: '',
-          provincia: '',
-          pais: '',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
+        await addUsuario(clienteData);
         toast.success('Cliente añadido correctamente');
       }
-      onSubmit(data);
+      onSubmit();
     } catch (error) {
-      toast.error('Error al guardar el cliente');
+      console.error("Error al guardar cliente:", error);
+      toast.error("Error al guardar cliente");
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="nombre"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre del cliente" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="apellido"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Apellidos</FormLabel>
-                <FormControl>
-                  <Input placeholder="Apellidos del cliente" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="telefono"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Teléfono de contacto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-            
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="Email de contacto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-          
+        <FormField
+          control={form.control}
+          name="nombre"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nombre</FormLabel>
+              <FormControl>
+                <Input placeholder="Nombre del cliente" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="apellidos"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Apellidos</FormLabel>
+              <FormControl>
+                <Input placeholder="Apellidos del cliente" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="Email de contacto" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="telefono"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Teléfono</FormLabel>
+              <FormControl>
+                <Input placeholder="Teléfono de contacto" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="direccion"
@@ -191,36 +170,33 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
             </FormItem>
           )}
         />
-          
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             control={form.control}
-            name="distrito"
+            name="ciudad"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Distrito</FormLabel>
+                <FormLabel>Ciudad</FormLabel>
                 <FormControl>
-                  <Input placeholder="Distrito" {...field} />
+                  <Input placeholder="Ciudad" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-            
           <FormField
             control={form.control}
-            name="barrio"
+            name="provincia"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Barrio</FormLabel>
+                <FormLabel>Provincia</FormLabel>
                 <FormControl>
-                  <Input placeholder="Barrio" {...field} />
+                  <Input placeholder="Provincia" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-            
           <FormField
             control={form.control}
             name="codigoPostal"
@@ -235,37 +211,12 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
             )}
           />
         </div>
-        
-        <FormField
-          control={form.control}
-          name="frecuenciaRecogida"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Frecuencia de Recogida</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione frecuencia" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="semanal">Semanal</SelectItem>
-                  <SelectItem value="quincenal">Quincenal</SelectItem>
-                  <SelectItem value="mensual">Mensual</SelectItem>
-                  <SelectItem value="bajo_demanda">Bajo demanda</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          
-        <div className="flex justify-end gap-2 pt-4">
+        <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
           <Button type="submit">
-            {clienteId ? 'Actualizar Cliente' : 'Crear Cliente'}
+            {usuario ? 'Actualizar Cliente' : 'Crear Cliente'}
           </Button>
         </div>
       </form>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -216,7 +215,9 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <tbody>
                         {ingresosPendientes.map((ingreso) => (
                           <tr key={ingreso.id} className="border-t hover:bg-muted/50">
-                            <td className="p-2">{ingreso.numFactura || '-'}</td>
+                            <TableCell className="font-medium">
+                              {ingreso.numeroFactura || 'Sin número'}
+                            </TableCell>
                             <td className="p-2">{ingreso.concepto}</td>
                             <td className="p-2">{ingreso.cliente || '-'}</td>
                             <td className="p-2">
@@ -278,7 +279,9 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <tbody>
                         {gastosPendientes.map((gasto) => (
                           <tr key={gasto.id} className="border-t hover:bg-muted/50">
-                            <td className="p-2">{gasto.numFactura || '-'}</td>
+                            <TableCell className="font-medium">
+                              {gasto.numeroFactura || 'Sin número'}
+                            </TableCell>
                             <td className="p-2">{gasto.concepto}</td>
                             <td className="p-2">{gasto.proveedor || '-'}</td>
                             <td className="p-2">

@@ -119,10 +119,11 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
           cif: data.cif,
           nombreAdministracion: data.nombreAdministracion,
           activo: true,
-          role: 'client',
+          role: 'user', // Changed from 'client' to 'user' to match UserRole type
           createdAt: new Date(),
           updatedAt: new Date(),
-          fechaRegistro: new Date()
+          fechaRegistro: new Date(),
+          uid: "" // Adding required uid property
         });
         toast.success('Cliente añadido correctamente');
       }

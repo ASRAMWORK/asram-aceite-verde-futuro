@@ -15,7 +15,7 @@ import { User, UserCheck, UserX } from "lucide-react";
 
 const ComercialView = () => {
   const { usuarios, updateUsuario } = useUsuarios();
-  const comerciales = usuarios.filter(user => user.role === 'comercial');
+  const comerciales = usuarios.filter(user => user.role === 'user');
 
   const handleToggleStatus = async (userId: string, isActive: boolean) => {
     await updateUsuario(userId, { activo: !isActive });
@@ -49,7 +49,7 @@ const ComercialView = () => {
             <TableBody>
               {comerciales.map((comercial) => (
                 <TableRow key={comercial.id}>
-                  <TableCell>{comercial.nombre} {comercial.apellido}</TableCell>
+                  <TableCell>{comercial.nombre} {comercial.apellidos || ''}</TableCell>
                   <TableCell>{comercial.email}</TableCell>
                   <TableCell>{comercial.telefono}</TableCell>
                   <TableCell>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Calendar, School, Users } from "lucide-react";
@@ -29,13 +28,17 @@ interface TallerFormProps {
 }
 
 const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
+  const defaultValues: Partial<TallerProgramado> = taller 
+    ? { ...taller } 
+    : { 
+        titulo: '', 
+        fecha: new Date(), 
+        aforo: 0, 
+        estado: 'programado' 
+      };
+
   const form = useForm<Partial<TallerProgramado>>({
-    defaultValues: taller || {
-      titulo: '',
-      fecha: new Date(),
-      capacidad: 0,
-      estado: 'programado'
-    }
+    defaultValues
   });
 
   return (
@@ -43,12 +46,12 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="alianzaId"
+          name="organizador" 
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Centro Educativo</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
+              <FormLabel>Alianza</FormLabel>
+              <Select
+                onValueChange={field.onChange}
                 defaultValue={field.value}
               >
                 <FormControl>
@@ -119,15 +122,16 @@ const TallerForm = ({ centros, onSubmit, taller }: TallerFormProps) => {
 
           <FormField
             control={form.control}
-            name="capacidad"
-            render={({ field }) => (
+            name="aforo"
+            render={({ field: { onChange, ...field } }) => (
               <FormItem>
-                <FormLabel>Número de Alumnos</FormLabel>
+                <FormLabel>Capacidad</FormLabel>
                 <FormControl>
-                  <Input 
+                  <Input
                     type="number"
-                    value={field.value}
-                    onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                    placeholder="0"
+                    onChange={(e) => onChange(parseInt(e.target.value, 10) || 0)}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

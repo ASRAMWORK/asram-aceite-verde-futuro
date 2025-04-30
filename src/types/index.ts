@@ -11,7 +11,7 @@ export interface UserProfile {
   provincia?: string;
   codigoPostal?: string;
   pais?: string;
-  role?: 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca';
+  role?: 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'client' | 'comercial';
   nombreAdministracion?: string;
   cif?: string;
   direccionAdministracion?: string;
@@ -23,12 +23,13 @@ export interface UserProfile {
 }
 
 // Añadir alias para UserRole para RegisterForm.tsx
-export type UserRole = 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario';
+export type UserRole = 'user' | 'admin' | 'superadmin' | 'administrador' | 'admin_finca' | 'comunidad' | 'restaurante' | 'hotel' | 'asociacion' | 'escolar' | 'usuario' | 'client' | 'comercial';
 
 // Alias for Usuario (used in many components)
 export type Usuario = UserProfile & {
   id: string;
   nombre: string;
+  apellidos?: string; // Ensuring consistency (no "apellido" singular)
   tipo?: string;
   distrito?: string;
   barrio?: string;
@@ -38,6 +39,7 @@ export type Usuario = UserProfile & {
   activo?: boolean;
   fechaRegistro?: Date;
   contacto?: string;
+  uid: string; // Making sure uid is required as its used in components
 };
 
 export interface ComunidadVecinos {
@@ -55,7 +57,7 @@ export interface ComunidadVecinos {
   logoUrl?: string;
   createdAt?: any;
   updatedAt?: any;
-  litrosRecogidos?: number; // Add missing property
+  litrosRecogidos?: number;
 }
 
 export interface Cliente {
@@ -175,11 +177,26 @@ export interface AlianzaVerde {
   descripcion?: string;
   fechaInicio: Date;
   fechaFin?: Date;
+  // Added missing properties
   participantes?: number;
+  numParticipantes?: number;
   contacto?: string;
   telefono?: string;
   email?: string;
   estado?: string;
+  direccion?: string;
+  ciudad?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  distrito?: string;
+  barrio?: string;
+  numAlumnos?: number;
+  numEstudiantes?: number;
+  numContenedores?: number;
+  litrosRecogidos?: number;
+  activo?: boolean;
+  talleresRealizados?: number;
+  certificaciones?: string[] | number[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -193,12 +210,22 @@ export interface TallerProgramado {
   duracion: number;
   ubicacion: string;
   aforo?: number;
+  capacidad?: number;
   participantes?: number;
   organizador?: string;
   contacto?: string;
   telefono?: string;
   email?: string;
   estado?: string;
+  alianzaId?: string;
+  // Additional fields used in components
+  direccion?: string;
+  fechaHora?: string;
+  nombreCentro?: string;
+  centro?: string;
+  numAsistentes?: number;
+  instructor?: string;
+  horaInicio?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -213,8 +240,14 @@ export interface CalleApadrinada {
   fechaApadrinamiento?: Date;
   estado?: string;
   descripcion?: string;
+  // Additional properties used in components
+  precio?: number;
+  fechaInicio?: Date;
+  fechaRenovacion?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  numContenedores?: number;
+  tipoCliente?: string;
 }
 
 export interface Ingreso {
@@ -226,7 +259,9 @@ export interface Ingreso {
   clienteId?: string;
   estado?: string;
   numeroFactura?: string;
+  numFactura?: string;
   observaciones?: string;
+  notas?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -240,6 +275,7 @@ export interface Gasto {
   proveedorId?: string;
   estado?: string;
   numeroFactura?: string;
+  numFactura?: string;
   observaciones?: string;
   categoriaGasto?: string;
   createdAt?: Date;
