@@ -13,6 +13,14 @@ import { useFacturacion } from "@/hooks/useFacturacion";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Ingreso, Gasto } from "@/types";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { es } from "date-fns/locale";
 
 export interface ProjectsViewProps {
   onOpenProjectForm: () => void;
@@ -27,9 +35,42 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const { addIngreso, addGasto } = useFacturacion();
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  
+  // Estados para los formularios de transacciones
   const [isIngresoFormOpen, setIsIngresoFormOpen] = useState(false);
   const [isGastoFormOpen, setIsGastoFormOpen] = useState(false);
   const [isFacturaFormOpen, setIsFacturaFormOpen] = useState(false);
+  
+  // Estados para los formularios
+  const [ingresoForm, setIngresoForm] = useState({
+    concepto: '',
+    cantidad: 0,
+    fecha: new Date(),
+    cliente: '',
+    numFactura: '',
+    estado: 'cobrada',
+    categoria: 'venta'
+  });
+  
+  const [gastoForm, setGastoForm] = useState({
+    concepto: '',
+    cantidad: 0,
+    fecha: new Date(),
+    proveedor: '',
+    numFactura: '',
+    estado: 'pagada',
+    categoria: 'compra'
+  });
+  
+  const [facturaForm, setFacturaForm] = useState({
+    concepto: '',
+    cantidad: 0,
+    fecha: new Date(),
+    cliente: '',
+    numFactura: '',
+    estado: 'pendiente',
+    categoria: 'venta'
+  });
 
   const handleDeleteProject = async (id: string) => {
     if (window.confirm("¿Está seguro de eliminar este proyecto?")) {
@@ -44,23 +85,138 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
   const handleAddIngreso = (project: any) => {
     setSelectedProject(project);
+    setIngresoForm({
+      ...ingresoForm,
+      concepto: `Ingreso - ${project.nombre}`,
+      cliente: project.cliente || '',
+    });
     setIsIngresoFormOpen(true);
-    // Placeholder for adding income
-    toast.info("Funcionalidad para añadir ingreso en desarrollo");
   };
 
   const handleAddGasto = (project: any) => {
     setSelectedProject(project);
+    setGastoForm({
+      ...gastoForm,
+      concepto: `Gasto - ${project.nombre}`,
+    });
     setIsGastoFormOpen(true);
-    // Placeholder for adding expense
-    toast.info("Funcionalidad para añadir gasto en desarrollo");
   };
 
   const handleAddFactura = (project: any) => {
     setSelectedProject(project);
+    setFacturaForm({
+      ...facturaForm,
+      concepto: `Factura - ${project.nombre}`,
+      cliente: project.cliente || '',
+    });
     setIsFacturaFormOpen(true);
-    // Placeholder for adding pending invoice
-    toast.info("Funcionalidad para añadir factura pendiente en desarrollo");
+  };
+
+  const handleSubmitIngreso = async () => {
+    try {
+      if (!ingresoForm.concepto || ingresoForm.cantidad <= 0) {
+        toast.error("Por favor complete los campos requeridos");
+        return;
+      }
+
+      await addIngreso({
+        concepto: ingresoForm.concepto,
+        cantidad: ingresoForm.cantidad,
+        fecha: ingresoForm.fecha,
+        cliente: ingresoForm.cliente,
+        numFactura: ingresoForm.numFactura,
+        estado: ingresoForm.estado,
+        categoria: ingresoForm.categoria,
+        origen: selectedProject.id,
+        tipo: selectedProject.id
+      });
+
+      setIsIngresoFormOpen(false);
+      setIngresoForm({
+        concepto: '',
+        cantidad: 0,
+        fecha: new Date(),
+        cliente: '',
+        numFactura: '',
+        estado: 'cobrada',
+        categoria: 'venta'
+      });
+      toast.success("Ingreso añadido correctamente");
+    } catch (error) {
+      console.error("Error al añadir ingreso:", error);
+      toast.error("Error al añadir ingreso");
+    }
+  };
+
+  const handleSubmitGasto = async () => {
+    try {
+      if (!gastoForm.concepto || gastoForm.cantidad <= 0) {
+        toast.error("Por favor complete los campos requeridos");
+        return;
+      }
+
+      await addGasto({
+        concepto: gastoForm.concepto,
+        cantidad: gastoForm.cantidad,
+        fecha: gastoForm.fecha,
+        proveedor: gastoForm.proveedor,
+        numFactura: gastoForm.numFactura,
+        estado: gastoForm.estado,
+        categoria: gastoForm.categoria,
+        tipo: selectedProject.id
+      });
+
+      setIsGastoFormOpen(false);
+      setGastoForm({
+        concepto: '',
+        cantidad: 0,
+        fecha: new Date(),
+        proveedor: '',
+        numFactura: '',
+        estado: 'pagada',
+        categoria: 'compra'
+      });
+      toast.success("Gasto añadido correctamente");
+    } catch (error) {
+      console.error("Error al añadir gasto:", error);
+      toast.error("Error al añadir gasto");
+    }
+  };
+
+  const handleSubmitFactura = async () => {
+    try {
+      if (!facturaForm.concepto || facturaForm.cantidad <= 0) {
+        toast.error("Por favor complete los campos requeridos");
+        return;
+      }
+
+      await addIngreso({
+        concepto: facturaForm.concepto,
+        cantidad: facturaForm.cantidad,
+        fecha: facturaForm.fecha,
+        cliente: facturaForm.cliente,
+        numFactura: facturaForm.numFactura,
+        estado: 'pendiente',
+        categoria: 'factura',
+        origen: selectedProject.id,
+        tipo: selectedProject.id
+      });
+
+      setIsFacturaFormOpen(false);
+      setFacturaForm({
+        concepto: '',
+        cantidad: 0,
+        fecha: new Date(),
+        cliente: '',
+        numFactura: '',
+        estado: 'pendiente',
+        categoria: 'venta'
+      });
+      toast.success("Factura pendiente añadida correctamente");
+    } catch (error) {
+      console.error("Error al añadir factura:", error);
+      toast.error("Error al añadir factura pendiente");
+    }
   };
 
   const getProjectFinancialSummary = (project: any) => {
@@ -466,6 +622,361 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         </SheetContent>
       </Sheet>
+      
+      {/* Dialog for adding income */}
+      <Dialog open={isIngresoFormOpen} onOpenChange={setIsIngresoFormOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BanknoteIcon className="h-5 w-5 text-green-600" />
+              Añadir ingreso al proyecto
+            </DialogTitle>
+            <DialogDescription>
+              Rellene los campos para registrar un nuevo ingreso para {selectedProject?.nombre || 'este proyecto'}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="concepto" className="text-right">
+                Concepto
+              </Label>
+              <Input
+                id="concepto"
+                value={ingresoForm.concepto}
+                onChange={(e) => setIngresoForm({...ingresoForm, concepto: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cantidad" className="text-right">
+                Cantidad (€)
+              </Label>
+              <Input
+                id="cantidad"
+                type="number"
+                value={ingresoForm.cantidad}
+                onChange={(e) => setIngresoForm({...ingresoForm, cantidad: parseFloat(e.target.value)})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="fecha" className="text-right">
+                Fecha
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className="col-span-3 justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {ingresoForm.fecha ? format(ingresoForm.fecha, "PPP", { locale: es }) : "Seleccionar fecha"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={ingresoForm.fecha}
+                    onSelect={(date) => setIngresoForm({...ingresoForm, fecha: date || new Date()})}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cliente" className="text-right">
+                Cliente
+              </Label>
+              <Input
+                id="cliente"
+                value={ingresoForm.cliente}
+                onChange={(e) => setIngresoForm({...ingresoForm, cliente: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="numFactura" className="text-right">
+                Núm. Factura
+              </Label>
+              <Input
+                id="numFactura"
+                value={ingresoForm.numFactura}
+                onChange={(e) => setIngresoForm({...ingresoForm, numFactura: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="estado" className="text-right">
+                Estado
+              </Label>
+              <Select
+                value={ingresoForm.estado}
+                onValueChange={(value) => setIngresoForm({...ingresoForm, estado: value})}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Seleccionar estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cobrada">Cobrada</SelectItem>
+                  <SelectItem value="pendiente">Pendiente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="categoria" className="text-right">
+                Categoría
+              </Label>
+              <Select
+                value={ingresoForm.categoria}
+                onValueChange={(value) => setIngresoForm({...ingresoForm, categoria: value})}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Seleccionar categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="venta">Venta</SelectItem>
+                  <SelectItem value="servicio">Servicio</SelectItem>
+                  <SelectItem value="subvencion">Subvención</SelectItem>
+                  <SelectItem value="otro">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsIngresoFormOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" className="bg-green-600 hover:bg-green-700" onClick={handleSubmitIngreso}>
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Dialog for adding expenses */}
+      <Dialog open={isGastoFormOpen} onOpenChange={setIsGastoFormOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Receipt className="h-5 w-5 text-red-600" />
+              Añadir gasto al proyecto
+            </DialogTitle>
+            <DialogDescription>
+              Rellene los campos para registrar un nuevo gasto para {selectedProject?.nombre || 'este proyecto'}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="concepto" className="text-right">
+                Concepto
+              </Label>
+              <Input
+                id="concepto"
+                value={gastoForm.concepto}
+                onChange={(e) => setGastoForm({...gastoForm, concepto: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cantidad" className="text-right">
+                Cantidad (€)
+              </Label>
+              <Input
+                id="cantidad"
+                type="number"
+                value={gastoForm.cantidad}
+                onChange={(e) => setGastoForm({...gastoForm, cantidad: parseFloat(e.target.value)})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="fecha" className="text-right">
+                Fecha
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className="col-span-3 justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {gastoForm.fecha ? format(gastoForm.fecha, "PPP", { locale: es }) : "Seleccionar fecha"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={gastoForm.fecha}
+                    onSelect={(date) => setGastoForm({...gastoForm, fecha: date || new Date()})}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="proveedor" className="text-right">
+                Proveedor
+              </Label>
+              <Input
+                id="proveedor"
+                value={gastoForm.proveedor}
+                onChange={(e) => setGastoForm({...gastoForm, proveedor: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="numFactura" className="text-right">
+                Núm. Factura
+              </Label>
+              <Input
+                id="numFactura"
+                value={gastoForm.numFactura}
+                onChange={(e) => setGastoForm({...gastoForm, numFactura: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="estado" className="text-right">
+                Estado
+              </Label>
+              <Select
+                value={gastoForm.estado}
+                onValueChange={(value) => setGastoForm({...gastoForm, estado: value})}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Seleccionar estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pagada">Pagada</SelectItem>
+                  <SelectItem value="pendiente">Pendiente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="categoria" className="text-right">
+                Categoría
+              </Label>
+              <Select
+                value={gastoForm.categoria}
+                onValueChange={(value) => setGastoForm({...gastoForm, categoria: value})}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Seleccionar categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="compra">Compra</SelectItem>
+                  <SelectItem value="servicio">Servicio</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="impuesto">Impuesto</SelectItem>
+                  <SelectItem value="otro">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsGastoFormOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" className="bg-red-600 hover:bg-red-700" onClick={handleSubmitGasto}>
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Dialog for adding pending invoices */}
+      <Dialog open={isFacturaFormOpen} onOpenChange={setIsFacturaFormOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-blue-600" />
+              Añadir factura pendiente
+            </DialogTitle>
+            <DialogDescription>
+              Rellene los campos para registrar una nueva factura pendiente para {selectedProject?.nombre || 'este proyecto'}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="concepto" className="text-right">
+                Concepto
+              </Label>
+              <Input
+                id="concepto"
+                value={facturaForm.concepto}
+                onChange={(e) => setFacturaForm({...facturaForm, concepto: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cantidad" className="text-right">
+                Cantidad (€)
+              </Label>
+              <Input
+                id="cantidad"
+                type="number"
+                value={facturaForm.cantidad}
+                onChange={(e) => setFacturaForm({...facturaForm, cantidad: parseFloat(e.target.value)})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="fecha" className="text-right">
+                Fecha
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className="col-span-3 justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {facturaForm.fecha ? format(facturaForm.fecha, "PPP", { locale: es }) : "Seleccionar fecha"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={facturaForm.fecha}
+                    onSelect={(date) => setFacturaForm({...facturaForm, fecha: date || new Date()})}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cliente" className="text-right">
+                Cliente
+              </Label>
+              <Input
+                id="cliente"
+                value={facturaForm.cliente}
+                onChange={(e) => setFacturaForm({...facturaForm, cliente: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="numFactura" className="text-right">
+                Núm. Factura
+              </Label>
+              <Input
+                id="numFactura"
+                value={facturaForm.numFactura}
+                onChange={(e) => setFacturaForm({...facturaForm, numFactura: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsFacturaFormOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" className="bg-blue-600 hover:bg-blue-700" onClick={handleSubmitFactura}>
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
