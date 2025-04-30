@@ -98,7 +98,7 @@ const GestionRetiradas = () => {
         frecuencia: values.frecuencia,
         completada: false,
         litrosTotales: 0,
-        puntos: [], // This should be an array not a string
+        puntos: [], // This is an array not a string
         createdAt: new Date(),
         updatedAt: new Date(),
         tipo: 'recogida' // Adding required tipo property
@@ -257,7 +257,10 @@ const GestionRetiradas = () => {
                   <FormLabel>Zonas de Retirada</FormLabel>
                   <Select
                     multiple
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      // Ensure this is an array before setting it
+                      field.onChange(Array.isArray(value) ? value : [value]);
+                    }}
                     defaultValue={field.value}
                   >
                     <FormControl>
