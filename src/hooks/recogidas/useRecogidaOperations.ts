@@ -22,24 +22,30 @@ export function useRecogidaOperations(adminId?: string) {
       
       const recogidaData = {
         ...nuevaRecogida,
-        adminId: effectiveAdminId, // Ensure adminId is always saved
+        adminId: nuevaRecogida.adminId || effectiveAdminId, // Usar el proporcionado o el efectivo
+        administradorId: nuevaRecogida.administradorId || efectiveAdminId, // Usar ambos para compatibilidad
         estadoRecogida: nuevaRecogida.estadoRecogida || "pendiente",
         fechaRecogida: nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date(),
         fecha: nuevaRecogida.fecha || nuevaRecogida.fechaRecogida || new Date(),
-        completada: false,
+        completada: nuevaRecogida.completada !== undefined ? nuevaRecogida.completada : false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
       
       await addDoc(collection(db, "recogidas"), recogidaData);
       
-      if (!nuevaRecogida.esRecogidaZona) {
+      // Solo mostrar la notificación si no es una recogida por zona o es histórica
+      if (!nuevaRecogida.esRecogidaZona && !nuevaRecogida.esHistorico) {
         toast.success("Recogida programada correctamente");
+      } else if (nuevaRecogida.esHistorico) {
+        // Notificación específica para recolecciones históricas
+        toast.success(`Recolección histórica añadida: ${nuevaRecogida.litrosRecogidos || 0} litros`);
       }
+      
       return true;
     } catch (err) {
       console.error("Error añadiendo recogida:", err);
-      toast.error("Error al programar la recogida");
+      toast.error("Error al registrar la recogida");
       return false;
     }
   };
@@ -48,7 +54,7 @@ export function useRecogidaOperations(adminId?: string) {
     try {
       // Verify the recogida belongs to this admin
       const recogida = recogidas.find(r => r.id === id);
-      if (!recogida || recogida.adminId !== effectiveAdminId) {
+      if (!recogida || (recogida.adminId !== effectiveAdminId && recogida.administradorId !== effectiveAdminId)) {
         toast.error("No tienes permiso para actualizar esta recogida");
         return false;
       }
@@ -70,7 +76,7 @@ export function useRecogidaOperations(adminId?: string) {
     try {
       // Verify the recogida belongs to this admin
       const recogida = recogidas.find(r => r.id === id);
-      if (!recogida || recogida.adminId !== effectiveAdminId) {
+      if (!recogida || (recogida.adminId !== effectiveAdminId && recogida.administradorId !== effectiveAdminId)) {
         toast.error("No tienes permiso para eliminar esta recogida");
         return false;
       }
@@ -89,7 +95,7 @@ export function useRecogidaOperations(adminId?: string) {
     try {
       // Verify the recogida belongs to this admin
       const recogida = recogidas.find(r => r.id === id);
-      if (!recogida || recogida.adminId !== effectiveAdminId) {
+      if (!recogida || (recogida.adminId !== effectiveAdminId && recogida.administradorId !== effectiveAdminId)) {
         toast.error("No tienes permiso para completar esta recogida");
         return false;
       }

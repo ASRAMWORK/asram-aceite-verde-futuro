@@ -15,6 +15,7 @@ import { Droplet } from 'lucide-react';
 import LitrosHistoryTable from './litros-history/LitrosHistoryTable';
 import AddHistoricalCollection from './litros-history/AddHistoricalCollection';
 import formatDate from './litros-history/DateFormatter';
+import { toast } from 'sonner';
 
 interface ClienteLitrosHistoryProps {
   cliente: Usuario;
@@ -48,7 +49,10 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
       telefonoContacto: cliente.telefono,
       emailContacto: cliente.email,
       fechaCompletada: date,
+      esHistorico: true // Esta bandera es importante para distinguir recogidas históricas
     });
+    
+    toast.success(`Recolección histórica añadida: ${litros} litros`);
   };
   
   // Calculate total liters

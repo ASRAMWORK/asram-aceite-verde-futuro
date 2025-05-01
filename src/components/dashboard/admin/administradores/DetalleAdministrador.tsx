@@ -57,7 +57,7 @@ export const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admi
   
   // Filtrar recogidas asociadas a este administrador
   const recogidasAdmin = recogidas.filter(
-    rec => rec.adminId === admin.id || rec.administradorId === admin.id
+    rec => (rec.adminId === admin.id) || (rec.administradorId === admin.id)
   );
 
   // Calcular estadísticas
@@ -81,6 +81,29 @@ export const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admi
   const getInitials = () => {
     if (!admin.nombre) return 'AD';
     return admin.nombre.charAt(0) + (admin.apellidos ? admin.apellidos.charAt(0) : '');
+  };
+
+  // Función segura para formatear fechas
+  const formatFecha = (fechaObj: any): string => {
+    if (!fechaObj) return "—";
+    
+    try {
+      // Si es un objeto de fecha Firebase con toDate()
+      if (fechaObj && typeof fechaObj.toDate === 'function') {
+        return fechaObj.toDate().toLocaleDateString();
+      }
+      
+      // Si es un objeto Date nativo
+      if (fechaObj instanceof Date) {
+        return fechaObj.toLocaleDateString();
+      }
+      
+      // Si es una cadena o timestamp
+      return new Date(fechaObj).toLocaleDateString();
+    } catch (error) {
+      console.error("Error formateando fecha:", error);
+      return "—";
+    }
   };
 
   return (
@@ -328,13 +351,7 @@ export const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admi
                       
                       return (
                         <TableRow key={recogida.id}>
-                          <TableCell>
-                            {fechaRecogida instanceof Date 
-                              ? fechaRecogida.toLocaleDateString() 
-                              : fechaRecogida && typeof fechaRecogida.toDate === 'function'
-                                ? fechaRecogida.toDate().toLocaleDateString()
-                                : "—"}
-                          </TableCell>
+                          <TableCell>{formatFecha(fechaRecogida)}</TableCell>
                           <TableCell>{clienteRecogida?.nombre || "Cliente no encontrado"}</TableCell>
                           <TableCell>{recogida.direccionRecogida || recogida.direccion || "—"}</TableCell>
                           <TableCell>{recogida.litrosRecogidos || recogida.cantidad || "—"}</TableCell>

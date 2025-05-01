@@ -4,6 +4,7 @@ export interface Recogida {
   clienteId: string;
   comunidadId: string;
   adminId?: string;
+  administradorId?: string;
   fechaRecogida: Date;
   tipoResiduo: string;
   cantidad: number;
@@ -27,6 +28,7 @@ export interface Recogida {
   emailContacto?: string;
   cantidadAproximada?: number;
   esRecogidaZona?: boolean;
+  esHistorico?: boolean;
   fechaCompletada?: Date;
   hora?: string;
   estado?: string;

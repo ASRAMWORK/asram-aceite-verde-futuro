@@ -1,3 +1,4 @@
+
 import { useRecogidaData } from './recogidas/useRecogidaData';
 import { useRecogidaOperations } from './recogidas/useRecogidaOperations';
 import { useRecogidaStats } from './recogidas/useRecogidaStats';
@@ -47,6 +48,13 @@ export function useRecogidas(adminId?: string) {
   
   // Wrap operations to refresh data after completion
   const addRecogida = async (nuevaRecogida: any) => {
+    // Si es una recogida histórica, asegurar que está completada y tiene fechaCompletada
+    if (nuevaRecogida.esHistorico) {
+      nuevaRecogida.completada = true;
+      nuevaRecogida.estadoRecogida = "completada";
+      nuevaRecogida.fechaCompletada = nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date();
+    }
+    
     const result = await addRecogidaBase(nuevaRecogida);
     if (result) await loadRecogidasData();
     return result;
@@ -105,8 +113,10 @@ export function useRecogidas(adminId?: string) {
           completada: true,
           estadoRecogida: "completada",
           adminId: adminId, // Importante: pasar el adminId
+          administradorId: adminId, // Importante: pasar el adminId como administradorId también
           fechaCompletada: new Date(),
-          esRecogidaZona: true
+          esRecogidaZona: true,
+          esHistorico: true // Para que se muestre correctamente en el historial
         });
       } else {
         // Si ya existe una recogida, actualizarla
@@ -116,6 +126,7 @@ export function useRecogidas(adminId?: string) {
             completada: true,
             estadoRecogida: "completada",
             fechaCompletada: new Date(),
+            esHistorico: true, // Para que se muestre correctamente en el historial
             updatedAt: serverTimestamp()
           })
         );

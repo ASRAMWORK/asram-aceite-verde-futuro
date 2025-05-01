@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import type { Usuario } from '@/types';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import ClienteRecogidasStats from './ClienteRecogidasStats';
 import HistorialRecogidasTable from './HistorialRecogidasTable';
 import AddHistoricalRecogidaForm from './AddHistoricalRecogidaForm';
@@ -71,7 +71,8 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
       await addRecogida({
         clienteId: cliente.id,
         // Use administradorId if it exists, otherwise try adminId (handle both property names)
-        adminId: cliente.administradorId || cliente.adminId || null,
+        adminId: cliente.administradorId || cliente.adminId,
+        administradorId: cliente.administradorId,
         fecha: date,
         fechaRecogida: date,
         litrosRecogidos: litros,
@@ -85,19 +86,13 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
         telefonoContacto: cliente.telefono,
         emailContacto: cliente.email,
         fechaCompletada: date,
+        esHistorico: true // Esta bandera es importante para distinguir recogidas históricas
       });
 
-      toast({
-        title: "Recolección histórica añadida",
-        description: `Se añadieron ${litros} litros al historial de ${cliente.nombre}`,
-      });
+      toast.success(`Se añadieron ${litros} litros al historial de ${cliente.nombre}`);
     } catch (error) {
       console.error("Error adding historical collection:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo añadir la recolección histórica",
-        variant: "destructive",
-      });
+      toast.error("No se pudo añadir la recolección histórica");
     }
   };
 
