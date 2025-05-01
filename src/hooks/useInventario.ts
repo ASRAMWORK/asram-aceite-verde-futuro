@@ -36,24 +36,34 @@ export const useInventario = () => {
   });
 
   // Load productos from localStorage on mount
-  useEffect(() => {
-    const loadProductos = () => {
-      try {
-        setLoading(true);
-        const savedProductos = localStorage.getItem('inventario-productos');
-        if (savedProductos) {
-          setProductos(JSON.parse(savedProductos));
-        }
-      } catch (error) {
-        console.error('Error loading productos from localStorage:', error);
-        toast.error("Error al cargar productos del almacenamiento local");
-      } finally {
-        setLoading(false);
+  const loadProductos = () => {
+    try {
+      setLoading(true);
+      const savedProductos = localStorage.getItem('inventario-productos');
+      if (savedProductos) {
+        const parsedProductos = JSON.parse(savedProductos);
+        console.log("Productos cargados:", parsedProductos);
+        setProductos(parsedProductos);
+      } else {
+        console.log("No hay productos guardados en localStorage");
       }
-    };
-    
+    } catch (error) {
+      console.error('Error loading productos from localStorage:', error);
+      toast.error("Error al cargar productos del almacenamiento local");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     loadProductos();
   }, []);
+
+  // Refresh function to reload productos from localStorage
+  const refreshProductos = async () => {
+    loadProductos();
+    return true;
+  };
 
   // Calculate stats whenever productos change
   useEffect(() => {
@@ -69,6 +79,7 @@ export const useInventario = () => {
       
       // Save to localStorage whenever productos change
       localStorage.setItem('inventario-productos', JSON.stringify(productos));
+      console.log("Productos guardados en localStorage:", productos);
     } catch (error) {
       console.error("Error al calcular estadísticas:", error);
     }
@@ -83,8 +94,13 @@ export const useInventario = () => {
         fechaCreacion: new Date().toISOString(),
       };
       
-      setProductos(prevProductos => [...prevProductos, newProducto]);
-      console.log("Producto añadido:", newProducto);
+      setProductos(prevProductos => {
+        const updatedProductos = [...prevProductos, newProducto];
+        localStorage.setItem('inventario-productos', JSON.stringify(updatedProductos));
+        console.log("Producto añadido y guardado:", newProducto);
+        return updatedProductos;
+      });
+      
       return newProducto;
     } catch (error) {
       console.error("Error añadiendo producto:", error);
@@ -98,12 +114,14 @@ export const useInventario = () => {
   const updateProducto = async (productoId: string, data: Partial<Producto>) => {
     setLoading(true);
     try {
-      setProductos(prevProductos => 
-        prevProductos.map(producto => 
+      setProductos(prevProductos => {
+        const updatedProductos = prevProductos.map(producto => 
           producto.id === productoId ? { ...producto, ...data } : producto
-        )
-      );
-      console.log("Producto actualizado:", productoId);
+        );
+        localStorage.setItem('inventario-productos', JSON.stringify(updatedProductos));
+        console.log("Producto actualizado:", productoId);
+        return updatedProductos;
+      });
     } catch (error) {
       console.error("Error actualizando producto:", error);
       toast.error("Error al actualizar el producto");
@@ -116,14 +134,16 @@ export const useInventario = () => {
   const updateStock = async (productoId: string, newStock: number) => {
     setLoading(true);
     try {
-      setProductos(prev => 
-        prev.map(producto => 
+      setProductos(prev => {
+        const updatedProductos = prev.map(producto => 
           producto.id === productoId 
             ? { ...producto, stockActual: newStock }
             : producto
-        )
-      );
-      console.log("Stock actualizado para producto:", productoId, "Nuevo stock:", newStock);
+        );
+        localStorage.setItem('inventario-productos', JSON.stringify(updatedProductos));
+        console.log("Stock actualizado para producto:", productoId, "Nuevo stock:", newStock);
+        return updatedProductos;
+      });
     } catch (error) {
       console.error("Error actualizando stock:", error);
       toast.error("Error al actualizar el stock");
@@ -136,8 +156,12 @@ export const useInventario = () => {
   const deleteProducto = async (productoId: string) => {
     setLoading(true);
     try {
-      setProductos(prev => prev.filter(producto => producto.id !== productoId));
-      console.log("Producto eliminado:", productoId);
+      setProductos(prev => {
+        const updatedProductos = prev.filter(producto => producto.id !== productoId);
+        localStorage.setItem('inventario-productos', JSON.stringify(updatedProductos));
+        console.log("Producto eliminado:", productoId);
+        return updatedProductos;
+      });
     } catch (error) {
       console.error("Error eliminando producto:", error);
       toast.error("Error al eliminar el producto");
@@ -212,6 +236,7 @@ export const useInventario = () => {
     updateProducto,
     updateStock,
     deleteProducto,
+    refreshProductos,
     stats,
     getStockPorCategoria,
     getStockData,

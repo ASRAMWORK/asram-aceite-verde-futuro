@@ -18,9 +18,9 @@ import {
   Minus, 
   Trash2, 
   Search, 
-  Filter, 
   Edit, 
-  AlertTriangle 
+  AlertTriangle,
+  RefreshCw
 } from "lucide-react";
 import { 
   Dialog, 
@@ -57,13 +57,14 @@ import { es } from "date-fns/locale";
 const InventarioView = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const { productos, loading, updateStock, deleteProducto } = useInventario();
+  const { productos, loading, updateStock, deleteProducto, refreshProductos } = useInventario();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFilter, setCategoriaFilter] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [productoToDelete, setProductoToDelete] = useState<{id: string, nombre: string} | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleStockUpdate = async (productoId: string, currentStock: number, cantidad: number) => {
     try {
@@ -96,6 +97,15 @@ const InventarioView = () => {
   const handleEdit = (producto: any) => {
     setProductoSeleccionado(producto);
     setEditDialogOpen(true);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refreshProductos();
+    setTimeout(() => {
+      setRefreshing(false);
+      toast.success("Lista de productos actualizada");
+    }, 500);
   };
 
   const formatDate = (dateString: string) => {
@@ -146,10 +156,22 @@ const InventarioView = () => {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl font-semibold flex items-center">
-            <Box className="mr-2 h-5 w-5 text-[#EE970D]" />
-            Productos en Inventario
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-semibold flex items-center">
+              <Box className="mr-2 h-5 w-5 text-[#EE970D]" />
+              Productos en Inventario
+            </CardTitle>
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              Actualizar
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -309,10 +331,8 @@ const InventarioView = () => {
           <ProductoInventarioForm 
             onSuccess={() => {
               setDialogOpen(false);
-              // Pequeño retraso para asegurar que el producto se haya guardado
-              setTimeout(() => {
-                // Refrescar componente
-              }, 300);
+              toast.success("Producto añadido correctamente");
+              handleRefresh();
             }} 
           />
         </DialogContent>
@@ -335,10 +355,8 @@ const InventarioView = () => {
               onSuccess={() => {
                 setEditDialogOpen(false);
                 setProductoSeleccionado(null);
-                // Pequeño retraso para asegurar que los cambios se hayan guardado
-                setTimeout(() => {
-                  // Refrescar componente
-                }, 300);
+                toast.success("Producto actualizado correctamente");
+                handleRefresh();
               }}
               producto={productoSeleccionado}
               isEditing={true}

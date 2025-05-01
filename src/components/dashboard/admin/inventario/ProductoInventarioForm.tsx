@@ -45,6 +45,13 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
   });
   const [isLoading, setIsLoading] = useState(false);
   const [otherCategory, setOtherCategory] = useState("");
+  const [formErrors, setFormErrors] = useState({
+    nombre: "",
+    categoria: "",
+    stockActual: "",
+    stockMinimo: "",
+    otherCategory: "",
+  });
 
   const { addProducto, updateProducto } = useInventario();
 
@@ -56,27 +63,55 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
     }
   }, [isEditing, producto]);
 
+  const validateForm = () => {
+    let isValid = true;
+    const errors = {
+      nombre: "",
+      categoria: "",
+      stockActual: "",
+      stockMinimo: "",
+      otherCategory: "",
+    };
+
+    if (!formData.nombre.trim()) {
+      errors.nombre = "El nombre del producto es obligatorio";
+      isValid = false;
+    }
+
+    if (!formData.categoria) {
+      errors.categoria = "La categoría es obligatoria";
+      isValid = false;
+    }
+
+    if (formData.categoria === "Otros" && !otherCategory.trim()) {
+      errors.otherCategory = "Debes especificar una categoría";
+      isValid = false;
+    }
+
+    if (formData.stockActual < 0) {
+      errors.stockActual = "El stock no puede ser negativo";
+      isValid = false;
+    }
+
+    if (formData.stockMinimo < 0) {
+      errors.stockMinimo = "El stock mínimo no puede ser negativo";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
-      // Validar datos del formulario
-      if (!formData.nombre.trim()) {
-        toast.error("El nombre del producto es obligatorio");
-        return;
-      }
-
-      if (!formData.categoria) {
-        toast.error("La categoría es obligatoria");
-        return;
-      }
-
-      if (formData.stockActual < 0) {
-        toast.error("El stock no puede ser negativo");
-        return;
-      }
-      
       // Si "Otros" es seleccionado, usar la entrada personalizada
       const finalData = {
         ...formData,
@@ -87,10 +122,8 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
       
       if (isEditing && producto) {
         await updateProducto(producto.id, finalData);
-        toast.success("Producto actualizado correctamente");
       } else {
         await addProducto(finalData);
-        toast.success("Producto añadido correctamente");
       }
       
       onSuccess();
@@ -110,10 +143,10 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
           id="nombre"
           value={formData.nombre}
           onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-          className="border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
-          required
+          className={`border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20 ${formErrors.nombre ? 'border-red-500' : ''}`}
           placeholder="Ej: Detergente ecológico"
         />
+        {formErrors.nombre && <p className="text-xs text-red-500 mt-1">{formErrors.nombre}</p>}
       </div>
       
       <div className="space-y-2">
@@ -121,9 +154,8 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
         <Select 
           value={formData.categoria} 
           onValueChange={(value) => setFormData(prev => ({ ...prev, categoria: value }))}
-          required
         >
-          <SelectTrigger className="w-full border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20">
+          <SelectTrigger className={`w-full border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20 ${formErrors.categoria ? 'border-red-500' : ''}`}>
             <SelectValue placeholder="Selecciona una categoría" />
           </SelectTrigger>
           <SelectContent>
@@ -132,15 +164,18 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
             ))}
           </SelectContent>
         </Select>
+        {formErrors.categoria && <p className="text-xs text-red-500 mt-1">{formErrors.categoria}</p>}
 
         {formData.categoria === "Otros" && (
-          <Input
-            value={otherCategory}
-            onChange={(e) => setOtherCategory(e.target.value)}
-            className="mt-2 border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
-            required
-            placeholder="Especifica la categoría"
-          />
+          <div className="mt-2">
+            <Input
+              value={otherCategory}
+              onChange={(e) => setOtherCategory(e.target.value)}
+              className={`border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20 ${formErrors.otherCategory ? 'border-red-500' : ''}`}
+              placeholder="Especifica la categoría"
+            />
+            {formErrors.otherCategory && <p className="text-xs text-red-500 mt-1">{formErrors.otherCategory}</p>}
+          </div>
         )}
       </div>
       
@@ -153,9 +188,9 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
             min="0"
             value={formData.stockActual}
             onChange={(e) => setFormData(prev => ({ ...prev, stockActual: parseInt(e.target.value) || 0 }))}
-            className="border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
-            required
+            className={`border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20 ${formErrors.stockActual ? 'border-red-500' : ''}`}
           />
+          {formErrors.stockActual && <p className="text-xs text-red-500 mt-1">{formErrors.stockActual}</p>}
         </div>
         
         <div className="space-y-2">
@@ -166,9 +201,9 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
             min="0"
             value={formData.stockMinimo}
             onChange={(e) => setFormData(prev => ({ ...prev, stockMinimo: parseInt(e.target.value) || 0 }))}
-            className="border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
-            required
+            className={`border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20 ${formErrors.stockMinimo ? 'border-red-500' : ''}`}
           />
+          {formErrors.stockMinimo && <p className="text-xs text-red-500 mt-1">{formErrors.stockMinimo}</p>}
           <p className="text-xs text-gray-500">Nivel para alertas de stock bajo</p>
         </div>
       </div>
