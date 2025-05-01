@@ -11,6 +11,7 @@ interface StatsCardProps {
   suffix?: string;
   prefix?: string;
   className?: string;
+  valueColor?: string; // Added this prop to fix the type error
 }
 
 export const StatsCard: React.FC<StatsCardProps> = ({
@@ -20,6 +21,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   suffix,
   prefix,
   className,
+  valueColor,
 }) => {
   return (
     <Card className={cn("overflow-hidden", className)}>
@@ -29,7 +31,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
           <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
         </div>
         <div className="mt-2 flex items-baseline">
-          <p className="text-3xl font-semibold">
+          <p className={cn("text-3xl font-semibold", valueColor)}>
             {prefix}{typeof value === 'number' ? value.toLocaleString() : value}{suffix}
           </p>
         </div>
