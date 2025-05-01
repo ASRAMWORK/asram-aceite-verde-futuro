@@ -20,7 +20,7 @@ interface AdminIdProps {
 }
 
 // Create wrapper components that accept and pass down adminId
-const PanelWrapper: React.FC<AdminIdProps> = () => {
+const PanelWrapper: React.FC = () => {
   // AdministradorPanel doesn't accept adminId prop
   return <AdministradorPanel />;
 };
@@ -49,7 +49,7 @@ const InformesPanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
   return <InformesPanel adminId={adminId} />;
 };
 
-const PerfilWrapper: React.FC<AdminIdProps> = () => {
+const PerfilWrapper: React.FC = () => {
   // AdministradorPerfil doesn't accept adminId prop
   return <AdministradorPerfil />;
 };
