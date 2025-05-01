@@ -19,13 +19,9 @@ interface AdminIdProps {
   adminId?: string;
 }
 
-// Define interfaces for each component
-interface ReunionesProps {
-  adminId?: string;
-}
-
 // Create wrapper components that accept and pass down adminId
 const PanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  // AdministradorPanel doesn't accept adminId prop
   return <AdministradorPanel />;
 };
 
@@ -54,7 +50,8 @@ const InformesPanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
 };
 
 const PerfilWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  return <AdministradorPerfil adminId={adminId} />;
+  // AdministradorPerfil doesn't accept adminId prop
+  return <AdministradorPerfil />;
 };
 
 const GestionComunidadesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
