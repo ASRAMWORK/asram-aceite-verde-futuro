@@ -10,8 +10,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { format, isValid, parseISO } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { Droplet } from 'lucide-react';
 
 interface LitrosHistoryTableProps {

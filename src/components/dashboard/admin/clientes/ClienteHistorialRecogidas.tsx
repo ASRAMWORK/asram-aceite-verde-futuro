@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -7,64 +7,102 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { Droplet, Calendar } from 'lucide-react';
 import { useRecogidas } from '@/hooks/useRecogidas';
-import RecogidaClienteButton from './RecogidaClienteButton';
 import type { Usuario } from '@/types';
+import { toast } from '@/components/ui/use-toast';
+import formatDate from './litros-history/DateFormatter';
+import LitrosHistoryTable from './litros-history/LitrosHistoryTable';
+import AddHistoricalCollection from './litros-history/AddHistoricalCollection';
+import RecogidaClienteButton from './RecogidaClienteButton';
 
 interface ClienteHistorialRecogidasProps {
   cliente: Usuario;
 }
 
 const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ cliente }) => {
-  const { recogidas, getRecogidasByClientId } = useRecogidas();
+  const { recogidas, getRecogidasByClientId, addRecogida } = useRecogidas();
+  const [clienteRecogidas, setClienteRecogidas] = useState<any[]>([]);
+  const [promedioLitros30Dias, setPromedioLitros30Dias] = useState<number>(0);
   
-  // Obtener recogidas para este cliente
-  const recogidasCliente = getRecogidasByClientId(cliente.id);
+  useEffect(() => {
+    // Get recogidas for this specific client
+    if (cliente && cliente.id) {
+      const recogidasCliente = getRecogidasByClientId(cliente.id);
+      setClienteRecogidas(recogidasCliente);
+      
+      // Calculate average liters per 30 days
+      if (recogidasCliente.length > 0) {
+        // Sort recogidas by date (oldest first)
+        const sortedRecogidas = [...recogidasCliente].sort((a, b) => {
+          const dateA = new Date(a.fechaRecogida || a.fecha || 0);
+          const dateB = new Date(b.fechaRecogida || b.fecha || 0);
+          return dateA.getTime() - dateB.getTime();
+        });
+        
+        // Get first and last date
+        const firstDate = new Date(sortedRecogidas[0].fechaRecogida || sortedRecogidas[0].fecha || 0);
+        const lastDate = new Date(sortedRecogidas[sortedRecogidas.length - 1].fechaRecogida || 
+                        sortedRecogidas[sortedRecogidas.length - 1].fecha || 0);
+        
+        // Calculate total days between first and last collection
+        const totalDays = Math.max(1, Math.ceil((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)));
+        
+        // Calculate total liters
+        const totalLitros = sortedRecogidas.reduce((sum, recogida) => sum + (recogida.litrosRecogidos || 0), 0);
+        
+        // Calculate average per 30 days
+        const promedio = (totalLitros / totalDays) * 30;
+        setPromedioLitros30Dias(parseFloat(promedio.toFixed(2)));
+      }
+    }
+  }, [cliente, recogidas, getRecogidasByClientId]);
   
-  // Format date helper
-  const formatDate = (date: Date | undefined | null) => {
-    if (!date) return 'N/A';
+  // Calculate total liters
+  const totalLitros = clienteRecogidas.reduce((sum, recogida) => {
+    return sum + (recogida.litrosRecogidos || 0);
+  }, 0);
+  
+  // Handle adding a historical collection
+  const handleAddHistoricalCollection = async (date: Date, litros: number) => {
+    if (!cliente.id) {
+      console.error("Cliente ID is missing");
+      return;
+    }
+    
     try {
-      return format(date, 'dd/MM/yyyy', { locale: es });
+      await addRecogida({
+        clienteId: cliente.id,
+        fecha: date,
+        fechaRecogida: date,
+        litrosRecogidos: litros,
+        completada: true,
+        estadoRecogida: "completada",
+        direccion: cliente.direccion,
+        direccionRecogida: cliente.direccion,
+        distrito: cliente.distrito,
+        barrio: cliente.barrio,
+        nombreContacto: cliente.nombre,
+        telefonoContacto: cliente.telefono,
+        emailContacto: cliente.email,
+        fechaCompletada: date,
+      });
+
+      toast({
+        title: "Recolección histórica añadida",
+        description: `Se añadieron ${litros} litros al historial de ${cliente.nombre}`,
+      });
     } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'N/A';
+      console.error("Error adding historical collection:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo añadir la recolección histórica",
+        variant: "destructive",
+      });
     }
   };
   
-  const getEstadoColor = (completada: boolean) => {
-    return completada ? 
-      'bg-green-100 text-green-800 hover:bg-green-200' : 
-      'bg-amber-100 text-amber-800 hover:bg-amber-200';
-  };
-  
-  // Calcular total de litros recogidos
-  const totalLitros = recogidasCliente.reduce((sum, r) => sum + (r.litrosRecogidos || 0), 0);
-  
-  // Ordenar por fecha más reciente primero
-  const recogidasOrdenadas = [...recogidasCliente].sort((a, b) => {
-    const fechaA = a.fecha || a.fechaRecogida;
-    const fechaB = b.fecha || b.fechaRecogida;
-    
-    if (!fechaA && !fechaB) return 0;
-    if (!fechaA) return 1;
-    if (!fechaB) return -1;
-    
-    return fechaB.getTime() - fechaA.getTime();
-  });
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -75,47 +113,39 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
               Historial de recogidas para {cliente.nombre}
             </CardDescription>
           </div>
-          <RecogidaClienteButton 
-            cliente={cliente} 
-            variant="outline" 
-          />
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-end gap-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
+                <Droplet className="h-3.5 w-3.5" />
+                <span>Total: {totalLitros} litros</span>
+              </Badge>
+              {promedioLitros30Dias > 0 && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>Media: {promedioLitros30Dias} L/30 días</span>
+                </Badge>
+              )}
+            </div>
+            
+            <div className="flex space-x-2">
+              <AddHistoricalCollection 
+                cliente={cliente} 
+                onAddCollection={handleAddHistoricalCollection} 
+              />
+              <RecogidaClienteButton 
+                cliente={cliente} 
+                variant="outline" 
+              />
+            </div>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {recogidasOrdenadas.length === 0 ? (
-          <p className="text-center py-4 text-muted-foreground">No hay recogidas registradas para este cliente</p>
-        ) : (
-          <>
-            <div className="text-sm mb-4">
-              <p className="font-medium">Total de litros recogidos: <span className="font-bold">{totalLitros}</span> litros</p>
-            </div>
-            <Table>
-              <TableCaption>Historial de recogidas de aceite</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Dirección</TableHead>
-                  <TableHead>Litros</TableHead>
-                  <TableHead>Estado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recogidasOrdenadas.map((recogida) => (
-                  <TableRow key={recogida.id}>
-                    <TableCell>{formatDate(recogida.fecha || recogida.fechaRecogida)}</TableCell>
-                    <TableCell>{recogida.direccion || recogida.direccionRecogida}</TableCell>
-                    <TableCell>{recogida.litrosRecogidos || 'Pendiente'}</TableCell>
-                    <TableCell>
-                      <Badge className={getEstadoColor(!!recogida.completada)}>
-                        {recogida.completada ? 'Completada' : 'Pendiente'}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </>
-        )}
+        <LitrosHistoryTable 
+          recogidasCliente={clienteRecogidas}
+          formatDate={formatDate}
+          totalLitros={totalLitros}
+        />
       </CardContent>
     </Card>
   );
