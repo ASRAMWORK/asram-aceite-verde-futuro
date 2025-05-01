@@ -28,12 +28,14 @@ const EstadisticasGenerales = ({ adminId, comunidades }: EstadisticasGeneralesPr
 
     // Para cada comunidad, procesar su historial de recogidas
     comunidades.forEach(comunidad => {
-      if (comunidad.historialRecogidas) {
+      if (comunidad.historialRecogidas && Array.isArray(comunidad.historialRecogidas)) {
         comunidad.historialRecogidas.forEach(recogida => {
-          const fecha = new Date(recogida.fecha);
-          const mes = fecha.getMonth();
-          datos[mes].recogidas += 1;
-          datos[mes].litros += recogida.litros || 0;
+          if (recogida && recogida.fecha) {
+            const fecha = new Date(recogida.fecha);
+            const mes = fecha.getMonth();
+            datos[mes].recogidas += 1;
+            datos[mes].litros += recogida.litros || 0;
+          }
         });
       }
     });

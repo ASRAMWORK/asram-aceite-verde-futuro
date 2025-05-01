@@ -14,18 +14,29 @@ import GestionComunidades from './comunidades/GestionComunidades';
 import ReunionesView from '../admin/reuniones/ReunionesView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
-// Definimos interfaces para los componentes que no tienen adminId en sus props
+// Define interfaces for the components that don't have adminId in their props
 interface AdminIdProps {
   adminId: string;
 }
 
-// Creamos componentes wrapper que aceptan adminId pero no lo utilizan
-const EstadisticasWrapper = ({ adminId, ...props }: AdminIdProps) => {
+// Create proper interface for ReunionesView component that accepts adminId
+interface ReunionesViewProps {
+  adminId: string;
+  [key: string]: any;
+}
+
+// Create specific interfaces for the components to fix TypeScript errors
+interface AdministradorEstadisticasProps {
+  adminId: string;
+}
+
+// Creamos componentes wrapper que aceptan adminId
+const EstadisticasWrapper: React.FC<AdminIdProps> = ({ adminId, ...props }) => {
   return <AdministradorEstadisticas adminId={adminId} {...props} />;
 };
 
-const ReunionesWrapper = ({ adminId, ...props }: AdminIdProps) => {
-  return <ReunionesView adminId={adminId} {...props} />;
+const ReunionesWrapper: React.FC<AdminIdProps> = ({ adminId, ...props }) => {
+  return <ReunionesView adminId={adminId} {...props as ReunionesViewProps} />;
 };
 
 interface AdministradorDashboardContentProps {

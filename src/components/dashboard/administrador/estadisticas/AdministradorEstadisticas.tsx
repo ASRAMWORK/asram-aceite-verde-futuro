@@ -16,12 +16,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { toast } from '@/components/ui/use-toast';
+import { ComunidadVecinos } from '@/types';
 
 interface AdministradorEstadisticasProps {
   adminId?: string;
 }
 
-const AdministradorEstadisticas = ({ adminId }: AdministradorEstadisticasProps) => {
+// Define interfaces for the components
+interface EstadisticasGeneralesProps {
+  adminId?: string;
+  comunidades: ComunidadVecinos[];
+}
+
+interface RankingComunidadesProps {
+  comunidades: ComunidadVecinos[];
+}
+
+interface ImpactoMedioambientalProps {
+  comunidades: ComunidadVecinos[];
+}
+
+const AdministradorEstadisticas: React.FC<AdministradorEstadisticasProps> = ({ adminId }) => {
   const { profile } = useUserProfile();
   const efectiveAdminId = adminId || profile?.id;
   const { comunidades, loading, error } = useComunidadesVecinos(efectiveAdminId);
