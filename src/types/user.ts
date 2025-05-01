@@ -72,7 +72,7 @@ export interface Usuario {
   nombre: string;
   apellidos?: string;
   telefono?: string;
-  administradorId?: string;
+  administradorId?: string;  // This property is needed and was missing
   direccion?: string;
   ciudad?: string;
   provincia?: string;
@@ -133,4 +133,5 @@ export interface Usuario {
   participaAlianzaVerde?: boolean;
   fechaRegistro?: Date;
   userId?: string;
+  adminId?: string;  // Adding this property to fix the error
 }

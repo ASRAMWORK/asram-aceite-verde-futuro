@@ -70,7 +70,8 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
     try {
       await addRecogida({
         clienteId: cliente.id,
-        adminId: cliente.adminId, // Asegurarse de pasar el adminId
+        // Use administradorId if it exists, otherwise try adminId (handle both property names)
+        adminId: cliente.administradorId || cliente.adminId || null,
         fecha: date,
         fechaRecogida: date,
         litrosRecogidos: litros,
