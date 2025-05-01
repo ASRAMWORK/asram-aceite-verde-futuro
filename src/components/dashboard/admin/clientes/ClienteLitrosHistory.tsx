@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -18,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import type { Usuario } from '@/types';
@@ -56,13 +55,40 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
   // Get all the recogidas for this client
   const recogidasCliente = getRecogidasByClientId(cliente.id);
   
-  // Format date helper
-  const formatDate = (date: Date | undefined | null) => {
+  // Improved format date helper to better handle date objects and strings
+  const formatDate = (date: Date | string | undefined | null) => {
     if (!date) return 'N/A';
+    
     try {
-      return format(date, 'dd/MM/yyyy', { locale: es });
+      // Handle string dates by parsing them
+      if (typeof date === 'string') {
+        // Check if it's a Firebase timestamp string format
+        if (date.includes('T') || date.includes('-')) {
+          const parsedDate = parseISO(date);
+          if (isValid(parsedDate)) {
+            return format(parsedDate, 'dd/MM/yyyy', { locale: es });
+          }
+        }
+        
+        // Try to parse as timestamp number
+        const timestamp = parseInt(date, 10);
+        if (!isNaN(timestamp)) {
+          const dateFromTimestamp = new Date(timestamp);
+          if (isValid(dateFromTimestamp)) {
+            return format(dateFromTimestamp, 'dd/MM/yyyy', { locale: es });
+          }
+        }
+      }
+      
+      // Handle as Date object
+      if (date instanceof Date && isValid(date)) {
+        return format(date, 'dd/MM/yyyy', { locale: es });
+      }
+      
+      // If we can't format it, return N/A
+      return 'N/A';
     } catch (error) {
-      console.error('Error formatting date:', error);
+      console.error('Error formatting date:', error, date);
       return 'N/A';
     }
   };
@@ -106,7 +132,12 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
     const dateB = b.fecha || b.fechaRecogida;
     if (!dateA) return 1;
     if (!dateB) return -1;
-    return dateB.getTime() - dateA.getTime();
+    
+    // Convert to timestamps for comparison if they're Date objects
+    const timeA = dateA instanceof Date ? dateA.getTime() : 0;
+    const timeB = dateB instanceof Date ? dateB.getTime() : 0;
+    
+    return timeB - timeA;
   });
 
   return (
