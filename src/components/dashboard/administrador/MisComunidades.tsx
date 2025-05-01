@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -190,7 +189,7 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                       ciudad: comunidad.ciudad,
                       telefono: comunidad.telefono || '',
                       email: comunidad.email || '',
-                      role: 'cliente'
+                      role: 'client'
                     }}
                     variant="secondary"
                     size="sm"
@@ -293,7 +292,7 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                     ciudad: selectedComunidad.ciudad,
                     telefono: selectedComunidad.telefono || '',
                     email: selectedComunidad.email || '',
-                    role: 'cliente'
+                    role: 'client'
                   }}
                   variant="default"
                   size="default"
