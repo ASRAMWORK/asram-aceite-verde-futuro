@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -144,11 +143,26 @@ const ProtectedAdministradorRoute = () => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           try {
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && 
-                (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
-              setIsAdministrador(true);
-              setUserData(userDoc.data());
+            // Comprobar primero si hay un ID de administrador en sessionStorage
+            // (para superadministrador viendo un panel de administrador)
+            const viewingAdminId = sessionStorage.getItem('viewingAdminId');
+            const fromSuperAdmin = sessionStorage.getItem('fromSuperAdmin') === 'true';
+            
+            if (viewingAdminId && fromSuperAdmin) {
+              // Si estamos accediendo como superadministrador, verificar que el usuario actual es un superadmin
+              const superadminDoc = await getDoc(doc(db, "users", user.uid));
+              if (superadminDoc.exists() && 
+                  (superadminDoc.data().role === "superadmin" || isAdminEmail(user.email))) {
+                setIsAdministrador(true);
+              }
+            } else {
+              // Verificación normal para el administrador de fincas
+              const userDoc = await getDoc(doc(db, "users", user.uid));
+              if (userDoc.exists() && 
+                  (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
+                setIsAdministrador(true);
+                setUserData(userDoc.data());
+              }
             }
           } catch (error) {
             console.error("Error checking role:", error);
