@@ -14,6 +14,15 @@ interface DetalleClienteProps {
 }
 
 const DetalleCliente: React.FC<DetalleClienteProps> = ({ cliente, onBack }) => {
+  // Add validation to ensure cliente exists
+  if (!cliente) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-muted-foreground">No hay información disponible del cliente</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">

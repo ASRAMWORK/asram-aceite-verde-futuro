@@ -4,11 +4,14 @@ import { Recogida } from '@/types';
 
 // Hooks para filtrar recogidas
 export function useRecogidaFilters(recogidas: Recogida[]) {
+  // Ensure recogidas is always an array
+  const safeRecogidas = Array.isArray(recogidas) ? recogidas : [];
+
   // Obtener todas las recogidas para un cliente específico
   const getRecogidasByClientId = (clienteId: string) => {
-    if (!clienteId || !recogidas.length) return [];
+    if (!clienteId || !safeRecogidas.length) return [];
     
-    return recogidas.filter(recogida => {
+    return safeRecogidas.filter(recogida => {
       // Comprueba si el clienteId coincide directamente
       const directMatch = recogida.clienteId === clienteId;
       
@@ -24,9 +27,9 @@ export function useRecogidaFilters(recogidas: Recogida[]) {
   
   // Obtener todas las recogidas para una ruta específica
   const getRecogidasByRutaId = (rutaId: string) => {
-    if (!rutaId || !recogidas.length) return [];
+    if (!rutaId || !safeRecogidas.length) return [];
     
-    return recogidas.filter(recogida => recogida.rutaId === rutaId);
+    return safeRecogidas.filter(recogida => recogida.rutaId === rutaId);
   };
 
   return {

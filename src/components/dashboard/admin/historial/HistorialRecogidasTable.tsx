@@ -14,7 +14,10 @@ const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({
   recogidasCliente,
   direccionCliente
 }) => {
-  if (!recogidasCliente.length) {
+  // Safety check to ensure recogidasCliente is an array
+  const validRecogidas = Array.isArray(recogidasCliente) ? recogidasCliente : [];
+
+  if (!validRecogidas.length) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         No hay recogidas registradas para este cliente
@@ -23,7 +26,7 @@ const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({
   }
 
   // Sort recogidas by date (most recent first)
-  const sortedRecogidas = [...recogidasCliente].sort((a, b) => {
+  const sortedRecogidas = [...validRecogidas].sort((a, b) => {
     const dateA = a.fechaRecogida || a.fecha || a.fechaCompletada;
     const dateB = b.fechaRecogida || b.fecha || b.fechaCompletada;
     

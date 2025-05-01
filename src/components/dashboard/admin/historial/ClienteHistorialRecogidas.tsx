@@ -33,7 +33,8 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
   // Load and process client recogidas data
   useEffect(() => {
     if (cliente?.id && recogidas.length > 0) {
-      const recogidasCliente = getRecogidasByClientId(cliente.id);
+      // Ensure we're getting an array back
+      const recogidasCliente = getRecogidasByClientId(cliente.id) || [];
       setClienteRecogidas(recogidasCliente);
       
       // Calculate average liters per 30 days
@@ -57,6 +58,9 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
         const promedio = (totalLitros / totalDays) * 30;
         setPromedioLitros30Dias(parseFloat(promedio.toFixed(2)));
       }
+    } else {
+      // If no client ID or no recogidas, set empty array
+      setClienteRecogidas([]);
     }
   }, [cliente?.id, recogidas, getRecogidasByClientId, totalLitros]);
 

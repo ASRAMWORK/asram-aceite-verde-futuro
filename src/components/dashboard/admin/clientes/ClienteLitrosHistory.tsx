@@ -24,8 +24,8 @@ interface ClienteLitrosHistoryProps {
 const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) => {
   const { recogidas, getRecogidasByClientId, addRecogida } = useRecogidas();
   
-  // Get all the recogidas for this client
-  const recogidasCliente = cliente?.id ? getRecogidasByClientId(cliente.id) : [];
+  // Get all the recogidas for this client, ensuring we have an array
+  const recogidasCliente = cliente?.id ? (getRecogidasByClientId(cliente.id) || []) : [];
   
   // Handle adding a historical collection
   const handleAddHistoricalCollection = async (date: Date, litros: number) => {

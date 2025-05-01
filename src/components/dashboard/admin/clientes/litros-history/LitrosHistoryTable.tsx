@@ -23,8 +23,19 @@ const LitrosHistoryTable: React.FC<LitrosHistoryTableProps> = ({
   formatDate, 
   totalLitros 
 }) => {
+  // Safety check to ensure recogidasCliente is an array
+  const validRecogidas = Array.isArray(recogidasCliente) ? recogidasCliente : [];
+
+  if (!validRecogidas.length) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No hay registros de recolección para este cliente
+      </div>
+    );
+  }
+
   // Ordenar recogidas por fecha (más recientes primero)
-  const sortedRecogidas = [...recogidasCliente].sort((a, b) => {
+  const sortedRecogidas = [...validRecogidas].sort((a, b) => {
     // Asegurar que tenemos fechas para comparar
     const dateA = a.fecha || a.fechaRecogida || a.fechaCompletada;
     const dateB = b.fecha || b.fechaRecogida || b.fechaCompletada;
@@ -37,14 +48,6 @@ const LitrosHistoryTable: React.FC<LitrosHistoryTableProps> = ({
     
     return timeB - timeA; // Ordenar descendente (más reciente primero)
   });
-
-  if (!sortedRecogidas.length) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        No hay registros de recolección para este cliente
-      </div>
-    );
-  }
 
   return (
     <Table>
