@@ -39,11 +39,13 @@ import {
   ShoppingCart,
   Globe,
   Box,
-  CalendarDays
+  CalendarDays,
+  Trophy
 } from "lucide-react";
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
 import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView";
+import ClienteRankingWrapper from "@/components/dashboard/admin/rankings/ClienteRankingWrapper";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
@@ -142,6 +144,8 @@ const AdminDashboardPage = () => {
         return <InventarioView />;
       case "reuniones":
         return <ReunionesView />;
+      case "ranking":
+        return <ClienteRankingWrapper adminId={auth.currentUser?.uid} />;
       default:
         return <AdminDashboard />;
     }
@@ -175,6 +179,17 @@ const AdminDashboardPage = () => {
           >
             <Users className="mr-2 h-4 w-4" />
             Gestión de Clientes
+          </Button>
+          
+          <Button
+            variant={activeTab === "ranking" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "ranking" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("ranking")}
+          >
+            <Trophy className="mr-2 h-4 w-4" />
+            Ranking Clientes
           </Button>
           
           <Button
