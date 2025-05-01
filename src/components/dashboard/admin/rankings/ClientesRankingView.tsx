@@ -3,249 +3,242 @@ import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
-  CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle, 
+  CardDescription 
 } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  TrophyIcon, 
+  DropletIcon, 
+  Map, 
+  Building2, 
+  UserIcon 
+} from 'lucide-react';
+import { useClientes } from '@/hooks/useClientes';
 import { useRecogidas } from '@/hooks/useRecogidas';
-import { useUsuarios } from '@/hooks/useUsuarios';
-import { Usuario } from '@/types';
-import { Droplet, MapPin, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-interface ClientesRankingViewProps {
-  adminId?: string;
+interface ClienteRanking {
+  id: string;
+  nombre: string;
+  direccion?: string;
+  distrito?: string;
+  barrio?: string;
+  litrosRecogidos: number;
+  posicion: number;
 }
 
-const ClientesRankingView: React.FC<ClientesRankingViewProps> = ({ adminId }) => {
-  const { recogidas } = useRecogidas(adminId);
-  const { usuarios } = useUsuarios();
-  const [clientesRanking, setClientesRanking] = useState<Array<{
-    cliente: Usuario;
-    litrosTotales: number;
-    posicion: number;
-  }>>([]);
-  const [rankingPorDistritos, setRankingPorDistritos] = useState<Record<string, Array<{
-    cliente: Usuario;
-    litrosTotales: number;
-    posicion: number;
-  }>>>({});
-  const [distritos, setDistritos] = useState<string[]>([]);
-  
+interface AdminIdProps {
+  adminId: string;
+}
+
+const ClientesRankingView: React.FC<AdminIdProps> = ({ adminId }) => {
+  const { clientes } = useClientes(adminId);
+  const { recogidas, getRecogidasByClientId } = useRecogidas(adminId);
+  const [rankingClientes, setRankingClientes] = useState<ClienteRanking[]>([]);
+  const [rankingDistritos, setRankingDistritos] = useState<{distrito: string, litros: number, posicion: number}[]>([]);
+
   useEffect(() => {
-    // Procesamos los datos para crear el ranking
-    const calcularRankings = () => {
-      // Obtenemos sólo los clientes (no administradores ni otros tipos)
-      const clientes = usuarios.filter(u => u.role !== 'administrador' && 
-                                         u.role !== 'admin_finca' &&
-                                         u.role !== 'admin');
-      
-      // Calculamos litros totales por cliente
-      const clientesConLitros = clientes.map(cliente => {
-        const recogidasCliente = recogidas.filter(r => r.clienteId === cliente.id);
-        const litrosTotales = recogidasCliente.reduce((sum, recogida) => {
-          return sum + (recogida.litrosRecogidos || 0);
-        }, 0);
+    if (clientes.length > 0 && recogidas.length > 0) {
+      // Calculate total liters collected by each client
+      const clientesConLitros: ClienteRanking[] = clientes.map(cliente => {
+        const recogidasCliente = getRecogidasByClientId(cliente.id);
+        const litrosRecogidos = recogidasCliente.reduce(
+          (total, recogida) => total + (recogida.litrosRecogidos || 0), 0
+        );
         
         return {
-          cliente,
-          litrosTotales,
-          posicion: 0 // Se asignará después
+          id: cliente.id,
+          nombre: cliente.nombre || 'Cliente sin nombre',
+          direccion: cliente.direccion,
+          distrito: cliente.distrito,
+          barrio: cliente.barrio,
+          litrosRecogidos,
+          posicion: 0 // Will be set after sorting
         };
       });
       
-      // Ordenamos por cantidad de litros (mayor a menor)
-      const clientesOrdenados = [...clientesConLitros].sort((a, b) => 
-        b.litrosTotales - a.litrosTotales
-      );
+      // Sort by liters collected (descending) and assign positions
+      const clientesOrdenados = [...clientesConLitros]
+        .sort((a, b) => b.litrosRecogidos - a.litrosRecogidos)
+        .map((cliente, index) => ({ ...cliente, posicion: index + 1 }))
+        .filter(cliente => cliente.litrosRecogidos > 0); // Only show clients with collections
       
-      // Asignamos posición en el ranking
-      clientesOrdenados.forEach((item, index) => {
-        item.posicion = index + 1;
-      });
+      setRankingClientes(clientesOrdenados);
       
-      // Establecemos el ranking general
-      setClientesRanking(clientesOrdenados);
-      
-      // Calculamos rankings por distrito
-      const rankingDistritos: Record<string, typeof clientesOrdenados> = {};
-      const distritosUnicos: Set<string> = new Set();
-      
-      clientesConLitros.forEach(item => {
-        if (item.cliente.distrito) {
-          distritosUnicos.add(item.cliente.distrito);
-          
-          if (!rankingDistritos[item.cliente.distrito]) {
-            rankingDistritos[item.cliente.distrito] = [];
-          }
-          
-          rankingDistritos[item.cliente.distrito].push(item);
+      // Calculate liters by district
+      const litrosPorDistrito: Record<string, number> = {};
+      recogidas.forEach(recogida => {
+        if (recogida.distrito && recogida.litrosRecogidos) {
+          litrosPorDistrito[recogida.distrito] = 
+            (litrosPorDistrito[recogida.distrito] || 0) + recogida.litrosRecogidos;
         }
       });
       
-      // Ordenamos cada ranking de distrito
-      Object.keys(rankingDistritos).forEach(distrito => {
-        rankingDistritos[distrito].sort((a, b) => b.litrosTotales - a.litrosTotales);
-        
-        // Asignamos posición dentro del distrito
-        rankingDistritos[distrito].forEach((item, index) => {
-          item.posicion = index + 1;
-        });
-      });
+      // Convert to array and sort
+      const distritosOrdenados = Object.entries(litrosPorDistrito)
+        .map(([distrito, litros]) => ({ distrito, litros, posicion: 0 }))
+        .sort((a, b) => b.litros - a.litros)
+        .map((item, index) => ({ ...item, posicion: index + 1 }));
       
-      setRankingPorDistritos(rankingDistritos);
-      setDistritos(Array.from(distritosUnicos));
-    };
-    
-    calcularRankings();
-  }, [recogidas, usuarios]);
+      setRankingDistritos(distritosOrdenados);
+    }
+  }, [clientes, recogidas]);
+
+  const getPosicionBadgeColor = (posicion: number) => {
+    if (posicion === 1) return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    if (posicion === 2) return "bg-gray-100 text-gray-800 border-gray-300";
+    if (posicion === 3) return "bg-amber-100 text-amber-800 border-amber-300";
+    return "bg-slate-100 text-slate-800 border-slate-300";
+  };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Ranking de Clientes</h2>
+        <h1 className="text-2xl font-bold">Ranking de Clientes</h1>
         <p className="text-muted-foreground">
-          Clasificación de clientes según la cantidad de aceite reciclado
+          Clasificación de clientes según litros de aceite recogidos
         </p>
       </div>
       
       <Tabs defaultValue="general">
         <TabsList>
           <TabsTrigger value="general">
-            <Users className="mr-2 h-4 w-4" />
+            <TrophyIcon className="h-4 w-4 mr-2" />
             Ranking General
           </TabsTrigger>
           <TabsTrigger value="distritos">
-            <MapPin className="mr-2 h-4 w-4" />
+            <Map className="h-4 w-4 mr-2" />
             Por Distritos
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="general" className="pt-4">
+        <TabsContent value="general" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Ranking General de Clientes</CardTitle>
+              <CardTitle className="flex items-center">
+                <TrophyIcon className="h-5 w-5 mr-2 text-yellow-500" />
+                Top Clientes por Litros Recogidos
+              </CardTitle>
               <CardDescription>
-                Clientes ordenados por total de litros de aceite reciclado
+                Ranking de clientes según el total de litros de aceite recogidos
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {clientesRanking.length > 0 ? (
+              {rankingClientes.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No hay datos de recogidas para generar el ranking
+                </div>
+              ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-16">Pos.</TableHead>
+                      <TableHead className="w-16">Posición</TableHead>
                       <TableHead>Cliente</TableHead>
-                      <TableHead>Dirección</TableHead>
-                      <TableHead>Distrito</TableHead>
-                      <TableHead className="text-right">Litros</TableHead>
+                      <TableHead>Ubicación</TableHead>
+                      <TableHead className="text-right">Litros Totales</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {clientesRanking.map((item) => (
-                      <TableRow key={item.cliente.id}>
+                    {rankingClientes.map((cliente) => (
+                      <TableRow key={cliente.id}>
                         <TableCell>
-                          <Badge variant={item.posicion <= 3 ? "default" : "outline"}
-                                 className={item.posicion === 1 ? "bg-yellow-500" : 
-                                           item.posicion === 2 ? "bg-gray-400" :
-                                           item.posicion === 3 ? "bg-amber-700" : ""}>
-                            {item.posicion}
+                          <Badge 
+                            variant="outline" 
+                            className={`${getPosicionBadgeColor(cliente.posicion)} w-8 h-8 flex items-center justify-center rounded-full p-0 text-sm font-bold`}
+                          >
+                            {cliente.posicion}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-medium">{item.cliente.nombre}</TableCell>
-                        <TableCell>{item.cliente.direccion}</TableCell>
-                        <TableCell>{item.cliente.distrito || 'N/A'}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Droplet className="h-4 w-4 text-blue-500" />
-                            <span className="font-bold">{item.litrosTotales} L</span>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center">
+                            <UserIcon className="h-4 w-4 mr-2 text-gray-500" />
+                            {cliente.nombre}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm">{cliente.distrito || 'Sin distrito'}</span>
+                            <span className="text-xs text-muted-foreground">{cliente.barrio}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          <div className="flex items-center justify-end">
+                            <DropletIcon className="h-4 w-4 mr-1 text-blue-500" />
+                            {cliente.litrosRecogidos} L
                           </div>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-              ) : (
-                <div className="text-center py-10 text-muted-foreground">
-                  No hay datos de litros recogidos para generar el ranking
-                </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
         
-        <TabsContent value="distritos" className="pt-4">
+        <TabsContent value="distritos" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Ranking por Distritos</CardTitle>
+              <CardTitle className="flex items-center">
+                <Building2 className="h-5 w-5 mr-2 text-blue-500" />
+                Ranking por Distritos
+              </CardTitle>
               <CardDescription>
-                Clientes ordenados por litros reciclados en cada distrito
+                Distritos ordenados por total de litros recogidos
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue={distritos.length > 0 ? distritos[0] : ""}>
-                <TabsList className="mb-4 flex flex-wrap">
-                  {distritos.map(distrito => (
-                    <TabsTrigger key={distrito} value={distrito}>
-                      {distrito}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                
-                {distritos.map(distrito => (
-                  <TabsContent key={distrito} value={distrito}>
-                    {rankingPorDistritos[distrito] && rankingPorDistritos[distrito].length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-16">Pos.</TableHead>
-                            <TableHead>Cliente</TableHead>
-                            <TableHead>Dirección</TableHead>
-                            <TableHead>Barrio</TableHead>
-                            <TableHead className="text-right">Litros</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {rankingPorDistritos[distrito].map((item) => (
-                            <TableRow key={item.cliente.id}>
-                              <TableCell>
-                                <Badge variant={item.posicion <= 3 ? "default" : "outline"}
-                                      className={item.posicion === 1 ? "bg-yellow-500" : 
-                                                item.posicion === 2 ? "bg-gray-400" :
-                                                item.posicion === 3 ? "bg-amber-700" : ""}>
-                                  {item.posicion}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="font-medium">{item.cliente.nombre}</TableCell>
-                              <TableCell>{item.cliente.direccion}</TableCell>
-                              <TableCell>{item.cliente.barrio || 'N/A'}</TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                  <Droplet className="h-4 w-4 text-blue-500" />
-                                  <span className="font-bold">{item.litrosTotales} L</span>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <div className="text-center py-10 text-muted-foreground">
-                        No hay datos para este distrito
-                      </div>
-                    )}
-                  </TabsContent>
-                ))}
-              </Tabs>
+              {rankingDistritos.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No hay datos de recogidas por distritos
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-16">Posición</TableHead>
+                      <TableHead>Distrito</TableHead>
+                      <TableHead className="text-right">Litros Totales</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rankingDistritos.map((distrito) => (
+                      <TableRow key={distrito.distrito}>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={`${getPosicionBadgeColor(distrito.posicion)} w-8 h-8 flex items-center justify-center rounded-full p-0 text-sm font-bold`}
+                          >
+                            {distrito.posicion}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center">
+                            <Map className="h-4 w-4 mr-2 text-gray-500" />
+                            {distrito.distrito}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          <div className="flex items-center justify-end">
+                            <DropletIcon className="h-4 w-4 mr-1 text-blue-500" />
+                            {distrito.litros} L
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

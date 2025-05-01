@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Loader2, RankingIcon } from "lucide-react";
+import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Loader2, Trophy } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -165,7 +164,7 @@ const AdministradorDashboardPage = () => {
               }`}
               onClick={() => handleTabChange("ranking")}
             >
-              <BarChart className="mr-3 h-5 w-5" />
+              <Trophy className="mr-3 h-5 w-5" />
               Ranking Clientes
             </Button>
             
