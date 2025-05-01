@@ -189,7 +189,8 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                       ciudad: comunidad.ciudad,
                       telefono: comunidad.telefono || '',
                       email: comunidad.email || '',
-                      role: 'client'
+                      role: 'client',
+                      activo: true
                     }}
                     variant="secondary"
                     size="sm"
@@ -292,7 +293,8 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                     ciudad: selectedComunidad.ciudad,
                     telefono: selectedComunidad.telefono || '',
                     email: selectedComunidad.email || '',
-                    role: 'client'
+                    role: 'client',
+                    activo: true
                   }}
                   variant="default"
                   size="default"
