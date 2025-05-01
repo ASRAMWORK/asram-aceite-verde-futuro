@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, Mail, Phone, MapPin, Building } from 'lucide-react';
 import type { Usuario } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import ClienteHistorialRecogidas from './ClienteHistorialRecogidas';
+import ClienteHistorialRecogidas from './historial/ClienteHistorialRecogidas';
 import ClienteLitrosHistory from './clientes/ClienteLitrosHistory';
 
 interface DetalleClienteProps {
