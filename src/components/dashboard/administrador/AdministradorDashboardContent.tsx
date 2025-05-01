@@ -49,7 +49,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'recogidas':
       return <AdministradorRecogidas adminId={efectiveAdminId} />;
     case 'estadisticas': 
-      return <AdministradorEstadisticas />; // Remove adminId prop
+      return <AdministradorEstadisticas />; // This component doesn't accept adminId
     case 'informes':
       return <InformesPanel adminId={efectiveAdminId} />;
     case 'perfil':
@@ -57,7 +57,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'gestionComunidades':
       return <GestionComunidades adminId={efectiveAdminId} />;
     case 'reuniones':
-      return <ReunionesView />; // Remove adminId prop
+      return <ReunionesView />; // This component doesn't accept adminId
     default:
       return (
         <div className="container mx-auto px-4 py-8">
