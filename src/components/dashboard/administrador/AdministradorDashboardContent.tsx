@@ -39,7 +39,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <AdministradorPanel />;
+      return <AdministradorPanel adminId={efectiveAdminId} />;
     case 'comunidades':
       return <MisComunidades adminId={efectiveAdminId} />;
     case 'gestionar':
