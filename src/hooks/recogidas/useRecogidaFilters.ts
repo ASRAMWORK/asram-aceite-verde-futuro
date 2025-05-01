@@ -11,7 +11,8 @@ export function useRecogidaFilters(recogidas: Recogida[]) {
     return recogidas.filter(recogida => 
       // Filtrar por clienteId directo o dentro de datos de ruta
       recogida.clienteId === clienteId || 
-      (recogida.rutaData?.clientes && 
+      (recogida.rutaData && 
+       recogida.rutaData.clientes && 
        Array.isArray(recogida.rutaData.clientes) && 
        recogida.rutaData.clientes.some((c: any) => c.id === clienteId))
     );

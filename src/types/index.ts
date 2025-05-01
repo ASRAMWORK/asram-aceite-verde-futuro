@@ -1,4 +1,3 @@
-
 export type UserRole = 
   | 'superadmin' 
   | 'admin' 
@@ -228,7 +227,13 @@ export interface Recogida {
   rutaId?: string;
   notasAdicionales?: string;
   tipoAceite?: string;
-  fechaSolicitud?: Date; // Add missing property
+  fechaSolicitud?: Date;
+  tipoCliente?: string;  // Adding missing property for useClientesRanking
+  rutaData?: {           // Adding missing property for useRecogidaFilters
+    clientes?: any[];
+    id?: string;
+    nombre?: string;
+  };
 }
 
 export interface Informe {
