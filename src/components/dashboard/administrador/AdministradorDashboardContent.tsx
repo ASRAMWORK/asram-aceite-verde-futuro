@@ -93,7 +93,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <PanelWrapper />; // Don't pass adminId to components that don't need it
+      return <PanelWrapper />; 
     case 'comunidades':
       return <MisComunidadesWrapper adminId={efectiveAdminId} />;
     case 'gestionar':
@@ -107,7 +107,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'informes':
       return <InformesPanelWrapper adminId={efectiveAdminId} />;
     case 'perfil':
-      return <PerfilWrapper />; // Don't pass adminId to components that don't need it
+      return <PerfilWrapper />; 
     case 'gestionComunidades':
       return <GestionComunidadesWrapper adminId={efectiveAdminId} />;
     case 'reuniones':
