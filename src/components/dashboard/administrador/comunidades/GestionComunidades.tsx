@@ -1,13 +1,18 @@
-
 import React from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface GestionComunidadesProps {
   adminId?: string;
 }
 
-const GestionComunidades = ({ adminId }: GestionComunidadesProps) => {
-  const { comunidades, loading } = useComunidadesVecinos();
+const GestionComunidades: React.FC<GestionComunidadesProps> = ({ adminId }) => {
+  const { profile } = useUserProfile();
+  const efectiveAdminId = adminId || profile?.id;
+  
+  // Pasar el adminId al hook
+  const { comunidades, loading, error, addComunidad, updateComunidad, deleteComunidad } = 
+    useComunidadesVecinos(efectiveAdminId);
   
   if (loading) {
     return <div>Cargando comunidades...</div>;
