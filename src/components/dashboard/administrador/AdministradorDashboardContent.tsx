@@ -19,22 +19,21 @@ interface AdminIdProps {
   adminId?: string;
 }
 
+// Define interfaces for each component that needs adminId prop
+interface AdministradorPanelProps extends AdminIdProps {}
+interface MisComunidadesProps extends AdminIdProps {}
+interface GestionarComunidadProps extends AdminIdProps {}
+interface AdministradorClientesProps extends AdminIdProps {}
+interface AdministradorRecogidasProps extends AdminIdProps {}
+interface AdministradorEstadisticasProps extends AdminIdProps {}
+interface InformesPanelProps extends AdminIdProps {}
+interface AdministradorPerfilProps extends AdminIdProps {}
+interface GestionComunidadesProps extends AdminIdProps {}
+interface ReunionesViewProps extends AdminIdProps {}
+
 // Create wrapper components that accept and pass down adminId
-const PanelWrapper = () => {
-  // AdministradorPanel doesn't accept adminId prop
-  return <AdministradorPanel />;
-};
-
-const MisComunidadesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  return <MisComunidades adminId={adminId} />;
-};
-
-const GestionarComunidadWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  return <GestionarComunidad adminId={adminId} />;
-};
-
-const ClientesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  return <AdministradorClientes adminId={adminId} />;
+const PanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  return <AdministradorPanel adminId={adminId} />;
 };
 
 const RecogidasWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
@@ -47,11 +46,6 @@ const EstadisticasWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
 
 const InformesPanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
   return <InformesPanel adminId={adminId} />;
-};
-
-const PerfilWrapper = () => {
-  // AdministradorPerfil doesn't accept adminId prop
-  return <AdministradorPerfil />;
 };
 
 const GestionComunidadesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
@@ -74,7 +68,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   const { profile } = useUserProfile();
   // Usar el adminId proporcionado o el del perfil
   const efectiveAdminId = adminId || profile?.id;
-  
+
   // Verificar si tenemos un ID válido
   if (!efectiveAdminId) {
     return (
@@ -87,13 +81,13 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <PanelWrapper />; 
+      return <PanelWrapper adminId={efectiveAdminId} />; 
     case 'comunidades':
-      return <MisComunidadesWrapper adminId={efectiveAdminId} />;
+      return <MisComunidades adminId={efectiveAdminId} />;
     case 'gestionar':
-      return <GestionarComunidadWrapper adminId={efectiveAdminId} />;
+      return <GestionarComunidad adminId={efectiveAdminId} />;
     case 'clientes':
-      return <ClientesWrapper adminId={efectiveAdminId} />;
+      return <AdministradorClientes adminId={efectiveAdminId} />;
     case 'recogidas':
       return <RecogidasWrapper adminId={efectiveAdminId} />;
     case 'estadisticas': 
@@ -101,11 +95,9 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'informes':
       return <InformesPanelWrapper adminId={efectiveAdminId} />;
     case 'perfil':
-      return <PerfilWrapper />;
+      return <AdministradorPerfil adminId={efectiveAdminId} />;
     case 'gestionComunidades':
       return <GestionComunidadesWrapper adminId={efectiveAdminId} />;
-    case 'reuniones':
-      return <ReunionesWrapper adminId={efectiveAdminId} />;
     default:
       return (
         <div className="container mx-auto px-4 py-8">
@@ -117,10 +109,10 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
               <TabsTrigger value="recogidas">Recogidas</TabsTrigger>
             </TabsList>
             <TabsContent value="comunidades">
-              <MisComunidadesWrapper adminId={efectiveAdminId} />
+              <MisComunidades adminId={efectiveAdminId} />
             </TabsContent>
             <TabsContent value="gestionar">
-              <GestionarComunidadWrapper adminId={efectiveAdminId} />
+              <GestionarComunidad adminId={efectiveAdminId} />
             </TabsContent>
             <TabsContent value="informes">
               <InformesPanelWrapper adminId={efectiveAdminId} />
