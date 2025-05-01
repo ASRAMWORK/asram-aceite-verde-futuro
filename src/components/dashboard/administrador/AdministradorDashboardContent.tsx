@@ -16,7 +16,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 
 // Common interface for components that require adminId
 interface AdminIdProps {
-  adminId?: string;
+  adminId: string;
 }
 
 // Create wrapper components that accept and pass down adminId only when needed
