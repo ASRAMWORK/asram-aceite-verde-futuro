@@ -8,8 +8,13 @@ import { toast } from 'sonner';
 import type { Recogida } from '@/types';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
+// Extend the Recogida type to include adminId
+interface RecogidaWithAdmin extends Recogida {
+  adminId?: string;
+}
+
 export function useRecogidas(adminId?: string) {
-  const [recogidas, setRecogidas] = useState<Recogida[]>([]);
+  const [recogidas, setRecogidas] = useState<RecogidaWithAdmin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { profile } = useUserProfile();
@@ -39,12 +44,12 @@ export function useRecogidas(adminId?: string) {
       
       const recogidasSnap = await getDocs(recogidasQuery);
       
-      const recogidasData: Recogida[] = [];
+      const recogidasData: RecogidaWithAdmin[] = [];
       recogidasSnap.forEach((doc) => {
         const data = doc.data();
         recogidasData.push({
           id: doc.id,
-          ...data as Recogida,
+          ...data as RecogidaWithAdmin,
           fechaRecogida: data.fechaRecogida?.toDate(),
           createdAt: data.createdAt?.toDate(),
           updatedAt: data.updatedAt?.toDate(),
@@ -61,7 +66,7 @@ export function useRecogidas(adminId?: string) {
     }
   };
 
-  const addRecogida = async (nuevaRecogida: Partial<Omit<Recogida, "id">>) => {
+  const addRecogida = async (nuevaRecogida: Partial<Omit<RecogidaWithAdmin, "id">>) => {
     try {
       if (!efectiveAdminId) {
         toast.error('No se puede asociar la recogida a un administrador');
@@ -93,7 +98,7 @@ export function useRecogidas(adminId?: string) {
     }
   };
 
-  const updateRecogida = async (id: string, data: Partial<Recogida>) => {
+  const updateRecogida = async (id: string, data: Partial<RecogidaWithAdmin>) => {
     try {
       // Verificar que la recogida pertenece a este administrador
       const recogida = recogidas.find(r => r.id === id);
