@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -192,7 +191,7 @@ const GestionComunidades: React.FC<GestionComunidadesProps> = ({ adminId }) => {
                       telefono: comunidad.telefono || '',
                       email: comunidad.email || '',
                       role: 'client',
-                      activo: true  // Añadimos la propiedad activo
+                      activo: true
                     }}
                     variant="secondary"
                     size="sm"
@@ -296,7 +295,7 @@ const GestionComunidades: React.FC<GestionComunidadesProps> = ({ adminId }) => {
                     telefono: selectedComunidad.telefono || '',
                     email: selectedComunidad.email || '',
                     role: 'client',
-                    activo: true  // Añadimos la propiedad activo
+                    activo: true
                   }}
                   variant="default"
                   size="default"
