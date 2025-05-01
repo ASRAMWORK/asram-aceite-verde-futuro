@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -121,26 +120,31 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
       return;
     }
 
-    // Update each client's liters in the route
-    const updatePromises = Object.entries(clientesLitros).map(([clienteId, litros]) => 
-      updateRutaRecogida(completingRutaId, clienteId, litros)
-    );
-    
-    // Wait for all updates to complete
-    await Promise.all(updatePromises);
-    
-    // Calculate total liters collected
-    const totalLitros = Object.values(clientesLitros).reduce((sum, litros) => sum + litros, 0);
-    
-    // Mark the route as complete
-    await completeRuta(completingRutaId, totalLitros);
-    
-    // Mark all recogidas in this route as complete
-    await completarRecogidasRuta(completingRutaId);
-    
-    setCompletingRutaId(null);
-    setSelectedRutaId(null);
-    toast.success('Ruta completada correctamente');
+    try {
+      // Update each client's liters in the route
+      const updatePromises = Object.entries(clientesLitros).map(([clienteId, litros]) => 
+        updateRutaRecogida(completingRutaId, clienteId, litros)
+      );
+      
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+      
+      // Calculate total liters collected
+      const totalLitros = Object.values(clientesLitros).reduce((sum, litros) => sum + litros, 0);
+      
+      // Mark the route as complete
+      await completeRuta(completingRutaId, totalLitros);
+      
+      // Mark all recogidas in this route as complete
+      await completarRecogidasRuta(completingRutaId);
+      
+      setCompletingRutaId(null);
+      setSelectedRutaId(null);
+      toast.success('Ruta completada correctamente');
+    } catch (error) {
+      console.error("Error al completar ruta:", error);
+      toast.error('Error al completar la ruta. Intente nuevamente.');
+    }
   };
 
   // Format date helper function

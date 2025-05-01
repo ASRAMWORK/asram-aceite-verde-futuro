@@ -8,14 +8,18 @@ export function useRecogidaFilters(recogidas: Recogida[]) {
   const getRecogidasByClientId = (clienteId: string) => {
     if (!clienteId || !recogidas.length) return [];
     
-    return recogidas.filter(recogida => 
-      // Filtrar por clienteId directo o dentro de datos de ruta
-      recogida.clienteId === clienteId || 
-      (recogida.rutaData && 
-       recogida.rutaData.clientes && 
-       Array.isArray(recogida.rutaData.clientes) && 
-       recogida.rutaData.clientes.some((c: any) => c.id === clienteId))
-    );
+    return recogidas.filter(recogida => {
+      // Comprueba si el clienteId coincide directamente
+      const directMatch = recogida.clienteId === clienteId;
+      
+      // Comprueba si está en los datos de ruta (puede que no exista rutaData)
+      const inRoute = recogida.rutaData && 
+                     recogida.rutaData.clientes && 
+                     Array.isArray(recogida.rutaData.clientes) && 
+                     recogida.rutaData.clientes.some((c: any) => c.id === clienteId);
+      
+      return directMatch || inRoute;
+    });
   };
   
   // Obtener todas las recogidas para una ruta específica

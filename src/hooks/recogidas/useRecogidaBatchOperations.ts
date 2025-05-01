@@ -1,35 +1,48 @@
 
-import { collection, getDocs, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
+import { collection, getDocs, query, updateDoc, doc, where, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 
-// Hook for batch operations on recogidas
+// Hook para operaciones por lotes
 export function useRecogidaBatchOperations() {
+  // Función para completar todas las recogidas de una ruta
   const completarRecogidasRuta = async (rutaId: string) => {
+    if (!rutaId) {
+      console.error("ID de ruta no proporcionado");
+      return false;
+    }
+
     try {
-      const recogidasQuery = query(
-        collection(db, "recogidas"),
+      // Obtener todas las recogidas asociadas a esta ruta
+      const recogidasRef = collection(db, "recogidas");
+      const rutaRecogidasQuery = query(
+        recogidasRef,
         where("rutaId", "==", rutaId)
       );
       
-      const recogidasSnap = await getDocs(recogidasQuery);
+      const recogidasSnap = await getDocs(rutaRecogidasQuery);
       
+      if (recogidasSnap.empty) {
+        console.log("No hay recogidas existentes para esta ruta, puede ser normal");
+        return true;
+      }
+      
+      // Actualizar estado para cada recogida
       const updatePromises = recogidasSnap.docs.map(recogidaDoc => {
         return updateDoc(doc(db, "recogidas", recogidaDoc.id), {
-          estadoRecogida: "completada",
           completada: true,
+          estadoRecogida: "completada",
           fechaCompletada: new Date(),
           updatedAt: serverTimestamp()
         });
       });
       
       await Promise.all(updatePromises);
-      
-      toast.success("Todas las recogidas de la ruta completadas");
+      console.log(`${recogidasSnap.docs.length} recogidas actualizadas a completadas`);
       return true;
     } catch (err) {
-      console.error("Error completando recogidas de ruta:", err);
-      toast.error("Error al completar las recogidas");
+      console.error("Error al completar recogidas de ruta:", err);
+      toast.error("Error al actualizar las recogidas");
       return false;
     }
   };
@@ -38,6 +51,3 @@ export function useRecogidaBatchOperations() {
     completarRecogidasRuta
   };
 }
-
-// Fix missing import
-import { doc } from 'firebase/firestore';

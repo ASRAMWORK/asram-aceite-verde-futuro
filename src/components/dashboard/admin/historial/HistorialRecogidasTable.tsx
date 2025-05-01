@@ -42,6 +42,7 @@ const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({
         <TableRow>
           <TableHead>Fecha</TableHead>
           <TableHead>Dirección</TableHead>
+          <TableHead>Origen</TableHead>
           <TableHead className="text-right">Litros</TableHead>
           <TableHead className="text-right">Estado</TableHead>
         </TableRow>
@@ -51,6 +52,9 @@ const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({
           <TableRow key={recogida.id || `recogida-${Date.now()}-${Math.random()}`}>
             <TableCell>{formatDate(recogida.fechaRecogida || recogida.fecha)}</TableCell>
             <TableCell>{recogida.direccionRecogida || recogida.direccion || direccionCliente}</TableCell>
+            <TableCell>
+              {recogida.rutaId ? "Ruta" : (recogida.esRecogidaZona ? "Ruta" : "Individual")}
+            </TableCell>
             <TableCell className="text-right">
               <div className="flex items-center justify-end gap-1">
                 <Droplet className="h-4 w-4 text-blue-500" />

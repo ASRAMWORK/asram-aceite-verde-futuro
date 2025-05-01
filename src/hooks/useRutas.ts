@@ -7,6 +7,7 @@ import {
 } from 'firebase/firestore';
 import { toast } from 'sonner';
 import type { Ruta } from '@/types';
+import { useRecogidas } from './useRecogidas';
 
 export function useRutas() {
   const [rutas, setRutas] = useState<Ruta[]>([]);

@@ -1,4 +1,3 @@
-
 import { useRecogidaData } from './recogidas/useRecogidaData';
 import { useRecogidaOperations } from './recogidas/useRecogidaOperations';
 import { useRecogidaStats } from './recogidas/useRecogidaStats';
@@ -95,14 +94,34 @@ export function useRecogidas(adminId?: string) {
       
       const recogidasSnap = await getDocs(recogidasQuery);
       
-      const updatePromises = recogidasSnap.docs.map(recogidaDoc =>
-        updateDoc(doc(db, "recogidas", recogidaDoc.id), {
+      if (recogidasSnap.empty) {
+        // Si no hay recogida existente, creamos una nueva para el historial
+        await addRecogidaBase({
+          rutaId: rutaId,
+          clienteId: clienteId,
+          fecha: new Date(),
+          fechaRecogida: new Date(),
           litrosRecogidos: litros,
-          updatedAt: serverTimestamp()
-        })
-      );
-      
-      await Promise.all(updatePromises);
+          completada: true,
+          estadoRecogida: "completada",
+          adminId: adminId, // Importante: pasar el adminId
+          fechaCompletada: new Date(),
+          esRecogidaZona: true
+        });
+      } else {
+        // Si ya existe una recogida, actualizarla
+        const updatePromises = recogidasSnap.docs.map(recogidaDoc =>
+          updateDoc(doc(db, "recogidas", recogidaDoc.id), {
+            litrosRecogidos: litros,
+            completada: true,
+            estadoRecogida: "completada",
+            fechaCompletada: new Date(),
+            updatedAt: serverTimestamp()
+          })
+        );
+        
+        await Promise.all(updatePromises);
+      }
     } catch (err) {
       console.error("Error updating related recogidas:", err);
     }

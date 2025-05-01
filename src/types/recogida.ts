@@ -3,6 +3,7 @@ export interface Recogida {
   id: string;
   clienteId: string;
   comunidadId: string;
+  adminId?: string;
   fechaRecogida: Date;
   tipoResiduo: string;
   cantidad: number;
