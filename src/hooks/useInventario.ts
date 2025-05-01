@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
-interface Producto {
+export interface Producto {
   id: string;
   nombre: string;
   categoria: string;
@@ -45,6 +46,7 @@ export const useInventario = () => {
         }
       } catch (error) {
         console.error('Error loading productos from localStorage:', error);
+        toast.error("Error al cargar productos del almacenamiento local");
       } finally {
         setLoading(false);
       }
@@ -55,17 +57,21 @@ export const useInventario = () => {
 
   // Calculate stats whenever productos change
   useEffect(() => {
-    const stockBajo = productos.filter(p => p.stockActual <= p.stockMinimo).length;
-    
-    setStats({
-      totalProductos: productos.length,
-      totalStockActual: productos.reduce((sum, p) => sum + p.stockActual, 0),
-      productosStockBajo: stockBajo,
-      porcentajeStockBajo: productos.length > 0 ? (stockBajo / productos.length) * 100 : 0,
-    });
-    
-    // Save to localStorage whenever productos change
-    localStorage.setItem('inventario-productos', JSON.stringify(productos));
+    try {
+      const stockBajo = productos.filter(p => p.stockActual <= p.stockMinimo).length;
+      
+      setStats({
+        totalProductos: productos.length,
+        totalStockActual: productos.reduce((sum, p) => sum + p.stockActual, 0),
+        productosStockBajo: stockBajo,
+        porcentajeStockBajo: productos.length > 0 ? (stockBajo / productos.length) * 100 : 0,
+      });
+      
+      // Save to localStorage whenever productos change
+      localStorage.setItem('inventario-productos', JSON.stringify(productos));
+    } catch (error) {
+      console.error("Error al calcular estadísticas:", error);
+    }
   }, [productos]);
 
   const addProducto = async (producto: NuevoProducto) => {
@@ -78,9 +84,11 @@ export const useInventario = () => {
       };
       
       setProductos(prevProductos => [...prevProductos, newProducto]);
+      console.log("Producto añadido:", newProducto);
       return newProducto;
     } catch (error) {
       console.error("Error añadiendo producto:", error);
+      toast.error("Error al añadir el producto");
       throw error;
     } finally {
       setLoading(false);
@@ -95,8 +103,10 @@ export const useInventario = () => {
           producto.id === productoId ? { ...producto, ...data } : producto
         )
       );
+      console.log("Producto actualizado:", productoId);
     } catch (error) {
       console.error("Error actualizando producto:", error);
+      toast.error("Error al actualizar el producto");
       throw error;
     } finally {
       setLoading(false);
@@ -113,8 +123,10 @@ export const useInventario = () => {
             : producto
         )
       );
+      console.log("Stock actualizado para producto:", productoId, "Nuevo stock:", newStock);
     } catch (error) {
       console.error("Error actualizando stock:", error);
+      toast.error("Error al actualizar el stock");
       throw error;
     } finally {
       setLoading(false);
@@ -125,8 +137,10 @@ export const useInventario = () => {
     setLoading(true);
     try {
       setProductos(prev => prev.filter(producto => producto.id !== productoId));
+      console.log("Producto eliminado:", productoId);
     } catch (error) {
       console.error("Error eliminando producto:", error);
+      toast.error("Error al eliminar el producto");
       throw error;
     } finally {
       setLoading(false);

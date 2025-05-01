@@ -15,6 +15,7 @@ export const InventarioStats: React.FC<InventarioStatsProps> = ({ className }) =
 
   const pieChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'right' as const,
@@ -25,7 +26,7 @@ export const InventarioStats: React.FC<InventarioStatsProps> = ({ className }) =
             const label = context.label || '';
             const value = context.raw || 0;
             const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-            const percentage = ((value * 100) / total).toFixed(1);
+            const percentage = total ? ((value * 100) / total).toFixed(1) : '0.0';
             return `${label}: ${value} (${percentage}%)`;
           }
         }
@@ -52,7 +53,10 @@ export const InventarioStats: React.FC<InventarioStatsProps> = ({ className }) =
       x: {
         ticks: {
           maxRotation: 45,
-          minRotation: 45
+          minRotation: 45,
+          font: {
+            size: 10
+          }
         }
       }
     }
@@ -78,12 +82,14 @@ export const InventarioStats: React.FC<InventarioStatsProps> = ({ className }) =
           value={stats.productosStockBajo}
           icon={AlertTriangle}
           className="bg-gradient-to-br from-[#FFF8F0] to-[#FFEDD8]"
+          valueColor={stats.productosStockBajo > 0 ? "text-red-500" : undefined}
         />
         <StatsCard
           title="% de Stock Bajo"
           value={`${stats.porcentajeStockBajo.toFixed(1)}%`}
           icon={PackagePlus}
           className="bg-gradient-to-br from-[#FFF8F0] to-[#FFEDD8]"
+          valueColor={stats.porcentajeStockBajo > 20 ? "text-red-500" : undefined}
         />
       </div>
 

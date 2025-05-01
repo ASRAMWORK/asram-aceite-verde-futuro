@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -11,8 +11,34 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Box, PackagePlus, Plus, Minus, Trash2, Search, Filter, Edit, AlertTriangle } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { 
+  Box, 
+  PackagePlus, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  Search, 
+  Filter, 
+  Edit, 
+  AlertTriangle 
+} from "lucide-react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ProductoInventarioForm } from "./ProductoInventarioForm";
 import { useInventario } from "@/hooks/useInventario";
 import { toast } from "sonner";
@@ -36,6 +62,8 @@ const InventarioView = () => {
   const [categoriaFilter, setCategoriaFilter] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [productoToDelete, setProductoToDelete] = useState<{id: string, nombre: string} | null>(null);
 
   const handleStockUpdate = async (productoId: string, currentStock: number, cantidad: number) => {
     try {
@@ -47,15 +75,22 @@ const InventarioView = () => {
     }
   };
 
-  const handleDelete = async (productoId: string, nombre: string) => {
-    if (window.confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?`)) {
+  const handleDeleteConfirm = async () => {
+    if (productoToDelete) {
       try {
-        await deleteProducto(productoId);
-        toast.success("Producto eliminado correctamente");
+        await deleteProducto(productoToDelete.id);
+        toast.success(`Producto "${productoToDelete.nombre}" eliminado correctamente`);
+        setConfirmDeleteOpen(false);
+        setProductoToDelete(null);
       } catch (error) {
         toast.error("Error al eliminar el producto");
       }
     }
+  };
+
+  const handleDeleteClick = (producto: {id: string, nombre: string}) => {
+    setProductoToDelete(producto);
+    setConfirmDeleteOpen(true);
   };
 
   const handleEdit = (producto: any) => {
@@ -82,6 +117,11 @@ const InventarioView = () => {
                          (stockFilter === "ok" && producto.stockActual > producto.stockMinimo);
     
     return matchesSearch && matchesCategoria && matchesStock;
+  });
+
+  // Ordenar productos por fecha de creación (más recientes primero)
+  const sortedProductos = [...filteredProductos].sort((a, b) => {
+    return new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime();
   });
 
   return (
@@ -158,7 +198,7 @@ const InventarioView = () => {
                 <p className="text-sm text-muted-foreground">Cargando productos...</p>
               </div>
             </div>
-          ) : filteredProductos.length > 0 ? (
+          ) : sortedProductos.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -173,7 +213,7 @@ const InventarioView = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProductos.map((producto) => (
+                  {sortedProductos.map((producto) => (
                     <TableRow key={producto.id} className="hover:bg-gray-50">
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
@@ -230,7 +270,7 @@ const InventarioView = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(producto.id, producto.nombre)}
+                            onClick={() => handleDeleteClick(producto)}
                             className="h-8 w-8 p-0 text-red-600"
                             title="Eliminar producto"
                           >
@@ -262,8 +302,19 @@ const InventarioView = () => {
               <PackagePlus className="mr-2 h-5 w-5" />
               Nuevo Producto
             </DialogTitle>
+            <DialogDescription>
+              Complete el formulario para añadir un nuevo producto al inventario.
+            </DialogDescription>
           </DialogHeader>
-          <ProductoInventarioForm onSuccess={() => setDialogOpen(false)} />
+          <ProductoInventarioForm 
+            onSuccess={() => {
+              setDialogOpen(false);
+              // Pequeño retraso para asegurar que el producto se haya guardado
+              setTimeout(() => {
+                // Refrescar componente
+              }, 300);
+            }} 
+          />
         </DialogContent>
       </Dialog>
 
@@ -275,12 +326,19 @@ const InventarioView = () => {
               <Edit className="mr-2 h-5 w-5" />
               Editar Producto
             </DialogTitle>
+            <DialogDescription>
+              Modifique los detalles del producto seleccionado.
+            </DialogDescription>
           </DialogHeader>
           {productoSeleccionado && (
             <ProductoInventarioForm 
               onSuccess={() => {
                 setEditDialogOpen(false);
                 setProductoSeleccionado(null);
+                // Pequeño retraso para asegurar que los cambios se hayan guardado
+                setTimeout(() => {
+                  // Refrescar componente
+                }, 300);
               }}
               producto={productoSeleccionado}
               isEditing={true}
@@ -288,6 +346,28 @@ const InventarioView = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo de confirmación para eliminar */}
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente el producto "{productoToDelete?.nombre}".
+              Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setProductoToDelete(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

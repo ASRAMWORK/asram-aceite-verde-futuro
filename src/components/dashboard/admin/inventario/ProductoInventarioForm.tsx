@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useInventario } from "@/hooks/useInventario";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { PackagePlus, Loader2 } from "lucide-react";
+import { PackagePlus, Loader2, Save } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -48,16 +48,42 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
 
   const { addProducto, updateProducto } = useInventario();
 
+  // Si estamos editando, inicializar otherCategory si la categoría no está en las predefinidas
+  useEffect(() => {
+    if (isEditing && producto && !CATEGORIAS.includes(producto.categoria)) {
+      setOtherCategory(producto.categoria);
+      setFormData(prev => ({ ...prev, categoria: "Otros" }));
+    }
+  }, [isEditing, producto]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      // If "Otros" is selected, use the custom input
+      // Validar datos del formulario
+      if (!formData.nombre.trim()) {
+        toast.error("El nombre del producto es obligatorio");
+        return;
+      }
+
+      if (!formData.categoria) {
+        toast.error("La categoría es obligatoria");
+        return;
+      }
+
+      if (formData.stockActual < 0) {
+        toast.error("El stock no puede ser negativo");
+        return;
+      }
+      
+      // Si "Otros" es seleccionado, usar la entrada personalizada
       const finalData = {
         ...formData,
         categoria: formData.categoria === "Otros" ? otherCategory : formData.categoria,
       };
+      
+      console.log("Enviando datos del producto:", finalData);
       
       if (isEditing && producto) {
         await updateProducto(producto.id, finalData);
@@ -168,7 +194,11 @@ export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false 
             </>
           ) : (
             <>
-              <PackagePlus className="mr-2 h-4 w-4" />
+              {isEditing ? (
+                <Save className="mr-2 h-4 w-4" />
+              ) : (
+                <PackagePlus className="mr-2 h-4 w-4" />
+              )}
               {isEditing ? 'Actualizar Producto' : 'Guardar Producto'}
             </>
           )}
