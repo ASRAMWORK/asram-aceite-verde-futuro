@@ -1,3 +1,4 @@
+
 export type UserRole = 
   | 'superadmin' 
   | 'admin' 
@@ -159,6 +160,11 @@ export interface ComunidadVecinos {
   totalViviendas?: number;
   nombreAdministracion?: string;
   correoContacto?: string;
+  historialRecogidas?: {
+    fecha: string | Date;
+    litros: number;
+    id?: string;
+  }[];
   beneficiosMedioambientales?: {
     co2Evitado?: number;
     arbolesEquivalentes?: number;
