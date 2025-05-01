@@ -4,13 +4,13 @@ export interface Recogida {
   clienteId: string;
   comunidadId: string;
   adminId?: string;
-  administradorId?: string;  // Adding this property that was missing
+  administradorId?: string;  
   fechaRecogida: Date;
   tipoResiduo: string;
   cantidad: number;
   observaciones?: string;
-  createdAt?: any;  // We'll improve this type to support toDate() method
-  updatedAt?: any;  // We'll improve this type to support toDate() method
+  createdAt?: any;  // This type supports toDate() method from Firebase
+  updatedAt?: any;  // This type supports toDate() method from Firebase
   // Additional properties being used in components
   fecha?: Date;
   completada?: boolean;
