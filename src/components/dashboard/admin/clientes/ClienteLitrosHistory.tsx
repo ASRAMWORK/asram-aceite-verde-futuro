@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -53,7 +54,7 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
   const [isLoading, setIsLoading] = useState(false);
   
   // Get all the recogidas for this client
-  const recogidasCliente = getRecogidasByClientId(cliente.id);
+  const recogidasCliente = cliente?.id ? getRecogidasByClientId(cliente.id) : [];
   
   // Improved format date helper to better handle date objects and strings
   const formatDate = (date: Date | string | undefined | null) => {
@@ -78,6 +79,12 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
             return format(dateFromTimestamp, 'dd/MM/yyyy', { locale: es });
           }
         }
+
+        // Try as direct date string
+        const directDate = new Date(date);
+        if (isValid(directDate)) {
+          return format(directDate, 'dd/MM/yyyy', { locale: es });
+        }
       }
       
       // Handle as Date object
@@ -95,6 +102,11 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
   
   // Handle adding a historical collection
   const handleAddHistoricalCollection = async () => {
+    if (!cliente.id) {
+      console.error("Cliente ID is missing");
+      return;
+    }
+    
     setIsLoading(true);
     try {
       await addRecogida({
@@ -134,8 +146,8 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
     if (!dateB) return -1;
     
     // Convert to timestamps for comparison if they're Date objects
-    const timeA = dateA instanceof Date ? dateA.getTime() : 0;
-    const timeB = dateB instanceof Date ? dateB.getTime() : 0;
+    const timeA = dateA instanceof Date ? dateA.getTime() : new Date(dateA).getTime();
+    const timeB = dateB instanceof Date ? dateB.getTime() : new Date(dateB).getTime();
     
     return timeB - timeA;
   });
@@ -147,7 +159,7 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
           <div>
             <CardTitle>Historial de litros recogidos</CardTitle>
             <CardDescription>
-              Registro de todas las recolecciones realizadas para {cliente.nombre}
+              Registro de todas las recolecciones realizadas para {cliente.nombre || "este cliente"}
             </CardDescription>
           </div>
           <Dialog open={isAddingRecogida} onOpenChange={setIsAddingRecogida}>
@@ -217,7 +229,7 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
         </div>
       </CardHeader>
       <CardContent>
-        {sortedRecogidas.length === 0 ? (
+        {!sortedRecogidas.length ? (
           <div className="text-center py-8 text-muted-foreground">
             No hay registros de recolección para este cliente
           </div>
@@ -236,7 +248,7 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
               {sortedRecogidas.map((recogida) => (
                 <TableRow key={recogida.id}>
                   <TableCell>{formatDate(recogida.fecha || recogida.fechaRecogida)}</TableCell>
-                  <TableCell>{recogida.direccion || recogida.direccionRecogida || cliente.direccion}</TableCell>
+                  <TableCell>{recogida.direccion || recogida.direccionRecogida || cliente.direccion || 'No especificada'}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
                       {recogida.esRecogidaZona ? "Ruta" : "Individual"}

@@ -21,7 +21,6 @@ interface AdminIdProps {
 
 // Create wrapper components that accept and pass down adminId
 const PanelWrapper: React.FC = () => {
-  // AdministradorPanel doesn't accept adminId prop
   return <AdministradorPanel />;
 };
 
@@ -34,31 +33,36 @@ const GestionarComunidadWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
 };
 
 const ClientesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  if (!adminId) return null;
   return <AdministradorClientes adminId={adminId} />;
 };
 
 const RecogidasWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  if (!adminId) return null;
   return <AdministradorRecogidas adminId={adminId} />;
 };
 
 const EstadisticasWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  if (!adminId) return null;
   return <AdministradorEstadisticas adminId={adminId} />;
 };
 
 const InformesPanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  if (!adminId) return null;
   return <InformesPanel adminId={adminId} />;
 };
 
 const PerfilWrapper: React.FC = () => {
-  // AdministradorPerfil doesn't accept adminId prop
   return <AdministradorPerfil />;
 };
 
 const GestionComunidadesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  if (!adminId) return null;
   return <GestionComunidades adminId={adminId} />;
 };
 
 const ReunionesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  if (!adminId) return null;
   return <ReunionesView adminId={adminId} />;
 };
 
@@ -87,7 +91,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <PanelWrapper />; // No adminId needed
+      return <PanelWrapper />;
     case 'comunidades':
       return <MisComunidadesWrapper adminId={efectiveAdminId} />;
     case 'gestionar':
@@ -101,7 +105,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'informes':
       return <InformesPanelWrapper adminId={efectiveAdminId} />;
     case 'perfil':
-      return <PerfilWrapper />; // No adminId needed
+      return <PerfilWrapper />;
     case 'gestionComunidades':
       return <GestionComunidadesWrapper adminId={efectiveAdminId} />;
     case 'reuniones':

@@ -49,7 +49,7 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
         setPromedioLitros30Dias(parseFloat(promedio.toFixed(2)));
       }
     }
-  }, [cliente, recogidas]);
+  }, [cliente, recogidas, getRecogidasByClientId]);
   
   // Helper function to parse dates consistently
   const parseDate = (date: Date | string | undefined) => {

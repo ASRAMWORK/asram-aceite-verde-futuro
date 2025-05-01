@@ -9,14 +9,13 @@ import {
 } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ComunidadVecinos } from '@/types';
-import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 
 interface EstadisticasGeneralesProps {
   adminId?: string;
   comunidades: ComunidadVecinos[];
 }
 
-const EstadisticasGenerales = ({ adminId, comunidades }: EstadisticasGeneralesProps) => {
+const EstadisticasGenerales: React.FC<EstadisticasGeneralesProps> = ({ adminId, comunidades }) => {
   // Generar datos para el gráfico basado en las comunidades
   const procesarDatosPorMes = () => {
     const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -31,10 +30,12 @@ const EstadisticasGenerales = ({ adminId, comunidades }: EstadisticasGeneralesPr
       if (comunidad.historialRecogidas && Array.isArray(comunidad.historialRecogidas)) {
         comunidad.historialRecogidas.forEach(recogida => {
           if (recogida && recogida.fecha) {
-            const fecha = new Date(recogida.fecha);
-            const mes = fecha.getMonth();
-            datos[mes].recogidas += 1;
-            datos[mes].litros += recogida.litros || 0;
+            const fecha = recogida.fecha instanceof Date ? recogida.fecha : new Date(recogida.fecha);
+            if (!isNaN(fecha.getTime())) { // Verificar que la fecha es válida
+              const mes = fecha.getMonth();
+              datos[mes].recogidas += 1;
+              datos[mes].litros += recogida.litros || 0;
+            }
           }
         });
       }
