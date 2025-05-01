@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -74,24 +73,28 @@ const AlianzaEscolar = () => {
     if (alianzaSeleccionada) {
       setNombre(alianzaSeleccionada.nombre);
       setTipo(alianzaSeleccionada.tipo);
-      setDireccion(alianzaSeleccionada.direccion);
-      setCiudad(alianzaSeleccionada.ciudad);
-      setProvincia(alianzaSeleccionada.provincia);
-      setCodigoPostal(alianzaSeleccionada.codigoPostal);
-      setTelefono(alianzaSeleccionada.telefono);
-      setEmail(alianzaSeleccionada.email);
-      setContacto(alianzaSeleccionada.contacto);
-      setNumAlumnos(alianzaSeleccionada.numAlumnos);
-      setNumContenedores(alianzaSeleccionada.numContenedores);
-      setLitrosRecogidos(alianzaSeleccionada.litrosRecogidos);
-      setActivo(alianzaSeleccionada.activo);
-      setFechaInicio(alianzaSeleccionada.fechaInicio);
+      setDireccion(alianzaSeleccionada.direccion || '');
+      setCiudad(alianzaSeleccionada.ciudad || '');
+      setProvincia(alianzaSeleccionada.provincia || '');
+      setCodigoPostal(alianzaSeleccionada.codigoPostal || '');
+      setTelefono(alianzaSeleccionada.telefono || '');
+      setEmail(alianzaSeleccionada.email || '');
+      setContacto(alianzaSeleccionada.contacto || '');
+      setNumAlumnos(alianzaSeleccionada.numAlumnos || 0);
+      setNumContenedores(alianzaSeleccionada.numContenedores || 0);
+      setLitrosRecogidos(alianzaSeleccionada.litrosRecogidos || 0);
+      setActivo(alianzaSeleccionada.activo || true);
+      setFechaInicio(alianzaSeleccionada.fechaInicio || null);
       setFechaFin(alianzaSeleccionada.fechaFin || null);
       setDistrito(alianzaSeleccionada.distrito || '');
       setBarrio(alianzaSeleccionada.barrio || '');
       setNumEstudiantes(alianzaSeleccionada.numEstudiantes || 0);
       setTalleresRealizados(alianzaSeleccionada.talleresRealizados || 0);
-      setCertificaciones(alianzaSeleccionada.certificaciones ? (alianzaSeleccionada.certificaciones as unknown as string[]) : []);
+      
+      // Ensure certificaciones is an array
+      const certArray = alianzaSeleccionada.certificaciones || [];
+      setCertificaciones(Array.isArray(certArray) ? certArray.map(String) : []);
+      
       setNumParticipantes(alianzaSeleccionada.numParticipantes || 0);
       setEstado(alianzaSeleccionada.estado || '');
     } else {
@@ -127,6 +130,11 @@ const AlianzaEscolar = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Ensure certificaciones is an array of numbers
+    const certNumbers = Array.isArray(certificaciones) 
+      ? certificaciones.map(Number) 
+      : [];
+
     const alianzaData = {
       nombre,
       tipo,
@@ -147,7 +155,7 @@ const AlianzaEscolar = () => {
       barrio,
       numEstudiantes,
       talleresRealizados,
-      certificaciones: certificaciones.map(Number),
+      certificaciones: certNumbers,
       numParticipantes,
       estado,
     };
@@ -189,13 +197,19 @@ const AlianzaEscolar = () => {
 
   const handleAddCertificacion = () => {
     const nivel = certificacionesNivel;
-    if (!certificaciones.includes(String(nivel))) {
-      setCertificaciones([...certificaciones, String(nivel)]);
+    const nivelStr = String(nivel);
+    // Ensure certificaciones is an array before checking includes
+    const currentCerts = Array.isArray(certificaciones) ? certificaciones : [];
+    
+    if (!currentCerts.includes(nivelStr)) {
+      setCertificaciones([...currentCerts, nivelStr]);
     }
   };
 
   const handleRemoveCertificacion = (nivel: string) => {
-    setCertificaciones(certificaciones.filter(c => c !== nivel));
+    // Ensure certificaciones is an array before using filter
+    const currentCerts = Array.isArray(certificaciones) ? certificaciones : [];
+    setCertificaciones(currentCerts.filter(c => c !== nivel));
   };
 
   return (
@@ -428,7 +442,8 @@ const AlianzaEscolar = () => {
                       </Button>
                     </div>
                     <div className="flex space-x-2 mt-2">
-                      {certificaciones.map((nivel) => (
+                      {/* Ensure certificaciones is an array before mapping */}
+                      {(Array.isArray(certificaciones) ? certificaciones : []).map((nivel) => (
                         <Badge key={nivel} className="gap-0.5">
                           Nivel {nivel}
                           <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveCertificacion(nivel)}>
