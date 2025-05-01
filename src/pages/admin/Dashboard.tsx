@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -21,6 +22,7 @@ import TiendaAdmin from "@/components/dashboard/admin/tienda/TiendaAdmin";
 import MiSitioWeb from "@/components/dashboard/admin/sitio-web/MiSitioWeb";
 import AdministradoresFincas from "@/components/dashboard/admin/administradores/AdministradoresFincas";
 import ComercialView from "@/components/dashboard/admin/comercial/ComercialView";
+import GestionAdministradores from "@/components/dashboard/admin/administradores/GestionAdministradores";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -40,7 +42,8 @@ import {
   Globe,
   Box,
   CalendarDays,
-  Trophy
+  Trophy,
+  UserCog
 } from "lucide-react";
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
@@ -138,6 +141,8 @@ const AdminDashboardPage = () => {
         return <MiSitioWeb />;
       case "administradores":
         return <AdministradoresFincas />;
+      case "gestion-administradores":
+        return <GestionAdministradores />;
       case "comerciales":
         return <ComercialView />;
       case "inventario":
@@ -348,6 +353,17 @@ const AdminDashboardPage = () => {
           >
             <User className="mr-2 h-4 w-4" />
             Administradores de Fincas
+          </Button>
+          
+          <Button
+            variant={activeTab === "gestion-administradores" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "gestion-administradores" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("gestion-administradores")}
+          >
+            <UserCog className="mr-2 h-4 w-4" />
+            Gestión Administradores
           </Button>
           
           <Button
