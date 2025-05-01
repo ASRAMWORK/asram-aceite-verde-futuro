@@ -4,19 +4,42 @@ import { useRecogidas } from '@/hooks/useRecogidas';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Droplet, Calendar } from 'lucide-react';
+import { Droplet, Calendar, Plus } from 'lucide-react';
 import { format, isValid, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Usuario } from '@/types';
+import { toast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 interface ClienteHistorialRecogidasProps {
   cliente: Usuario;
 }
 
 const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ cliente }) => {
-  const { recogidas, getRecogidasByClientId } = useRecogidas();
+  const { recogidas, getRecogidasByClientId, addRecogida } = useRecogidas();
   const [clienteRecogidas, setClienteRecogidas] = useState<any[]>([]);
   const [promedioLitros30Dias, setPromedioLitros30Dias] = useState<number>(0);
+  const [isAddingRecogida, setIsAddingRecogida] = useState(false);
+  const [date, setDate] = useState<Date>(new Date());
+  const [litros, setLitros] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
     // Get recogidas for this specific client
@@ -98,6 +121,50 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
     return sum + (recogida.litrosRecogidos || 0);
   }, 0);
   
+  // Handle adding a historical collection
+  const handleAddHistoricalCollection = async () => {
+    if (!cliente.id) {
+      console.error("Cliente ID is missing");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await addRecogida({
+        clienteId: cliente.id,
+        fecha: date,
+        fechaRecogida: date,
+        litrosRecogidos: litros,
+        completada: true,
+        estadoRecogida: "completada",
+        direccion: cliente.direccion,
+        direccionRecogida: cliente.direccion,
+        distrito: cliente.distrito,
+        barrio: cliente.barrio,
+        nombreContacto: cliente.nombre,
+        telefonoContacto: cliente.telefono,
+        emailContacto: cliente.email,
+        fechaCompletada: date,
+      });
+      setIsAddingRecogida(false);
+      setDate(new Date());
+      setLitros(0);
+      toast({
+        title: "Recolección histórica añadida",
+        description: `Se añadieron ${litros} litros al historial de ${cliente.nombre}`,
+      });
+    } catch (error) {
+      console.error("Error adding historical collection:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo añadir la recolección histórica",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   return (
     <Card className="mt-4">
       <CardHeader>
@@ -110,17 +177,83 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
                 : "Este cliente no tiene recogidas registradas"}
             </CardDescription>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
-              <Droplet className="h-3.5 w-3.5" />
-              <span>Total: {totalLitros} litros</span>
-            </Badge>
-            {promedioLitros30Dias > 0 && (
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5" />
-                <span>Media: {promedioLitros30Dias} L/30 días</span>
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-end gap-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
+                <Droplet className="h-3.5 w-3.5" />
+                <span>Total: {totalLitros} litros</span>
               </Badge>
-            )}
+              {promedioLitros30Dias > 0 && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>Media: {promedioLitros30Dias} L/30 días</span>
+                </Badge>
+              )}
+            </div>
+            
+            <Dialog open={isAddingRecogida} onOpenChange={setIsAddingRecogida}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#EE970D] hover:bg-[#d88400]">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Añadir recolección
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Añadir recolección histórica</DialogTitle>
+                  <DialogDescription>
+                    Registra una recolección anterior para este cliente.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="fecha">Fecha de recolección</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          {date ? format(date, 'PPP', { locale: es }) : <span>Seleccione una fecha</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={date}
+                          onSelect={(newDate) => newDate && setDate(newDate)}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="litros">Litros recogidos</Label>
+                    <Input
+                      id="litros"
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      value={litros}
+                      onChange={(e) => setLitros(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddingRecogida(false)}>
+                    Cancelar
+                  </Button>
+                  <Button 
+                    onClick={handleAddHistoricalCollection}
+                    disabled={isLoading || litros <= 0}
+                    className="bg-[#EE970D] hover:bg-[#d88400]"
+                  >
+                    {isLoading ? "Guardando..." : "Guardar"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </CardHeader>
