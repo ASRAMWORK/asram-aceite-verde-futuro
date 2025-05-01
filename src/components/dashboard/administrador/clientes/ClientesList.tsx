@@ -101,7 +101,6 @@ const ClientesList: React.FC<ClientesListProps> = ({ searchTerm, filter }) => {
       (filter === 'activos' && usuario.activo === true) || 
       (filter === 'inactivos' && usuario.activo === false);
 
-    // FIX: Properly handle 'todos' case for district filter
     const matchesDistrito = 
       distritoFilter === 'todos' || 
       usuario.distrito === distritoFilter;
