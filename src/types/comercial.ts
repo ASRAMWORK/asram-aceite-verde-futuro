@@ -1,26 +1,4 @@
 
-export interface ComercialUser {
-  id: string;
-  uid?: string;  // ID de autenticación de Firebase
-  nombre: string;
-  apellidos?: string;
-  email: string;
-  telefono?: string;
-  fechaRegistro: Date;
-  codigo: string;
-  activo: boolean;
-  aprobado: boolean;
-  saldo?: number;
-  comisionesTotales?: number;
-  comisionesPendientes?: number;
-  metodoPago?: MetodoPago | null;
-  datosPersonalizados?: {
-    comision?: number;
-    zonas?: string[];
-    [key: string]: any;
-  };
-}
-
 export interface ClienteCaptado {
   id: string;
   comercialId: string;
@@ -57,6 +35,28 @@ export interface MetodoPago {
     bizum?: {
       telefono: string;
     };
+  };
+}
+
+export interface ComercialUser {
+  id: string;
+  uid?: string;  // ID de autenticación de Firebase
+  nombre: string;
+  apellidos?: string;
+  email: string;
+  telefono?: string;
+  fechaRegistro: Date;
+  codigo: string;
+  activo: boolean;
+  aprobado: boolean;
+  saldo?: number;
+  comisionesTotales?: number;
+  comisionesPendientes?: number;
+  metodoPago?: MetodoPago | null;
+  datosPersonalizados?: {
+    comision?: number;
+    zonas?: string[];
+    [key: string]: any;
   };
 }
 
