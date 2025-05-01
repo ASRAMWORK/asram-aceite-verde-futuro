@@ -78,10 +78,10 @@ const AdministradoresFincas = () => {
     direccion: ""
   });
   
-  // Filter usuarios to only show those with admin_finca role
-  const adminFincas = usuarios.filter(user => user.role === 'admin_finca');
+  // Filter usuarios to only show those with administrador role
+  const adminFincas = usuarios.filter(user => user.role === 'administrador');
   
-  // Filter active admin_finca users
+  // Filter active administrador users
   const activeAdminFincas = adminFincas.filter(admin => admin.activo !== false);
   
   // Filter by search term
@@ -138,7 +138,7 @@ const AdministradoresFincas = () => {
     
     const dataToSubmit: Partial<Usuario> = {
       ...formData,
-      role: 'admin_finca',
+      role: 'administrador',
       activo: true,
       createdAt: new Date(),
       updatedAt: new Date()

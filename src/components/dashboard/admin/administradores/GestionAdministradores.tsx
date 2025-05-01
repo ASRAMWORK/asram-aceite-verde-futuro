@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -35,13 +34,12 @@ const GestionAdministradores = () => {
   const [selectedAdmin, setSelectedAdmin] = useState<Usuario | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Filtrar administradores por rol "administrador" o "admin_finca"
-  // Corregimos este filtro para que utilice correctamente las propiedades de role
+  // Filtrar solo los administradores
   const administradores = Array.isArray(usuarios) ? usuarios.filter(
     usuario => {
       // Verificamos que el usuario.role exista antes de comparar
       const userRole = usuario?.role?.toLowerCase?.() || '';
-      return userRole === 'administrador' || userRole === 'admin_finca';
+      return userRole === 'administrador';
     }
   ).filter(
     admin => 

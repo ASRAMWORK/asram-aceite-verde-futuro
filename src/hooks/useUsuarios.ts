@@ -19,8 +19,8 @@ export function useUsuarios() {
       // Define la consulta base para la colección de usuarios
       let usuariosQuery;
       
-      // Si el usuario logueado es admin_finca, solo carga sus propios usuarios si corresponde
-      if (profile?.role === 'admin_finca') {
+      // Si el usuario logueado es administrador, solo carga sus propios usuarios si corresponde
+      if (profile?.role === 'administrador') {
         usuariosQuery = query(
           collection(db, "usuarios"), 
           where("administradorId", "==", profile.id),
@@ -55,7 +55,7 @@ export function useUsuarios() {
       
       setUsuarios(usuariosData);
       console.log("Usuarios cargados:", usuariosData.length);
-      console.log("Administradores:", usuariosData.filter(u => u.role === 'administrador' || u.role === 'admin_finca').length);
+      console.log("Administradores:", usuariosData.filter(u => u.role === 'administrador').length);
     } catch (err) {
       console.error("Error cargando usuarios:", err);
       setError("Error al cargar los datos de usuarios");
@@ -78,10 +78,10 @@ export function useUsuarios() {
 
   const addUsuario = async (usuario: Omit<Usuario, "id"> & { administradorId?: string }) => {
     try {
-      // Si es un admin_finca quien está creando el usuario, se asocia automáticamente
+      // Si es un administrador quien está creando el usuario, se asocia automáticamente
       const usuarioData = {
         ...usuario,
-        administradorId: profile?.role === 'admin_finca' ? profile.id : usuario.administradorId || null,
+        administradorId: profile?.role === 'administrador' ? profile.id : usuario.administradorId || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
@@ -99,10 +99,10 @@ export function useUsuarios() {
 
   const addCliente = async (cliente: Omit<Usuario, "id"> & { administradorId?: string }) => {
     try {
-      // Si es un admin_finca quien está creando el cliente, se asocia automáticamente
+      // Si es un administrador quien está creando el cliente, se asocia automáticamente
       const clienteData = {
         ...cliente,
-        administradorId: profile?.role === 'admin_finca' ? profile.id : cliente.administradorId || null,
+        administradorId: profile?.role === 'administrador' ? profile.id : cliente.administradorId || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
@@ -120,8 +120,8 @@ export function useUsuarios() {
 
   const updateUsuario = async (id: string, data: Partial<Usuario>) => {
     try {
-      // Verificar que si el usuario es admin_finca, solo pueda actualizar sus propios usuarios
-      if (profile?.role === 'admin_finca') {
+      // Verificar que si el usuario es administrador, solo pueda actualizar sus propios usuarios
+      if (profile?.role === 'administrador') {
         const usuarioDoc = doc(db, "usuarios", id);
         const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
         if (usuario.empty) {
@@ -146,8 +146,8 @@ export function useUsuarios() {
 
   const deleteUsuario = async (id: string) => {
     try {
-      // Verificar que si el usuario es admin_finca, solo pueda eliminar sus propios usuarios
-      if (profile?.role === 'admin_finca') {
+      // Verificar que si el usuario es administrador, solo pueda eliminar sus propios usuarios
+      if (profile?.role === 'administrador') {
         const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
         if (usuario.empty) {
           toast.error("No tienes permiso para eliminar este usuario");

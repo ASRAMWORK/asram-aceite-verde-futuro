@@ -2,7 +2,6 @@ export type UserRole =
   | 'superadmin' 
   | 'admin' 
   | 'administrador' 
-  | 'admin_finca' 
   | 'user' 
   | 'comunidad' 
   | 'comercial' 
