@@ -12,6 +12,7 @@ import AdministradorPerfil from './perfil/AdministradorPerfil';
 import InformesPanel from './informes/InformesPanel';
 import GestionComunidades from './comunidades/GestionComunidades';
 import ReunionesView from '../admin/reuniones/ReunionesView';
+import ClientesRankingView from '../admin/rankings/ClientesRankingView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 // Common interface for components that require adminId
@@ -19,13 +20,12 @@ interface AdminIdProps {
   adminId: string;
 }
 
-// Create wrapper components that accept and pass down adminId only when needed
 // These components don't need adminId
-const PanelWrapper: React.FC = () => {
+const PanelWrapper = () => {
   return <AdministradorPanel />;
 };
 
-const PerfilWrapper: React.FC = () => {
+const PerfilWrapper = () => {
   return <AdministradorPerfil />;
 };
 
@@ -39,33 +39,31 @@ const GestionarComunidadWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
 };
 
 const ClientesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  if (!adminId) return null;
   return <AdministradorClientes adminId={adminId} />;
 };
 
 const RecogidasWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  if (!adminId) return null;
   return <AdministradorRecogidas adminId={adminId} />;
 };
 
 const EstadisticasWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  if (!adminId) return null;
   return <AdministradorEstadisticas adminId={adminId} />;
 };
 
 const InformesPanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  if (!adminId) return null;
   return <InformesPanel adminId={adminId} />;
 };
 
 const GestionComunidadesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  if (!adminId) return null;
   return <GestionComunidades adminId={adminId} />;
 };
 
 const ReunionesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
-  if (!adminId) return null;
   return <ReunionesView adminId={adminId} />;
+};
+
+const RankingsWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  return <ClientesRankingView adminId={adminId} />;
 };
 
 interface AdministradorDashboardContentProps {
@@ -112,6 +110,8 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
       return <GestionComunidadesWrapper adminId={efectiveAdminId} />;
     case 'reuniones':
       return <ReunionesWrapper adminId={efectiveAdminId} />;
+    case 'ranking':
+      return <RankingsWrapper adminId={efectiveAdminId} />;
     default:
       return (
         <div className="container mx-auto px-4 py-8">

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Loader2 } from "lucide-react";
+import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Loader2, RankingIcon } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -64,6 +64,7 @@ const AdministradorDashboardPage = () => {
       case "recogidas": tabValue = "recogidas"; break;
       case "estadisticas": tabValue = "estadisticas"; break;
       case "perfil": tabValue = "perfil"; break;
+      case "ranking": tabValue = "ranking"; break;
       default: tabValue = "home";
     }
     setActiveTab(tabValue);
@@ -155,6 +156,17 @@ const AdministradorDashboardPage = () => {
             >
               <BarChart className="mr-3 h-5 w-5" />
               Estadísticas
+            </Button>
+            
+            <Button
+              variant={activeTab === "ranking" ? "default" : "ghost"}
+              className={`w-full justify-start ${
+                activeTab === "ranking" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
+              }`}
+              onClick={() => handleTabChange("ranking")}
+            >
+              <BarChart className="mr-3 h-5 w-5" />
+              Ranking Clientes
             </Button>
             
             <Separator className="my-4" />
