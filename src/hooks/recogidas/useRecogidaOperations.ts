@@ -1,4 +1,3 @@
-
 import { addDoc, collection, deleteDoc, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
@@ -23,7 +22,7 @@ export function useRecogidaOperations(adminId?: string) {
       const recogidaData = {
         ...nuevaRecogida,
         adminId: nuevaRecogida.adminId || effectiveAdminId, // Usar el proporcionado o el efectivo
-        administradorId: nuevaRecogida.administradorId || efectiveAdminId, // Usar ambos para compatibilidad
+        administradorId: nuevaRecogida.administradorId || effectiveAdminId, // Usar ambos para compatibilidad
         estadoRecogida: nuevaRecogida.estadoRecogida || "pendiente",
         fechaRecogida: nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date(),
         fecha: nuevaRecogida.fecha || nuevaRecogida.fechaRecogida || new Date(),
