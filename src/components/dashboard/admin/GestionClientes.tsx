@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -349,7 +348,6 @@ const GestionClientes = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Email</TableHead>
                     <TableHead>Teléfono</TableHead>
                     <TableHead>Dirección</TableHead>
                     <TableHead>Distrito</TableHead>
@@ -361,7 +359,6 @@ const GestionClientes = () => {
                   {filteredClientes.map((cliente) => (
                     <TableRow key={cliente.id}>
                       <TableCell>{cliente.nombre}</TableCell>
-                      <TableCell>{cliente.email}</TableCell>
                       <TableCell>{cliente.telefono}</TableCell>
                       <TableCell>{cliente.direccion}</TableCell>
                       <TableCell>{cliente.distrito}</TableCell>
