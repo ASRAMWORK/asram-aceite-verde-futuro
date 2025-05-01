@@ -20,7 +20,7 @@ interface AdminIdProps {
 }
 
 // Create wrapper components that accept and pass down adminId
-const PanelWrapper: React.FC = () => {
+const PanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
   return <AdministradorPanel />;
 };
 
@@ -52,7 +52,7 @@ const InformesPanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
   return <InformesPanel adminId={adminId} />;
 };
 
-const PerfilWrapper: React.FC = () => {
+const PerfilWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
   return <AdministradorPerfil />;
 };
 
@@ -91,7 +91,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <PanelWrapper />;
+      return <PanelWrapper adminId={efectiveAdminId} />;
     case 'comunidades':
       return <MisComunidadesWrapper adminId={efectiveAdminId} />;
     case 'gestionar':
@@ -105,7 +105,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'informes':
       return <InformesPanelWrapper adminId={efectiveAdminId} />;
     case 'perfil':
-      return <PerfilWrapper />;
+      return <PerfilWrapper adminId={efectiveAdminId} />;
     case 'gestionComunidades':
       return <GestionComunidadesWrapper adminId={efectiveAdminId} />;
     case 'reuniones':
