@@ -14,6 +14,24 @@ import GestionComunidades from './comunidades/GestionComunidades';
 import ReunionesView from '../admin/reuniones/ReunionesView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
+// Definimos interfaces para los componentes que necesitan adminId
+interface AdminIdProps {
+  adminId: string;
+}
+
+// Extendemos los componentes que no tienen la prop adminId definida
+type ExtendedEstadisticasProps = React.ComponentProps<typeof AdministradorEstadisticas> & AdminIdProps;
+type ExtendedReunionesProps = React.ComponentProps<typeof ReunionesView> & AdminIdProps;
+
+// Creamos componentes wrapper que aceptan adminId pero no lo utilizan
+const EstadisticasWrapper: React.FC<ExtendedEstadisticasProps> = ({ adminId, ...props }) => {
+  return <AdministradorEstadisticas {...props} />;
+};
+
+const ReunionesWrapper: React.FC<ExtendedReunionesProps> = ({ adminId, ...props }) => {
+  return <ReunionesView {...props} />;
+};
+
 interface AdministradorDashboardContentProps {
   activeTab?: string;
   adminId?: string; // Añadimos la propiedad para pasar el ID
@@ -49,8 +67,8 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'recogidas':
       return <AdministradorRecogidas adminId={efectiveAdminId} />;
     case 'estadisticas': 
-      // Remove adminId prop as this component doesn't accept it
-      return <AdministradorEstadisticas />;
+      // Usamos el wrapper que acepta adminId
+      return <EstadisticasWrapper adminId={efectiveAdminId} />;
     case 'informes':
       return <InformesPanel adminId={efectiveAdminId} />;
     case 'perfil':
@@ -58,8 +76,8 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'gestionComunidades':
       return <GestionComunidades adminId={efectiveAdminId} />;
     case 'reuniones':
-      // Remove adminId prop as this component doesn't accept it
-      return <ReunionesView />;
+      // Usamos el wrapper que acepta adminId
+      return <ReunionesWrapper adminId={efectiveAdminId} />;
     default:
       return (
         <div className="container mx-auto px-4 py-8">
@@ -84,8 +102,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
               <AdministradorRecogidas adminId={efectiveAdminId} />
             </TabsContent>
             <TabsContent value="reuniones">
-              {/* Remove adminId prop here too */}
-              <ReunionesView />
+              <ReunionesWrapper adminId={efectiveAdminId} />
             </TabsContent>
           </Tabs>
         </div>
