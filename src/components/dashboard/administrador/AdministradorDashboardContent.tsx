@@ -14,21 +14,18 @@ import GestionComunidades from './comunidades/GestionComunidades';
 import ReunionesView from '../admin/reuniones/ReunionesView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
-// Definimos interfaces para los componentes que necesitan adminId
+// Definimos interfaces para los componentes que no tienen adminId en sus props
 interface AdminIdProps {
   adminId: string;
 }
 
-// Extendemos los componentes que no tienen la prop adminId definida
-type ExtendedEstadisticasProps = React.ComponentProps<typeof AdministradorEstadisticas> & AdminIdProps;
-type ExtendedReunionesProps = React.ComponentProps<typeof ReunionesView> & AdminIdProps;
-
 // Creamos componentes wrapper que aceptan adminId pero no lo utilizan
-const EstadisticasWrapper: React.FC<ExtendedEstadisticasProps> = ({ adminId, ...props }) => {
+// Estos componentes no necesitan recibir adminId, así que lo extraemos antes de pasar el resto de props
+const EstadisticasWrapper = ({ adminId, ...props }: AdminIdProps & React.ComponentProps<typeof AdministradorEstadisticas>) => {
   return <AdministradorEstadisticas {...props} />;
 };
 
-const ReunionesWrapper: React.FC<ExtendedReunionesProps> = ({ adminId, ...props }) => {
+const ReunionesWrapper = ({ adminId, ...props }: AdminIdProps & React.ComponentProps<typeof ReunionesView>) => {
   return <ReunionesView {...props} />;
 };
 
