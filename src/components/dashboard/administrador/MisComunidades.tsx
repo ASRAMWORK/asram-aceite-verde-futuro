@@ -5,16 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Building, Plus, Loader2, MapPin, Home, Package, Droplet, BarChart } from 'lucide-react';
-import { useUserProfile } from '@/hooks/useUserProfile';
 
-interface MisComunidadesProps {
-  adminId?: string;
-}
-
-const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
-  const { profile } = useUserProfile();
-  const efectiveAdminId = adminId || profile?.id;
-  const { comunidades, loading, error } = useComunidadesVecinos(efectiveAdminId);
+const MisComunidades = () => {
+  const { comunidades, loading, error } = useComunidadesVecinos();
   const navigate = useNavigate();
   
   if (loading) {

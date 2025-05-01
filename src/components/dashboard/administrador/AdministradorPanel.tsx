@@ -63,23 +63,12 @@ const AdministradorPanel = () => {
   };
   
   // Determinar qué ID de administrador usar
-  // Esta es la parte crítica: garantizar que siempre usamos el ID correcto
-  // ya sea del admin autenticado o del que está siendo visualizado por el superadmin
   const adminIdToUse = viewingAdminData?.id || profile?.id;
   
   if (loading && !viewingAdminData) {
     return (
       <div className="flex justify-center items-center h-64">
         <p>Cargando panel de administrador...</p>
-      </div>
-    );
-  }
-
-  // Si no hay ID disponible, mostrar un error
-  if (!adminIdToUse) {
-    return (
-      <div className="flex justify-center items-center h-64 text-red-600">
-        <p>Error: No se pudo determinar el ID del administrador. Por favor, inicia sesión nuevamente.</p>
       </div>
     );
   }

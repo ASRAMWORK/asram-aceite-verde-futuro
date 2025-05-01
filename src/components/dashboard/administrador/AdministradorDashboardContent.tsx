@@ -12,52 +12,34 @@ import AdministradorPerfil from './perfil/AdministradorPerfil';
 import InformesPanel from './informes/InformesPanel';
 import GestionComunidades from './comunidades/GestionComunidades';
 import ReunionesView from '../admin/reuniones/ReunionesView';
-import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface AdministradorDashboardContentProps {
   activeTab?: string;
-  adminId?: string; // Añadimos la propiedad para pasar el ID
 }
 
-const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps> = ({ 
-  activeTab = 'home',
-  adminId 
-}) => {
-  const { profile } = useUserProfile();
-  // Usar el adminId proporcionado o el del perfil
-  const efectiveAdminId = adminId || profile?.id;
-
-  // Verificar si tenemos un ID válido
-  if (!efectiveAdminId) {
-    return (
-      <div className="flex justify-center items-center h-64 text-red-600">
-        <p>Error: No se pudo determinar el ID del administrador. Por favor, inicia sesión nuevamente.</p>
-      </div>
-    );
-  }
-
+const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps> = ({ activeTab = 'home' }) => {
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <AdministradorPanel />; // No adminId prop for this component
+      return <AdministradorPanel />;
     case 'comunidades':
-      return <MisComunidades adminId={efectiveAdminId} />;
+      return <MisComunidades />;
     case 'gestionar':
-      return <GestionarComunidad adminId={efectiveAdminId} />;
+      return <GestionarComunidad />;
     case 'clientes':
-      return <AdministradorClientes adminId={efectiveAdminId} />;
+      return <AdministradorClientes />;
     case 'recogidas':
-      return <AdministradorRecogidas adminId={efectiveAdminId} />;
-    case 'estadisticas': 
-      return <AdministradorEstadisticas />; // Este componente no acepta adminId
+      return <AdministradorRecogidas />;
+    case 'estadisticas':
+      return <AdministradorEstadisticas />;
     case 'informes':
-      return <InformesPanel adminId={efectiveAdminId} />;
+      return <InformesPanel />;
     case 'perfil':
-      return <AdministradorPerfil adminId={efectiveAdminId} />;
+      return <AdministradorPerfil />;
     case 'gestionComunidades':
-      return <GestionComunidades adminId={efectiveAdminId} />;
+      return <GestionComunidades />;
     case 'reuniones':
-      return <ReunionesView />; // Este componente no acepta adminId
+      return <ReunionesView />;
     default:
       return (
         <div className="container mx-auto px-4 py-8">
@@ -70,16 +52,16 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
               <TabsTrigger value="reuniones">Reuniones</TabsTrigger>
             </TabsList>
             <TabsContent value="comunidades">
-              <MisComunidades adminId={efectiveAdminId} />
+              <MisComunidades />
             </TabsContent>
             <TabsContent value="gestionar">
-              <GestionarComunidad adminId={efectiveAdminId} />
+              <GestionarComunidad />
             </TabsContent>
             <TabsContent value="informes">
-              <InformesPanel adminId={efectiveAdminId} />
+              <InformesPanel />
             </TabsContent>
             <TabsContent value="recogidas">
-              <AdministradorRecogidas adminId={efectiveAdminId} />
+              <AdministradorRecogidas />
             </TabsContent>
             <TabsContent value="reuniones">
               <ReunionesView />

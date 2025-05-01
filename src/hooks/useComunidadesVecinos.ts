@@ -6,35 +6,33 @@ import { toast } from 'sonner';
 import { ComunidadVecinos } from '@/types';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
-export const useComunidadesVecinos = (adminId?: string) => {
+export const useComunidadesVecinos = () => {
   const [comunidades, setComunidades] = useState<ComunidadVecinos[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { profile } = useUserProfile();
-  
-  // Usar el adminId proporcionado o el del perfil actual
-  const efectiveAdminId = adminId || profile?.id;
 
   const loadComunidades = async () => {
     try {
       setLoading(true);
-      setError(null);
+      let comunidadesRef;
+      let comunidadSnapshot;
       
-      if (!efectiveAdminId) {
-        console.error("No hay ID de administrador disponible para filtrar comunidades");
-        setLoading(false);
-        return;
+      // Si el usuario es administrador de fincas, solo muestra sus comunidades
+      if (profile?.role === 'admin_finca') {
+        comunidadesRef = collection(db, 'comunidadesVecinos');
+        comunidadSnapshot = await getDocs(
+          query(
+            comunidadesRef, 
+            where('administradorId', '==', profile.id),
+            orderBy('nombre')
+          )
+        );
+      } else {
+        // Para superadmins u otros roles, muestra todas las comunidades
+        comunidadesRef = collection(db, 'comunidadesVecinos');
+        comunidadSnapshot = await getDocs(query(comunidadesRef, orderBy('nombre')));
       }
-      
-      // Filtrar siempre por ID del administrador
-      const comunidadesRef = collection(db, 'comunidadesVecinos');
-      const comunidadSnapshot = await getDocs(
-        query(
-          comunidadesRef, 
-          where('administradorId', '==', efectiveAdminId),
-          orderBy('nombre')
-        )
-      );
       
       const comunidadesData: ComunidadVecinos[] = comunidadSnapshot.docs.map(doc => ({
         id: doc.id,
@@ -45,7 +43,6 @@ export const useComunidadesVecinos = (adminId?: string) => {
       
       setComunidades(comunidadesData);
     } catch (e: any) {
-      console.error("Error al cargar comunidades:", e);
       setError(e.message);
       toast.error('Error al cargar las comunidades de vecinos');
     } finally {
@@ -54,22 +51,15 @@ export const useComunidadesVecinos = (adminId?: string) => {
   };
 
   useEffect(() => {
-    if (efectiveAdminId) {
-      loadComunidades();
-    }
-  }, [efectiveAdminId]);
+    loadComunidades();
+  }, [profile?.id]);
 
   const addComunidad = async (comunidad: Omit<ComunidadVecinos, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      if (!efectiveAdminId) {
-        toast.error('No hay un administrador identificado para asociar la comunidad');
-        return false;
-      }
-      
-      // Añade el ID del administrador actual a la comunidad
+      // Añade el ID del administrador actual a la comunidad si es un administrador
       const comunidadData = {
         ...comunidad,
-        administradorId: efectiveAdminId,
+        administradorId: profile?.id || null,
         administradorNombre: profile?.nombreAdministracion || profile?.nombre || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -90,14 +80,6 @@ export const useComunidadesVecinos = (adminId?: string) => {
   const updateComunidad = async (id: string, updates: Partial<ComunidadVecinos>) => {
     try {
       const comunidadDoc = doc(db, 'comunidadesVecinos', id);
-      
-      // Verificar que la comunidad pertenece a este administrador
-      const comunidadesActuales = comunidades.find(c => c.id === id);
-      if (!comunidadesActuales || comunidadesActuales.administradorId !== efectiveAdminId) {
-        toast.error('No tienes permiso para modificar esta comunidad');
-        return false;
-      }
-      
       await updateDoc(comunidadDoc, {
         ...updates,
         updatedAt: serverTimestamp()
@@ -114,13 +96,6 @@ export const useComunidadesVecinos = (adminId?: string) => {
 
   const deleteComunidad = async (id: string) => {
     try {
-      // Verificar que la comunidad pertenece a este administrador
-      const comunidadesActuales = comunidades.find(c => c.id === id);
-      if (!comunidadesActuales || comunidadesActuales.administradorId !== efectiveAdminId) {
-        toast.error('No tienes permiso para eliminar esta comunidad');
-        return false;
-      }
-      
       const comunidadDoc = doc(db, 'comunidadesVecinos', id);
       await deleteDoc(comunidadDoc);
       toast.success('Comunidad de vecinos eliminada correctamente');

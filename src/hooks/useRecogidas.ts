@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, 
@@ -6,54 +5,29 @@ import { collection, getDocs, query, orderBy, addDoc, updateDoc,
 } from 'firebase/firestore';
 import { toast } from 'sonner';
 import type { Recogida } from '@/types';
-import { useUserProfile } from '@/hooks/useUserProfile';
 
-// Extend the Recogida type to include adminId
-interface RecogidaWithAdmin extends Recogida {
-  adminId?: string;
-}
-
-export function useRecogidas(adminId?: string) {
-  const [recogidas, setRecogidas] = useState<RecogidaWithAdmin[]>([]);
+export function useRecogidas() {
+  const [recogidas, setRecogidas] = useState<Recogida[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { profile } = useUserProfile();
-  
-  // Usar el adminId proporcionado o el del perfil actual
-  const efectiveAdminId = adminId || profile?.id;
 
   // Make sure that the Recogida object doesn't include properties that aren't in the interface
   const loadRecogidasData = async () => {
     try {
       setLoading(true);
-      
-      if (!efectiveAdminId) {
-        console.error("No hay ID de administrador disponible para filtrar recogidas");
-        setLoading(false);
-        return;
-      }
-      
       const recogidasRef = collection(db, "recogidas");
+      const recogidasSnap = await getDocs(query(recogidasRef, orderBy("fechaRecogida", "desc")));
       
-      // Filtrar por adminId
-      const recogidasQuery = query(
-        recogidasRef,
-        where("adminId", "==", efectiveAdminId),
-        orderBy("fechaRecogida", "desc")
-      );
-      
-      const recogidasSnap = await getDocs(recogidasQuery);
-      
-      const recogidasData: RecogidaWithAdmin[] = [];
+      const recogidasData: Recogida[] = [];
       recogidasSnap.forEach((doc) => {
         const data = doc.data();
         recogidasData.push({
           id: doc.id,
-          ...data as RecogidaWithAdmin,
+          ...data as Recogida,
           fechaRecogida: data.fechaRecogida?.toDate(),
           createdAt: data.createdAt?.toDate(),
           updatedAt: data.updatedAt?.toDate(),
-          fechaSolicitud: data.fechaSolicitud?.toDate() 
+          fechaSolicitud: data.fechaSolicitud?.toDate() // Handle the fechaSolicitud field
         });
       });
       
@@ -66,16 +40,10 @@ export function useRecogidas(adminId?: string) {
     }
   };
 
-  const addRecogida = async (nuevaRecogida: Partial<Omit<RecogidaWithAdmin, "id">>) => {
+  const addRecogida = async (nuevaRecogida: Partial<Omit<Recogida, "id">>) => {
     try {
-      if (!efectiveAdminId) {
-        toast.error('No se puede asociar la recogida a un administrador');
-        return false;
-      }
-      
       const recogidaData = {
         ...nuevaRecogida,
-        adminId: efectiveAdminId, // Asegurar que siempre se guarda con adminId
         estadoRecogida: nuevaRecogida.estadoRecogida || "pendiente",
         fechaRecogida: nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date(),
         fecha: nuevaRecogida.fecha || nuevaRecogida.fechaRecogida || new Date(),
@@ -98,15 +66,8 @@ export function useRecogidas(adminId?: string) {
     }
   };
 
-  const updateRecogida = async (id: string, data: Partial<RecogidaWithAdmin>) => {
+  const updateRecogida = async (id: string, data: Partial<Recogida>) => {
     try {
-      // Verificar que la recogida pertenece a este administrador
-      const recogida = recogidas.find(r => r.id === id);
-      if (!recogida || recogida.adminId !== efectiveAdminId) {
-        toast.error("No tienes permiso para actualizar esta recogida");
-        return false;
-      }
-      
       await updateDoc(doc(db, "recogidas", id), {
         ...data,
         updatedAt: serverTimestamp()
@@ -176,13 +137,6 @@ export function useRecogidas(adminId?: string) {
 
   const deleteRecogida = async (id: string) => {
     try {
-      // Verificar que la recogida pertenece a este administrador
-      const recogida = recogidas.find(r => r.id === id);
-      if (!recogida || recogida.adminId !== efectiveAdminId) {
-        toast.error("No tienes permiso para eliminar esta recogida");
-        return false;
-      }
-      
       await deleteDoc(doc(db, "recogidas", id));
       toast.success("Recogida eliminada correctamente");
       await loadRecogidasData();
@@ -196,13 +150,6 @@ export function useRecogidas(adminId?: string) {
 
   const completarRecogida = async (id: string, litrosRecogidos: number) => {
     try {
-      // Verificar que la recogida pertenece a este administrador
-      const recogida = recogidas.find(r => r.id === id);
-      if (!recogida || recogida.adminId !== efectiveAdminId) {
-        toast.error("No tienes permiso para completar esta recogida");
-        return false;
-      }
-      
       await updateDoc(doc(db, "recogidas", id), {
         estadoRecogida: "completada",
         completada: true,
@@ -310,10 +257,8 @@ export function useRecogidas(adminId?: string) {
   };
 
   useEffect(() => {
-    if (efectiveAdminId) {
-      loadRecogidasData();
-    }
-  }, [efectiveAdminId]);
+    loadRecogidasData();
+  }, []);
 
   return {
     recogidas,
