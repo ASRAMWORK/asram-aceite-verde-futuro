@@ -19,8 +19,17 @@ interface AdminIdProps {
   adminId?: string;
 }
 
-// Verify that these imported components accept adminId prop in their prop interfaces
-// We'll create wrapper components to ensure type safety
+// Define interfaces for each component that needs adminId prop
+interface AdministradorPanelProps extends AdminIdProps {}
+interface MisComunidadesProps extends AdminIdProps {}
+interface GestionarComunidadProps extends AdminIdProps {}
+interface AdministradorClientesProps extends AdminIdProps {}
+interface AdministradorRecogidasProps extends AdminIdProps {}
+interface AdministradorEstadisticasProps extends AdminIdProps {}
+interface InformesPanelProps extends AdminIdProps {}
+interface AdministradorPerfilProps extends AdminIdProps {}
+interface GestionComunidadesProps extends AdminIdProps {}
+interface ReunionesViewProps extends AdminIdProps {}
 
 // Create wrapper components that accept and pass down adminId
 const PanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {

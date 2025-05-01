@@ -26,22 +26,28 @@ export const useComunidadesVecinos = (adminId?: string) => {
         return;
       }
       
-      // Filtrar siempre por ID del administrador
+      // Modificar la consulta para evitar el error de índice
+      // Primero filtramos por administradorId y luego ordenamos en memoria
       const comunidadesRef = collection(db, 'comunidadesVecinos');
       const comunidadSnapshot = await getDocs(
         query(
           comunidadesRef, 
-          where('administradorId', '==', efectiveAdminId),
-          orderBy('nombre')
+          where('administradorId', '==', efectiveAdminId)
+          // Eliminamos el orderBy para evitar requerir el índice compuesto
         )
       );
       
-      const comunidadesData: ComunidadVecinos[] = comunidadSnapshot.docs.map(doc => ({
+      let comunidadesData: ComunidadVecinos[] = comunidadSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data() as ComunidadVecinos,
         createdAt: doc.data().createdAt?.toDate(),
         updatedAt: doc.data().updatedAt?.toDate()
       }));
+      
+      // Ordenamos en memoria por nombre para evitar requerir el índice
+      comunidadesData = comunidadesData.sort((a, b) => {
+        return a.nombre.localeCompare(b.nombre);
+      });
       
       setComunidades(comunidadesData);
     } catch (e: any) {
