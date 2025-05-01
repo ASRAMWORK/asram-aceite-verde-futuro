@@ -1,11 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Building, Plus, Loader2, MapPin, Home, Package, Droplet, BarChart } from 'lucide-react';
+import { 
+  Building, Plus, Loader2, MapPin, Home, 
+  Package, Droplet, BarChart, Trash2, Eye
+} from 'lucide-react';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { ComunidadVecinos } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import RecogidaClienteButton from '../admin/clientes/RecogidaClienteButton';
+import { toast } from 'sonner';
 
 interface MisComunidadesProps {
   adminId?: string;
@@ -14,9 +21,12 @@ interface MisComunidadesProps {
 const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
   const { profile } = useUserProfile();
   const efectiveAdminId = adminId || profile?.id;
-  const { comunidades, loading, error } = useComunidadesVecinos(efectiveAdminId);
+  const { comunidades, loading, error, deleteComunidad } = useComunidadesVecinos(efectiveAdminId);
   const navigate = useNavigate();
   
+  const [selectedComunidad, setSelectedComunidad] = useState<ComunidadVecinos | null>(null);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -35,6 +45,20 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
   
   const handleAddComunidad = () => {
     navigate('/administrador/dashboard/gestionar');
+  };
+  
+  const handleViewDetails = (comunidad: ComunidadVecinos) => {
+    setSelectedComunidad(comunidad);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteComunidad = async (id: string, nombre: string) => {
+    if (window.confirm(`¿Estás seguro de eliminar la comunidad ${nombre}?`)) {
+      const success = await deleteComunidad(id);
+      if (success) {
+        toast.success(`La comunidad ${nombre} ha sido eliminada correctamente`);
+      }
+    }
   };
   
   // Helper function to safely get environmental impact values
@@ -145,12 +169,41 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                   </div>
                 </div>
                 
-                <div className="mt-4 flex justify-between">
-                  <Button variant="outline" size="sm">
-                    Ver detalle
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex items-center justify-center"
+                    onClick={() => handleViewDetails(comunidad)}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Detalles
                   </Button>
-                  <Button variant="secondary" size="sm">
-                    Recogidas
+                  
+                  <RecogidaClienteButton 
+                    cliente={{
+                      id: comunidad.id,
+                      nombre: comunidad.nombre,
+                      direccion: comunidad.direccion,
+                      distrito: comunidad.distrito,
+                      barrio: comunidad.barrio,
+                      ciudad: comunidad.ciudad,
+                      telefono: comunidad.telefono || '',
+                      email: comunidad.email || '',
+                      role: 'cliente'
+                    }}
+                    variant="secondary"
+                    size="sm"
+                  />
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex items-center justify-center text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={() => handleDeleteComunidad(comunidad.id, comunidad.nombre)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Eliminar
                   </Button>
                 </div>
               </CardContent>
@@ -158,6 +211,98 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
           ))}
         </div>
       )}
+      
+      {/* Modal de detalles de la comunidad */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          {selectedComunidad && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl">{selectedComunidad.nombre}</DialogTitle>
+                <DialogDescription className="flex items-center text-sm">
+                  <MapPin className="h-3 w-3 mr-1 inline" />
+                  {selectedComunidad.direccion}, {selectedComunidad.ciudad}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid grid-cols-2 gap-4 py-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium">Información General</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="font-medium text-gray-500">CIF:</div>
+                    <div>{selectedComunidad.cif}</div>
+                    <div className="font-medium text-gray-500">Provincia:</div>
+                    <div>{selectedComunidad.provincia || 'No especificado'}</div>
+                    <div className="font-medium text-gray-500">Teléfono:</div>
+                    <div>{selectedComunidad.telefono || 'No especificado'}</div>
+                    <div className="font-medium text-gray-500">Email:</div>
+                    <div>{selectedComunidad.email || 'No especificado'}</div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="font-medium">Datos de Recogida</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="font-medium text-gray-500">Viviendas:</div>
+                    <div>{selectedComunidad.numViviendas || 0}</div>
+                    <div className="font-medium text-gray-500">Contenedores:</div>
+                    <div>{selectedComunidad.numContenedores || 0}</div>
+                    <div className="font-medium text-gray-500">Litros recogidos:</div>
+                    <div>{selectedComunidad.litrosRecogidos || 0} L</div>
+                    <div className="font-medium text-gray-500">Fecha de alta:</div>
+                    <div>{selectedComunidad.createdAt ? new Date(selectedComunidad.createdAt).toLocaleDateString() : 'No especificado'}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2 py-4">
+                <h4 className="font-medium">Impacto Medioambiental</h4>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="p-3 bg-green-50 rounded text-center">
+                    <p className="font-semibold text-green-700 text-lg">
+                      {Math.round(getImpactoValue(selectedComunidad, 'co2'))} kg
+                    </p>
+                    <p className="text-gray-500">CO2 Reducido</p>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded text-center">
+                    <p className="font-semibold text-blue-700 text-lg">
+                      {Math.round(getImpactoValue(selectedComunidad, 'agua'))} L
+                    </p>
+                    <p className="text-gray-500">Agua Ahorrada</p>
+                  </div>
+                  <div className="p-3 bg-amber-50 rounded text-center">
+                    <p className="font-semibold text-amber-700 text-lg">
+                      {Math.round(getImpactoValue(selectedComunidad, 'energia'))} kWh
+                    </p>
+                    <p className="text-gray-500">Energía Ahorrada</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-between mt-4">
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cerrar
+                </Button>
+                <RecogidaClienteButton 
+                  cliente={{
+                    id: selectedComunidad.id,
+                    nombre: selectedComunidad.nombre,
+                    direccion: selectedComunidad.direccion,
+                    distrito: selectedComunidad.distrito,
+                    barrio: selectedComunidad.barrio,
+                    ciudad: selectedComunidad.ciudad,
+                    telefono: selectedComunidad.telefono || '',
+                    email: selectedComunidad.email || '',
+                    role: 'cliente'
+                  }}
+                  variant="default"
+                  size="default"
+                />
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
