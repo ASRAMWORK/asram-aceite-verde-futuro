@@ -32,7 +32,7 @@ const ClientesRankingView: React.FC<ClientesRankingViewProps> = ({ adminId }) =>
           id: recogida.clienteId,
           nombre: recogida.nombreContacto || 'Cliente sin nombre',
           distrito: recogida.distrito || 'No especificado',
-          tipo: recogida.tipoCliente || 'No especificado',
+          tipo: recogida.tipoResiduo || 'No especificado', // Changed from tipoCliente to tipoResiduo
           litrosTotales: 0,
           recogidasCount: 0
         };
