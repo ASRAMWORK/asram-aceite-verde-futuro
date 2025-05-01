@@ -20,7 +20,7 @@ interface AdminIdProps {
 }
 
 // Create wrapper components that accept and pass down adminId
-const PanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+const PanelWrapper = () => {
   // AdministradorPanel doesn't accept adminId prop
   return <AdministradorPanel />;
 };
@@ -49,7 +49,7 @@ const InformesPanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
   return <InformesPanel adminId={adminId} />;
 };
 
-const PerfilWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+const PerfilWrapper = () => {
   // AdministradorPerfil doesn't accept adminId prop
   return <AdministradorPerfil />;
 };
@@ -74,7 +74,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   const { profile } = useUserProfile();
   // Usar el adminId proporcionado o el del perfil
   const efectiveAdminId = adminId || profile?.id;
-
+  
   // Verificar si tenemos un ID válido
   if (!efectiveAdminId) {
     return (
@@ -87,7 +87,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <PanelWrapper adminId={efectiveAdminId} />; 
+      return <PanelWrapper />; 
     case 'comunidades':
       return <MisComunidadesWrapper adminId={efectiveAdminId} />;
     case 'gestionar':
@@ -101,7 +101,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
     case 'informes':
       return <InformesPanelWrapper adminId={efectiveAdminId} />;
     case 'perfil':
-      return <PerfilWrapper adminId={efectiveAdminId} />;
+      return <PerfilWrapper />;
     case 'gestionComunidades':
       return <GestionComunidadesWrapper adminId={efectiveAdminId} />;
     case 'reuniones':
