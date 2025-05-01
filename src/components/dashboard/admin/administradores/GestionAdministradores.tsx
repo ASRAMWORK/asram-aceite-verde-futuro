@@ -36,15 +36,20 @@ const GestionAdministradores = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Filtrar administradores por rol "administrador" o "admin_finca"
-  const administradores = usuarios.filter(
-    usuario => usuario.role === 'administrador' || usuario.role === 'admin_finca'
+  // Corregimos este filtro para que utilice correctamente las propiedades de role
+  const administradores = Array.isArray(usuarios) ? usuarios.filter(
+    usuario => {
+      // Verificamos que el usuario.role exista antes de comparar
+      const userRole = usuario?.role?.toLowerCase?.() || '';
+      return userRole === 'administrador' || userRole === 'admin_finca';
+    }
   ).filter(
     admin => 
       searchTerm === '' || 
-      admin.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.nombreAdministracion?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      (admin.nombre?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (admin.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (admin.nombreAdministracion?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  ) : [];
 
   const handleVerDetalles = (admin: Usuario) => {
     setSelectedAdmin(admin);

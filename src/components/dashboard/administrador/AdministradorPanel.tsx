@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -40,9 +39,12 @@ const AdministradorPanel = () => {
         try {
           const adminDoc = await getDoc(doc(db, "usuarios", viewingAdminId));
           if (adminDoc.exists()) {
+            const data = adminDoc.data();
             setViewingAdminData({
               id: adminDoc.id,
-              ...adminDoc.data() as Omit<Usuario, 'id'>
+              ...data as Omit<Usuario, 'id'>,
+              createdAt: data.createdAt?.toDate?.() || new Date(),
+              updatedAt: data.updatedAt?.toDate?.() || new Date()
             });
           }
         } catch (error) {
@@ -63,8 +65,6 @@ const AdministradorPanel = () => {
   };
   
   // Determinar qué ID de administrador usar
-  // Esta es la parte crítica: garantizar que siempre usamos el ID correcto
-  // ya sea del admin autenticado o del que está siendo visualizado por el superadmin
   const adminIdToUse = viewingAdminData?.id || profile?.id;
   
   if (loading && !viewingAdminData) {

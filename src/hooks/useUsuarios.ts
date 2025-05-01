@@ -39,16 +39,23 @@ export function useUsuarios() {
       const usuariosData: Usuario[] = [];
       usuariosSnap.forEach((doc) => {
         const data = doc.data() as Record<string, any>;
-        usuariosData.push({
+        
+        // Convertimos los timestamps a Date y aseguramos que role sea un string válido
+        const usuario = {
           id: doc.id,
-          ...data as Partial<Usuario>,
-          createdAt: data.createdAt?.toDate(),
-          updatedAt: data.updatedAt?.toDate(),
-          fechaRegistro: data.fechaRegistro?.toDate()
-        } as Usuario);
+          ...data,
+          role: data.role || 'user', // Aseguramos que role esté definido
+          createdAt: data.createdAt?.toDate?.() || new Date(),
+          updatedAt: data.updatedAt?.toDate?.() || new Date(),
+          fechaRegistro: data.fechaRegistro?.toDate?.() || data.createdAt?.toDate?.() || new Date()
+        } as Usuario;
+        
+        usuariosData.push(usuario);
       });
       
       setUsuarios(usuariosData);
+      console.log("Usuarios cargados:", usuariosData.length);
+      console.log("Administradores:", usuariosData.filter(u => u.role === 'administrador' || u.role === 'admin_finca').length);
     } catch (err) {
       console.error("Error cargando usuarios:", err);
       setError("Error al cargar los datos de usuarios");
