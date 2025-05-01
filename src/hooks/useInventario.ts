@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { Chart } from '@/components/ui/chart';
 
 interface Producto {
   id: string;
@@ -39,12 +38,15 @@ export const useInventario = () => {
   useEffect(() => {
     const loadProductos = () => {
       try {
+        setLoading(true);
         const savedProductos = localStorage.getItem('inventario-productos');
         if (savedProductos) {
           setProductos(JSON.parse(savedProductos));
         }
       } catch (error) {
         console.error('Error loading productos from localStorage:', error);
+      } finally {
+        setLoading(false);
       }
     };
     
@@ -67,28 +69,68 @@ export const useInventario = () => {
   }, [productos]);
 
   const addProducto = async (producto: NuevoProducto) => {
-    const newProducto: Producto = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...producto,
-      fechaCreacion: new Date().toISOString(),
-    };
-    
-    setProductos(prev => [...prev, newProducto]);
-    return newProducto;
+    setLoading(true);
+    try {
+      const newProducto: Producto = {
+        id: Math.random().toString(36).substr(2, 9),
+        ...producto,
+        fechaCreacion: new Date().toISOString(),
+      };
+      
+      setProductos(prevProductos => [...prevProductos, newProducto]);
+      return newProducto;
+    } catch (error) {
+      console.error("Error añadiendo producto:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProducto = async (productoId: string, data: Partial<Producto>) => {
+    setLoading(true);
+    try {
+      setProductos(prevProductos => 
+        prevProductos.map(producto => 
+          producto.id === productoId ? { ...producto, ...data } : producto
+        )
+      );
+    } catch (error) {
+      console.error("Error actualizando producto:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateStock = async (productoId: string, newStock: number) => {
-    setProductos(prev => 
-      prev.map(producto => 
-        producto.id === productoId 
-          ? { ...producto, stockActual: newStock }
-          : producto
-      )
-    );
+    setLoading(true);
+    try {
+      setProductos(prev => 
+        prev.map(producto => 
+          producto.id === productoId 
+            ? { ...producto, stockActual: newStock }
+            : producto
+        )
+      );
+    } catch (error) {
+      console.error("Error actualizando stock:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deleteProducto = async (productoId: string) => {
-    setProductos(prev => prev.filter(producto => producto.id !== productoId));
+    setLoading(true);
+    try {
+      setProductos(prev => prev.filter(producto => producto.id !== productoId));
+    } catch (error) {
+      console.error("Error eliminando producto:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStockPorCategoria = () => {
@@ -153,6 +195,7 @@ export const useInventario = () => {
     productos,
     loading,
     addProducto,
+    updateProducto,
     updateStock,
     deleteProducto,
     stats,

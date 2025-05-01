@@ -16,6 +16,14 @@ import {
 
 interface ProductoInventarioFormProps {
   onSuccess: () => void;
+  producto?: {
+    id: string;
+    nombre: string;
+    categoria: string;
+    stockActual: number;
+    stockMinimo: number;
+  };
+  isEditing?: boolean;
 }
 
 const CATEGORIAS = [
@@ -28,17 +36,17 @@ const CATEGORIAS = [
   "Otros"
 ];
 
-export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProps) => {
+export const ProductoInventarioForm = ({ onSuccess, producto, isEditing = false }: ProductoInventarioFormProps) => {
   const [formData, setFormData] = useState({
-    nombre: "",
-    categoria: "",
-    stockActual: 0,
-    stockMinimo: 0,
+    nombre: producto?.nombre || "",
+    categoria: producto?.categoria || "",
+    stockActual: producto?.stockActual || 0,
+    stockMinimo: producto?.stockMinimo || 0,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [otherCategory, setOtherCategory] = useState("");
 
-  const { addProducto } = useInventario();
+  const { addProducto, updateProducto } = useInventario();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,12 +59,18 @@ export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProp
         categoria: formData.categoria === "Otros" ? otherCategory : formData.categoria,
       };
       
-      await addProducto(finalData);
-      toast.success("Producto añadido correctamente");
+      if (isEditing && producto) {
+        await updateProducto(producto.id, finalData);
+        toast.success("Producto actualizado correctamente");
+      } else {
+        await addProducto(finalData);
+        toast.success("Producto añadido correctamente");
+      }
+      
       onSuccess();
     } catch (error) {
-      console.error("Error al añadir el producto:", error);
-      toast.error("Error al añadir el producto");
+      console.error("Error al procesar el producto:", error);
+      toast.error(isEditing ? "Error al actualizar el producto" : "Error al añadir el producto");
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +84,7 @@ export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProp
           id="nombre"
           value={formData.nombre}
           onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-          className="border-gray-300 focus:border-asram focus:ring focus:ring-asram-100"
+          className="border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
           required
           placeholder="Ej: Detergente ecológico"
         />
@@ -83,7 +97,7 @@ export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProp
           onValueChange={(value) => setFormData(prev => ({ ...prev, categoria: value }))}
           required
         >
-          <SelectTrigger className="w-full border-gray-300 focus:border-asram focus:ring focus:ring-asram-100">
+          <SelectTrigger className="w-full border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20">
             <SelectValue placeholder="Selecciona una categoría" />
           </SelectTrigger>
           <SelectContent>
@@ -97,7 +111,7 @@ export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProp
           <Input
             value={otherCategory}
             onChange={(e) => setOtherCategory(e.target.value)}
-            className="mt-2 border-gray-300 focus:border-asram focus:ring focus:ring-asram-100"
+            className="mt-2 border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
             required
             placeholder="Especifica la categoría"
           />
@@ -106,14 +120,14 @@ export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProp
       
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="stockActual" className="text-sm font-medium">Stock Inicial</Label>
+          <Label htmlFor="stockActual" className="text-sm font-medium">Stock {isEditing ? 'Actual' : 'Inicial'}</Label>
           <Input
             id="stockActual"
             type="number"
             min="0"
             value={formData.stockActual}
-            onChange={(e) => setFormData(prev => ({ ...prev, stockActual: parseInt(e.target.value) }))}
-            className="border-gray-300 focus:border-asram focus:ring focus:ring-asram-100"
+            onChange={(e) => setFormData(prev => ({ ...prev, stockActual: parseInt(e.target.value) || 0 }))}
+            className="border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
             required
           />
         </div>
@@ -125,8 +139,8 @@ export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProp
             type="number"
             min="0"
             value={formData.stockMinimo}
-            onChange={(e) => setFormData(prev => ({ ...prev, stockMinimo: parseInt(e.target.value) }))}
-            className="border-gray-300 focus:border-asram focus:ring focus:ring-asram-100"
+            onChange={(e) => setFormData(prev => ({ ...prev, stockMinimo: parseInt(e.target.value) || 0 }))}
+            className="border-gray-300 focus:border-[#EE970D] focus:ring focus:ring-[#EE970D]/20"
             required
           />
           <p className="text-xs text-gray-500">Nivel para alertas de stock bajo</p>
@@ -150,12 +164,12 @@ export const ProductoInventarioForm = ({ onSuccess }: ProductoInventarioFormProp
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Guardando...
+              {isEditing ? 'Actualizando...' : 'Guardando...'}
             </>
           ) : (
             <>
               <PackagePlus className="mr-2 h-4 w-4" />
-              Guardar Producto
+              {isEditing ? 'Actualizar Producto' : 'Guardar Producto'}
             </>
           )}
         </Button>

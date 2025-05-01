@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Box, PackagePlus, Plus, Minus, Trash2, Search, Filter } from "lucide-react";
+import { Box, PackagePlus, Plus, Minus, Trash2, Search, Filter, Edit, AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductoInventarioForm } from "./ProductoInventarioForm";
 import { useInventario } from "@/hooks/useInventario";
@@ -30,22 +30,25 @@ import { es } from "date-fns/locale";
 
 const InventarioView = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { productos, loading, updateStock, deleteProducto } = useInventario();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFilter, setCategoriaFilter] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
+  const [productoSeleccionado, setProductoSeleccionado] = useState<any>(null);
 
-  const handleStockUpdate = async (productoId: string, cantidad: number) => {
+  const handleStockUpdate = async (productoId: string, currentStock: number, cantidad: number) => {
     try {
-      await updateStock(productoId, cantidad);
+      const newStock = Math.max(0, currentStock + cantidad);
+      await updateStock(productoId, newStock);
       toast.success("Stock actualizado correctamente");
     } catch (error) {
       toast.error("Error al actualizar el stock");
     }
   };
 
-  const handleDelete = async (productoId: string) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+  const handleDelete = async (productoId: string, nombre: string) => {
+    if (window.confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?`)) {
       try {
         await deleteProducto(productoId);
         toast.success("Producto eliminado correctamente");
@@ -53,6 +56,11 @@ const InventarioView = () => {
         toast.error("Error al eliminar el producto");
       }
     }
+  };
+
+  const handleEdit = (producto: any) => {
+    setProductoSeleccionado(producto);
+    setEditDialogOpen(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -98,7 +106,10 @@ const InventarioView = () => {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl font-semibold">Productos en Inventario</CardTitle>
+          <CardTitle className="text-xl font-semibold flex items-center">
+            <Box className="mr-2 h-5 w-5 text-[#EE970D]" />
+            Productos en Inventario
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -108,7 +119,7 @@ const InventarioView = () => {
                 placeholder="Buscar productos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 border-gray-300 focus:border-[#EE970D]"
+                className="pl-10 border-gray-300 focus:border-[#EE970D] focus:ring-[#EE970D]/20"
               />
             </div>
             
@@ -141,7 +152,12 @@ const InventarioView = () => {
           </div>
 
           {loading ? (
-            <div className="text-center py-8">Cargando...</div>
+            <div className="flex items-center justify-center py-8">
+              <div className="flex flex-col items-center space-y-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#EE970D]"></div>
+                <p className="text-sm text-muted-foreground">Cargando productos...</p>
+              </div>
+            </div>
           ) : filteredProductos.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
@@ -169,12 +185,16 @@ const InventarioView = () => {
                       <TableCell className="text-right font-medium">{producto.stockActual}</TableCell>
                       <TableCell className="text-right">{producto.stockMinimo}</TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={producto.stockActual > producto.stockMinimo ? "default" : "destructive"}
-                          className={producto.stockActual > producto.stockMinimo ? "bg-green-500" : ""}
-                        >
-                          {producto.stockActual > producto.stockMinimo ? "En Stock" : "Stock Bajo"}
-                        </Badge>
+                        {producto.stockActual <= producto.stockMinimo ? (
+                          <Badge variant="destructive" className="flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3" />
+                            Stock Bajo
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-green-500 flex items-center gap-1">
+                            En Stock
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell>{formatDate(producto.fechaCreacion)}</TableCell>
                       <TableCell>
@@ -182,30 +202,39 @@ const InventarioView = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleStockUpdate(producto.id, producto.stockActual + 1)}
+                            onClick={() => handleStockUpdate(producto.id, producto.stockActual, 1)}
                             className="h-8 w-8 p-0 text-green-600"
+                            title="Incrementar stock"
                           >
                             <Plus className="h-4 w-4" />
-                            <span className="sr-only">Incrementar</span>
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleStockUpdate(producto.id, Math.max(0, producto.stockActual - 1))}
+                            onClick={() => handleStockUpdate(producto.id, producto.stockActual, -1)}
                             disabled={producto.stockActual <= 0}
                             className="h-8 w-8 p-0 text-red-600"
+                            title="Decrementar stock"
                           >
                             <Minus className="h-4 w-4" />
-                            <span className="sr-only">Decrementar</span>
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(producto.id)}
+                            onClick={() => handleEdit(producto)}
+                            className="h-8 w-8 p-0 text-blue-600"
+                            title="Editar producto"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(producto.id, producto.nombre)}
                             className="h-8 w-8 p-0 text-red-600"
+                            title="Eliminar producto"
                           >
                             <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Eliminar</span>
                           </Button>
                         </div>
                       </TableCell>
@@ -225,12 +254,38 @@ const InventarioView = () => {
         </CardContent>
       </Card>
 
+      {/* Diálogo para añadir nuevo producto */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
-            <DialogTitle className="text-[#EE970D]">Nuevo Producto</DialogTitle>
+            <DialogTitle className="text-[#EE970D] flex items-center">
+              <PackagePlus className="mr-2 h-5 w-5" />
+              Nuevo Producto
+            </DialogTitle>
           </DialogHeader>
           <ProductoInventarioForm onSuccess={() => setDialogOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para editar producto */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle className="text-[#EE970D] flex items-center">
+              <Edit className="mr-2 h-5 w-5" />
+              Editar Producto
+            </DialogTitle>
+          </DialogHeader>
+          {productoSeleccionado && (
+            <ProductoInventarioForm 
+              onSuccess={() => {
+                setEditDialogOpen(false);
+                setProductoSeleccionado(null);
+              }}
+              producto={productoSeleccionado}
+              isEditing={true}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
