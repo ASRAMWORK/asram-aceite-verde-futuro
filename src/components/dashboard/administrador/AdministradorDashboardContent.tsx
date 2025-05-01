@@ -14,34 +14,40 @@ import GestionComunidades from './comunidades/GestionComunidades';
 import ReunionesView from '../admin/reuniones/ReunionesView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
-// Define interfaces for the components that don't have adminId in their props
+// Create proper interfaces for the components
 interface AdminIdProps {
   adminId: string;
 }
 
-// Create proper interface for ReunionesView component that accepts adminId
-interface ReunionesViewProps {
-  adminId: string;
-  [key: string]: any;
+// Define interfaces for components that need adminId
+interface AdministradorPanelProps {
+  adminId?: string;
 }
 
-// Create specific interfaces for the components to fix TypeScript errors
-interface AdministradorEstadisticasProps {
-  adminId: string;
+interface ReunionesViewProps extends AdminIdProps {
+  // Additional props for ReunionesView if needed
 }
 
-// Creamos componentes wrapper que aceptan adminId
-const EstadisticasWrapper: React.FC<AdminIdProps> = ({ adminId, ...props }) => {
-  return <AdministradorEstadisticas adminId={adminId} {...props} />;
+interface AdministradorEstadisticasProps extends AdminIdProps {
+  // Additional props for AdministradorEstadisticas if needed
+}
+
+// Create wrapper components that accept and pass down adminId
+const PanelWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  return <AdministradorPanel adminId={adminId} />;
 };
 
-const ReunionesWrapper: React.FC<AdminIdProps> = ({ adminId, ...props }) => {
-  return <ReunionesView adminId={adminId} {...props as ReunionesViewProps} />;
+const EstadisticasWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  return <AdministradorEstadisticas adminId={adminId} />;
+};
+
+const ReunionesWrapper: React.FC<AdminIdProps> = ({ adminId }) => {
+  return <ReunionesView adminId={adminId} />;
 };
 
 interface AdministradorDashboardContentProps {
   activeTab?: string;
-  adminId?: string; // Añadimos la propiedad para pasar el ID
+  adminId?: string;
 }
 
 const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps> = ({ 
@@ -64,7 +70,7 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   // Based on the activeTab from the sidebar, render the appropriate component
   switch (activeTab) {
     case 'home':
-      return <AdministradorPanel />; // No adminId prop for this component
+      return <PanelWrapper adminId={efectiveAdminId} />; 
     case 'comunidades':
       return <MisComunidades adminId={efectiveAdminId} />;
     case 'gestionar':
