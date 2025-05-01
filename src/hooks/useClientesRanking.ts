@@ -22,50 +22,50 @@ export function useClientesRanking(recogidas: Recogida[]) {
   useEffect(() => {
     if (!recogidas.length) return;
 
-    // Process recogidas data to build rankings
+    // Procesar datos de recogidas para construir rankings
     const clientesMap: {[key: string]: ClienteRanking} = {};
     
     recogidas.forEach(recogida => {
-      if (!recogida.clienteId || !recogida.litrosRecogidos) return;
+      if (!recogida.clienteId || recogida.litrosRecogidos === undefined) return;
       
-      // Initialize client if it doesn't exist in the map
+      // Inicializar cliente si no existe en el mapa
       if (!clientesMap[recogida.clienteId]) {
         clientesMap[recogida.clienteId] = {
           id: recogida.clienteId,
           nombre: recogida.nombreContacto || 'Cliente sin nombre',
           distrito: recogida.distrito || 'No especificado',
-          tipo: recogida.tipoResiduo || 'No especificado',
+          tipo: recogida.tipoResiduo || recogida.tipoCliente || 'No especificado',
           litrosTotales: 0,
           recogidasCount: 0
         };
       }
       
-      // Update client stats
-      clientesMap[recogida.clienteId].litrosTotales += recogida.litrosRecogidos;
+      // Actualizar estadísticas del cliente
+      clientesMap[recogida.clienteId].litrosTotales += recogida.litrosRecogidos || 0;
       clientesMap[recogida.clienteId].recogidasCount += 1;
     });
     
-    // Convert to array and sort by total liters (descending)
+    // Convertir a array y ordenar por litros totales (descendente)
     const clientesArray = Object.values(clientesMap).sort((a, b) => 
       b.litrosTotales - a.litrosTotales
     );
     
-    // Assign rankings
+    // Asignar rankings
     clientesArray.forEach((cliente, index) => {
       cliente.ranking = index + 1;
     });
     
     setClientesRanking(clientesArray);
     
-    // Group by distrito
+    // Agrupar por distrito
     const distritos: {[key: string]: ClienteRanking[]} = {};
     clientesArray.forEach(cliente => {
-      const distrito = cliente.distrito;
+      const distrito = cliente.distrito || 'No especificado';
       if (!distritos[distrito]) distritos[distrito] = [];
       distritos[distrito].push(cliente);
     });
     
-    // Sort each distrito ranking
+    // Ordenar cada ranking de distrito
     Object.keys(distritos).forEach(distrito => {
       distritos[distrito].sort((a, b) => b.litrosTotales - a.litrosTotales);
       distritos[distrito].forEach((cliente, index) => {
@@ -75,15 +75,15 @@ export function useClientesRanking(recogidas: Recogida[]) {
     
     setDistritoRankings(distritos);
     
-    // Group by tipo cliente
+    // Agrupar por tipo de cliente
     const tiposCliente: {[key: string]: ClienteRanking[]} = {};
     clientesArray.forEach(cliente => {
-      const tipo = cliente.tipo;
+      const tipo = cliente.tipo || 'No especificado';
       if (!tiposCliente[tipo]) tiposCliente[tipo] = [];
       tiposCliente[tipo].push(cliente);
     });
     
-    // Sort each tipo cliente ranking
+    // Ordenar cada ranking de tipo de cliente
     Object.keys(tiposCliente).forEach(tipo => {
       tiposCliente[tipo].sort((a, b) => b.litrosTotales - a.litrosTotales);
       tiposCliente[tipo].forEach((cliente, index) => {

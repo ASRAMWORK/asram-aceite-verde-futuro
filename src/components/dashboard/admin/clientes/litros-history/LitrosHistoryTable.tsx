@@ -23,18 +23,19 @@ const LitrosHistoryTable: React.FC<LitrosHistoryTableProps> = ({
   formatDate, 
   totalLitros 
 }) => {
-  // Sort recogidas by date (most recent first)
+  // Ordenar recogidas por fecha (más recientes primero)
   const sortedRecogidas = [...recogidasCliente].sort((a, b) => {
-    const dateA = a.fecha || a.fechaRecogida;
-    const dateB = b.fecha || b.fechaRecogida;
-    if (!dateA) return 1;
-    if (!dateB) return -1;
+    // Asegurar que tenemos fechas para comparar
+    const dateA = a.fecha || a.fechaRecogida || a.fechaCompletada;
+    const dateB = b.fecha || b.fechaRecogida || b.fechaCompletada;
+    if (!dateA) return 1; // Si A no tiene fecha, va después
+    if (!dateB) return -1; // Si B no tiene fecha, A va antes
     
-    // Convert to timestamps for comparison if they're Date objects
+    // Convertir a timestamps para comparación
     const timeA = dateA instanceof Date ? dateA.getTime() : new Date(dateA).getTime();
     const timeB = dateB instanceof Date ? dateB.getTime() : new Date(dateB).getTime();
     
-    return timeB - timeA;
+    return timeB - timeA; // Ordenar descendente (más reciente primero)
   });
 
   if (!sortedRecogidas.length) {
@@ -58,12 +59,12 @@ const LitrosHistoryTable: React.FC<LitrosHistoryTableProps> = ({
       </TableHeader>
       <TableBody>
         {sortedRecogidas.map((recogida) => (
-          <TableRow key={recogida.id}>
-            <TableCell>{formatDate(recogida.fecha || recogida.fechaRecogida)}</TableCell>
+          <TableRow key={recogida.id || `recogida-${recogida.fecha}-${Math.random()}`}>
+            <TableCell>{formatDate(recogida.fecha || recogida.fechaRecogida || recogida.fechaCompletada)}</TableCell>
             <TableCell>{recogida.direccion || recogida.direccionRecogida || 'No especificada'}</TableCell>
             <TableCell>
               <Badge variant="outline">
-                {recogida.esRecogidaZona ? "Ruta" : "Individual"}
+                {recogida.rutaId ? "Ruta" : (recogida.esRecogidaZona ? "Ruta" : "Individual")}
               </Badge>
             </TableCell>
             <TableCell className="text-right">

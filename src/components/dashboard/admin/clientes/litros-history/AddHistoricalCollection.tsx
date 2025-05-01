@@ -47,7 +47,7 @@ const AddHistoricalCollection: React.FC<AddHistoricalCollectionProps> = ({
     try {
       await onAddCollection(date, litros);
       setIsAddingRecogida(false);
-      setDate(new Date());
+      // Reset fields for next use
       setLitros(0);
     } catch (error) {
       console.error("Error adding historical collection:", error);

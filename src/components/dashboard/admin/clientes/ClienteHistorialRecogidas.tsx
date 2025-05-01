@@ -27,44 +27,44 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
   const [promedioLitros30Dias, setPromedioLitros30Dias] = useState<number>(0);
   
   useEffect(() => {
-    // Get recogidas for this specific client
-    if (cliente && cliente.id) {
+    // Solo actualizar si tenemos un clienteId e información de recogidas
+    if (cliente?.id && recogidas.length > 0) {
       const recogidasCliente = getRecogidasByClientId(cliente.id);
       setClienteRecogidas(recogidasCliente);
       
-      // Calculate average liters per 30 days
+      // Calcular promedio de litros cada 30 días si hay recogidas
       if (recogidasCliente.length > 0) {
-        // Sort recogidas by date (oldest first)
+        // Ordenar recogidas por fecha (más antiguas primero)
         const sortedRecogidas = [...recogidasCliente].sort((a, b) => {
           const dateA = new Date(a.fechaRecogida || a.fecha || 0);
           const dateB = new Date(b.fechaRecogida || b.fecha || 0);
           return dateA.getTime() - dateB.getTime();
         });
         
-        // Get first and last date
+        // Obtener primera y última fecha
         const firstDate = new Date(sortedRecogidas[0].fechaRecogida || sortedRecogidas[0].fecha || 0);
         const lastDate = new Date(sortedRecogidas[sortedRecogidas.length - 1].fechaRecogida || 
                         sortedRecogidas[sortedRecogidas.length - 1].fecha || 0);
         
-        // Calculate total days between first and last collection
+        // Calcular total de días entre primera y última recolección
         const totalDays = Math.max(1, Math.ceil((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)));
         
-        // Calculate total liters
+        // Calcular total de litros
         const totalLitros = sortedRecogidas.reduce((sum, recogida) => sum + (recogida.litrosRecogidos || 0), 0);
         
-        // Calculate average per 30 days
+        // Calcular promedio por 30 días
         const promedio = (totalLitros / totalDays) * 30;
         setPromedioLitros30Dias(parseFloat(promedio.toFixed(2)));
       }
     }
-  }, [cliente, recogidas, getRecogidasByClientId]);
+  }, [cliente?.id, recogidas, getRecogidasByClientId]);
   
-  // Calculate total liters
+  // Calcular total de litros
   const totalLitros = clienteRecogidas.reduce((sum, recogida) => {
     return sum + (recogida.litrosRecogidos || 0);
   }, 0);
   
-  // Handle adding a historical collection
+  // Manejar la adición de una recolección histórica
   const handleAddHistoricalCollection = async (date: Date, litros: number) => {
     if (!cliente.id) {
       console.error("Cliente ID is missing");
