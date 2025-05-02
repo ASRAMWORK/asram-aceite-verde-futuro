@@ -146,4 +146,7 @@ export interface Usuario {
   fechaRegistro?: Date;
   userId?: string;
   adminId?: string;
+  
+  // Add the comunidades property that was missing
+  comunidades?: ComunidadVecinos[];
 }

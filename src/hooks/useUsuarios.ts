@@ -84,6 +84,7 @@ export function useUsuarios() {
           // Si el usuario es un administrador, cargar sus comunidades
           if (usuario.role === 'administrador') {
             const comunidades = await cargarComunidadesAdministrador(usuario.id);
+            // Asignamos las comunidades al usuario
             usuario.comunidades = comunidades;
           }
           
@@ -292,4 +293,3 @@ export function useUsuarios() {
     addUsuario
   };
 }
-
