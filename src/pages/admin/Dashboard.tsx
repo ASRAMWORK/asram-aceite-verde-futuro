@@ -40,12 +40,15 @@ import {
   Globe,
   Box,
   CalendarDays,
-  Trophy
+  Trophy,
+  UserCog
 } from "lucide-react";
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
 import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView";
 import ClienteRankingWrapper from "@/components/dashboard/admin/rankings/ClienteRankingWrapper";
+import AdministradoresManagement from "@/components/dashboard/admin/administradores/AdministradoresManagement";
+import ComunidadesViviendas from "@/components/dashboard/admin/administradores/ComunidadesViviendas";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
@@ -144,6 +147,10 @@ const AdminDashboardPage = () => {
         return <ReunionesView />;
       case "ranking":
         return <ClienteRankingWrapper adminId={auth.currentUser?.uid} />;
+      case "administradores-management":
+        return <AdministradoresManagement />;
+      case "comunidades-viviendas":
+        return <ComunidadesViviendas />;
       default:
         return <AdminDashboard />;
     }
@@ -336,6 +343,28 @@ const AdminDashboardPage = () => {
           </Button>
           
           <Separator className="my-4" />
+          
+          <Button
+            variant={activeTab === "administradores-management" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "administradores-management" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("administradores-management")}
+          >
+            <UserCog className="mr-2 h-4 w-4" />
+            Gestión Administradores
+          </Button>
+          
+          <Button
+            variant={activeTab === "comunidades-viviendas" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "comunidades-viviendas" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("comunidades-viviendas")}
+          >
+            <Building className="mr-2 h-4 w-4" />
+            Comunidades y Viviendas
+          </Button>
           
           <Button
             variant={activeTab === "comerciales" ? "default" : "ghost"}
