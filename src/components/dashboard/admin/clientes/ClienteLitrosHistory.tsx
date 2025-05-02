@@ -1,13 +1,13 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplet } from 'lucide-react';
 import type { Usuario } from '@/types';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import AddHistoricalRecogidaForm from '../historial/AddHistoricalRecogidaForm';
 import LitrosHistoryTable from './litros-history/LitrosHistoryTable';
+import AddHistoricalRecogidaForm from './litros-history/AddHistoricalRecogidaForm';
 
 interface ClienteLitrosHistoryProps {
   cliente: Usuario;
