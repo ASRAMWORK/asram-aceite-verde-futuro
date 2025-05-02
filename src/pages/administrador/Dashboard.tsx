@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Calendar, Loader2 } from "lucide-react";
+import { Home, Users, PlusCircle, LogOut, FileText, BarChart } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -27,7 +27,7 @@ const AdministradorDashboardPage = () => {
       
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists() || (userDoc.data().role !== "administrador" && userDoc.data().role !== "admin_finca")) {
+        if (!userDoc.exists() || userDoc.data().role !== "administrador") {
           toast.error("No tienes permisos para acceder a este panel");
           navigate("/login");
         }
@@ -64,7 +64,6 @@ const AdministradorDashboardPage = () => {
       case "recogidas": tabValue = "recogidas"; break;
       case "estadisticas": tabValue = "estadisticas"; break;
       case "perfil": tabValue = "perfil"; break;
-      case "reuniones": tabValue = "reuniones"; break;
       default: tabValue = "home";
     }
     setActiveTab(tabValue);
@@ -73,10 +72,7 @@ const AdministradorDashboardPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen dash-gradient flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-lg">Cargando panel de administrador...</p>
-        </div>
+        <p className="text-lg">Cargando...</p>
       </div>
     );
   }
@@ -96,8 +92,7 @@ const AdministradorDashboardPage = () => {
               </div>
               <div>
                 <p className="font-medium text-sm">Bienvenido</p>
-                <p className="text-xs text-gray-500">{profile?.nombreAdministracion || profile?.nombre || "Administrador de Fincas"}</p>
-                {profile?.id && <p className="text-xs text-gray-400">ID: {profile.id.substring(0, 8)}...</p>}
+                <p className="text-xs text-gray-500">{profile?.nombreAdministracion || "Administrador de Fincas"}</p>
               </div>
             </div>
           </div>
@@ -134,17 +129,6 @@ const AdministradorDashboardPage = () => {
             >
               <PlusCircle className="mr-3 h-5 w-5" />
               Añadir Comunidad
-            </Button>
-            
-            <Button
-              variant={activeTab === "reuniones" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "reuniones" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
-              }`}
-              onClick={() => handleTabChange("reuniones")}
-            >
-              <Calendar className="mr-3 h-5 w-5" />
-              Reuniones y Eventos
             </Button>
             
             <Button

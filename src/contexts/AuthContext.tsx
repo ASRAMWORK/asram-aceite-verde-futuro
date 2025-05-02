@@ -6,8 +6,6 @@ import { UserRole } from '@/types';
 
 interface AuthContextType {
   user: User | null;
-  // Add currentUser as an alias to user for backward compatibility
-  currentUser: User | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
@@ -32,12 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      currentUser: user, // Add currentUser as an alias to user
-      loading, 
-      logout 
-    }}>
+    <AuthContext.Provider value={{ user, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -106,12 +106,10 @@ export function usePuntosVerdes(administradorId?: string) {
         barrio: nuevoPunto.barrio,
         numViviendas: nuevoPunto.numViviendas,
         numContenedores: nuevoPunto.numContenedores,
-        puntosVerdes: 0, // Changed from puntoVerdeId
+        puntoVerdeId: puntoRef.id,
         createdAt: new Date(),
         updatedAt: new Date(),
-        fechaRegistro: new Date(),
-        userId: `temp-${Date.now()}`,  // Adding required userId property
-        uid: `temp-${Date.now()}`      // Adding required uid property
+        fechaRegistro: new Date()
       });
       
       toast.success("Punto verde añadido correctamente");

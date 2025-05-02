@@ -25,119 +25,95 @@ import { Usuario } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
-  email: z.string().email('Email no válido').optional().or(z.literal('')),
-  telefono: z.string().min(9, 'Teléfono no válido').optional().or(z.literal('')),
-  direccion: z.string().min(5, 'La dirección es obligatoria').optional().or(z.literal('')),
-  ciudad: z.string().optional().or(z.literal('')),
-  provincia: z.string().optional().or(z.literal('')),
-  codigoPostal: z.string().optional().or(z.literal('')),
-  tipo: z.string(),
-  contacto: z.string().optional().or(z.literal('')),
-  distrito: z.string().optional().or(z.literal('')),
-  barrio: z.string().optional().or(z.literal('')),
-  numViviendas: z.number().optional(),
-  numContenedores: z.number().optional(),
-  cif: z.string().optional().or(z.literal('')),
-  nombreAdministracion: z.string().optional().or(z.literal(''))
+  apellido: z.string().min(2, 'Los apellidos son obligatorios'),
+  telefono: z.string().min(9, 'Teléfono no válido'),
+  email: z.string().email('Email no válido'),
+  direccion: z.string().min(5, 'La dirección es obligatoria'),
+  distrito: z.string().min(1, 'El distrito es obligatorio'),
+  barrio: z.string().min(1, 'El barrio es obligatorio'),
+  codigoPostal: z.string().min(5, 'Código postal no válido'),
+  frecuenciaRecogida: z.string(),
+  notas: z.string().optional(),
 });
 
 type ClienteFormValues = z.infer<typeof clienteSchema>;
 
 interface ClienteFormProps {
   onCancel: () => void;
-  onSubmit: () => Promise<void> | void;
-  usuario?: Usuario;
+  onSubmit: (data: ClienteFormValues) => Promise<void> | void;
+  clienteId?: string;
 }
 
-const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }) => {
-  const { addUsuario, updateUsuario } = useUsuarios();
+const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId }) => {
+  const { addUsuario, updateUsuario, usuarios } = useUsuarios();
   
-  const defaultValues: Partial<ClienteFormValues> = usuario ? {
-    nombre: usuario.nombre || '',
-    email: usuario.email || '',
-    telefono: usuario.telefono || '',
-    direccion: usuario.direccion || '',
-    ciudad: usuario.ciudad || 'Madrid',
-    provincia: usuario.provincia || 'Madrid',
-    codigoPostal: usuario.codigoPostal || '',
-    tipo: usuario.tipo || 'particular',
-    contacto: usuario.contacto || '',
-    distrito: usuario.distrito || '',
-    barrio: usuario.barrio || '',
-    numViviendas: usuario.numViviendas || 0,
-    numContenedores: usuario.numContenedores || 0,
-    cif: usuario.cif || '',
-    nombreAdministracion: usuario.nombreAdministracion || ''
-  } : {
-    nombre: '',
-    email: '',
-    telefono: '',
-    direccion: '',
-    ciudad: 'Madrid',
-    provincia: 'Madrid',
-    codigoPostal: '',
-    tipo: 'particular',
-    contacto: '',
-    distrito: '',
-    barrio: '',
-    numViviendas: 0,
-    numContenedores: 0,
-    cif: '',
-    nombreAdministracion: ''
-  };
+  const defaultValues: ClienteFormValues = clienteId 
+    ? usuarios.find(u => u.id === clienteId) || {
+        nombre: '',
+        apellido: '',
+        telefono: '',
+        email: '',
+        direccion: '',
+        distrito: '',
+        barrio: '',
+        codigoPostal: '',
+        frecuenciaRecogida: 'mensual',
+        notas: '',
+      }
+    : {
+        nombre: '',
+        apellido: '',
+        telefono: '',
+        email: '',
+        direccion: '',
+        distrito: '',
+        barrio: '',
+        codigoPostal: '',
+        frecuenciaRecogida: 'mensual',
+        notas: '',
+      };
   
   const form = useForm<ClienteFormValues>({
     resolver: zodResolver(clienteSchema),
-    defaultValues
+    defaultValues,
   });
 
   const handleSubmit = async (data: ClienteFormValues) => {
     try {
-      if (usuario) {
-        await updateUsuario(usuario.id, {
+      if (clienteId) {
+        await updateUsuario(clienteId, {
           ...data,
-          numViviendas: data.numViviendas || 0,
-          numContenedores: data.numContenedores || 0
+          tipo: 'comunidad',
+          activo: true,
         });
         toast.success('Cliente actualizado correctamente');
       } else {
         await addUsuario({
-          nombre: data.nombre, // Make sure nombre is required and not optional
-          email: data.email,
+          nombre: data.nombre,
+          apellido: data.apellido,
           telefono: data.telefono,
+          email: data.email,
           direccion: data.direccion,
-          ciudad: data.ciudad,
-          provincia: data.provincia,
-          codigoPostal: data.codigoPostal,
-          tipo: data.tipo,
-          contacto: data.contacto,
           distrito: data.distrito,
           barrio: data.barrio,
-          numViviendas: data.numViviendas || 0,
-          numContenedores: data.numContenedores || 0,
-          cif: data.cif,
-          nombreAdministracion: data.nombreAdministracion,
+          codigoPostal: data.codigoPostal,
+          frecuenciaRecogida: data.frecuenciaRecogida,
+          tipo: 'comunidad',
           activo: true,
-          role: 'user', // Changed from 'client' to 'user' to match UserRole type
+          role: 'user',
+          ciudad: '',
+          provincia: '',
+          pais: '',
           createdAt: new Date(),
-          updatedAt: new Date(),
-          fechaRegistro: new Date(),
-          uid: `temp-${Date.now()}`, // Adding required uid property
-          userId: `temp-${Date.now()}` // Adding required userId property
+          updatedAt: new Date()
         });
         toast.success('Cliente añadido correctamente');
       }
-      onSubmit();
+      onSubmit(data);
     } catch (error) {
-      console.error('Error saving cliente:', error);
       toast.error('Error al guardar el cliente');
     }
   };
-
-  // Determine if the form should show Punto Verde specific fields
-  const isPuntoVerde = form.watch('tipo') === 'punto_verde';
-  const isAdministrador = form.watch('tipo') === 'administrador';
-  const isNegocio = form.watch('tipo') === 'negocio';
 
   return (
     <Form {...form}>
@@ -159,23 +135,13 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
           
           <FormField
             control={form.control}
-            name="tipo"
+            name="apellido"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tipo de cliente</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione tipo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="particular">Particular</SelectItem>
-                    <SelectItem value="negocio">Negocio/Restaurante</SelectItem>
-                    <SelectItem value="administrador">Administrador de fincas</SelectItem>
-                    <SelectItem value="punto_verde">Punto Verde</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormLabel>Apellidos</FormLabel>
+                <FormControl>
+                  <Input placeholder="Apellidos del cliente" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -229,12 +195,12 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={form.control}
-            name="ciudad"
+            name="distrito"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ciudad</FormLabel>
+                <FormLabel>Distrito</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ciudad" {...field} />
+                  <Input placeholder="Distrito" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -243,12 +209,12 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
             
           <FormField
             control={form.control}
-            name="provincia"
+            name="barrio"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Provincia</FormLabel>
+                <FormLabel>Barrio</FormLabel>
                 <FormControl>
-                  <Input placeholder="Provincia" {...field} />
+                  <Input placeholder="Barrio" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -269,142 +235,26 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
             )}
           />
         </div>
-
-        {/* Campos específicos según el tipo de cliente */}
-        {isPuntoVerde && (
-          <div className="space-y-4 border p-4 rounded-md bg-muted/30">
-            <h3 className="font-medium">Información del Punto Verde</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="distrito"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Distrito</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Distrito" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="barrio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Barrio</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Barrio" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="numViviendas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número de viviendas</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="0"
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        value={field.value}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="numContenedores"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número de contenedores</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="0"
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        value={field.value}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-        )}
-
-        {isAdministrador && (
-          <div className="space-y-4 border p-4 rounded-md bg-muted/30">
-            <h3 className="font-medium">Información del Administrador de Fincas</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="nombreAdministracion"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre de la administración</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre de la empresa/administración" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="cif"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CIF</FormLabel>
-                    <FormControl>
-                      <Input placeholder="CIF de la empresa" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-        )}
-
-        {isNegocio && (
-          <div className="space-y-4 border p-4 rounded-md bg-muted/30">
-            <h3 className="font-medium">Información del Negocio</h3>
-            <FormField
-              control={form.control}
-              name="cif"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>CIF</FormLabel>
-                  <FormControl>
-                    <Input placeholder="CIF de la empresa" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-
+        
         <FormField
           control={form.control}
-          name="contacto"
+          name="frecuenciaRecogida"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Persona de contacto</FormLabel>
-              <FormControl>
-                <Input placeholder="Nombre del contacto" {...field} />
-              </FormControl>
+              <FormLabel>Frecuencia de Recogida</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione frecuencia" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="semanal">Semanal</SelectItem>
+                  <SelectItem value="quincenal">Quincenal</SelectItem>
+                  <SelectItem value="mensual">Mensual</SelectItem>
+                  <SelectItem value="bajo_demanda">Bajo demanda</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -415,7 +265,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, usuario }
             Cancelar
           </Button>
           <Button type="submit">
-            {usuario ? 'Actualizar Cliente' : 'Crear Cliente'}
+            {clienteId ? 'Actualizar Cliente' : 'Crear Cliente'}
           </Button>
         </div>
       </form>

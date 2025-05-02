@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,7 +25,7 @@ import { Usuario } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
-  apellidos: z.string().min(2, 'Los apellidos son obligatorios'), // Changed from apellido to apellidos
+  apellido: z.string().min(2, 'Los apellidos son obligatorios'),
   telefono: z.string().min(9, 'Teléfono no válido'),
   email: z.string().email('Email no válido'),
   direccion: z.string().min(5, 'La dirección es obligatoria'),
@@ -51,7 +50,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
   const defaultValues: ClienteFormValues = clienteId 
     ? usuarios.find(u => u.id === clienteId) || {
         nombre: '',
-        apellidos: '', // Changed from apellido to apellidos
+        apellido: '',
         telefono: '',
         email: '',
         direccion: '',
@@ -63,7 +62,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
       }
     : {
         nombre: '',
-        apellidos: '', // Changed from apellido to apellidos
+        apellido: '',
         telefono: '',
         email: '',
         direccion: '',
@@ -91,7 +90,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
       } else {
         await addUsuario({
           nombre: data.nombre,
-          apellidos: data.apellidos,
+          apellido: data.apellido,
           telefono: data.telefono,
           email: data.email,
           direccion: data.direccion,
@@ -106,9 +105,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           provincia: '',
           pais: '',
           createdAt: new Date(),
-          updatedAt: new Date(),
-          uid: `temp-${Date.now()}`,
-          userId: `temp-${Date.now()}` // Adding the required userId property
+          updatedAt: new Date()
         });
         toast.success('Cliente añadido correctamente');
       }
@@ -138,7 +135,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           
           <FormField
             control={form.control}
-            name="apellidos" // Changed from apellido to apellidos
+            name="apellido"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Apellidos</FormLabel>

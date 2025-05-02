@@ -1,287 +1,42 @@
-export type UserRole = 
-  | 'superadmin' 
-  | 'admin' 
-  | 'administrador' 
-  | 'admin_finca' 
-  | 'user' 
-  | 'comunidad' 
-  | 'comercial' 
-  | 'restaurante' 
-  | 'hotel' 
-  | 'asociacion' 
-  | 'escolar' 
-  | 'punto_verde' 
-  | 'client';
-
-export interface UserProfile {
-  id: string;
-  userId: string;
-  email: string;
-  role: UserRole;
-  nombre: string;
-  apellidos?: string;
-  telefono?: string;
-  administradorId?: string;
-  direccion?: string;
-  ciudad?: string;
-  provincia?: string;
-  codigoPostal?: string;
-  pais?: string;
-  activo: boolean;
-  tipo: string;
-  createdAt: Date;
-  updatedAt: Date;
-  nombreAdministracion?: string;
-  codigo?: string;
-  aprobado?: boolean;
-  photoURL?: string; // Added photoURL property
-  
-  // Add missing properties for comercial
-  metodoPago?: {
-    tipo: 'banco' | 'paypal' | 'bizum';
-    datos: {
-      banco?: {
-        titular: string;
-        iban: string;
-        swift?: string;
-      };
-      paypal?: {
-        email: string;
-      };
-      bizum?: {
-        telefono: string;
-      };
-    };
-  };
-  saldo?: number;
-  comisionesTotales?: number;
-  comisionesPendientes?: number;
-  
-  // Add missing properties used in other components
-  distrito?: string;
-  barrio?: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  cif?: string;
-  contacto?: string;
-  litrosEstimados?: number;
-  
-  // Missing properties from errors
-  litrosAportados?: number;
-  puntosVerdes?: number;
-  frecuenciaRecogida?: string;
-  nombreRestaurante?: string;
-  horarioApertura?: string;
-  nombreHotel?: string;
-  numHabitaciones?: number;
-  nombreAsociacion?: string;
-  tipoAsociacion?: string;
-  numMiembros?: number;
-  nombreCentro?: string;
-  numAlumnos?: number;
-  tipoEscolar?: string;
-  participaAlianzaVerde?: boolean;
-  fechaRegistro?: Date;
-}
-
 export interface Usuario {
   id: string;
-  uid?: string;
-  email: string;
-  role: UserRole;
   nombre: string;
-  apellidos?: string;
+  email?: string;
   telefono?: string;
-  administradorId?: string;
   direccion?: string;
   ciudad?: string;
   provincia?: string;
   codigoPostal?: string;
-  pais?: string;
+  tipo: string; // "particular" | "negocio" | "administrador" | "punto_verde"
   activo: boolean;
-  tipo?: string;
+  role?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  nombreAdministracion?: string;
-  codigo?: string;
-  aprobado?: boolean;
-  
-  // Add missing properties for comercial
-  metodoPago?: {
-    tipo: 'banco' | 'paypal' | 'bizum';
-    datos: {
-      banco?: {
-        titular: string;
-        iban: string;
-        swift?: string;
-      };
-      paypal?: {
-        email: string;
-      };
-      bizum?: {
-        telefono: string;
-      };
-    };
-  };
-  saldo?: number;
-  comisionesTotales?: number;
-  comisionesPendientes?: number;
-  
-  // Add missing properties used in other components
-  distrito?: string;
-  barrio?: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  cif?: string;
-  contacto?: string;
-  litrosEstimados?: number;
-  
-  // Missing properties from errors
-  litrosAportados?: number;
-  frecuenciaRecogida?: string;
-  nombreRestaurante?: string;
-  horarioApertura?: string;
-  nombreHotel?: string;
-  numHabitaciones?: number;
-  nombreAsociacion?: string;
-  tipoAsociacion?: string;
-  numMiembros?: number;
-  nombreCentro?: string;
-  numAlumnos?: number;
-  tipoEscolar?: string;
-  participaAlianzaVerde?: boolean;
   fechaRegistro?: Date;
-  userId?: string;
+  contacto?: string;
   
-  // For puntos verdes - kept only one instance
-  puntosVerdes?: number;
-}
-
-export interface ComunidadVecinos {
-  id: string;
-  nombre: string;
-  direccion: string;
-  codigoPostal: string;
-  ciudad: string;
-  provincia: string;
-  pais: string;
-  administradorId: string;
-  cif?: string;
-  telefono?: string;
-  email?: string;
-  logoUrl?: string;
-  createdAt?: any;
-  updatedAt?: any;
-  litrosRecogidos?: number;
-  // Add the missing properties
+  // Punto Verde specific fields
+  distrito?: string;
+  barrio?: string;
   numViviendas?: number;
   numContenedores?: number;
-  distrito?: string;
-  barrio?: string;
-  numeroPorteria?: string | number;
-  totalViviendas?: number;
+  puntoVerdeId?: string; // Reference to the punto verde document
+  
+  // Other optional fields
   nombreAdministracion?: string;
-  correoContacto?: string;
-  beneficiosMedioambientales?: {
-    co2Evitado?: number;
-    arbolesEquivalentes?: number;
-    aguaAhorrada?: number;
-    energiaAhorrada?: number;
-    residuosReciclados?: number;
-    // Add the properties that are being used in components
-    co2?: number;
-    co2Reducido?: number;
-    agua?: number;
-    energia?: number;
-  };
-}
-
-export interface Cliente {
-  id: string;
-  nombre: string;
-  apellidos: string;
-  direccion: string;
-  codigoPostal: string;
-  ciudad: string;
-  provincia: string;
-  pais: string;
-  telefono: string;
-  email: string;
-  comunidadId: string;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-export interface Recogida {
-  id: string;
-  clienteId: string;
-  comunidadId: string;
-  fechaRecogida: Date;
-  tipoResiduo: string;
-  cantidad: number;
-  observaciones?: string;
-  createdAt?: any;
-  updatedAt?: any;
-  // Additional properties being used in components
-  fecha?: Date;
-  completada?: boolean;
-  estadoRecogida?: string;
-  distrito?: string;
-  barrio?: string;
-  direccion?: string;
-  direccionRecogida?: string;
+  cif?: string;
   litrosRecogidos?: number;
-  horaRecogida?: string;
-  horaInicio?: string;
-  cliente?: string;
-  nombreContacto?: string;
-  telefonoContacto?: string;
-  emailContacto?: string;
-  cantidadAproximada?: number;
-  esRecogidaZona?: boolean;
-  fechaCompletada?: Date;
-  hora?: string;
-  estado?: string;
-  rutaId?: string;
-  notasAdicionales?: string;
-  tipoAceite?: string;
-  fechaSolicitud?: Date; // Add missing property
+  litrosAceite?: number;
+  fechaAceite?: Date;
+  apellido?: string;
+  apellidos?: string;
+  litrosAportados?: number;
+  pais?: string;
+  frecuenciaRecogida?: string;
+  litrosEstimados?: number; // Added litrosEstimados field
 }
 
-export interface Informe {
-  id: string;
-  comunidadId: string;
-  titulo: string;
-  descripcion: string;
-  fechaCreacion: Date;
-  archivoUrl: string;
-  tipoInforme: string;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-export interface Reunion {
-  id: string;
-  titulo: string;
-  descripcion: string;
-  fecha: Date | any;
-  hora?: string;
-  duracion?: number;
-  ubicacion?: string;
-  participantes?: string[];
-  tipo?: string;
-  tipoUsuario?: string;
-  nombreCentro?: string;
-  responsable?: string;
-  direccion?: string;
-  telefono?: string;
-  email?: string;
-  completada?: boolean;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-// Add missing interfaces
+export type UserRole = "admin" | "client" | "worker" | "volunteer" | "manager" | "comunidad" | "restaurante" | "administrador" | "user" | "hotel" | "asociacion" | "escolar" | "usuario";
 
 export interface PuntoVerde {
   id: string;
@@ -300,67 +55,121 @@ export interface PuntoVerde {
   email: string;
   contacto: string;
   activo: boolean;
-  distrito?: string;
-  barrio?: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  litrosRecogidos?: number;
+  distrito: string;
+  barrio: string;
+  numViviendas: number;
+  numContenedores: number;
+  litrosRecogidos: number;
   administradorId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export interface Instalacion {
+  id: string;
+  nombre: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  pais: string;
+  latitud: number;
+  longitud: number;
+  tipo: string;
+  descripcion: string;
+  horario: string;
+  telefono: string;
+  email: string;
+  contacto: string;
+  activo: boolean;
+  distrito: string;
+  barrio: string;
+  numViviendas: number;
+  numContenedores: number;
+  numPorteria: number;
+  createdAt: any;
+  updatedAt: any;
+}
+
 export interface AlianzaVerde {
   id: string;
   nombre: string;
-  tipo: string;
-  descripcion?: string;
+  tipo: string; // "colegio", "instituto", "universidad", etc.
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  telefono: string;
+  email: string;
+  contacto: string;
+  numAlumnos: number;
+  numContenedores: number;
+  litrosRecogidos: number;
+  activo: boolean;
   fechaInicio: Date;
   fechaFin?: Date;
-  // Added missing properties
-  participantes?: number;
-  numParticipantes?: number;
-  contacto?: string;
-  telefono?: string;
-  email?: string;
-  estado?: string;
-  direccion?: string;
-  ciudad?: string;
-  provincia?: string;
-  codigoPostal?: string;
-  distrito?: string;
-  barrio?: string;
-  numAlumnos?: number;
-  numEstudiantes?: number;
-  numContenedores?: number;
-  litrosRecogidos?: number;
-  activo?: boolean;
-  talleresRealizados?: number;
-  certificaciones?: string[] | number[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface TallerProgramado {
-  id: string;
-  titulo: string;
-  descripcion?: string;
-  fecha: Date;
-  hora: string;
-  duracion: number;
-  lugar: string;
-  organizador: string;
-  tipo: string;
-  responsable: string;
-  contactoTelefono: string;
-  contactoEmail: string;
-  aforo: number;
-  participantes: number;
-  gratuito: boolean;
-  precio: number;
-  completado: boolean;
   createdAt: Date;
   updatedAt: Date;
+  distrito?: string;
+  barrio?: string;
+  numEstudiantes?: number;
+  talleresRealizados?: number;
+  certificaciones?: number[];
+  numParticipantes?: number;
+  estado?: string;
+}
+
+export interface Recogida {
+  id: string;
+  cliente: string;
+  direccionRecogida: string;
+  horaRecogida: string;
+  cantidadAproximada: number;
+  tipoAceite: string;
+  nombreContacto: string;
+  telefonoContacto: string;
+  emailContacto: string;
+  notasAdicionales: string;
+  estadoRecogida: string;
+  fechaRecogida?: Date;
+  fechaSolicitud?: Date;
+  fechaCompletada?: Date;
+  litrosRecogidos: number;
+  direccion: string;
+  distrito: string;
+  barrio: string;
+  horaInicio: string;
+  hora: string;
+  completada: boolean;
+  estado: string;
+  clienteId: string;
+  rutaId: string;
+  esRecogidaZona: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  fecha?: Date;
+  litrosEstimados?: number;
+}
+
+export interface Ruta {
+  id: string;
+  nombre: string;
+  distrito: string;
+  barrios: string[];
+  fecha?: Date;
+  hora: string;
+  recogedores: string;
+  clientes: any[];
+  puntosRecogida: number;
+  distanciaTotal: number;
+  tiempoEstimado: number | string;
+  frecuencia: string;
+  completada: boolean;
+  litrosTotales: number;
+  puntos: any[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  tipo?: string; // Added tipo field
 }
 
 export interface CalleApadrinada {
@@ -369,18 +178,243 @@ export interface CalleApadrinada {
   distrito: string;
   barrio: string;
   longitud: number;
-  padrino?: string;
-  fechaApadrinamiento?: Date;
-  estado?: string;
-  descripcion?: string;
-  // Additional properties used in components
+  padrino: string;
+  fechaInicio: Date;
+  fechaFin?: Date;
+  activo: boolean;
   precio?: number;
-  fechaInicio?: Date;
   fechaRenovacion?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
+  descripcion?: string;
+  estado?: string;
   numContenedores?: number;
   tipoCliente?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TallerProgramado {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  horaInicio: string;
+  horaFin: string;
+  lugar: string;
+  capacidad: number;
+  inscritos: number;
+  alianzaId: string;
+  alianzaNombre: string;
+  ponente: string;
+  estado: string;
+  createdAt: Date;
+  updatedAt: Date;
+  // Additional fields needed
+  fechaHora?: Date;
+  numAsistentes?: number;
+  centro?: string;
+  nombreCentro?: string;
+  direccion?: string;
+  contacto?: string;
+  instructor?: string;
+  telefono?: string;
+  email?: string;
+  duracion?: number;
+  materiales?: string[];
+}
+
+export interface Trabajador {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  fechaNacimiento?: Date;
+  fechaAlta: Date;
+  fechaBaja?: Date;
+  puesto: string;
+  departamento: string;
+  salario: number;
+  numeroCuenta: string;
+  documentoIdentidad: string;
+  activo: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  // Additional fields needed based on errors
+  dni?: string;
+  foto?: string;
+  roles?: string[];
+  fechaContratacion?: Date;
+  tipoContrato?: string;
+  tipoJornada?: string;
+  rutasAsignadas?: string[] | string;
+  pais?: string;
+  cargo?: string;
+  salarioBase?: number;
+  cuentaBancaria?: string;
+  metodoPago?: "efectivo" | "transferencia" | "otro";
+  frecuenciaPago?: "mensual" | "semanal" | "quincenal";
+  diaCobro?: number;
+  beneficios?: string[];
+  vehiculoAsignado?: string;
+}
+
+export interface Turno {
+  id: string;
+  trabajadorId: string;
+  trabajadorNombre: string;
+  fecha: Date;
+  horaInicio: string;
+  horaFin: string;
+  descripcion: string;
+  estado: string;
+  dia?: string;
+  rutaId?: string;
+  vehiculoId?: string;
+  nombreTrabajador?: string;
+  distrito?: string;
+  createdAt?: Date;
+}
+
+export interface TrabajadorPago {
+  id: string;
+  trabajadorId: string;
+  trabajadorNombre: string;
+  concepto: string;
+  cantidad: number;
+  fecha: Date;
+  estado: string;
+  createdAt: Date;
+  comprobante?: string;
+  tipo?: string;
+}
+
+export interface Voluntario {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  direccion: string;
+  disponibilidad: string[];
+  habilidades: string[];
+  fechaAlta: Date;
+  horasContribuidas: number;
+  activo: boolean;
+  // Additional properties needed
+  diasDisponibles?: string[];
+  horasDisponibles?: string | string[];
+  experiencia?: string;
+  codigoPostal?: string;
+  pais?: string;
+  ciudad?: string;
+  provincia?: string;
+  dni?: string;
+  fechaNacimiento?: Date;
+  estado?: string;
+}
+
+export interface Tarea {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fechaInicio: Date;
+  fechaFin?: Date;
+  horaInicio: string;
+  horaFin: string;
+  estado: string;
+  asignadoA: string[];
+  completadaPor?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  prioridad?: string;
+  voluntarioId?: string;
+  voluntarioNombre?: string;
+  completada?: boolean;
+  fechaAsignacion?: Date;
+  fecha?: Date;
+  fechaCompletada?: Date;
+  fechaLimite?: Date;
+}
+
+export interface UserProfile {
+  id: string;
+  userId: string;
+  nombre: string;
+  apellidos: string;
+  telefono: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  createdAt: Date;
+  updatedAt: Date;
+  nombreAdministracion?: string;
+  
+  // Additional fields needed for user dashboard/profile
+  role?: UserRole;
+  email?: string;
+  distrito?: string;
+  barrio?: string;
+  numViviendas?: number;
+  numContenedores?: number;
+  frecuenciaRecogida?: string;
+  nombreRestaurante?: string;
+  horarioApertura?: string;
+  litrosEstimados?: number;
+  nombreHotel?: string;
+  numHabitaciones?: number;
+  nombreAsociacion?: string;
+  tipoAsociacion?: string;
+  numMiembros?: number;
+  nombreCentro?: string;
+  numAlumnos?: number;
+  tipoEscolar?: string;
+  participaAlianzaVerde?: boolean;
+  apellido?: string;
+  litrosAportados?: number;
+  puntosVerdes?: number;
+  tipo?: string;
+  activo?: boolean;
+  pais?: string;
+}
+
+export interface ComunidadVecinos {
+  id: string;
+  nombre: string;
+  direccion: string;
+  numViviendas: number;
+  administradorId: string;
+  contacto: string;
+  telefono: string;
+  email: string;
+  activo: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  // Additional properties needed
+  ciudad?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  distrito?: string;
+  barrio?: string;
+  cif?: string;
+  numeroPorteria?: number;
+  totalViviendas?: number;
+  correoContacto?: string;
+  nombreAdministracion?: string;
+  litrosRecogidos?: number;
+  numContenedores?: number;  // Added numContenedores field
+  beneficiosMedioambientales?: {
+    co2Reducido?: number;
+    aguaAhorrada?: number;
+    energiaAhorrada?: number;
+    co2?: number; // Aliases for backward compatibility
+    agua?: number; // Aliases for backward compatibility
+    energia?: number; // Aliases for backward compatibility
+  };
 }
 
 export interface Ingreso {
@@ -390,19 +424,17 @@ export interface Ingreso {
   fecha: Date;
   cliente?: string;
   clienteId?: string;
-  estado?: string;
-  numeroFactura?: string;
-  numFactura?: string;
-  observaciones?: string;
+  comprobante?: string;
   notas?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  // Adding missing properties
+  createdAt: Date;
+  updatedAt: Date;
   categoria?: string;
-  origen?: string;
+  estado?: string;
+  numFactura?: string;
   iva?: number;
   total?: number;
   metodoPago?: string;
+  origen?: string;
   tipo?: string;
 }
 
@@ -411,206 +443,32 @@ export interface Gasto {
   concepto: string;
   cantidad: number;
   fecha: Date;
+  categoria: string;
   proveedor?: string;
-  proveedorId?: string;
-  estado?: string;
-  numeroFactura?: string;
-  numFactura?: string;
-  observaciones?: string;
-  categoriaGasto?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  // Adding missing properties
-  categoria?: string;
-  tipo?: string;
-  iva?: number;
-  total?: number;
-  metodoPago?: number;
+  comprobante?: string;
   notas?: string;
-}
-
-// Now let's add the missing interface for Instalacion
-export interface Instalacion {
-  id: string;
-  nombre: string;
-  tipo: string;
-  direccion: string;
-  ciudad: string;
-  provincia: string;
-  codigoPostal: string;
-  pais: string;
-  latitud: number;
-  longitud: number;
-  descripcion?: string;
-  horario?: string;
-  telefono?: string;
-  email?: string;
-  contacto?: string;
-  activo?: boolean;
-  distrito?: string;
-  barrio?: string;
-  numViviendas?: number;
-  numContenedores?: number;
-  numPorteria?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-  administradorId?: string;
-  litrosRecogidos?: number;
-}
-
-export interface Ruta {
-  id: string;
-  nombre: string;
-  distrito?: string;
-  barrios?: string[];
-  fecha: Date;
-  hora: string;
-  recogedores: string;
-  clientes: any[];
-  puntosRecogida: number;
-  distanciaTotal: number;
-  tiempoEstimado: string;
-  frecuencia: string;
-  completada: boolean;
-  litrosTotales: number;
-  puntos: any[];
   createdAt: Date;
   updatedAt: Date;
-  tipo: string;
-}
-
-export interface Trabajador {
-  id: string;
-  nombre: string;
-  apellidos: string;
-  email: string;
-  telefono: string;
-  dni: string;
-  fechaIngreso: Date;
-  puesto: string;
-  salario: number;
-  activo: boolean;
-  // Adding missing properties used in components
-  foto?: string;
-  fechaNacimiento?: Date;
-  direccion?: string;
-  ciudad?: string;
-  provincia?: string;
-  codigoPostal?: string;
-  pais?: string;
-  tipoContrato?: string;
-  tipoJornada?: string;
-  fechaAlta?: Date;
-  departamento?: string;
-  cargo?: string;
-  salarioBase?: number;
-  roles?: string[];
-  fechaContratacion?: Date;
-  rutasAsignadas?: string | string[];
-  vehiculoAsignado?: string;
-  metodoPago?: 'efectivo' | 'transferencia' | 'otro';
-  frecuenciaPago?: 'mensual' | 'quincenal' | 'semanal';
-  diaCobro?: number;
-  numeroCuenta?: string;
-  cuentaBancaria?: string;
-  documentoIdentidad?: string;
-  fechaBaja?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-  beneficios?: string[];
-}
-
-export interface TrabajadorPago {
-  id: string;
-  trabajadorId: string;
-  fecha: Date;
-  concepto: string;
-  cantidad: number;
-  estado: string;
-  // Adding missing properties
-  tipo: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface Turno {
-  id: string;
-  trabajadorId: string;
-  fecha: Date;
-  horaInicio: string;
-  horaFin: string;
-  descripcion: string;
-  // Adding missing properties used in components
-  dia: string;
-  rutaId?: string;
-  vehiculoId?: string;
-  nombreTrabajador?: string;
-  trabajadorNombre?: string;
-  distrito?: string;
   estado?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface Voluntario {
-  id: string;
-  nombre: string;
-  apellidos: string;
-  email: string;
-  telefono: string;
-  disponibilidad: string[];
-  habilidades: string[];
-  activo: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-  // Adding missing properties
-  direccion?: string;
-  codigoPostal?: string;
-  ciudad?: string;
-  provincia?: string;
-  pais?: string;
-  fechaNacimiento?: Date;
-  diasDisponibles?: string[];
-  horasDisponibles?: string | string[];
-  experiencia?: string;
-  estado?: string;
-  fechaAlta?: Date;
-  horasContribuidas?: number;
-}
-
-export interface Tarea {
-  id: string;
-  titulo: string;
-  descripcion: string;
-  fechaInicio: Date;
-  fechaFin?: Date;
-  voluntarioId?: string;
-  estado: string;
-  prioridad: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  // Adding missing properties
-  completada?: boolean;
-  asignadoA?: string[] | string;
-  fecha?: Date;
-  fechaCompletada?: Date;
-  horaInicio?: string;
-  horaFin?: string;
-  voluntarioNombre?: string;
-  fechaAsignacion?: Date;
+  tipo?: string;
+  numFactura?: string;
+  iva?: number;
+  total?: number;
+  metodoPago?: string;
 }
 
 export interface HorarioVoluntario {
   id: string;
+  voluntarioId: string;
   dia: string;
   horaInicio: string;
   horaFin: string;
-  voluntarioId?: string;
-  voluntarioNombre?: string;
-  disponible: boolean;
+  fecha?: Date;
   createdAt?: Date;
   updatedAt?: Date;
-  fecha?: Date; // Add the missing fecha property
+  notas?: string;
+  estado?: string;
+  actividad?: string;
 }
 
 export interface Incidencia {
@@ -624,8 +482,29 @@ export interface Incidencia {
   reportadoPor: string;
   tipo: string;
   trabajadorId: string;
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Reunion {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  fecha: Date;
+  hora: string;
+  duracion: number;
+  ubicacion: string;
+  participantes: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  // Add fields being used in ReunionesView.tsx
+  tipo?: string;
+  tipoUsuario?: string;
+  nombreCentro?: string;
+  responsable?: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
 }
 
 export interface Vehiculo {
@@ -638,28 +517,6 @@ export interface Vehiculo {
   ultimaRevision?: Date;
   proximaRevision?: Date;
   conductorAsignado?: string;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-export interface ClienteCaptado {
-  id: string;
-  comercialId: string;
-  clienteId: string;
-  nombreCliente: string;
-  fechaRegistro: Date;
-  planContratado: string;
-  estado: 'activo' | 'inactivo';
-  litrosRecogidos: number;
-}
-
-export interface Comision {
-  id: string;
-  comercialId: string;
-  clienteId: string;
-  nombreCliente: string;
-  litrosRecogidos: number;
-  importe: number;
-  estado: 'pendiente' | 'abonado';
-  fecha: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

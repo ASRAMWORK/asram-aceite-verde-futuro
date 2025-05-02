@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, addDoc, updateDoc, 
+import { 
+  collection, getDocs, query, orderBy, addDoc, updateDoc, 
   doc, deleteDoc, serverTimestamp, where, getDoc 
 } from 'firebase/firestore';
 import { toast } from 'sonner';
@@ -11,7 +13,6 @@ export function useRecogidas() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Make sure that the Recogida object doesn't include properties that aren't in the interface
   const loadRecogidasData = async () => {
     try {
       setLoading(true);
@@ -23,11 +24,33 @@ export function useRecogidas() {
         const data = doc.data();
         recogidasData.push({
           id: doc.id,
-          ...data as Recogida,
+          cliente: data.cliente || '',
+          direccionRecogida: data.direccionRecogida || '',
+          horaRecogida: data.horaRecogida || '',
+          cantidadAproximada: data.cantidadAproximada || 0,
+          tipoAceite: data.tipoAceite || '',
+          nombreContacto: data.nombreContacto || '',
+          telefonoContacto: data.telefonoContacto || '',
+          emailContacto: data.emailContacto || '',
+          notasAdicionales: data.notasAdicionales || '',
+          estadoRecogida: data.estadoRecogida || 'pendiente',
           fechaRecogida: data.fechaRecogida?.toDate(),
+          fechaSolicitud: data.fechaSolicitud?.toDate(),
+          fechaCompletada: data.fechaCompletada?.toDate(),
+          litrosRecogidos: data.litrosRecogidos || 0,
+          direccion: data.direccion || '',
+          distrito: data.distrito || '',
+          barrio: data.barrio || '',
+          horaInicio: data.horaInicio || '',
+          hora: data.hora || '',
+          completada: data.completada || false,
+          estado: data.estado || '',
+          clienteId: data.clienteId || '',
+          rutaId: data.rutaId || '',
+          esRecogidaZona: data.esRecogidaZona || false,
           createdAt: data.createdAt?.toDate(),
           updatedAt: data.updatedAt?.toDate(),
-          fechaSolicitud: data.fechaSolicitud?.toDate() // Handle the fechaSolicitud field
+          fecha: data.fecha?.toDate() || data.fechaRecogida?.toDate()
         });
       });
       

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
@@ -51,7 +52,6 @@ export function useTrabajadores() {
           salario: data.salario || data.salarioBase || 0,
           numeroCuenta: data.numeroCuenta || data.cuentaBancaria || '',
           documentoIdentidad: data.documentoIdentidad || data.dni || '',
-          fechaIngreso: data.fechaIngreso || data.fechaAlta || new Date(),
           fechaBaja: data.fechaBaja
         });
       });
