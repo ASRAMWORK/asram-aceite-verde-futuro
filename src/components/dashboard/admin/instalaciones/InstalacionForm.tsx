@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -393,10 +392,9 @@ const InstalacionForm: React.FC<InstalacionFormProps> = ({ instalacion, onClose 
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                 <FormControl>
-                  <Input
-                    type="checkbox"
+                  <Switch
                     checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
+                    onCheckedChange={field.onChange}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
