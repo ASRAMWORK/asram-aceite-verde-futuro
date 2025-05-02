@@ -23,6 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface RecogidasListProps {
   recogidas: Recogida[];
@@ -78,17 +79,34 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
     }
   };
 
-  // Sort recogidas by date, ensuring we handle non-Date values properly
+  // Handle date safely for sorting
+  const getDateTimestamp = (date: Date | string | null | undefined): number => {
+    if (!date) return 0;
+    
+    try {
+      if (date instanceof Date) {
+        return isValid(date) ? date.getTime() : 0;
+      }
+      
+      if (typeof date === 'string') {
+        const parsed = new Date(date);
+        return isValid(parsed) ? parsed.getTime() : 0;
+      }
+      
+      return 0;
+    } catch (error) {
+      console.error("Error converting date for sorting:", error);
+      return 0;
+    }
+  };
+
+  // Sort recogidas by date
   const sortedRecogidas = [...recogidas].sort((a, b) => {
-    // Safely convert to date objects
-    const dateA = a.fecha instanceof Date ? a.fecha : 
-                 (a.fecha ? new Date(a.fecha) : new Date(0));
-                 
-    const dateB = b.fecha instanceof Date ? b.fecha : 
-                 (b.fecha ? new Date(b.fecha) : new Date(0));
+    const dateATimestamp = getDateTimestamp(a.fecha);
+    const dateBTimestamp = getDateTimestamp(b.fecha);
     
     // Use timestamps for comparison (which are just numbers)
-    return dateB.getTime() - dateA.getTime();
+    return dateBTimestamp - dateATimestamp;
   });
 
   return (
