@@ -100,14 +100,24 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
     }
   };
 
-  // Sort recogidas by date
-  const sortedRecogidas = [...recogidas].sort((a, b) => {
-    const dateATimestamp = getDateTimestamp(a.fecha);
-    const dateBTimestamp = getDateTimestamp(b.fecha);
+  // We'll use a more cautious approach where we don't rely on Array.sort directly
+  // instead creating a new array with prepared timestamp values
+  const sortedRecogidas = React.useMemo(() => {
+    // First make a copy to avoid mutating props
+    const recogidasToSort = [...recogidas];
     
-    // Use timestamps for comparison (which are just numbers)
-    return dateBTimestamp - dateATimestamp;
-  });
+    // Pre-process to ensure we're only sorting valid data
+    const processedData = recogidasToSort.map(recogida => {
+      const timestamp = getDateTimestamp(recogida.fecha);
+      return { recogida, timestamp };
+    });
+    
+    // Sort based on the pre-computed timestamps (which are always numbers)
+    processedData.sort((a, b) => b.timestamp - a.timestamp);
+    
+    // Return just the recogida objects in the new sorted order
+    return processedData.map(item => item.recogida);
+  }, [recogidas]);
 
   return (
     <>
