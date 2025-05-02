@@ -1,19 +1,52 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend } from "recharts";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useState, useEffect } from "react";
 
 const ImpactCharts = () => {
-  const recyclingData = [
+  const { profile } = useUserProfile();
+  const [recyclingData, setRecyclingData] = useState([
     { distrito: "Centro", litros: 2500 },
     { distrito: "Salamanca", litros: 1800 },
     { distrito: "Chamberí", litros: 2200 },
     { distrito: "Retiro", litros: 1900 },
     { distrito: "Chamartín", litros: 2100 },
-  ];
+  ]);
 
+  // If user has a distrito, add their contribution to highlight it
+  useEffect(() => {
+    if (profile?.distrito && profile?.litrosAportados) {
+      const userDistrict = profile.distrito;
+      
+      // Check if user district exists in the data
+      const districtExists = recyclingData.some(item => 
+        item.distrito.toLowerCase() === userDistrict.toLowerCase()
+      );
+      
+      if (districtExists) {
+        // Update existing district with user contribution
+        setRecyclingData(prev => prev.map(item => 
+          item.distrito.toLowerCase() === userDistrict.toLowerCase() 
+            ? {...item, litros: item.litros + (profile.litrosAportados || 0)} 
+            : item
+        ));
+      } else {
+        // Add user district if it doesn't exist
+        setRecyclingData(prev => [
+          ...prev, 
+          { distrito: userDistrict, litros: profile.litrosAportados || 0 }
+        ]);
+      }
+    }
+  }, [profile]);
+
+  // Calculate participation percentage based on actual user data
+  const userParticipationPercentage = profile?.puntosVerdes ? Math.min(profile.puntosVerdes / 10, 30) : 15;
+  
   const participationData = [
-    { name: "Participan", value: 35, color: "#ee970d" },
-    { name: "No Participan", value: 65, color: "#f3f4f6" },
+    { name: "Participan", value: userParticipationPercentage, color: "#ee970d" },
+    { name: "No Participan", value: 100 - userParticipationPercentage, color: "#f3f4f6" },
   ];
 
   return (

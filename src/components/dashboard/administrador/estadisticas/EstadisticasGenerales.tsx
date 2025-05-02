@@ -8,24 +8,48 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ComunidadVecinos } from '@/types';
 
-// Sample data for the chart
-const data = [
-  { name: 'Ene', recogidas: 12, litros: 65 },
-  { name: 'Feb', recogidas: 15, litros: 59 },
-  { name: 'Mar', recogidas: 18, litros: 80 },
-  { name: 'Abr', recogidas: 17, litros: 81 },
-  { name: 'May', recogidas: 14, litros: 56 },
-  { name: 'Jun', recogidas: 16, litros: 55 },
-  { name: 'Jul', recogidas: 10, litros: 40 },
-  { name: 'Ago', recogidas: 8, litros: 30 },
-  { name: 'Sep', recogidas: 12, litros: 45 },
-  { name: 'Oct', recogidas: 16, litros: 70 },
-  { name: 'Nov', recogidas: 19, litros: 85 },
-  { name: 'Dic', recogidas: 20, litros: 90 },
-];
+interface EstadisticasGeneralesProps {
+  adminId?: string;
+  comunidades: ComunidadVecinos[];
+}
 
-const EstadisticasGenerales = () => {
+const EstadisticasGenerales: React.FC<EstadisticasGeneralesProps> = ({ adminId, comunidades }) => {
+  // Generar datos para el gráfico basado en las comunidades
+  const procesarDatosPorMes = () => {
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const datos = meses.map(mes => ({
+      name: mes,
+      recogidas: 0,
+      litros: 0
+    }));
+
+    // Para cada comunidad, procesar su historial de recogidas
+    comunidades.forEach(comunidad => {
+      if (comunidad.historialRecogidas && Array.isArray(comunidad.historialRecogidas)) {
+        comunidad.historialRecogidas.forEach(recogida => {
+          if (recogida && recogida.fecha) {
+            const fecha = recogida.fecha instanceof Date ? recogida.fecha : new Date(recogida.fecha);
+            if (!isNaN(fecha.getTime())) { // Verificar que la fecha es válida
+              const mes = fecha.getMonth();
+              datos[mes].recogidas += 1;
+              datos[mes].litros += recogida.litros || 0;
+            }
+          }
+        });
+      }
+    });
+
+    return datos;
+  };
+
+  const data = procesarDatosPorMes();
+  
+  // Calcular totales para métricas
+  const mejorMes = [...data].sort((a, b) => b.litros - a.litros)[0];
+  const totalLitros = data.reduce((sum, item) => sum + item.litros, 0);
+
   return (
     <Card>
       <CardHeader>
@@ -74,11 +98,13 @@ const EstadisticasGenerales = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="bg-gray-50 p-4 rounded-md">
             <h3 className="font-medium text-sm text-gray-500 mb-1">Mejor mes</h3>
-            <p className="font-bold text-xl">Diciembre (90L)</p>
+            <p className="font-bold text-xl">
+              {mejorMes ? `${mejorMes.name} (${mejorMes.litros}L)` : 'Sin datos'}
+            </p>
           </div>
           <div className="bg-gray-50 p-4 rounded-md">
             <h3 className="font-medium text-sm text-gray-500 mb-1">Total anual</h3>
-            <p className="font-bold text-xl">756L recogidos</p>
+            <p className="font-bold text-xl">{totalLitros}L recogidos</p>
           </div>
         </div>
       </CardContent>
