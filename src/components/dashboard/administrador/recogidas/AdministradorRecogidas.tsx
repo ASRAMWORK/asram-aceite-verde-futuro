@@ -27,7 +27,7 @@ const AdministradorRecogidas: React.FC<AdministradorRecogidasProps> = ({ adminId
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedRecogidaId, setSelectedRecogidaId] = useState<string | null>(null);
   
-  // Pasar el adminId al hook
+  // Corregido: no pasar adminId a useRecogidas() ya que no acepta argumentos
   const { 
     recogidas, 
     loading, 
@@ -36,7 +36,7 @@ const AdministradorRecogidas: React.FC<AdministradorRecogidasProps> = ({ adminId
     calcularPromedioLitrosPorPeriodo,
     addRecogida,
     completarRecogida
-  } = useRecogidas(adminId);
+  } = useRecogidas();
 
   // Generate chart data from recogidas
   const generateChartData = () => {

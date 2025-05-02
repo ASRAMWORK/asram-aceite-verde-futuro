@@ -14,7 +14,8 @@ interface ClientesRankingViewProps {
 }
 
 const ClientesRankingView: React.FC<ClientesRankingViewProps> = ({ adminId }) => {
-  const { recogidas } = useRecogidas(adminId);
+  // Corregido: no pasar adminId a useRecogidas() ya que no acepta argumentos
+  const { recogidas } = useRecogidas();
   const { clientesRanking, distritoRankings, tipoClienteRankings } = useClientesRanking(recogidas);
 
   return (
