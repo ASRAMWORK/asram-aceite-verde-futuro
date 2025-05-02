@@ -37,28 +37,10 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import type { Usuario, Recogida } from '@/types';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 
 interface RecogidasIndividualesProps {
   clientes: Usuario[];
 }
-
-// Define el schema para la cantidad de litros
-const litrosFormSchema = z.object({
-  litrosRecogidos: z.coerce.number()
-    .min(0.5, "Debe ingresar al menos 0.5 litros")
-    .max(1000, "Cantidad máxima excedida")
-});
 
 const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes }) => {
   const [showForm, setShowForm] = useState(false);
@@ -77,14 +59,6 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
     completeRecogida,
     loadRecogidasData
   } = useRecogidas();
-
-  // Inicializar el formulario para los litros recogidos con react-hook-form
-  const litrosForm = useForm<z.infer<typeof litrosFormSchema>>({
-    resolver: zodResolver(litrosFormSchema),
-    defaultValues: {
-      litrosRecogidos: 0
-    },
-  });
 
   // Get the selected client
   const selectedCliente = selectedClienteId 
@@ -119,8 +93,8 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
   const handleAddRecogida = async (data: any) => {
     await addRecogida({
       ...data,
-      direccion: data.direccionRecogida || data.direccion,
-      cliente: data.nombreContacto || (data.clienteId ? clientes.find(c => c.id === data.clienteId)?.nombre : ''),
+      direccion: data.direccionRecogida,
+      cliente: data.nombreContacto,
       distrito: data.distrito || 'Sin asignar',
       barrio: data.barrio || 'Sin asignar',
       estado: 'pendiente'
@@ -141,13 +115,12 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
 
   const handleCompleteRecogida = (id: string) => {
     setCompletingRecogidaId(id);
-    litrosForm.setValue("litrosRecogidos", 0);
+    setLitrosRecogidos(0);
   };
 
   const handleConfirmComplete = async () => {
-    const values = litrosForm.getValues();
-    if (completingRecogidaId && values.litrosRecogidos > 0) {
-      await completeRecogida(completingRecogidaId, values.litrosRecogidos);
+    if (completingRecogidaId && litrosRecogidos > 0) {
+      await completeRecogida(completingRecogidaId, litrosRecogidos);
       setCompletingRecogidaId(null);
       loadRecogidasData(); // Refresh data
       toast.success('Recogida completada correctamente');
@@ -249,7 +222,7 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
           <DialogHeader>
             <DialogTitle className="text-[#EE970D] flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              {selectedClienteId ? `Programar Recogida para ${selectedCliente?.nombre}` : 'Nueva Recogida'}
+              {selectedClienteId ? Programar Recogida para ${selectedCliente?.nombre} : 'Nueva Recogida'}
             </DialogTitle>
             <DialogDescription>
               Programa una nueva recogida de aceite
@@ -326,12 +299,6 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
                     <p>{selectedRecogida.litrosRecogidos || 0} L</p>
                   </div>
                 )}
-                {selectedRecogida.clienteId && (
-                  <div>
-                    <h3 className="font-semibold text-sm text-gray-500">Cliente Registrado</h3>
-                    <p>Sí (ID: {selectedRecogida.clienteId.substring(0, 8)}...)</p>
-                  </div>
-                )}
               </div>
 
               {selectedRecogida.notasAdicionales && (
@@ -365,36 +332,21 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          <Form {...litrosForm}>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              handleConfirmComplete();
-            }} className="py-4">
-              <FormField
-                control={litrosForm.control}
-                name="litrosRecogidos"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Litros Recogidos</FormLabel>
-                    <div className="flex items-center gap-2">
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="0.5"
-                          step="0.5"
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                          className="flex-1"
-                        />
-                      </FormControl>
-                      <span className="text-sm text-gray-500">L</span>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          <div className="py-4">
+            <Label htmlFor="litrosRecogidos">Litros Recogidos</Label>
+            <div className="flex items-center gap-2 mt-2">
+              <Input
+                id="litrosRecogidos"
+                type="number"
+                min="0"
+                step="0.5"
+                value={litrosRecogidos}
+                onChange={(e) => setLitrosRecogidos(Number(e.target.value))}
+                className="flex-1"
               />
-            </form>
-          </Form>
+              <span className="text-sm text-gray-500">L</span>
+            </div>
+          </div>
           
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
