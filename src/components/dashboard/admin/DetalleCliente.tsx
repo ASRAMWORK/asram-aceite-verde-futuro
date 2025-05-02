@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ChevronLeft, Mail, Phone, MapPin, Building } from 'lucide-react';
 import type { Usuario } from '@/types';
 import { Badge } from '@/components/ui/badge';
+import ClienteLitrosHistory from './clientes/ClienteLitrosHistory';
 
 interface DetalleClienteProps {
   cliente: Usuario;
@@ -128,6 +129,9 @@ const DetalleCliente: React.FC<DetalleClienteProps> = ({ cliente, onBack }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Añadimos aquí el componente de historial de litros */}
+      <ClienteLitrosHistory cliente={cliente} />
     </div>
   );
 };
