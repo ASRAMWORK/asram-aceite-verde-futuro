@@ -33,12 +33,12 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   return (
     <div>
       {activeTab === 'home' && <AdministradorDashboardOverview />}
-      {activeTab === 'comunidades' && <MisComunidades administradorId={profile.id} />}
-      {activeTab === 'gestionar' && <GestionarComunidad administradorId={profile.id} />}
-      {activeTab === 'informes' && <InformesPanel administradorId={profile.id} />}
-      {activeTab === 'estadisticas' && <AdministradorEstadisticas administradorId={profile.id} />}
-      {activeTab === 'clientes' && <AdministradorClientes administradorId={profile.id} />}
-      {activeTab === 'recogidas' && <AdministradorRecogidas administradorId={profile.id} />}
+      {activeTab === 'comunidades' && <MisComunidades adminId={profile.id} />}
+      {activeTab === 'gestionar' && <GestionarComunidad adminId={profile.id} />}
+      {activeTab === 'informes' && <InformesPanel adminId={profile.id} />}
+      {activeTab === 'estadisticas' && <AdministradorEstadisticas adminId={profile.id} />}
+      {activeTab === 'clientes' && <AdministradorClientes adminId={profile.id} />}
+      {activeTab === 'recogidas' && <AdministradorRecogidas adminId={profile.id} />}
       {activeTab === 'perfil' && <AdministradorPerfil userId={profile.id} />}
       {activeTab === 'ranking' && <ClienteRankingWrapper adminId={profile.id} />}
     </div>
