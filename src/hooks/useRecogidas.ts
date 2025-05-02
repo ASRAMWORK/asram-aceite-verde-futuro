@@ -48,16 +48,26 @@ export function useRecogidas(adminId?: string) {
   
   // Wrap operations to refresh data after completion
   const addRecogida = async (nuevaRecogida: any) => {
-    // Si es una recogida histórica, asegurar que está completada y tiene fechaCompletada
-    if (nuevaRecogida.esHistorico) {
-      nuevaRecogida.completada = true;
-      nuevaRecogida.estadoRecogida = "completada";
-      nuevaRecogida.fechaCompletada = nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date();
+    try {
+      console.log("Datos de recogida a añadir:", nuevaRecogida);
+      
+      // Si es una recogida histórica, asegurar que está completada y tiene fechaCompletada
+      if (nuevaRecogida.esHistorico) {
+        nuevaRecogida.completada = true;
+        nuevaRecogida.estadoRecogida = "completada";
+        nuevaRecogida.fechaCompletada = nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date();
+      }
+      
+      const result = await addRecogidaBase(nuevaRecogida);
+      if (result) {
+        console.log("Recogida añadida correctamente, recargando datos...");
+        await loadRecogidasData();
+      }
+      return result;
+    } catch (error) {
+      console.error("Error en addRecogida:", error);
+      throw error;
     }
-    
-    const result = await addRecogidaBase(nuevaRecogida);
-    if (result) await loadRecogidasData();
-    return result;
   };
   
   const updateRecogida = async (id: string, data: any) => {
@@ -103,6 +113,7 @@ export function useRecogidas(adminId?: string) {
       const recogidasSnap = await getDocs(recogidasQuery);
       
       if (recogidasSnap.empty) {
+        console.log("No se encontraron recogidas existentes, creando nueva...");
         // Si no hay recogida existente, creamos una nueva para el historial
         await addRecogidaBase({
           rutaId: rutaId,
@@ -112,13 +123,14 @@ export function useRecogidas(adminId?: string) {
           litrosRecogidos: litros,
           completada: true,
           estadoRecogida: "completada",
-          adminId: adminId, // Importante: pasar el adminId
-          administradorId: adminId, // Importante: pasar el adminId como administradorId también
+          adminId: adminId, 
+          administradorId: adminId,
           fechaCompletada: new Date(),
           esRecogidaZona: true,
-          esHistorico: true // Para que se muestre correctamente en el historial
+          esHistorico: true 
         });
       } else {
+        console.log(`Se encontraron ${recogidasSnap.size} recogidas existentes para actualizar`);
         // Si ya existe una recogida, actualizarla
         const updatePromises = recogidasSnap.docs.map(recogidaDoc =>
           updateDoc(doc(db, "recogidas", recogidaDoc.id), {
@@ -126,7 +138,7 @@ export function useRecogidas(adminId?: string) {
             completada: true,
             estadoRecogida: "completada",
             fechaCompletada: new Date(),
-            esHistorico: true, // Para que se muestre correctamente en el historial
+            esHistorico: true,
             updatedAt: serverTimestamp()
           })
         );

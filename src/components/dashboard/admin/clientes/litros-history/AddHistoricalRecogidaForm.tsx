@@ -64,6 +64,7 @@ const AddHistoricalRecogidaForm: React.FC<AddHistoricalRecogidaFormProps> = ({
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
+      console.log("Añadiendo recogida histórica:", { cliente: cliente.id, ...values });
       await onAddRecogida(values.fecha, values.litros);
       form.reset();
       setOpen(false);

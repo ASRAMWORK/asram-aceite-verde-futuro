@@ -2,12 +2,12 @@
 export interface Recogida {
   id: string;
   clienteId: string;
-  comunidadId: string;
+  comunidadId?: string;
   adminId?: string;
   administradorId?: string;  
   fechaRecogida: Date;
-  tipoResiduo: string;
-  cantidad: number;
+  tipoResiduo?: string;
+  cantidad?: number;
   observaciones?: string;
   createdAt?: any;  // This type supports toDate() method from Firebase
   updatedAt?: any;  // This type supports toDate() method from Firebase
