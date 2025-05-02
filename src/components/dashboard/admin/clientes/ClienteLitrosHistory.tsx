@@ -106,7 +106,10 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
     const dateB = b.fecha || b.fechaRecogida;
     if (!dateA) return 1;
     if (!dateB) return -1;
-    return dateB.getTime() - dateA.getTime();
+    // Ensure both dates are Date objects before calling getTime
+    const timeA = dateA instanceof Date ? dateA.getTime() : new Date(dateA).getTime();
+    const timeB = dateB instanceof Date ? dateB.getTime() : new Date(dateB).getTime();
+    return timeB - timeA;
   });
 
   return (
