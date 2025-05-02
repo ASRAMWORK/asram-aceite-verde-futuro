@@ -15,11 +15,7 @@ import TerminosCondiciones from './TerminosCondiciones';
 import { User, Key, FileText } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface AdministradorPerfilProps {
-  userId?: string;
-}
-
-const AdministradorPerfil: React.FC<AdministradorPerfilProps> = ({ userId }) => {
+const AdministradorPerfil = () => {
   const { profile, loading } = useUserProfile();
   
   if (loading) {

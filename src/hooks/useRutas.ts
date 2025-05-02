@@ -7,7 +7,6 @@ import {
 } from 'firebase/firestore';
 import { toast } from 'sonner';
 import type { Ruta } from '@/types';
-import { useRecogidas } from './useRecogidas';
 
 export function useRutas() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
@@ -122,10 +121,8 @@ export function useRutas() {
         updatedAt: serverTimestamp()
       });
       
-      console.log(`Litros actualizados para cliente ${clienteId}: ${litros}`);
       toast.success("Litros registrados correctamente");
-      
-      // Don't reload routes here to avoid losing client input state while updating
+      await loadRutas();
       return true;
     } catch (err) {
       console.error("Error actualizando litros en ruta:", err);
@@ -149,8 +146,6 @@ export function useRutas() {
 
   const completeRuta = async (id: string, litrosTotales: number) => {
     try {
-      console.log(`Marcando ruta ${id} como completada con ${litrosTotales} litros`);
-      
       await updateDoc(doc(db, "rutas", id), {
         completada: true,
         fechaCompletada: new Date(),
@@ -158,10 +153,7 @@ export function useRutas() {
         updatedAt: serverTimestamp()
       });
       
-      console.log("Ruta marcada como completada exitosamente");
-      toast.success(`Ruta completada con ${litrosTotales} litros recogidos`);
-      
-      // Reload routes after completion to update the UI
+      toast.success("Ruta marcada como completada");
       await loadRutas();
       return true;
     } catch (err) {

@@ -18,17 +18,7 @@ export function useAlianzaVerde() {
       
       const alianzasData: AlianzaVerde[] = [];
       alianzasSnap.forEach((doc) => {
-        const data = doc.data();
-        
-        // Ensure certificaciones is always an array
-        const certificaciones = data.certificaciones || [];
-        const formattedData = {
-          ...data,
-          id: doc.id,
-          certificaciones: Array.isArray(certificaciones) ? certificaciones : []
-        };
-        
-        alianzasData.push(formattedData as AlianzaVerde);
+        alianzasData.push({ id: doc.id, ...doc.data() } as AlianzaVerde);
       });
       
       setAlianzas(alianzasData);
@@ -40,14 +30,10 @@ export function useAlianzaVerde() {
     }
   };
 
-  const addAlianzaVerde = async (nuevaAlianza: Partial<AlianzaVerde>) => {
+  const addAlianzaVerde = async (nuevaAlianza: Omit<AlianzaVerde, 'id'>) => {
     try {
-      // Ensure certificaciones is an array
-      const certificaciones = nuevaAlianza.certificaciones || [];
-      
       const alianzaData = {
         ...nuevaAlianza,
-        certificaciones: Array.isArray(certificaciones) ? certificaciones : [],
         activo: true,
         createdAt: serverTimestamp(),
       };
@@ -65,12 +51,8 @@ export function useAlianzaVerde() {
 
   const updateAlianzaVerde = async (id: string, data: Partial<AlianzaVerde>) => {
     try {
-      // Ensure certificaciones is an array
-      const certificaciones = data.certificaciones || [];
-      
       await updateDoc(doc(db, "alianzaVerde", id), {
         ...data,
-        certificaciones: Array.isArray(certificaciones) ? certificaciones : [],
         updatedAt: serverTimestamp()
       });
       toast.success("Información del centro actualizada");

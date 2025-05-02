@@ -55,14 +55,14 @@ const ContactCta = () => {
                 <div className="bg-white/10 p-2 rounded-full">
                   <Phone className="h-5 w-5" />
                 </div>
-                <span>695831784</span>
+                <span>91 XXX XX XX</span>
               </div>
               
               <div className="flex items-center gap-3 text-white">
                 <div className="bg-white/10 p-2 rounded-full">
                   <Mail className="h-5 w-5" />
                 </div>
-                <span>info@asramadrid.com</span>
+                <span>info@asram.org</span>
               </div>
               
               <div className="flex items-center gap-3 text-white">
@@ -82,7 +82,7 @@ const ContactCta = () => {
             className="bg-white rounded-xl overflow-hidden shadow-lg"
           >
             <img 
-              src= "https://s11.aconvert.com/convert/p3r68-cdx67/7sd6k-tjg3c.webp" 
+              src="https://images.unsplash.com/photo-1587290883551-302922335209?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
               alt="Reciclaje de aceite" 
               className="w-full h-64 object-cover"
             />

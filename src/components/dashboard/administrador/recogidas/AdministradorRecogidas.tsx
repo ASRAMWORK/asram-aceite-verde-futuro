@@ -16,18 +16,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
-interface AdministradorRecogidasProps {
-  adminId?: string;
-}
-
-const AdministradorRecogidas: React.FC<AdministradorRecogidasProps> = ({ adminId }) => {
+const AdministradorRecogidas = () => {
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('pendientes');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedRecogidaId, setSelectedRecogidaId] = useState<string | null>(null);
-  
-  // Pasar el adminId al hook
   const { 
     recogidas, 
     loading, 
@@ -36,7 +30,7 @@ const AdministradorRecogidas: React.FC<AdministradorRecogidasProps> = ({ adminId
     calcularPromedioLitrosPorPeriodo,
     addRecogida,
     completarRecogida
-  } = useRecogidas(adminId);
+  } = useRecogidas();
 
   // Generate chart data from recogidas
   const generateChartData = () => {
@@ -115,7 +109,7 @@ const AdministradorRecogidas: React.FC<AdministradorRecogidasProps> = ({ adminId
     toast.success("Recogida completada correctamente");
   };
 
-  // Handle form submission for new recogidas - añadir adminId
+  // Handle form submission for new recogidas
   const handleAddRecogida = async (data: any) => {
     await addRecogida({
       ...data,
@@ -123,8 +117,7 @@ const AdministradorRecogidas: React.FC<AdministradorRecogidasProps> = ({ adminId
       cliente: data.nombreContacto,
       distrito: data.distrito || 'Sin asignar',
       barrio: data.barrio || 'Sin asignar',
-      estado: 'pendiente',
-      adminId: adminId // Añadir el adminId a la recogida
+      estado: 'pendiente'
     });
     setShowForm(false);
   };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -17,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, MapPin, Edit, Trash2, Filter, Users, Droplet, Building, Search, BarChart4 } from "lucide-react";
+import { PlusCircle, MapPin, Edit, Trash2, Filter, Users, Droplet, Building, Search } from "lucide-react";
 import { Instalacion } from "@/types";
 import { useInstalaciones } from "@/hooks/useInstalaciones";
 import { usePuntosVerdes } from "@/hooks/usePuntosVerdes";
@@ -45,7 +44,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import InstalacionForm from "./InstalacionForm";
-import InstalacionesStats from "./InstalacionesStats";
 
 const InstalacionesView = () => {
   const [open, setOpen] = useState(false);
@@ -126,8 +124,47 @@ const InstalacionesView = () => {
         </div>
       </div>
       
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="relative">
+          <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nombre, dirección o distrito..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-3">
+          <Select value={filterDistrito} onValueChange={setFilterDistrito}>
+            <SelectTrigger className="w-full">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                {filterDistrito ? filterDistrito : "Filtrar por distrito"}
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Todos los distritos</SelectItem>
+              {distritos.map((distrito) => (
+                <SelectItem key={distrito} value={distrito}>
+                  {distrito}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setSearchTerm("");
+              setFilterDistrito("");
+            }}
+          >
+            Limpiar filtros
+          </Button>
+        </div>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 mb-4">
+        <TabsList className="grid grid-cols-4 mb-4">
           <TabsTrigger value="instalaciones" className="flex items-center gap-2">
             <Building className="h-4 w-4" /> Instalaciones
           </TabsTrigger>
@@ -140,57 +177,7 @@ const InstalacionesView = () => {
           <TabsTrigger value="recogidas" className="flex items-center gap-2">
             <Droplet className="h-4 w-4" /> Recogidas
           </TabsTrigger>
-          <TabsTrigger value="estadisticas" className="flex items-center gap-2">
-            <BarChart4 className="h-4 w-4" /> Estadísticas
-          </TabsTrigger>
         </TabsList>
-
-        {/* Estadísticas Tab */}
-        <TabsContent value="estadisticas">
-          <InstalacionesStats />
-        </TabsContent>
-
-        {/* Search and filter section - only show for data tabs, not for statistics */}
-        {activeTab !== "estadisticas" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="relative">
-              <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nombre, dirección o distrito..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-3">
-              <Select value={filterDistrito} onValueChange={setFilterDistrito}>
-                <SelectTrigger className="w-full">
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4" />
-                    {filterDistrito ? filterDistrito : "Filtrar por distrito"}
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todos los distritos</SelectItem>
-                  {distritos.map((distrito) => (
-                    <SelectItem key={distrito} value={distrito}>
-                      {distrito}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSearchTerm("");
-                  setFilterDistrito("");
-                }}
-              >
-                Limpiar filtros
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* Instalaciones Tab */}
         <TabsContent value="instalaciones">

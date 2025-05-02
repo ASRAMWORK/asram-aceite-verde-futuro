@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 
 const formSchema = z.object({
   nombre: z.string().min(2, {
@@ -392,9 +391,10 @@ const InstalacionForm: React.FC<InstalacionFormProps> = ({ instalacion, onClose 
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                 <FormControl>
-                  <Switch
+                  <Input
+                    type="checkbox"
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onChange={(e) => field.onChange(e.target.checked)}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">

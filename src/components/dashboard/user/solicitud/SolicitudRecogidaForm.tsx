@@ -25,7 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { CalendarIcon, MapPin, Phone, Loader2 } from 'lucide-react';
+import { CalendarIcon, MapPin, Phone } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const formSchema = z.object({
@@ -60,7 +60,6 @@ interface SolicitudRecogidaFormProps {
 
 const SolicitudRecogidaForm = ({ onCancel, onSuccess, initialData = {} }: SolicitudRecogidaFormProps) => {
   const { profile, loading } = useUserProfile();
-  const [submitting, setSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,74 +78,26 @@ const SolicitudRecogidaForm = ({ onCancel, onSuccess, initialData = {} }: Solici
     }
   }, [profile, form, initialData]);
 
-  // Función para enviar correo electrónico de notificación
-  const enviarCorreoNotificacion = async (data: any) => {
-    try {
-      // Creamos el contenido del correo
-      const asunto = `Nueva solicitud de recogida de aceite - ${profile?.nombre || 'Cliente'}`;
-      const cuerpo = `
-        Nueva solicitud de recogida recibida:
-        
-        Cliente: ${profile?.nombre || ''} ${profile?.apellidos || ''}
-        Email: ${profile?.email || ''}
-        Teléfono: ${data.telefono}
-        Dirección: ${data.direccion}
-        Distrito: ${profile?.distrito || 'No especificado'}
-        Barrio: ${profile?.barrio || 'No especificado'}
-        Litros estimados: ${data.litrosEstimados}
-        Fecha deseada: ${format(data.fechaDeseada, 'dd/MM/yyyy', { locale: es })}
-        Notas: ${data.notas || 'Ninguna'}
-        
-        Fecha de solicitud: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}
-      `;
-      
-      // Guarda la información del correo en Firestore para su posterior envío
-      // En una aplicación real, aquí utilizaríamos una Cloud Function para enviar el correo
-      await addDoc(collection(db, 'emailNotifications'), {
-        to: 'info@asramadrid.com',
-        from: profile?.email || 'noreply@asramadrid.com',
-        subject: asunto,
-        text: cuerpo,
-        createdAt: serverTimestamp(),
-        status: 'pending'
-      });
-      
-      console.log('Notificación de correo programada');
-    } catch (error) {
-      console.error('Error al programar la notificación por correo:', error);
-    }
-  };
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setSubmitting(true);
       const user = auth.currentUser;
       
       if (!user) {
         toast.error('Debes iniciar sesión para solicitar una recogida');
-        setSubmitting(false);
         return;
       }
       
-      // Guardar la solicitud en Firestore
-      const docRef = await addDoc(collection(db, 'solicitudesRecogida'), {
+      await addDoc(collection(db, 'solicitudesRecogida'), {
         userId: user.uid,
         userEmail: user.email,
-        nombre: profile?.nombre || '',
-        apellidos: profile?.apellidos || '',
         litrosEstimados: values.litrosEstimados,
         fechaDeseada: values.fechaDeseada,
         direccion: values.direccion,
         telefono: values.telefono,
         notas: values.notas,
-        distrito: profile?.distrito || '',
-        barrio: profile?.barrio || '',
         estado: 'pendiente',
         createdAt: serverTimestamp(),
       });
-      
-      // Enviar notificación por correo
-      await enviarCorreoNotificacion(values);
       
       toast.success('Solicitud de recogida enviada correctamente');
       form.reset({
@@ -163,8 +114,6 @@ const SolicitudRecogidaForm = ({ onCancel, onSuccess, initialData = {} }: Solici
     } catch (error) {
       console.error('Error al enviar la solicitud:', error);
       toast.error('Error al enviar la solicitud. Inténtalo de nuevo.');
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -299,7 +248,7 @@ const SolicitudRecogidaForm = ({ onCancel, onSuccess, initialData = {} }: Solici
         
         <Card className="bg-green-50 border-green-200">
           <CardContent className="p-4 text-sm text-green-800">
-            <p>Confirma que la dirección y teléfono son correctos antes de enviar la solicitud. Recibirás un correo de confirmación cuando tu solicitud sea procesada.</p>
+            <p>Confirma que la dirección y teléfono son correctos antes de enviar la solicitud.</p>
           </CardContent>
         </Card>
         
@@ -310,24 +259,12 @@ const SolicitudRecogidaForm = ({ onCancel, onSuccess, initialData = {} }: Solici
               variant="outline" 
               className="w-full" 
               onClick={onCancel}
-              disabled={submitting}
             >
               Cancelar
             </Button>
           )}
-          <Button 
-            type="submit" 
-            className="w-full bg-gradient-to-r from-[#ee970d] to-amber-500 hover:from-amber-500 hover:to-[#ee970d]"
-            disabled={submitting}
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Enviando...
-              </>
-            ) : (
-              'Enviar solicitud'
-            )}
+          <Button type="submit" className="w-full bg-[#ee970d] hover:bg-[#ee970d]/90">
+            Enviar solicitud
           </Button>
         </div>
       </form>

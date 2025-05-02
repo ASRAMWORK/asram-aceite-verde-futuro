@@ -50,8 +50,8 @@ const Hero = () => {
               variants={fadeInUp}
               className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
             >
-              <span className="text-gray-800">Asociación para el Reciclaje de Aceite</span>
-              <span className="block text-asram mt-2">en Madrid  </span>
+              <span className="text-gray-800">Reciclaje de Aceite</span>
+              <span className="block text-asram mt-2">para un Madrid Sostenible</span>
             </motion.h1>
             
             <motion.p 
@@ -94,7 +94,7 @@ const Hero = () => {
                 <div className="bg-green-100 p-1 rounded-full">
                   <Droplet className="h-4 w-4 text-green-600" />
                 </div>
-                <span className="text-sm font-medium">1L puede contaminar más de 1000L de agua</span>
+                <span className="text-sm font-medium">1L de aceite evita contaminar 1000L de agua</span>
               </motion.div>
               <motion.div 
                 variants={scaleIn}
@@ -116,13 +116,13 @@ const Hero = () => {
             >
               <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-gray-100 shadow-sm">
                 <div className="flex flex-col items-center">
-                  <div className="text-2xl font-bold text-asram">+1000</div>
-                  <div className="text-xs text-center text-gray-1000">Puntos verdes</div>
+                  <div className="text-2xl font-bold text-asram">+250</div>
+                  <div className="text-xs text-center text-gray-500">Puntos verdes</div>
                 </div>
               </div>
               <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-gray-100 shadow-sm">
                 <div className="flex flex-col items-center">
-                  <div className="text-2xl font-bold text-asram">+10K</div>
+                  <div className="text-2xl font-bold text-asram">+50K</div>
                   <div className="text-xs text-center text-gray-500">Litros reciclados</div>
                 </div>
               </div>
@@ -208,7 +208,7 @@ const Hero = () => {
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Alto impacto</h3>
-              <p className="text-sm text-gray-500">1L puede contaminar mas 1000L de agua</p>
+              <p className="text-sm text-gray-500">1L de aceite evita contaminar 1000L de agua</p>
             </div>
           </div>
           
