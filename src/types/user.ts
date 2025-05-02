@@ -44,6 +44,7 @@ export interface UserProfile {
   numViviendas?: number;
   numContenedores?: number;
   frecuenciaRecogida?: string;
+  comercialId?: string; // New field to link communities to comerciales
   
   // Restaurante
   nombreRestaurante?: string;
@@ -77,7 +78,7 @@ export interface Usuario {
   nombre: string;
   apellidos?: string;
   telefono?: string;
-  administradorId?: string;  // This property is needed and was missing
+  administradorId?: string;
   direccion?: string;
   ciudad?: string;
   provincia?: string;
@@ -125,6 +126,7 @@ export interface Usuario {
   cif?: string;
   contacto?: string;
   litrosEstimados?: number;
+  comercialId?: string; // New field to link communities to comerciales
   
   // Missing properties from errors
   litrosAportados?: number;
@@ -143,5 +145,5 @@ export interface Usuario {
   participaAlianzaVerde?: boolean;
   fechaRegistro?: Date;
   userId?: string;
-  adminId?: string;  // Adding this property to fix the error
+  adminId?: string;
 }
