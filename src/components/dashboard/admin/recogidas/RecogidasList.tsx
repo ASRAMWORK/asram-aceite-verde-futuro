@@ -23,7 +23,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/components/ui/use-toast";
 
 interface RecogidasListProps {
   recogidas: Recogida[];
@@ -79,36 +78,6 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
     }
   };
 
-  // Handle date safely for sorting
-  const getDateTimestamp = (date: Date | string | null | undefined): number => {
-    if (!date) return 0;
-    
-    try {
-      if (date instanceof Date) {
-        return isValid(date) ? date.getTime() : 0;
-      }
-      
-      if (typeof date === 'string') {
-        const parsed = new Date(date);
-        return isValid(parsed) ? parsed.getTime() : 0;
-      }
-      
-      return 0;
-    } catch (error) {
-      console.error("Error converting date for sorting:", error);
-      return 0;
-    }
-  };
-
-  // Sort recogidas by date
-  const sortedRecogidas = [...recogidas].sort((a, b) => {
-    const dateATimestamp = getDateTimestamp(a.fecha);
-    const dateBTimestamp = getDateTimestamp(b.fecha);
-    
-    // Use timestamps for comparison (which are just numbers)
-    return dateBTimestamp - dateATimestamp;
-  });
-
   return (
     <>
       <Table>
@@ -123,14 +92,14 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedRecogidas.length === 0 ? (
+          {recogidas.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                 No hay recogidas programadas
               </TableCell>
             </TableRow>
           ) : (
-            sortedRecogidas.map((recogida) => (
+            recogidas.map((recogida) => (
               <TableRow key={recogida.id} className="hover:bg-gray-50 transition-colors">
                 <TableCell>
                   <div className="flex flex-col">
