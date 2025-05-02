@@ -5,8 +5,9 @@ import { Recogida } from '@/types';
 interface ClienteRanking {
   id: string;
   nombre: string;
-  distrito: string;
-  tipo: string;
+  direccion?: string;
+  distrito?: string;
+  tipo?: string;
   litrosTotales: number;
   recogidasCount: number;
   ranking?: number;
@@ -32,7 +33,8 @@ export function useClientesRanking(recogidas: Recogida[]) {
       if (!clientesMap[recogida.clienteId]) {
         clientesMap[recogida.clienteId] = {
           id: recogida.clienteId,
-          nombre: recogida.nombreContacto || 'Cliente sin nombre',
+          nombre: recogida.nombreContacto || recogida.cliente || 'Cliente sin nombre',
+          direccion: recogida.direccion || recogida.direccionRecogida,
           distrito: recogida.distrito || 'No especificado',
           tipo: recogida.tipoResiduo || recogida.tipoCliente || 'No especificado',
           litrosTotales: 0,
