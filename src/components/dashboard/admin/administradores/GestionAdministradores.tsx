@@ -25,7 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Eye, UserCog } from 'lucide-react';
 import { useUsuarios } from '@/hooks/useUsuarios';
-import { DetalleAdministrador } from './DetalleAdministrador';
+import DetalleAdministrador from './DetalleAdministrador';
 import { Usuario } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
