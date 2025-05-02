@@ -127,7 +127,10 @@ export function useUsuarios() {
         ...usuario,
         administradorId: profile?.role === 'administrador' ? profile.id : usuario.administradorId || null,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        // Asegurarnos de que el role y el tipo se mantengan como están definidos en el objeto usuario
+        role: usuario.role || 'user', // Usar el rol proporcionado o 'user' como fallback
+        tipo: usuario.tipo || usuario.role || 'user' // Usar el tipo proporcionado, o el rol, o 'user' como fallback
       };
       
       // Variables para manejar el estado de vinculación y el UID

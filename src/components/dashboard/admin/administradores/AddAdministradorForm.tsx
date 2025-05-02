@@ -61,9 +61,9 @@ const AddAdministradorForm: React.FC<AddAdministradorFormProps> = ({ onSuccess }
 
   const onSubmit = async (values: FormValues) => {
     try {
-      // Make sure to provide all required fields from the Usuario type
+      // Asegurarse de que se asigna el rol "administrador" explícitamente
       const result = await addUsuario({
-        email: values.email, // Ensure this is always provided
+        email: values.email,
         nombre: values.nombre,
         apellidos: values.apellidos,
         telefono: values.telefono || '',
@@ -73,9 +73,9 @@ const AddAdministradorForm: React.FC<AddAdministradorFormProps> = ({ onSuccess }
         provincia: values.provincia || '',
         codigoPostal: values.codigoPostal || '',
         password: values.password,
-        role: 'administrador',
-        tipo: 'administrador',
-        activo: true,
+        role: 'administrador', // Asegurarnos de que este campo sea explícitamente "administrador"
+        tipo: 'administrador', // También aseguramos que el tipo sea "administrador"
+        activo: true
       });
       
       if (result.success) {
