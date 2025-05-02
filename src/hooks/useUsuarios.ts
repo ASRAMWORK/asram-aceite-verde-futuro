@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, addDoc, updateDoc, doc, deleteDoc, where, orderBy, serverTimestamp, getDoc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'sonner';
 import type { Usuario, UserRole, VinculacionAuthEstado, ComunidadVecinos } from '@/types';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -122,6 +121,7 @@ export function useUsuarios() {
 
   const addUsuario = async (usuario: Omit<Usuario, "id"> & { administradorId?: string, password?: string }) => {
     try {
+      setLoading(true);
       // Si es un administrador quien está creando el usuario, se asocia automáticamente
       const usuarioData = {
         ...usuario,
@@ -130,29 +130,43 @@ export function useUsuarios() {
         updatedAt: serverTimestamp()
       };
       
-      // Si se proporciona contraseña y el usuario es de tipo 'administrador', crear también en Auth
+      // Variables para manejar el estado de vinculación y el UID
       let uid: string | undefined = undefined;
       let estadoVinculacion: VinculacionAuthEstado = 'sin_vincular';
+      let mensajeResultado = "";
       
+      // Si se proporciona contraseña y es un administrador o comercial, intentamos crear cuenta en Auth
       if (usuario.password && (usuario.role === 'administrador' || usuario.role === 'comercial')) {
         try {
-          // Intentar crear el usuario en Firebase Auth
+          // Paso 1: Intentar crear el usuario en Firebase Auth
           const userCredential = await createUserWithEmailAndPassword(auth, usuario.email, usuario.password);
           uid = userCredential.user.uid;
           estadoVinculacion = 'completo';
-          
+          mensajeResultado = `Usuario ${usuario.role} creado correctamente con acceso al sistema`;
           console.log(`Usuario ${usuario.role} creado en Auth con UID: ${uid}`);
         } catch (authError: any) {
           console.error(`Error creando usuario ${usuario.role} en Auth:`, authError);
           
-          // Asignar estado según el error
+          // Si el email ya está en uso, intentar iniciar sesión para obtener el UID
           if (authError.code === 'auth/email-already-in-use') {
-            estadoVinculacion = 'falla_password';
+            try {
+              // Intento de login con las credenciales proporcionadas
+              const loginResult = await signInWithEmailAndPassword(auth, usuario.email, usuario.password);
+              uid = loginResult.user.uid;
+              estadoVinculacion = 'completo';
+              mensajeResultado = `Usuario ${usuario.role} vinculado a una cuenta existente`;
+              console.log(`Vinculado a cuenta existente con UID: ${uid}`);
+            } catch (loginError: any) {
+              // Si la contraseña no coincide, seguimos guardando el usuario pero con estado de falla
+              estadoVinculacion = 'falla_password';
+              mensajeResultado = `Usuario ${usuario.role} guardado pero la contraseña no coincide con la cuenta existente`;
+              console.error("Error al iniciar sesión con credenciales:", loginError);
+            }
           } else {
+            // Otro tipo de error de autenticación
             estadoVinculacion = 'pendiente';
+            mensajeResultado = `Usuario ${usuario.role} guardado pero con vinculación pendiente: ${authError.message}`;
           }
-          
-          toast.error(`No se pudo crear la cuenta de autenticación para ${usuario.email}: ${authError.message}`);
         }
       }
       
@@ -162,7 +176,8 @@ export function useUsuarios() {
         uid,
         estadoVinculacion,
         intentosVinculacion: 1,
-        ultimoIntentoVinculacion: serverTimestamp()
+        ultimoIntentoVinculacion: serverTimestamp(),
+        activo: estadoVinculacion === 'completo' // Automáticamente activo si la vinculación fue exitosa
       };
       
       // Eliminar la contraseña del objeto antes de guardar en Firestore
@@ -171,21 +186,22 @@ export function useUsuarios() {
       // Guardar en Firestore independientemente del resultado de Auth
       const docRef = await addDoc(collection(db, "usuarios"), usuarioFinal);
       
-      // Mensaje de éxito adaptado según el resultado
-      if (estadoVinculacion === 'completo') {
-        toast.success(`Usuario ${usuario.role} añadido correctamente con acceso al sistema`);
-      } else if (usuario.role === 'administrador' || usuario.role === 'comercial') {
-        toast.success(`Usuario ${usuario.role} añadido pero sin vinculación completa a la autenticación`);
-      } else {
-        toast.success("Usuario añadido correctamente");
-      }
+      // Mostrar mensaje apropiado según el resultado
+      toast.success(mensajeResultado);
       
       await loadUsuariosData();
-      return { success: true, usuarioId: docRef.id };
-    } catch (err) {
+      return { 
+        success: true, 
+        usuarioId: docRef.id, 
+        estado: estadoVinculacion, 
+        uid
+      };
+    } catch (err: any) {
       console.error("Error añadiendo usuario:", err);
-      toast.error("Error al añadir el usuario");
-      return { success: false };
+      toast.error(`Error al añadir el usuario: ${err.message}`);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -274,6 +290,88 @@ export function useUsuarios() {
     }
   };
 
+  // Nueva función para intentar vincular un usuario existente en Firestore con Firebase Auth
+  const reintentarVinculacionAuth = async (id: string, email: string, newPassword: string) => {
+    try {
+      setLoading(true);
+      
+      // Buscar el usuario en Firestore
+      const usuarioDoc = await getDoc(doc(db, "usuarios", id));
+      if (!usuarioDoc.exists()) {
+        toast.error("Usuario no encontrado");
+        return { success: false, error: "Usuario no encontrado" };
+      }
+      
+      const usuarioData = usuarioDoc.data() as Usuario;
+      
+      let uid: string | undefined = undefined;
+      let estadoVinculacion: VinculacionAuthEstado = 'pendiente';
+      let mensajeResultado = "";
+      
+      try {
+        // Intentar crear nuevo usuario con el email y nueva contraseña
+        const userCredential = await createUserWithEmailAndPassword(auth, email, newPassword);
+        uid = userCredential.user.uid;
+        estadoVinculacion = 'completo';
+        mensajeResultado = "Usuario vinculado correctamente con nueva cuenta de autenticación";
+      } catch (authError: any) {
+        console.error("Error en reintento de vinculación:", authError);
+        
+        if (authError.code === 'auth/email-already-in-use') {
+          // El email ya está en uso, pero la contraseña podría ser diferente
+          estadoVinculacion = 'falla_password';
+          mensajeResultado = "El email ya está registrado pero no se pudo acceder. Intente con otra contraseña";
+        } else {
+          estadoVinculacion = 'pendiente';
+          mensajeResultado = `Error al vincular: ${authError.message}`;
+        }
+      }
+      
+      // Actualizar el usuario en Firestore con el nuevo estado
+      await updateDoc(doc(db, "usuarios", id), {
+        uid,
+        estadoVinculacion,
+        intentosVinculacion: (usuarioData.intentosVinculacion || 0) + 1,
+        ultimoIntentoVinculacion: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        activo: estadoVinculacion === 'completo'
+      });
+      
+      toast[estadoVinculacion === 'completo' ? 'success' : 'error'](mensajeResultado);
+      
+      await loadUsuariosData();
+      return { 
+        success: estadoVinculacion === 'completo', 
+        estado: estadoVinculacion,
+        uid
+      };
+    } catch (err: any) {
+      console.error("Error en proceso de revinculación:", err);
+      toast.error(`Error al reintentar vinculación: ${err.message}`);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Nueva función para actualizar el estado de vinculación manualmente
+  const actualizarEstadoVinculacion = async (id: string, estado: VinculacionAuthEstado) => {
+    try {
+      await updateDoc(doc(db, "usuarios", id), {
+        estadoVinculacion: estado,
+        updatedAt: serverTimestamp()
+      });
+      
+      toast.success(`Estado de vinculación actualizado a: ${estado}`);
+      await loadUsuariosData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando estado de vinculación:", err);
+      toast.error("Error al actualizar el estado de vinculación");
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadUsuariosData();
   }, [profile?.id]);
@@ -290,6 +388,8 @@ export function useUsuarios() {
     deleteUsuario,
     updateUserRole,
     addCliente,
-    addUsuario
+    addUsuario,
+    reintentarVinculacionAuth,
+    actualizarEstadoVinculacion
   };
 }
