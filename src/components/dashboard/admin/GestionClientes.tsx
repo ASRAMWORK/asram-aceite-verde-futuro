@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Search, UserPlus, User, Edit, Trash2, RefreshCcw, Filter, History } from 'lucide-react';
+import { Search, UserPlus, User, Edit, Trash2, RefreshCcw, Filter } from 'lucide-react';
 import { useClientes } from '@/hooks/useClientes';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -26,7 +26,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -369,12 +368,9 @@ const GestionClientes = () => {
                             variant="outline" 
                             size="sm" 
                             onClick={() => handleViewClient(cliente)}
-                            className="text-[#EE970D] border-[#EE970D] hover:text-[#EE970D] hover:bg-orange-50"
                           >
-                            <History className="h-4 w-4 mr-1" />
-                            Historial
+                            Ver detalle
                           </Button>
-                          <RecogidaClienteButton cliente={cliente} size="icon" />
                           <Button variant="outline" size="sm" onClick={() => handleEditClient(cliente)}>
                             <Edit className="h-4 w-4 mr-1" />
                             Editar
