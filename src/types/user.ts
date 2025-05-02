@@ -1,4 +1,6 @@
 
+import { ComunidadVecinos } from './comunidad';
+
 export type UserRole = 
   | 'superadmin' 
   | 'admin' 
@@ -150,3 +152,4 @@ export interface Usuario {
   // Add the comunidades property that was missing
   comunidades?: ComunidadVecinos[];
 }
+
