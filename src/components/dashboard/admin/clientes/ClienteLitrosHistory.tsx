@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplet } from 'lucide-react';
 import type { Usuario, Recogida } from '@/types';
 import { useRecogidas } from '@/hooks/useRecogidas';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import formatDate from './litros-history/DateFormatter';
 import LitrosHistoryTable from './litros-history/LitrosHistoryTable';
 import AddHistoricalRecogidaForm from './litros-history/AddHistoricalRecogidaForm';
 
@@ -21,22 +20,28 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
   // Filtramos las recogidas del cliente y calculamos el total de litros
   useEffect(() => {
     if (cliente && recogidas.length > 0) {
-      // Implementamos un filtrado más completo para capturar todas las coincidencias posibles
-      const filtradas = recogidas.filter(recogida => 
-        // Coincidencia por ID de cliente
-        recogida.clienteId === cliente.id || 
-        // Coincidencia por nombre de cliente
-        recogida.cliente === cliente.nombre || 
-        // Coincidencia por nombre de contacto
-        recogida.nombreContacto === cliente.nombre ||
-        // Coincidencia por email (si está disponible)
-        (cliente.email && recogida.emailContacto === cliente.email) ||
-        // Coincidencia por teléfono (si está disponible)
-        (cliente.telefono && recogida.telefonoContacto === cliente.telefono)
-      );
-      
-      console.log('Cliente actual:', cliente);
+      console.log('Filtrando recogidas para cliente:', cliente);
       console.log('Total recogidas disponibles:', recogidas.length);
+      
+      // Implementamos un filtrado más completo para capturar todas las coincidencias posibles
+      const filtradas = recogidas.filter(recogida => {
+        // Coincidencia directa por ID
+        const directIdMatch = recogida.clienteId === cliente.id;
+        
+        // Coincidencia por nombre
+        const nombreMatch = recogida.cliente === cliente.nombre || 
+                          recogida.nombreContacto === cliente.nombre;
+        
+        // Coincidencia por email (si está disponible)
+        const emailMatch = cliente.email && recogida.emailContacto === cliente.email;
+        
+        // Coincidencia por teléfono (si está disponible)
+        const telefonoMatch = cliente.telefono && recogida.telefonoContacto === cliente.telefono;
+        
+        // Si cualquiera de estas condiciones es verdadera, incluimos esta recogida
+        return directIdMatch || nombreMatch || emailMatch || telefonoMatch;
+      });
+      
       console.log('Recogidas filtradas para el cliente:', filtradas.length);
       
       if (filtradas.length > 0) {
@@ -54,18 +59,6 @@ const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) 
       }
     }
   }, [cliente, recogidas]);
-
-  // Format date helper function
-  const formatDate = (date: any) => {
-    if (!date) return "N/A";
-    
-    try {
-      const dateObj = typeof date === 'string' ? new Date(date) : date;
-      return format(dateObj, 'dd/MM/yyyy', { locale: es });
-    } catch (error) {
-      return "Fecha inválida";
-    }
-  };
 
   const handleAddHistoricalCollection = async (date: Date, litros: number) => {
     if (!cliente) return;
