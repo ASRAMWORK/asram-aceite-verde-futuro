@@ -141,7 +141,7 @@ const AddHistoricalRecogidaForm: React.FC<AddHistoricalRecogidaFormProps> = ({
                         selected={field.value}
                         onSelect={field.onChange}
                         initialFocus
-                        className="p-3 pointer-events-auto"
+                        className={cn("p-3 pointer-events-auto")}
                       />
                     </PopoverContent>
                   </Popover>
