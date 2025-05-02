@@ -6,6 +6,7 @@ import { ChevronLeft, Mail, Phone, MapPin, Building } from 'lucide-react';
 import type { Usuario } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import ClienteLitrosHistory from './clientes/ClienteLitrosHistory';
+import RecogidaClienteButton from './clientes/RecogidaClienteButton';
 
 interface DetalleClienteProps {
   cliente: Usuario;
@@ -24,12 +25,16 @@ const DetalleCliente: React.FC<DetalleClienteProps> = ({ cliente, onBack }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center">
-        <Button variant="ghost" onClick={onBack} className="mr-2">
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Volver
-        </Button>
-        <h2 className="text-3xl font-bold">{cliente.nombre}</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <Button variant="ghost" onClick={onBack} className="mr-2">
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            Volver
+          </Button>
+          <h2 className="text-3xl font-bold">{cliente.nombre}</h2>
+        </div>
+        
+        <RecogidaClienteButton cliente={cliente} />
       </div>
 
       <Card className="w-full">

@@ -1,93 +1,90 @@
 
-import React from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle,
-  CardFooter
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useRecogidas } from '@/hooks/useRecogidas';
-import type { Usuario } from '@/types';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplet } from 'lucide-react';
+import type { Usuario } from '@/types';
+import { useRecogidas } from '@/hooks/useRecogidas';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import AddHistoricalRecogidaForm from '../historial/AddHistoricalRecogidaForm';
 import LitrosHistoryTable from './litros-history/LitrosHistoryTable';
-import AddHistoricalCollection from './litros-history/AddHistoricalCollection';
-import formatDate from './litros-history/DateFormatter';
-import { toast } from 'sonner';
 
 interface ClienteLitrosHistoryProps {
   cliente: Usuario;
 }
 
 const ClienteLitrosHistory: React.FC<ClienteLitrosHistoryProps> = ({ cliente }) => {
-  const { recogidas, getRecogidasByClientId, addRecogida } = useRecogidas();
+  const { recogidas, addRecogida } = useRecogidas();
   
-  // Get all the recogidas for this client, ensuring we have an array
-  const recogidasCliente = cliente?.id ? (getRecogidasByClientId(cliente.id) || []) : [];
+  // Get all recogidas for this client
+  const recogidasCliente = recogidas.filter(
+    recogida => recogida.clienteId === cliente.id || 
+                recogida.cliente === cliente.nombre ||
+                recogida.nombreContacto === cliente.nombre
+  );
   
-  // Handle adding a historical collection
-  const handleAddHistoricalCollection = async (date: Date, litros: number) => {
-    if (!cliente.id) {
-      console.error("Cliente ID is missing");
-      return;
-    }
+  // Calculate total litros
+  const totalLitros = recogidasCliente.reduce((sum, recogida) => {
+    return sum + (recogida.litrosRecogidos || 0);
+  }, 0);
+
+  // Format date helper function
+  const formatDate = (date: any) => {
+    if (!date) return "N/A";
     
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      return format(dateObj, 'dd/MM/yyyy', { locale: es });
+    } catch (error) {
+      return "Fecha inválida";
+    }
+  };
+
+  const handleAddHistoricalCollection = async (date: Date, litros: number) => {
     await addRecogida({
       clienteId: cliente.id,
+      cliente: cliente.nombre,
+      nombreContacto: cliente.nombre,
+      direccion: cliente.direccion,
+      direccionRecogida: cliente.direccion,
+      distrito: cliente.distrito,
+      barrio: cliente.barrio,
       fecha: date,
       fechaRecogida: date,
       litrosRecogidos: litros,
       completada: true,
       estadoRecogida: "completada",
-      direccion: cliente.direccion,
-      direccionRecogida: cliente.direccion,
-      distrito: cliente.distrito,
-      barrio: cliente.barrio,
-      nombreContacto: cliente.nombre,
-      telefonoContacto: cliente.telefono,
-      emailContacto: cliente.email,
       fechaCompletada: date,
-      esHistorico: true // Esta bandera es importante para distinguir recogidas históricas
+      esHistorico: true
     });
-    
-    toast.success(`Recolección histórica añadida: ${litros} litros`);
   };
-  
-  // Calculate total liters
-  const totalLitros = recogidasCliente.reduce((sum, r) => sum + (r.litrosRecogidos || 0), 0);
 
   return (
-    <Card className="w-full mt-4">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Historial de litros recogidos</CardTitle>
-            <CardDescription>
-              Registro de todas las recolecciones realizadas para {cliente.nombre || "este cliente"}
-            </CardDescription>
-          </div>
-          <AddHistoricalCollection 
-            cliente={cliente} 
-            onAddCollection={handleAddHistoricalCollection}
-          />
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <CardTitle className="text-xl font-bold">Historial de Aceite Recogido</CardTitle>
+        <div className="flex items-center space-x-2">
+          <Droplet className="w-5 h-5 text-blue-500" />
+          <span className="font-bold">{totalLitros} litros en total</span>
         </div>
       </CardHeader>
       <CardContent>
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-muted-foreground">
+            Registro histórico de recogidas para este cliente
+          </p>
+          <AddHistoricalRecogidaForm 
+            cliente={cliente} 
+            onAddRecogida={handleAddHistoricalCollection} 
+          />
+        </div>
+
         <LitrosHistoryTable 
           recogidasCliente={recogidasCliente}
           formatDate={formatDate}
           totalLitros={totalLitros}
         />
       </CardContent>
-      <CardFooter className="bg-slate-50 border-t flex justify-between">
-        <span className="text-sm text-muted-foreground">Los registros incluyen recogidas individuales y por ruta</span>
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
-          <Droplet className="h-3.5 w-3.5" />
-          <span>Total: {totalLitros} litros</span>
-        </Badge>
-      </CardFooter>
     </Card>
   );
 };

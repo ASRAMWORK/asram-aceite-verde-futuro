@@ -94,8 +94,8 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
   const handleAddRecogida = async (data: any) => {
     await addRecogida({
       ...data,
-      direccion: data.direccionRecogida,
-      cliente: data.nombreContacto,
+      direccion: data.direccionRecogida || data.direccion,
+      cliente: data.nombreContacto || (data.clienteId ? clientes.find(c => c.id === data.clienteId)?.nombre : ''),
       distrito: data.distrito || 'Sin asignar',
       barrio: data.barrio || 'Sin asignar',
       estado: 'pendiente'
@@ -298,6 +298,12 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
                   <div>
                     <h3 className="font-semibold text-sm text-gray-500">Litros Recogidos</h3>
                     <p>{selectedRecogida.litrosRecogidos || 0} L</p>
+                  </div>
+                )}
+                {selectedRecogida.clienteId && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-gray-500">Cliente Registrado</h3>
+                    <p>Sí (ID: {selectedRecogida.clienteId.substring(0, 8)}...)</p>
                   </div>
                 )}
               </div>
