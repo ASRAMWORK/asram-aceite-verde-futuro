@@ -52,6 +52,7 @@ const AddHistoricalRecogidaForm: React.FC<AddHistoricalRecogidaFormProps> = ({
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Initialize the form with react-hook-form and zod resolver
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
