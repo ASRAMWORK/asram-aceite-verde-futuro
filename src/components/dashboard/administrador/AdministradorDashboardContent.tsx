@@ -1,13 +1,16 @@
 
-import React from "react";
-import AdministradorDashboardOverview from "./AdministradorDashboardOverview";
-import MisComunidades from "./MisComunidades";
-import GestionarComunidad from "./GestionarComunidad";
-import InformesPanel from "./informes/InformesPanel";
-import AdministradorEstadisticas from "./estadisticas/AdministradorEstadisticas";
-import AdministradorPerfil from "./perfil/AdministradorPerfil";
-import ClienteRankingWrapper from "../admin/rankings/ClienteRankingWrapper";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import React from 'react';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import AdministradorDashboardOverview from './AdministradorDashboardOverview';
+import MisComunidades from './MisComunidades';
+import GestionarComunidad from './GestionarComunidad';
+import InformesPanel from './informes/InformesPanel';
+import PanelControl from './panel/PanelControl';
+import AdministradorRecogidas from './recogidas/AdministradorRecogidas';
+import AdministradorPerfil from './perfil/AdministradorPerfil';
+import AdministradorEstadisticas from './estadisticas/AdministradorEstadisticas';
+import AdministradorClientes from './clientes/AdministradorClientes';
+import ClienteRankingWrapper from '../admin/rankings/ClienteRankingWrapper';
 
 interface AdministradorDashboardContentProps {
   activeTab: string;
@@ -15,40 +18,29 @@ interface AdministradorDashboardContentProps {
 
 const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps> = ({ activeTab }) => {
   const { profile } = useUserProfile();
-  const adminId = profile?.id || '';
-
-  // Function to render the active tab content
-  const renderActiveTabContent = () => {
-    switch (activeTab) {
-      case "home":
-        return <AdministradorDashboardOverview />;
-      
-      case "comunidades":
-        return <MisComunidades />;
-      
-      case "gestionar":
-        return <GestionarComunidad />;
-      
-      case "informes":
-        return <InformesPanel />;
-      
-      case "estadisticas":
-        return <AdministradorEstadisticas />;
-      
-      case "ranking":
-        return <ClienteRankingWrapper adminId={adminId} />;
-      
-      case "perfil":
-        return <AdministradorPerfil />;
-      
-      default:
-        return <AdministradorDashboardOverview />;
-    }
-  };
-
+  
+  // Verificar si hay un ID de perfil disponible
+  if (!profile || !profile.id) {
+    return (
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+        <p className="text-yellow-800">
+          Cargando datos del perfil... Si este mensaje persiste, contacte al soporte técnico.
+        </p>
+      </div>
+    );
+  }
+  
   return (
-    <div className="space-y-6">
-      {renderActiveTabContent()}
+    <div>
+      {activeTab === 'home' && <AdministradorDashboardOverview />}
+      {activeTab === 'comunidades' && <MisComunidades administradorId={profile.id} />}
+      {activeTab === 'gestionar' && <GestionarComunidad administradorId={profile.id} />}
+      {activeTab === 'informes' && <InformesPanel administradorId={profile.id} />}
+      {activeTab === 'estadisticas' && <AdministradorEstadisticas administradorId={profile.id} />}
+      {activeTab === 'clientes' && <AdministradorClientes administradorId={profile.id} />}
+      {activeTab === 'recogidas' && <AdministradorRecogidas administradorId={profile.id} />}
+      {activeTab === 'perfil' && <AdministradorPerfil userId={profile.id} />}
+      {activeTab === 'ranking' && <ClienteRankingWrapper adminId={profile.id} />}
     </div>
   );
 };
