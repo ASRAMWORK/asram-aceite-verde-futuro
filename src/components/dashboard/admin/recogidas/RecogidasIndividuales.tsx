@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -222,7 +223,7 @@ const RecogidasIndividuales: React.FC<RecogidasIndividualesProps> = ({ clientes 
           <DialogHeader>
             <DialogTitle className="text-[#EE970D] flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              {selectedClienteId ? Programar Recogida para ${selectedCliente?.nombre} : 'Nueva Recogida'}
+              {selectedClienteId ? `Programar Recogida para ${selectedCliente?.nombre}` : 'Nueva Recogida'}
             </DialogTitle>
             <DialogDescription>
               Programa una nueva recogida de aceite

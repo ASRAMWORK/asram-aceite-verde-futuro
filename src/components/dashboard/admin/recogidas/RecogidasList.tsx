@@ -78,6 +78,19 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
     }
   };
 
+  // Sort recogidas by date, ensuring we handle non-Date values properly
+  const sortedRecogidas = [...recogidas].sort((a, b) => {
+    // Safely convert to date objects
+    const dateA = a.fecha instanceof Date ? a.fecha : 
+                 (a.fecha ? new Date(a.fecha) : new Date(0));
+                 
+    const dateB = b.fecha instanceof Date ? b.fecha : 
+                 (b.fecha ? new Date(b.fecha) : new Date(0));
+    
+    // Use timestamps for comparison (which are just numbers)
+    return dateB.getTime() - dateA.getTime();
+  });
+
   return (
     <>
       <Table>
@@ -92,14 +105,14 @@ const RecogidasList: React.FC<RecogidasListProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {recogidas.length === 0 ? (
+          {sortedRecogidas.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                 No hay recogidas programadas
               </TableCell>
             </TableRow>
           ) : (
-            recogidas.map((recogida) => (
+            sortedRecogidas.map((recogida) => (
               <TableRow key={recogida.id} className="hover:bg-gray-50 transition-colors">
                 <TableCell>
                   <div className="flex flex-col">
