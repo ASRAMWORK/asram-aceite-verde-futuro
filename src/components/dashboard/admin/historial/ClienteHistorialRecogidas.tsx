@@ -19,7 +19,7 @@ interface ClienteHistorialRecogidasProps {
 }
 
 const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ cliente }) => {
-  const { recogidas, getRecogidasByClientId, addRecogida } = useRecogidas();
+  const { recogidas, getRecogidasByClientId, addRecogida, loadRecogidasData } = useRecogidas();
   const [clienteRecogidas, setClienteRecogidas] = useState<any[]>([]);
   const [promedioLitros30Dias, setPromedioLitros30Dias] = useState<number>(0);
   
@@ -66,15 +66,15 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
 
   // Handle adding a historical collection
   const handleAddHistoricalCollection = async (date: Date, litros: number) => {
-    if (!cliente.id) {
+    if (!cliente?.id) {
       console.error("Cliente ID is missing");
       return;
     }
     
     try {
+      // Usar solo los campos necesarios sin duplicaciones
       await addRecogida({
         clienteId: cliente.id,
-        // Use administradorId if it exists, otherwise try adminId (handle both property names)
         adminId: cliente.administradorId || cliente.adminId,
         administradorId: cliente.administradorId,
         fecha: date,
@@ -82,17 +82,19 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
         litrosRecogidos: litros,
         completada: true,
         estadoRecogida: "completada",
-        direccion: cliente.direccion,
-        direccionRecogida: cliente.direccion,
-        distrito: cliente.distrito,
-        barrio: cliente.barrio,
+        direccion: cliente.direccion, // Solo usar un campo de dirección
         nombreContacto: cliente.nombre,
         telefonoContacto: cliente.telefono,
         emailContacto: cliente.email,
+        distrito: cliente.distrito,
+        barrio: cliente.barrio,
         fechaCompletada: date,
         esHistorico: true // Esta bandera es importante para distinguir recogidas históricas
       });
 
+      // Recargar datos para actualizar la UI inmediatamente
+      await loadRecogidasData();
+      
       toast.success(`Se añadieron ${litros} litros al historial de ${cliente.nombre}`);
     } catch (error) {
       console.error("Error adding historical collection:", error);

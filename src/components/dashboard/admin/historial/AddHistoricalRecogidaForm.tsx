@@ -22,6 +22,7 @@ import { Plus, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { Usuario } from '@/types';
+import { toast } from 'sonner';
 
 interface AddHistoricalRecogidaFormProps {
   cliente: Usuario;
@@ -38,8 +39,13 @@ const AddHistoricalRecogidaForm: React.FC<AddHistoricalRecogidaFormProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddHistoricalCollection = async () => {
-    if (!cliente.id) {
-      console.error("Cliente ID is missing");
+    if (!cliente?.id) {
+      toast.error("No se pueden añadir recolecciones a este cliente. Falta ID de cliente.");
+      return;
+    }
+    
+    if (litros <= 0) {
+      toast.error("Por favor, introduce una cantidad válida de litros");
       return;
     }
     
@@ -51,6 +57,7 @@ const AddHistoricalRecogidaForm: React.FC<AddHistoricalRecogidaFormProps> = ({
       setLitros(0);
     } catch (error) {
       console.error("Error adding historical collection:", error);
+      toast.error("Error al añadir la recolección histórica");
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +75,7 @@ const AddHistoricalRecogidaForm: React.FC<AddHistoricalRecogidaFormProps> = ({
         <DialogHeader>
           <DialogTitle>Añadir recolección histórica</DialogTitle>
           <DialogDescription>
-            Registra una recolección anterior para este cliente.
+            Registra una recolección anterior para {cliente?.nombre || "este cliente"}.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
