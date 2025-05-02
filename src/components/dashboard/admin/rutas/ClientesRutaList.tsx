@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -26,6 +26,29 @@ export function ClientesRutaList({
   onComplete,
   showComplete = false 
 }: ClientesRutaListProps) {
+  // Guarda el estado local de los litros para cada cliente
+  const [litrosState, setLitrosState] = useState<Record<string, number>>({});
+  
+  // Inicializa el estado local con los litros actuales de los clientes
+  useEffect(() => {
+    const initialLitros: Record<string, number> = {};
+    clientes.forEach(cliente => {
+      initialLitros[cliente.id] = cliente.litros || 0;
+    });
+    setLitrosState(initialLitros);
+  }, [clientes]);
+
+  // Actualiza el estado local y llama al callback del padre
+  const handleUpdateLitros = (clienteId: string, litros: number) => {
+    setLitrosState(prevState => ({
+      ...prevState,
+      [clienteId]: litros
+    }));
+    
+    // Propagamos el cambio inmediatamente al componente padre
+    onUpdateLitros(clienteId, litros);
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg border overflow-hidden">
@@ -59,17 +82,17 @@ export function ClientesRutaList({
                     <Input
                       type="number"
                       min="0"
-                      value={cliente.litros || 0}
-                      onChange={(e) => onUpdateLitros(cliente.id, Number(e.target.value))}
+                      value={litrosState[cliente.id] || 0}
+                      onChange={(e) => handleUpdateLitros(cliente.id, Number(e.target.value))}
                       className="w-28"
                       placeholder="0"
                     />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center">
-                      {cliente.litros ? (
+                      {litrosState[cliente.id] > 0 ? (
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900">
-                          {cliente.litros}L registrados
+                          {litrosState[cliente.id]}L registrados
                         </Badge>
                       ) : (
                         <Badge variant="outline">Pendiente</Badge>

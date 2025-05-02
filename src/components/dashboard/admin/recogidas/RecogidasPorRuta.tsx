@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { 
   Dialog, 
   DialogContent, 
@@ -50,10 +49,10 @@ import {
 } from 'lucide-react';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import { useRutas } from '@/hooks/useRutas';
-import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Ruta } from '@/types';
+import { ClientesRutaList } from '../rutas/ClientesRutaList';
 
 interface RecogidasPorRutaProps {
   rutas: Ruta[];
@@ -64,14 +63,24 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
   const [selectedRutaId, setSelectedRutaId] = useState<string | null>(null);
   const [completingRutaId, setCompletingRutaId] = useState<string | null>(null);
   const [clientesLitros, setClientesLitros] = useState<Record<string, number>>({});
-  const [showDetallesDialog, setShowDetallesDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('pendientes');
 
-  const { updateRutaRecogida, updateRecogida, completarRecogidasRuta } = useRecogidas();
+  const { updateRutaRecogida, completarRecogidasRuta } = useRecogidas();
   const { completeRuta } = useRutas();
 
   // Get the selected ruta
   const selectedRuta = selectedRutaId ? rutas.find(r => r.id === selectedRutaId) : null;
+
+  // Inicializar clientesLitros cuando se selecciona una ruta
+  useEffect(() => {
+    if (selectedRuta) {
+      const initialLitros: Record<string, number> = {};
+      selectedRuta.clientes?.forEach(cliente => {
+        initialLitros[cliente.id] = cliente.litros || 0;
+      });
+      setClientesLitros(initialLitros);
+    }
+  }, [selectedRuta]);
 
   // Filter rutas by search term
   const filteredRutas = rutas.filter(ruta => {
@@ -89,22 +98,16 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
 
   const handleSelectRuta = (rutaId: string) => {
     setSelectedRutaId(rutaId);
-    // Initialize client liters with existing values or 0
-    const ruta = rutas.find(r => r.id === rutaId);
-    if (ruta) {
-      const litrosObj: Record<string, number> = {};
-      ruta.clientes?.forEach(cliente => {
-        litrosObj[cliente.id] = cliente.litros || cliente.litrosEstimados || 0;
-      });
-      setClientesLitros(litrosObj);
-    }
   };
 
-  const handleUpdateLitros = (clienteId: string, value: number) => {
+  const handleUpdateLitros = (clienteId: string, litros: number) => {
     setClientesLitros(prev => ({
       ...prev,
-      [clienteId]: value
+      [clienteId]: litros
     }));
+    
+    // Si quieres guardar inmediatamente en la base de datos, descomenta esto
+    // updateRutaRecogida(selectedRutaId!, clienteId, litros);
   };
 
   const handleCompleteRuta = (rutaId: string) => {
@@ -140,7 +143,7 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
       
       setCompletingRutaId(null);
       setSelectedRutaId(null);
-      toast.success('Ruta completada correctamente');
+      toast.success(`Ruta completada correctamente: ${totalLitros} litros recogidos`);
     } catch (error) {
       console.error("Error al completar ruta:", error);
       toast.error('Error al completar la ruta. Intente nuevamente.');
@@ -153,7 +156,7 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
     
     try {
       const dateObj = typeof date === 'string' ? new Date(date) : date;
-      return format(dateObj, 'dd/MM/yyyy');
+      return dateObj.toLocaleDateString();
     } catch (error) {
       console.error("Error formatting date:", error);
       return "N/A";
@@ -218,61 +221,16 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
                 </div>
               </div>
 
-              <div className="border rounded-md">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gray-50">
-                      <TableHead>Orden</TableHead>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Dirección</TableHead>
-                      <TableHead>Distrito/Barrio</TableHead>
-                      <TableHead>Estimado</TableHead>
-                      <TableHead className="text-right">Litros Recogidos</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedRuta?.clientes?.map((cliente, index) => (
-                      <TableRow key={cliente.id}>
-                        <TableCell>{cliente.orden || index + 1}</TableCell>
-                        <TableCell className="font-medium">{cliente.nombre}</TableCell>
-                        <TableCell className="max-w-[200px] truncate">
-                          {cliente.direccion}
-                        </TableCell>
-                        <TableCell>
-                          {cliente.barrio ? `${cliente.barrio}` : 'N/A'}
-                        </TableCell>
-                        <TableCell>{cliente.litrosEstimados || 0} L</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end items-center gap-1">
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.5"
-                              className="w-24 text-right"
-                              value={clientesLitros[cliente.id] || 0}
-                              onChange={(e) => handleUpdateLitros(cliente.id, Number(e.target.value))}
-                              disabled={selectedRuta?.completada}
-                            /> 
-                            <span className="text-sm text-gray-500">L</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              <ClientesRutaList
+                clientes={selectedRuta?.clientes?.map(cliente => ({
+                  ...cliente,
+                  litros: clientesLitros[cliente.id] || cliente.litros || 0
+                })) || []}
+                onUpdateLitros={handleUpdateLitros}
+                showComplete={!selectedRuta?.completada}
+                onComplete={() => handleCompleteRuta(selectedRuta?.id || '')}
+              />
             </CardContent>
-            <CardFooter className="flex justify-end border-t p-4 bg-gray-50">
-              {!selectedRuta?.completada && (
-                <Button 
-                  onClick={() => handleCompleteRuta(selectedRuta?.id || '')}
-                  className="bg-[#EE970D] hover:bg-[#DB8B0C] text-white"
-                >
-                  <Check className="mr-2 h-4 w-4" />
-                  Completar Ruta
-                </Button>
-              )}
-            </CardFooter>
           </Card>
         ) : (
           <Tabs defaultValue="pendientes" value={activeTab} onValueChange={setActiveTab}>
@@ -423,6 +381,14 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
               Esta acción registrará los litros recogidos para cada cliente y 
               moverá la ruta al historial de rutas completadas.
             </AlertDialogDescription>
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+              <p className="font-medium">Resumen de litros:</p>
+              <p className="text-sm">
+                Total: <span className="font-bold">
+                  {Object.values(clientesLitros).reduce((sum, litros) => sum + litros, 0)} litros
+                </span>
+              </p>
+            </div>
           </AlertDialogHeader>
           
           <AlertDialogFooter>
