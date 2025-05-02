@@ -13,6 +13,8 @@ export function useRecogidaBatchOperations() {
     }
 
     try {
+      console.log(`Completando todas las recogidas para ruta: ${rutaId}`);
+      
       // Obtener todas las recogidas asociadas a esta ruta
       const recogidasRef = collection(db, "recogidas");
       const rutaRecogidasQuery = query(
@@ -22,23 +24,72 @@ export function useRecogidaBatchOperations() {
       
       const recogidasSnap = await getDocs(rutaRecogidasQuery);
       
-      if (recogidasSnap.empty) {
-        console.log("No hay recogidas existentes para esta ruta, puede ser normal");
-        return true;
+      // Get the route information to link client data
+      const rutaDoc = await doc(db, "rutas", rutaId);
+      const rutaDocSnap = await doc(db, "rutas", rutaId).get();
+      
+      if (!rutaDocSnap.exists()) {
+        console.error("La ruta no existe");
+        return false;
       }
       
-      // Actualizar estado para cada recogida
-      const updatePromises = recogidasSnap.docs.map(recogidaDoc => {
-        return updateDoc(doc(db, "recogidas", recogidaDoc.id), {
-          completada: true,
-          estadoRecogida: "completada",
-          fechaCompletada: new Date(),
-          updatedAt: serverTimestamp()
-        });
-      });
+      const rutaData = rutaDocSnap.data();
+      const clientes = rutaData?.clientes || [];
       
-      await Promise.all(updatePromises);
-      console.log(`${recogidasSnap.docs.length} recogidas actualizadas a completadas`);
+      if (recogidasSnap.empty) {
+        console.log("No hay recogidas existentes para esta ruta. Creando registros históricos...");
+        
+        // Si no hay recogidas, crear una para cada cliente con los litros guardados
+        if (clientes.length > 0) {
+          const createPromises = clientes
+            .filter((cliente: any) => cliente.litros && cliente.litros > 0)
+            .map((cliente: any) => {
+              return addDoc(collection(db, "recogidas"), {
+                rutaId: rutaId,
+                clienteId: cliente.id,
+                fechaRecogida: new Date(),
+                fecha: new Date(),
+                litrosRecogidos: cliente.litros,
+                estadoRecogida: "completada",
+                completada: true,
+                direccion: cliente.direccion,
+                direccionRecogida: cliente.direccion,
+                nombreContacto: cliente.nombre,
+                cliente: cliente.nombre,
+                distrito: cliente.distrito,
+                barrio: cliente.barrio,
+                fechaCompletada: new Date(),
+                esRecogidaZona: true,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+              });
+            });
+          
+          await Promise.all(createPromises);
+          console.log(`Creadas ${createPromises.length} nuevas entradas históricas de recogidas`);
+        }
+      } else {
+        // Actualizar estado para cada recogida
+        const updatePromises = recogidasSnap.docs.map(recogidaDoc => {
+          // Buscar el cliente correspondiente en la ruta para obtener los litros
+          const clienteId = recogidaDoc.data().clienteId;
+          const cliente = clientes.find((c: any) => c.id === clienteId);
+          const litros = cliente ? cliente.litros : 0;
+          
+          return updateDoc(doc(db, "recogidas", recogidaDoc.id), {
+            completada: true,
+            estadoRecogida: "completada",
+            fechaCompletada: new Date(),
+            litrosRecogidos: litros,
+            updatedAt: serverTimestamp()
+          });
+        });
+        
+        await Promise.all(updatePromises);
+        console.log(`${recogidasSnap.docs.length} recogidas actualizadas a completadas`);
+      }
+      
+      toast.success("Recogidas actualizadas correctamente");
       return true;
     } catch (err) {
       console.error("Error al completar recogidas de ruta:", err);

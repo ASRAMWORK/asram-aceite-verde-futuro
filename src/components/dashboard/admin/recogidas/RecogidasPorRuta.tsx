@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -66,7 +67,7 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
   const [activeTab, setActiveTab] = useState('pendientes');
 
   const { updateRutaRecogida, completarRecogidasRuta } = useRecogidas();
-  const { completeRuta } = useRutas();
+  const { completeRuta, loadRutas } = useRutas();
 
   // Get the selected ruta
   const selectedRuta = selectedRutaId ? rutas.find(r => r.id === selectedRutaId) : null;
@@ -124,6 +125,13 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
     }
 
     try {
+      // Calculate total liters collected
+      const totalLitros = Object.values(clientesLitros).reduce((sum, litros) => sum + litros, 0);
+      
+      console.log("Completando ruta:", completingRutaId);
+      console.log("Total litros calculados:", totalLitros);
+      console.log("Clientes litros:", clientesLitros);
+      
       // Update each client's liters in the route
       const updatePromises = Object.entries(clientesLitros).map(([clienteId, litros]) => 
         updateRutaRecogida(completingRutaId, clienteId, litros)
@@ -132,17 +140,22 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
       // Wait for all updates to complete
       await Promise.all(updatePromises);
       
-      // Calculate total liters collected
-      const totalLitros = Object.values(clientesLitros).reduce((sum, litros) => sum + litros, 0);
+      // Mark all recogidas in this route as complete
+      await completarRecogidasRuta(completingRutaId);
       
       // Mark the route as complete
       await completeRuta(completingRutaId, totalLitros);
       
-      // Mark all recogidas in this route as complete
-      await completarRecogidasRuta(completingRutaId);
-      
+      // Close the dialog and reset states
       setCompletingRutaId(null);
       setSelectedRutaId(null);
+      
+      // Force refresh the routes data
+      await loadRutas();
+      
+      // Switch to the "completed" tab to show the newly completed route
+      setActiveTab('completadas');
+      
       toast.success(`Ruta completada correctamente: ${totalLitros} litros recogidos`);
     } catch (error) {
       console.error("Error al completar ruta:", error);
