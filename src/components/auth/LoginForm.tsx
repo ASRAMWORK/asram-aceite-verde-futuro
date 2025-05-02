@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -22,26 +22,93 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
+      console.log("Attempting login for:", email);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log("Login successful for user:", user.uid);
       
-      // Get user role from Firestore
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const userRole = userDoc.exists() ? userDoc.data().role : null;
-      
-      // Route based on user role
+      // Check if user is admin by email first (fastest check)
       if (isAdminEmail(user.email)) {
+        console.log("Admin email detected, redirecting to admin dashboard");
         navigate("/admin/dashboard");
         toast.success("Inicio de sesión de administrador exitoso");
-      } else if (userRole === "superadmin") {
-        navigate("/admin/dashboard");
-        toast.success("Bienvenido, Superadministrador");
-      } else if (userRole === "admin_finca" || userRole === "administrador") {
-        navigate("/administrador/dashboard");
-        toast.success("Bienvenido, Administrador de Fincas");
+        setLoading(false);
+        return;
+      }
+      
+      // Check in "users" collection by UID
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      
+      if (userDoc.exists()) {
+        const userRole = userDoc.data().role;
+        console.log("Found user in users collection with role:", userRole);
+        
+        if (userRole === "superadmin") {
+          navigate("/admin/dashboard");
+          toast.success("Bienvenido, Superadministrador");
+        } else if (userRole === "admin_finca" || userRole === "administrador") {
+          navigate("/administrador/dashboard");
+          toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
+        } else if (userRole === "comercial") {
+          console.log("Redirecting to comercial dashboard");
+          navigate("/comercial/dashboard");
+          toast.success("Bienvenido, Comercial");
+          return;
+        } else {
+          navigate("/user/dashboard");
+          toast.success("Inicio de sesión exitoso");
+        }
       } else {
-        navigate("/user/dashboard");
-        toast.success("Inicio de sesión exitoso");
+        console.log("User not found in users collection, checking usuarios");
+        // If not found in "users" by UID, check in "usuarios" collection
+        const usuariosQuery = query(
+          collection(db, "usuarios"),
+          where("uid", "==", user.uid)
+        );
+        
+        const usuariosSnap = await getDocs(usuariosQuery);
+        
+        if (!usuariosSnap.empty) {
+          const userData = usuariosSnap.docs[0].data();
+          const userRole = userData.role;
+          console.log("Found user in usuarios collection by uid with role:", userRole);
+          
+          if (userRole === "comercial") {
+            console.log("Redirecting to comercial dashboard");
+            navigate("/comercial/dashboard");
+            toast.success("Bienvenido, Comercial");
+            return;
+          } else {
+            navigate("/user/dashboard");
+            toast.success("Inicio de sesión exitoso");
+          }
+        } else {
+          // If not found by UID, check by email in "usuarios" collection as a fallback
+          const emailQuery = query(
+            collection(db, "usuarios"),
+            where("email", "==", email)
+          );
+          
+          const emailSnap = await getDocs(emailQuery);
+          
+          if (!emailSnap.empty) {
+            const userData = emailSnap.docs[0].data();
+            const userRole = userData.role;
+            console.log("Found user in usuarios collection by email with role:", userRole);
+            
+            if (userRole === "comercial") {
+              console.log("Redirecting to comercial dashboard");
+              navigate("/comercial/dashboard");
+              toast.success("Bienvenido, Comercial");
+              return;
+            }
+          }
+          
+          // Default to user dashboard if no specific role found
+          console.log("No specific role found, defaulting to user dashboard");
+          navigate("/user/dashboard");
+          toast.success("Inicio de sesión exitoso");
+        }
       }
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);

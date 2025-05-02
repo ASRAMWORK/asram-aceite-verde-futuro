@@ -1,235 +1,161 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Calendar, Building, FileCheck, FilePlus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, FileCheck, Download, FilePlus } from 'lucide-react';
+import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { toast } from '@/components/ui/use-toast';
 
-const InformesPanel = () => {
-  const { comunidades, loading } = useComunidadesVecinos();
+interface InformesPanelProps {
+  adminId?: string;
+}
+
+const InformesPanel = ({ adminId }: InformesPanelProps) => {
   const { profile } = useUserProfile();
-  
-  // Calculate total environmental impact
-  const totalImpacto = {
-    co2: comunidades.reduce((acc, com) => {
-      const co2Value = com.beneficiosMedioambientales?.co2Reducido !== undefined 
-        ? com.beneficiosMedioambientales.co2Reducido 
-        : com.beneficiosMedioambientales?.co2 || 0;
-      return acc + co2Value;
-    }, 0),
-    agua: comunidades.reduce((acc, com) => {
-      const aguaValue = com.beneficiosMedioambientales?.aguaAhorrada !== undefined
-        ? com.beneficiosMedioambientales.aguaAhorrada
-        : com.beneficiosMedioambientales?.agua || 0;
-      return acc + aguaValue;
-    }, 0),
-    energia: comunidades.reduce((acc, com) => {
-      const energiaValue = com.beneficiosMedioambientales?.energiaAhorrada !== undefined
-        ? com.beneficiosMedioambientales.energiaAhorrada
-        : com.beneficiosMedioambientales?.energia || 0;
-      return acc + energiaValue;
-    }, 0)
+  const efectiveAdminId = adminId || profile?.id;
+  const { comunidades, loading, error } = useComunidadesVecinos(efectiveAdminId);
+
+  const handleDescargarInforme = (tipo: string) => {
+    toast({
+      title: "Descarga iniciada",
+      description: `El ${tipo} se está generando y se descargará en breve.`
+    });
   };
 
-  // Función para formatear fecha
-  const formatDate = (date) => {
-    if (!date) return "Sin fecha";
-    const d = new Date(date);
-    return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
-  
-  // Template data for contracts and reports
-  const informes = [
-    {
-      id: 1,
-      title: "Informe Mensual Recogidas",
-      description: "Resumen mensual de todas las recogidas realizadas",
-      type: "pdf",
-      date: new Date(2023, 8, 15),
-      status: "disponible"
-    },
-    {
-      id: 2,
-      title: "Certificado Medioambiental",
-      description: "Certificado oficial de beneficios medioambientales",
-      type: "pdf",
-      date: new Date(2023, 9, 3),
-      status: "disponible"
-    },
-    {
-      id: 3,
-      title: "Informe Trimestral",
-      description: "Análisis detallado del último trimestre",
-      type: "excel",
-      date: new Date(2023, 6, 30),
-      status: "disponible"
-    }
-  ];
-  
-  const contratos = [
-    {
-      id: 1,
-      title: "Contrato de Servicio",
-      description: "Acuerdo de servicio de recogida de aceite",
-      type: "pdf",
-      date: new Date(2023, 1, 10),
-      status: "activo"
-    },
-    {
-      id: 2,
-      title: "Adenda Ampliación Servicios",
-      description: "Ampliación de servicios según acuerdo marco",
-      type: "pdf",
-      date: new Date(2023, 5, 22),
-      status: "pendiente"
-    }
-  ];
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-500">Cargando informes...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-[#ee970d]">Informes y Contratos</h2>
-          <p className="text-muted-foreground">
-            Accede a tus informes, certificados y documentos contractuales
-          </p>
-        </div>
-      </div>
+      <h2 className="text-2xl font-bold">Informes y Documentación</h2>
       
-      <Tabs defaultValue="informes">
-        <TabsList>
-          <TabsTrigger value="informes">Informes y Certificados</TabsTrigger>
-          <TabsTrigger value="contratos">Contratos</TabsTrigger>
-          <TabsTrigger value="certificado">Certificado Medioambiental</TabsTrigger>
+      <Tabs defaultValue="informes" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="informes" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Informes
+          </TabsTrigger>
+          <TabsTrigger value="contratos" className="flex items-center gap-2">
+            <FileCheck className="h-4 w-4" />
+            Contratos
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="informes" className="space-y-4 pt-4">
-          {informes.map(informe => (
-            <Card key={informe.id} className="hover:shadow-md transition-shadow">
-              <div className="flex justify-between">
-                <div className="flex-1">
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-blue-500" />
-                      <CardTitle className="text-lg">{informe.title}</CardTitle>
-                    </div>
-                    <CardDescription>{informe.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col sm:flex-row sm:items-center text-sm gap-x-8 gap-y-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <span>{formatDate(informe.date)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-gray-500" />
-                        <span>{profile?.nombreAdministracion || "Administración"}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </div>
-                <div className="flex items-center px-6">
-                  <Button variant="outline" className="flex gap-2">
-                    <Download className="h-4 w-4" />
-                    Descargar {informe.type.toUpperCase()}
+        <TabsContent value="informes">
+          <div className="bg-white rounded-lg border shadow-sm p-4">
+            <h3 className="text-lg font-medium mb-4">Informes disponibles</h3>
+            
+            <div className="space-y-3">
+              <div className="p-3 border rounded-md hover:bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-medium">Informe mensual de recogidas</h4>
+                    <p className="text-sm text-gray-500">Resumen de recogidas del último mes</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDescargarInforme("informe mensual")}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Descargar
                   </Button>
                 </div>
               </div>
-            </Card>
-          ))}
-        </TabsContent>
-        
-        <TabsContent value="contratos" className="space-y-4 pt-4">
-          {contratos.map(contrato => (
-            <Card key={contrato.id} className="hover:shadow-md transition-shadow">
-              <div className="flex justify-between">
-                <div className="flex-1">
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <FileCheck className="h-5 w-5 text-green-500" />
-                      <CardTitle className="text-lg">{contrato.title}</CardTitle>
-                    </div>
-                    <CardDescription>{contrato.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col sm:flex-row sm:items-center text-sm gap-x-8 gap-y-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <span>{formatDate(contrato.date)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-gray-500" />
-                        <span>{profile?.nombreAdministracion || "Administración"}</span>
-                      </div>
-                      <div>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          contrato.status === 'activo' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {contrato.status === 'activo' ? 'Activo' : 'Pendiente firma'}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </div>
-                <div className="flex items-center px-6">
-                  <Button variant="outline" className="flex gap-2">
-                    <Download className="h-4 w-4" />
-                    Ver contrato
+              
+              <div className="p-3 border rounded-md hover:bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-medium">Certificados medioambientales</h4>
+                    <p className="text-sm text-gray-500">Documentación oficial de ASRAM</p>
+                  </div>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDescargarInforme("certificado")}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Descargar
                   </Button>
                 </div>
               </div>
-            </Card>
-          ))}
-          <div className="pt-4 flex justify-center">
-            <Button className="flex gap-2">
-              <FilePlus className="h-4 w-4" />
-              Solicitar nuevo contrato
-            </Button>
+              
+              <div className="p-3 border rounded-md hover:bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-medium">Estadísticas anuales</h4>
+                    <p className="text-sm text-gray-500">Impacto medioambiental generado</p>
+                  </div>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDescargarInforme("informe anual")}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Descargar
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </TabsContent>
         
-        <TabsContent value="certificado" className="pt-4">
+        <TabsContent value="contratos">
           <Card>
             <CardHeader>
-              <CardTitle>Certificado de Impacto Medioambiental</CardTitle>
-              <CardDescription>
-                Certificado oficial de los beneficios medioambientales generados por tus comunidades
-              </CardDescription>
+              <CardTitle className="flex justify-between items-center">
+                <span>Contratos de comunidades</span>
+                <Button size="sm" variant="outline" className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100">
+                  <FilePlus className="h-4 w-4 mr-2" />
+                  Nuevo contrato
+                </Button>
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-green-50 rounded-md">
-                    <p className="text-sm text-muted-foreground">CO2 no emitido</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {loading ? '...' : `${totalImpacto.co2.toFixed(1)}kg`}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-blue-50 rounded-md">
-                    <p className="text-sm text-muted-foreground">Agua no contaminada</p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {loading ? '...' : `${totalImpacto.agua.toFixed(1)}L`}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-amber-50 rounded-md">
-                    <p className="text-sm text-muted-foreground">Energía ahorrada</p>
-                    <p className="text-2xl font-bold text-amber-600">
-                      {loading ? '...' : `${totalImpacto.energia.toFixed(1)}kWh`}
-                    </p>
-                  </div>
+              {comunidades.length > 0 ? (
+                <div className="space-y-3">
+                  {comunidades.map(comunidad => (
+                    <div key={comunidad.id} className="p-3 border rounded-md hover:bg-gray-50">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-medium">{comunidad.nombre}</h4>
+                          <p className="text-sm text-gray-500">{comunidad.direccion}, {comunidad.ciudad}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={() => handleDescargarInforme(`contrato de ${comunidad.nombre}`)}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Descargar
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                
-                <div className="flex justify-center pt-4">
-                  <Button className="flex gap-2">
-                    <Download className="h-4 w-4" />
-                    Descargar certificado
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <FileText className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                  <p>No hay comunidades registradas para generar contratos.</p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => handleDescargarInforme("plantilla de contrato")}
+                  >
+                    Descargar plantilla
                   </Button>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

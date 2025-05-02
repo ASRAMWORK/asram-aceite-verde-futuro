@@ -36,13 +36,6 @@ const formSchema = z.object({
   cantidad: z.string().refine(value => !isNaN(parseFloat(value)), {
     message: "La cantidad debe ser un número",
   }),
-  iva: z.string().refine(value => !isNaN(parseFloat(value)), {
-    message: "El IVA debe ser un número",
-  }),
-  total: z.string().refine(value => !isNaN(parseFloat(value)), {
-    message: "El total debe ser un número",
-  }),
-  metodoPago: z.string().min(3, "El método de pago debe tener al menos 3 caracteres"),
   notas: z.string().optional(),
   fecha: z.date(),
   categoria: z.string().optional(),
@@ -54,7 +47,7 @@ type GastoFormProps = {
   initialData?: Partial<Gasto>;
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
-  onClose?: () => void; // Add onClose prop to match usage
+  onClose?: () => void;
   isOpen?: boolean;
 };
 
@@ -67,9 +60,6 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoF
       proveedor: initialData?.proveedor || "",
       concepto: initialData?.concepto || "",
       cantidad: initialData?.cantidad?.toString() || "0",
-      iva: initialData?.iva?.toString() || "0",
-      total: initialData?.total?.toString() || "0",
-      metodoPago: initialData?.metodoPago || "",
       notas: initialData?.notas || "",
       fecha: initialData?.fecha || new Date(),
       categoria: initialData?.categoria || "",
@@ -86,8 +76,6 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoF
         ...data,
         fecha: new Date(data.fecha),
         cantidad: parseFloat(data.cantidad),
-        iva: parseFloat(data.iva),
-        total: parseFloat(data.total),
         tipo: data.tipo || 'general',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -95,7 +83,7 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoF
       
       await onSubmit(nuevoGasto);
       toast.success(initialData ? "Gasto actualizado" : "Gasto creado");
-      if (onClose) onClose(); // Call onClose when provided
+      if (onClose) onClose();
     } catch (error) {
       console.error("Error guardando gasto:", error);
       toast.error("Error al guardar el gasto");
@@ -145,7 +133,7 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoF
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           <FormField
             control={form.control}
             name="cantidad"
@@ -159,49 +147,7 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoF
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="iva"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>IVA (€)</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="total"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total (€)</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="0.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
-
-        <FormField
-          control={form.control}
-          name="metodoPago"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Método de Pago</FormLabel>
-              <FormControl>
-                <Input placeholder="Tarjeta, transferencia, etc." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}
@@ -233,8 +179,8 @@ const GastosForm = ({ initialData, onSubmit, onCancel, isOpen, onClose }: GastoF
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
                     initialFocus
+                    className={cn("p-3 pointer-events-auto")}
                   />
                 </PopoverContent>
               </Popover>

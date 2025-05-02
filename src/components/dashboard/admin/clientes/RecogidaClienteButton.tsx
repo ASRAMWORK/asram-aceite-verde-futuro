@@ -86,9 +86,7 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
             barrio: cliente.barrio,
             nombreContacto: cliente.nombre,
             telefonoContacto: cliente.telefono,
-            emailContacto: cliente.email,
-            clienteId: cliente.id,
-            fechaRecogida: new Date()
+            emailContacto: cliente.email
           }}
         />
       </DialogContent>

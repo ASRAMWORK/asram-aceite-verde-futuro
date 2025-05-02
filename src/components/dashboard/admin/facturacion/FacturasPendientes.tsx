@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +19,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -216,7 +216,9 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <tbody>
                         {ingresosPendientes.map((ingreso) => (
                           <tr key={ingreso.id} className="border-t hover:bg-muted/50">
-                            <td className="p-2">{ingreso.numFactura || '-'}</td>
+                            <td className="p-2 font-medium">
+                              {ingreso.numeroFactura || 'Sin número'}
+                            </td>
                             <td className="p-2">{ingreso.concepto}</td>
                             <td className="p-2">{ingreso.cliente || '-'}</td>
                             <td className="p-2">
@@ -278,7 +280,9 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <tbody>
                         {gastosPendientes.map((gasto) => (
                           <tr key={gasto.id} className="border-t hover:bg-muted/50">
-                            <td className="p-2">{gasto.numFactura || '-'}</td>
+                            <td className="p-2 font-medium">
+                              {gasto.numeroFactura || 'Sin número'}
+                            </td>
                             <td className="p-2">{gasto.concepto}</td>
                             <td className="p-2">{gasto.proveedor || '-'}</td>
                             <td className="p-2">
@@ -326,7 +330,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
       
       {/* Put the Dialog outside of any nested components to avoid context issues */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
               {dialogType === 'ingreso' 
@@ -334,10 +338,10 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                 : 'Nuevo Gasto Pendiente'}
             </DialogTitle>
             <DialogDescription>
-              Complete los datos de la factura pendiente
+              Complete los datos para registrar un{dialogType === 'ingreso' ? ' ingreso' : ' gasto'} pendiente
             </DialogDescription>
           </DialogHeader>
-
+          
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -349,6 +353,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                     <FormControl>
                       <Input placeholder="Describe el concepto de la factura" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -363,6 +368,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input type="number" step="0.01" min="0" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -376,6 +382,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -391,6 +398,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input placeholder="Nombre del cliente" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -404,6 +412,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input placeholder="Nombre del proveedor" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -419,6 +428,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                       <FormControl>
                         <Input placeholder="Ej: F-2023/123" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -472,15 +482,20 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                     <FormControl>
                       <Textarea placeholder="Notas adicionales sobre la factura" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
 
               <DialogFooter className="mt-6">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
-                <Button type="submit" className={dialogType === 'ingreso' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}>
+                <Button type="submit">
                   Guardar
                 </Button>
               </DialogFooter>

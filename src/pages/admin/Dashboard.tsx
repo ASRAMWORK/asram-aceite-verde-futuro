@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -19,7 +20,6 @@ import InstalacionesView from "@/components/dashboard/admin/instalaciones/Instal
 import GestionRetiradas from "@/pages/admin/GestionRetiradas";
 import TiendaAdmin from "@/components/dashboard/admin/tienda/TiendaAdmin";
 import MiSitioWeb from "@/components/dashboard/admin/sitio-web/MiSitioWeb";
-import AdministradoresFincas from "@/components/dashboard/admin/administradores/AdministradoresFincas";
 import ComercialView from "@/components/dashboard/admin/comercial/ComercialView";
 import { toast } from "sonner";
 import { isAdminEmail, ADMIN_EMAILS } from "@/lib/firebase";
@@ -39,11 +39,16 @@ import {
   ShoppingCart,
   Globe,
   Box,
-  CalendarDays
+  CalendarDays,
+  Trophy,
+  UserCog
 } from "lucide-react";
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
 import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView";
+import ClienteRankingWrapper from "@/components/dashboard/admin/rankings/ClienteRankingWrapper";
+import AdministradoresManagement from "@/components/dashboard/admin/administradores/AdministradoresManagement";
+import ComunidadesViviendas from "@/components/dashboard/admin/administradores/ComunidadesViviendas";
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("panel-control");
@@ -134,14 +139,18 @@ const AdminDashboardPage = () => {
         return <TiendaAdmin />;
       case "mi-sitio-web":
         return <MiSitioWeb />;
-      case "administradores":
-        return <AdministradoresFincas />;
       case "comerciales":
         return <ComercialView />;
       case "inventario":
         return <InventarioView />;
       case "reuniones":
         return <ReunionesView />;
+      case "ranking":
+        return <ClienteRankingWrapper adminId={auth.currentUser?.uid} />;
+      case "administradores-management":
+        return <AdministradoresManagement />;
+      case "comunidades-viviendas":
+        return <ComunidadesViviendas />;
       default:
         return <AdminDashboard />;
     }
@@ -175,6 +184,17 @@ const AdminDashboardPage = () => {
           >
             <Users className="mr-2 h-4 w-4" />
             Gestión de Clientes
+          </Button>
+          
+          <Button
+            variant={activeTab === "ranking" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "ranking" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("ranking")}
+          >
+            <Trophy className="mr-2 h-4 w-4" />
+            Ranking Clientes
           </Button>
           
           <Button
@@ -325,14 +345,25 @@ const AdminDashboardPage = () => {
           <Separator className="my-4" />
           
           <Button
-            variant={activeTab === "administradores" ? "default" : "ghost"}
+            variant={activeTab === "administradores-management" ? "default" : "ghost"}
             className={`w-full justify-start ${
-              activeTab === "administradores" ? "bg-asram hover:bg-asram-700" : ""
+              activeTab === "administradores-management" ? "bg-asram hover:bg-asram-700" : ""
             }`}
-            onClick={() => setActiveTab("administradores")}
+            onClick={() => setActiveTab("administradores-management")}
           >
-            <User className="mr-2 h-4 w-4" />
-            Administradores de Fincas
+            <UserCog className="mr-2 h-4 w-4" />
+            Gestión Administradores
+          </Button>
+          
+          <Button
+            variant={activeTab === "comunidades-viviendas" ? "default" : "ghost"}
+            className={`w-full justify-start ${
+              activeTab === "comunidades-viviendas" ? "bg-asram hover:bg-asram-700" : ""
+            }`}
+            onClick={() => setActiveTab("comunidades-viviendas")}
+          >
+            <Building className="mr-2 h-4 w-4" />
+            Comunidades y Viviendas
           </Button>
           
           <Button

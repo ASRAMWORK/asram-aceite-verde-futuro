@@ -1,296 +1,331 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Calendar, Mail, Phone, Users, PlusCircle, Check } from "lucide-react";
+} from "@/components/ui/table"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TallerProgramado } from "@/types";
-import TallerForm from './TallerForm';
-import { useAlianzaVerde } from "@/hooks/useAlianzaVerde";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { useTalleresProgramados } from '@/hooks/useTalleresProgramados';
+import { TallerProgramado } from '@/types';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { CalendarIcon, CheckCircle2, Clock, MapPin, User, Edit, Trash2 } from 'lucide-react';
+import { Separator } from "@/components/ui/separator"
 
 const TalleresProgramados = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { alianzas } = useAlianzaVerde();
-  const [activeTab, setActiveTab] = useState<'programados' | 'completados'>('programados');
+  const [talleres, setTalleres] = useState<TallerProgramado[]>([]);
+  const [tallerEditando, setTallerEditando] = useState<Partial<TallerProgramado>>({});
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [tallerSeleccionado, setTallerSeleccionado] = useState<TallerProgramado | null>(null);
+  const { talleresProgramados, addTallerProgramado, updateTallerProgramado, deleteTallerProgramado } = useTalleresProgramados();
+  const [showForm, setShowForm] = useState(false);
 
-  // Mock data - updated to match TallerProgramado interface
-  const talleres: TallerProgramado[] = [
-    {
-      id: "1",
-      titulo: "Reciclaje Creativo",
-      descripcion: "Taller de reciclaje creativo para estudiantes",
-      fecha: new Date("2025-05-15"),
-      horaInicio: "10:00",
-      horaFin: "12:00",
-      lugar: "CEIP García Lorca",
-      capacidad: 25,
-      inscritos: 0, 
-      alianzaId: "1",
-      alianzaNombre: "CEIP García Lorca",
-      ponente: "María García",
-      estado: "programado",
+  useEffect(() => {
+    setTalleres(talleresProgramados);
+  }, [talleresProgramados]);
+
+  const handleAddTaller = () => {
+    // Using properties that exist in our updated TallerProgramado interface
+    const nuevoTaller: Omit<TallerProgramado, 'id'> = {
+      titulo: '',
+      fecha: new Date(),
+      hora: '', 
+      duracion: 60,
+      lugar: '',
+      aforo: 0,
+      organizador: '',
+      tipo: '',
+      responsable: '',
+      contactoTelefono: '',
+      contactoEmail: '',
+      participantes: 0,
+      gratuito: true,
+      precio: 0,
+      completado: false,
       createdAt: new Date(),
-      updatedAt: new Date(),
-      // Additional fields
-      fechaHora: new Date("2025-05-15"),
-      duracion: 120,
-      numAsistentes: 25,
-      centro: "CEIP García Lorca",
-      nombreCentro: "CEIP García Lorca",
-      direccion: "Calle del Colegio 1, Madrid",
-      contacto: "María García",
-      instructor: "María García",
-      telefono: "912345678",
-      email: "contacto@garcialorca.edu",
-      materiales: ["Material 1", "Material 2"]
-    },
-    {
-      id: "2",
-      titulo: "Mini Huerto Escolar",
-      descripcion: "Taller de huerto escolar sostenible",
-      fecha: new Date("2025-05-22"),
-      horaInicio: "09:00",
-      horaFin: "10:30",
-      lugar: "IES Ramiro de Maeztu",
-      capacidad: 30,
-      inscritos: 0,
-      alianzaId: "2",
-      alianzaNombre: "IES Ramiro de Maeztu",
-      ponente: "Juan Pérez",
-      estado: "programado",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      // Additional fields
-      fechaHora: new Date("2025-05-22"),
-      duracion: 90,
-      numAsistentes: 30,
-      centro: "IES Ramiro de Maeztu",
-      nombreCentro: "IES Ramiro de Maeztu",
-      direccion: "Calle de Serrano 127, Madrid",
-      contacto: "Juan Pérez",
-      instructor: "Juan Pérez",
-      telefono: "913456789",
-      email: "contacto@ramirodemaeztu.edu",
-      materiales: ["Material 1", "Material 2"]
+      updatedAt: new Date()
+    };
+
+    setTallerEditando(nuevoTaller);
+    setShowForm(true);
+  };
+
+  const handleEditTaller = (taller: TallerProgramado) => {
+    setTallerEditando(taller);
+    setShowForm(true);
+  };
+
+  const handleDeleteTaller = (taller: TallerProgramado) => {
+    setTallerSeleccionado(taller);
+    setShowDeleteAlert(true);
+  };
+
+  const confirmDelete = async () => {
+    if (tallerSeleccionado) {
+      await deleteTallerProgramado(tallerSeleccionado.id);
+      setShowDeleteAlert(false);
+      setTallerSeleccionado(null);
     }
-  ];
-
-  const handleSubmitTaller = (data: Partial<TallerProgramado>) => {
-    console.log('Nuevo taller:', data);
-    setIsDialogOpen(false);
-    // Aquí implementarías la lógica para guardar el taller
   };
 
-  const handleCompletarTaller = (tallerId: string) => {
-    console.log('Marcar taller como completado:', tallerId);
-    // Aquí implementarías la lógica para marcar como completado
+  const handleSaveTaller = async () => {
+    if (!tallerEditando) return;
+
+    const { id, ...tallerDataSinId } = tallerEditando;
+
+    const tallerData: Omit<TallerProgramado, 'id'> = {
+      titulo: tallerEditando.titulo || '',
+      descripcion: tallerEditando.descripcion || '',
+      fecha: tallerEditando.fecha || new Date(),
+      hora: tallerEditando.hora || '',
+      duracion: tallerEditando.duracion || 60,
+      lugar: tallerEditando.lugar || '',
+      aforo: tallerEditando.aforo || 0,
+      participantes: tallerEditando.participantes || 0,
+      organizador: tallerEditando.organizador || '',
+      tipo: tallerEditando.tipo || '',
+      responsable: tallerEditando.responsable || '',
+      contactoTelefono: tallerEditando.contactoTelefono || '',
+      contactoEmail: tallerEditando.contactoEmail || '',
+      gratuito: tallerEditando.gratuito ?? true,
+      precio: tallerEditando.precio || 0,
+      completado: tallerEditando.completado || false,
+      createdAt: tallerEditando.createdAt || new Date(),
+      updatedAt: new Date()
+    };
+
+    if (id) {
+      await updateTallerProgramado(id, tallerData);
+    } else {
+      await addTallerProgramado(tallerData);
+    }
+
+    setShowForm(false);
+    setTallerEditando({});
   };
 
-  const talleresFiltrados = talleres.filter(taller => 
-    activeTab === 'programados' 
-      ? taller.estado === 'programado'
-      : taller.estado === 'completado'
-  );
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setTallerEditando(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    setTallerEditando(prev => ({
+      ...prev,
+      fecha: date
+    }));
+  };
+
+  const formatFechaHora = (fecha: Date | undefined, hora: string | undefined) => {
+    if (!fecha) return 'Fecha no especificada';
+    const fechaFormateada = format(fecha, 'dd/MM/yyyy', { locale: es });
+    return `${fechaFormateada} - ${hora || 'Sin hora'}`;
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Talleres Programados</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-asram hover:bg-asram-700">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Programar Taller
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Programar Nuevo Taller</DialogTitle>
-              <DialogDescription>
-                Complete los detalles para agendar un nuevo taller
-              </DialogDescription>
-            </DialogHeader>
-            <TallerForm 
-              centros={alianzas} 
-              onSubmit={handleSubmitTaller}
-            />
-          </DialogContent>
-        </Dialog>
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Talleres Programados</h1>
+          <p className="text-muted-foreground">
+            Gestiona los talleres programados para las alianzas
+          </p>
+        </div>
+        <Button onClick={handleAddTaller} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Añadir Taller
+        </Button>
       </div>
 
-      <Tabs defaultValue="programados" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger 
-            value="programados"
-            onClick={() => setActiveTab('programados')}
-          >
-            Próximos Talleres
-          </TabsTrigger>
-          <TabsTrigger 
-            value="completados"
-            onClick={() => setActiveTab('completados')}
-          >
-            Histórico
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="programados">
-          <Card>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Centro</TableHead>
-                      <TableHead>Taller</TableHead>
-                      <TableHead>Dirección</TableHead>
-                      <TableHead>Asistentes</TableHead>
-                      <TableHead>Contacto</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {talleresFiltrados.map((taller) => (
-                      <TableRow key={taller.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-gray-500" />
-                            {new Date(taller.fechaHora).toLocaleDateString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>{taller.nombreCentro || taller.centro}</TableCell>
-                        <TableCell>{taller.titulo}</TableCell>
-                        <TableCell>{taller.direccion}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-gray-500" />
-                            {taller.numAsistentes} alumnos
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div>{taller.contacto || taller.instructor}</div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Phone className="h-4 w-4" />
-                              {taller.telefono || "N/A"}
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Mail className="h-4 w-4" />
-                              {taller.email || "N/A"}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={
-                              taller.estado === 'programado' 
-                                ? 'default' 
-                                : taller.estado === 'completado' 
-                                  ? 'secondary'
-                                  : 'destructive'
-                            }
-                          >
-                            {taller.estado}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {taller.estado === 'programado' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleCompletarTaller(taller.id)}
-                            >
-                              <Check className="h-4 w-4 mr-1" />
-                              Completar
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+      {showForm && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>{tallerEditando.id ? 'Editar Taller' : 'Añadir Taller'}</CardTitle>
+            <CardDescription>
+              Completa los detalles del taller
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div>
+                <Label htmlFor="titulo">Título</Label>
+                <Input
+                  type="text"
+                  id="titulo"
+                  name="titulo"
+                  value={tallerEditando.titulo || ''}
+                  onChange={handleInputChange}
+                />
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="completados">
-          <Card>
-            <CardHeader>
-              <CardTitle>Histórico de Talleres</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Centro</TableHead>
-                      <TableHead>Taller</TableHead>
-                      <TableHead>Asistentes</TableHead>
-                      <TableHead>Contacto</TableHead>
-                      <TableHead>Estado</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {talleresFiltrados.map((taller) => (
-                      <TableRow key={taller.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-gray-500" />
-                            {new Date(taller.fechaHora).toLocaleDateString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>{taller.nombreCentro || taller.centro}</TableCell>
-                        <TableCell>{taller.titulo}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-gray-500" />
-                            {taller.numAsistentes} alumnos
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div>{taller.contacto || taller.instructor}</div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Phone className="h-4 w-4" />
-                              {taller.telefono || "N/A"}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">
-                            {taller.estado}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div>
+                <Label htmlFor="descripcion">Descripción</Label>
+                <Input
+                  type="text"
+                  id="descripcion"
+                  name="descripcion"
+                  value={tallerEditando.descripcion || ''}
+                  onChange={handleInputChange}
+                />
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              <div>
+                <Label htmlFor="fecha">Fecha</Label>
+                <Input
+                  type="text"
+                  id="fecha"
+                  name="fecha"
+                  value={tallerEditando.fecha ? format(tallerEditando.fecha, 'dd/MM/yyyy', { locale: es }) : ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="hora">Hora</Label>
+                <Input
+                  type="text"
+                  id="hora"
+                  name="hora"
+                  value={tallerEditando.hora || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="duracion">Duración (minutos)</Label>
+                <Input
+                  type="number"
+                  id="duracion"
+                  name="duracion"
+                  value={tallerEditando.duracion || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="lugar">Lugar</Label>
+                <Input
+                  type="text"
+                  id="lugar"
+                  name="lugar"
+                  value={tallerEditando.lugar || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="aforo">Aforo</Label>
+                <Input
+                  type="number"
+                  id="aforo"
+                  name="aforo"
+                  value={tallerEditando.aforo || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="organizador">Organizador</Label>
+                <Input
+                  type="text"
+                  id="organizador"
+                  name="organizador"
+                  value={tallerEditando.organizador || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="flex justify-end">
+                <Button variant="secondary" onClick={() => setShowForm(false)}>
+                  Cancelar
+                </Button>
+                <Button className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleSaveTaller}>
+                  Guardar
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Talleres</CardTitle>
+          <CardDescription>
+            Aquí puedes ver todos los talleres programados
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Título</TableHead>
+                <TableHead>Fecha y Hora</TableHead>
+                <TableHead>Lugar</TableHead>
+                <TableHead>Asistentes</TableHead>
+                <TableHead>Organizador</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {talleres.map((taller) => (
+                <TableRow key={taller.id}>
+                  <TableCell className="font-medium">{taller.titulo}</TableCell>
+                  <TableCell>
+                    {formatFechaHora(taller.fecha, taller.hora)}
+                  </TableCell>
+                  <TableCell>{taller.lugar}</TableCell>
+                  <TableCell>{taller.participantes || 0}</TableCell>
+                  <TableCell>{taller.organizador || 'No asignado'}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="icon" onClick={() => handleEditTaller(taller)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                      </Button>
+                      <Button variant="destructive" size="icon" onClick={() => handleDeleteTaller(taller)}>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={showDeleteAlert} onOpenChange={() => setShowDeleteAlert(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará el taller de forma permanente. ¿Deseas continuar?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteAlert(false)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
