@@ -36,7 +36,7 @@ const AdministradoresList: React.FC<AdministradoresListProps> = ({ administrador
   const [adminToDelete, setAdminToDelete] = useState<Usuario | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { deleteUsuario } = useUsuarios();
+  const { deleteUsuario, getUsuariosByRole } = useUsuarios();
 
   const handleVerDetalles = (admin: Usuario) => {
     setSelectedAdmin(admin);
@@ -57,6 +57,7 @@ const AdministradoresList: React.FC<AdministradoresListProps> = ({ administrador
     }
   };
 
+  // Filtrar administradores por término de búsqueda
   const filteredAdmins = administradores.filter(admin => {
     const searchTermLower = searchTerm.toLowerCase();
     return (

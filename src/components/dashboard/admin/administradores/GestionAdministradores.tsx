@@ -32,25 +32,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdministradoresVinculacion from './AdministradoresVinculacion';
 
 const GestionAdministradores = () => {
-  const { usuarios, loading } = useUsuarios();
+  const { usuarios, loading, getUsuariosByRole } = useUsuarios();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAdmin, setSelectedAdmin] = useState<Usuario | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Filtrar solo los administradores
-  const administradores = Array.isArray(usuarios) ? usuarios.filter(
-    usuario => {
-      // Verificamos que el usuario.role exista antes de comparar
-      const userRole = usuario?.role?.toLowerCase?.() || '';
-      return userRole === 'administrador';
-    }
-  ).filter(
+  // Usamos directamente la función getUsuariosByRole para obtener los administradores
+  const administradores = getUsuariosByRole('administrador');
+
+  // Aplicamos el filtro de búsqueda a los administradores
+  const filteredAdmins = administradores.filter(
     admin => 
       searchTerm === '' || 
       (admin.nombre?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (admin.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (admin.nombreAdministracion?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  ) : [];
+  );
 
   const handleVerDetalles = (admin: Usuario) => {
     setSelectedAdmin(admin);
@@ -124,14 +121,14 @@ const GestionAdministradores = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {administradores.length === 0 ? (
+                        {filteredAdmins.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={7} className="text-center py-6">
                               No se encontraron administradores
                             </TableCell>
                           </TableRow>
                         ) : (
-                          administradores.map((admin) => (
+                          filteredAdmins.map((admin) => (
                             <TableRow key={admin.id}>
                               <TableCell className="font-medium">{admin.nombre} {admin.apellidos}</TableCell>
                               <TableCell>{admin.email}</TableCell>
