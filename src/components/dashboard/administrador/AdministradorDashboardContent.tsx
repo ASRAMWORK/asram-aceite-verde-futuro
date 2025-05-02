@@ -1,48 +1,75 @@
 
 import React from 'react';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import AdministradorDashboardOverview from './AdministradorDashboardOverview';
+import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import MisComunidades from './MisComunidades';
 import GestionarComunidad from './GestionarComunidad';
-import InformesPanel from './informes/InformesPanel';
-import PanelControl from './panel/PanelControl';
-import AdministradorRecogidas from './recogidas/AdministradorRecogidas';
-import AdministradorPerfil from './perfil/AdministradorPerfil';
-import AdministradorEstadisticas from './estadisticas/AdministradorEstadisticas';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AdministradorPanel from './AdministradorPanel';
 import AdministradorClientes from './clientes/AdministradorClientes';
-import ClienteRankingWrapper from '../admin/rankings/ClienteRankingWrapper';
+import AdministradorRecogidas from './recogidas/AdministradorRecogidas';
+import AdministradorEstadisticas from './estadisticas/AdministradorEstadisticas';
+import AdministradorPerfil from './perfil/AdministradorPerfil';
+import InformesPanel from './informes/InformesPanel';
+import GestionComunidades from './comunidades/GestionComunidades';
+import ReunionesView from '../admin/reuniones/ReunionesView';
 
 interface AdministradorDashboardContentProps {
-  activeTab: string;
+  activeTab?: string;
 }
 
-const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps> = ({ activeTab }) => {
-  const { profile } = useUserProfile();
-  
-  // Verificar si hay un ID de perfil disponible
-  if (!profile || !profile.id) {
-    return (
-      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-        <p className="text-yellow-800">
-          Cargando datos del perfil... Si este mensaje persiste, contacte al soporte técnico.
-        </p>
-      </div>
-    );
+const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps> = ({ activeTab = 'home' }) => {
+  // Based on the activeTab from the sidebar, render the appropriate component
+  switch (activeTab) {
+    case 'home':
+      return <AdministradorPanel />;
+    case 'comunidades':
+      return <MisComunidades />;
+    case 'gestionar':
+      return <GestionarComunidad />;
+    case 'clientes':
+      return <AdministradorClientes />;
+    case 'recogidas':
+      return <AdministradorRecogidas />;
+    case 'estadisticas':
+      return <AdministradorEstadisticas />;
+    case 'informes':
+      return <InformesPanel />;
+    case 'perfil':
+      return <AdministradorPerfil />;
+    case 'gestionComunidades':
+      return <GestionComunidades />;
+    case 'reuniones':
+      return <ReunionesView />;
+    default:
+      return (
+        <div className="container mx-auto px-4 py-8">
+          <Tabs defaultValue={activeTab === 'dashboard' ? 'comunidades' : activeTab}>
+            <TabsList>
+              <TabsTrigger value="comunidades">Mis Comunidades</TabsTrigger>
+              <TabsTrigger value="gestionar">Gestionar Comunidad</TabsTrigger>
+              <TabsTrigger value="informes">Informes y Contratos</TabsTrigger>
+              <TabsTrigger value="recogidas">Recogidas</TabsTrigger>
+              <TabsTrigger value="reuniones">Reuniones</TabsTrigger>
+            </TabsList>
+            <TabsContent value="comunidades">
+              <MisComunidades />
+            </TabsContent>
+            <TabsContent value="gestionar">
+              <GestionarComunidad />
+            </TabsContent>
+            <TabsContent value="informes">
+              <InformesPanel />
+            </TabsContent>
+            <TabsContent value="recogidas">
+              <AdministradorRecogidas />
+            </TabsContent>
+            <TabsContent value="reuniones">
+              <ReunionesView />
+            </TabsContent>
+          </Tabs>
+        </div>
+      );
   }
-  
-  return (
-    <div>
-      {activeTab === 'home' && <AdministradorDashboardOverview />}
-      {activeTab === 'comunidades' && <MisComunidades adminId={profile.id} />}
-      {activeTab === 'gestionar' && <GestionarComunidad adminId={profile.id} />}
-      {activeTab === 'informes' && <InformesPanel adminId={profile.id} />}
-      {activeTab === 'estadisticas' && <AdministradorEstadisticas adminId={profile.id} />}
-      {activeTab === 'clientes' && <AdministradorClientes adminId={profile.id} />}
-      {activeTab === 'recogidas' && <AdministradorRecogidas adminId={profile.id} />}
-      {activeTab === 'perfil' && <AdministradorPerfil userId={profile.id} />}
-      {activeTab === 'ranking' && <ClienteRankingWrapper adminId={profile.id} />}
-    </div>
-  );
 };
 
 export default AdministradorDashboardContent;

@@ -19,29 +19,25 @@ import {
   Search,
   Users,
   PieChart,
-  UserPlus,
-  AlertTriangle,
-  Link
+  UserPlus
 } from "lucide-react";
 import { toast } from "sonner";
 import { useComerciales } from "@/hooks/useComerciales";
 import { useClientesCaptados } from "@/hooks/useClientesCaptados";
 import DetalleComercialDialog from "./DetalleComercialDialog";
 import { addSpecificComerciales } from "@/hooks/addSpecificComerciales";
-import VincularComercialDialog from "./VincularComercialDialog";
 
 const ComercialList = () => {
   const { comerciales, loading, toggleComercialStatus, aprobarComercial, loadComercialesData } = useComerciales();
   const { getTotalLitrosByComercialId, getTotalClientesByComercialId } = useClientesCaptados();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedComercial, setSelectedComercial] = useState<string | null>(null);
-  const [vincularComercialId, setVincularComercialId] = useState<string | null>(null);
 
   const filteredComerciales = comerciales.filter(
     (comercial) =>
       comercial.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       comercial.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (comercial.codigo && comercial.codigo.toLowerCase().includes(searchTerm.toLowerCase()))
+      comercial.codigo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleStatusToggle = async (id: string, currentStatus: boolean) => {
@@ -79,17 +75,6 @@ const ComercialList = () => {
     }
   };
 
-  const handleVincularComercial = (comercialId: string) => {
-    setVincularComercialId(comercialId);
-  };
-
-  // Count comerciales by vinculación status
-  const comercialesPendientes = comerciales.filter(c => 
-    c.estadoVinculacion === 'pendiente' || 
-    c.estadoVinculacion === 'falla_password' || 
-    c.estadoVinculacion === 'sin_vincular'
-  ).length;
-
   return (
     <>
       <Card>
@@ -105,7 +90,7 @@ const ComercialList = () => {
               />
             </div>
             
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
               <Button 
                 variant="outline" 
                 className="flex items-center gap-1"
@@ -126,12 +111,6 @@ const ComercialList = () => {
                 <UserX className="h-3 w-3 mr-1" />
                 {comerciales.filter(c => !c.aprobado).length} pendientes
               </Badge>
-              {comercialesPendientes > 0 && (
-                <Badge variant="outline" className="bg-red-100 text-red-800">
-                  <AlertTriangle className="h-3 w-3 mr-1" />
-                  {comercialesPendientes} sin vincular
-                </Badge>
-              )}
             </div>
           </div>
 
@@ -154,28 +133,16 @@ const ComercialList = () => {
                 </TableHeader>
                 <TableBody>
                   {filteredComerciales.map((comercial) => (
-                    <TableRow key={comercial.id} className={
-                      comercial.estadoVinculacion && 
-                      comercial.estadoVinculacion !== 'completo' ? 
-                      'bg-red-50' : ''
-                    }>
+                    <TableRow key={comercial.id}>
                       <TableCell className="font-medium">
                         <div>
                           {comercial.nombre} {comercial.apellidos}
                           <div className="text-xs text-gray-500">{comercial.email}</div>
-                          {comercial.estadoVinculacion && comercial.estadoVinculacion !== 'completo' && (
-                            <Badge variant="outline" className="mt-1 bg-red-100 text-red-800 flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" />
-                              {comercial.estadoVinculacion === 'pendiente' && "Pendiente de vincular"}
-                              {comercial.estadoVinculacion === 'falla_password' && "Password incorrecto"}
-                              {comercial.estadoVinculacion === 'sin_vincular' && "Sin vincular"}
-                            </Badge>
-                          )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className="font-mono">
-                          {comercial.codigo || "-"}
+                          {comercial.codigo}
                         </Badge>
                       </TableCell>
                       <TableCell>{getTotalClientesByComercialId(comercial.id)}</TableCell>
@@ -205,18 +172,6 @@ const ComercialList = () => {
                           >
                             <FileText className="h-4 w-4" />
                           </Button>
-                          
-                          {comercial.estadoVinculacion && comercial.estadoVinculacion !== 'completo' && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleVincularComercial(comercial.id)}
-                              title="Vincular con Firebase Auth"
-                              className="text-blue-600 hover:text-blue-700"
-                            >
-                              <Link className="h-4 w-4" />
-                            </Button>
-                          )}
                           
                           {!comercial.aprobado && (
                             <Button
@@ -273,14 +228,6 @@ const ComercialList = () => {
           comercialId={selectedComercial}
           open={!!selectedComercial}
           onClose={() => setSelectedComercial(null)}
-        />
-      )}
-
-      {vincularComercialId && (
-        <VincularComercialDialog
-          comercialId={vincularComercialId}
-          open={!!vincularComercialId}
-          onClose={() => setVincularComercialId(null)}
         />
       )}
     </>

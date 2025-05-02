@@ -22,73 +22,15 @@ import {
   Coffee,
   Home,
   Award,
-  Droplet,
-  Save
+  Droplet
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { useAuth } from '@/contexts/AuthContext';
-
-const profileSchema = z.object({
-  nombre: z.string().min(1, "El nombre es obligatorio"),
-  apellidos: z.string().optional(),
-  email: z.string().email("Email no válido"),
-  telefono: z.string().optional(),
-  direccion: z.string().optional(),
-  codigoPostal: z.string().optional(),
-  ciudad: z.string().optional(),
-  distrito: z.string().optional(),
-  barrio: z.string().optional()
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const UserProfileView = () => {
   const { profile, loading, error } = useUserProfile();
   const [activeTab, setActiveTab] = useState('personal');
-  const [editMode, setEditMode] = useState(false);
-  const { user } = useAuth();
-  
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      nombre: profile?.nombre || '',
-      apellidos: profile?.apellidos || '',
-      email: profile?.email || '',
-      telefono: profile?.telefono || '',
-      direccion: profile?.direccion || '',
-      codigoPostal: profile?.codigoPostal || '',
-      ciudad: profile?.ciudad || '',
-      distrito: profile?.distrito || '',
-      barrio: profile?.barrio || ''
-    }
-  });
-  
-  // Update form values when profile loads
-  React.useEffect(() => {
-    if (profile && !loading) {
-      form.reset({
-        nombre: profile.nombre || '',
-        apellidos: profile.apellidos || '',
-        email: profile.email || '',
-        telefono: profile.telefono || '',
-        direccion: profile.direccion || '',
-        codigoPostal: profile.codigoPostal || '',
-        ciudad: profile.ciudad || '',
-        distrito: profile.distrito || '',
-        barrio: profile.barrio || ''
-      });
-    }
-  }, [profile, loading, form]);
   
   if (loading) {
     return (
@@ -122,23 +64,6 @@ const UserProfileView = () => {
       </Card>
     );
   }
-  
-  const onSubmit = async (data: ProfileFormValues) => {
-    try {
-      if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        await updateDoc(userDocRef, {
-          ...data,
-          updatedAt: new Date()
-        });
-        toast.success("Perfil actualizado correctamente");
-        setEditMode(false);
-      }
-    } catch (err) {
-      console.error("Error al actualizar perfil:", err);
-      toast.error("Error al actualizar el perfil");
-    }
-  };
 
   const getRoleBadge = (role: UserRole | string) => {
     const roleStyles: Record<string, string> = {
@@ -194,7 +119,7 @@ const UserProfileView = () => {
   const getInitials = () => {
     const name = profile.nombre || '';
     const surname = profile.apellidos || '';
-    return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase() || '?';
+    return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase();
   };
 
   const userRole = profile?.role as string;
@@ -204,26 +129,6 @@ const UserProfileView = () => {
     month: 'long', 
     day: 'numeric' 
   });
-  
-  const handleUpdateProfile = () => {
-    setEditMode(true);
-    setActiveTab('personal');
-  };
-  
-  const cancelEdit = () => {
-    form.reset({
-      nombre: profile.nombre || '',
-      apellidos: profile.apellidos || '',
-      email: profile.email || '',
-      telefono: profile.telefono || '',
-      direccion: profile.direccion || '',
-      codigoPostal: profile.codigoPostal || '',
-      ciudad: profile.ciudad || '',
-      distrito: profile.distrito || '',
-      barrio: profile.barrio || ''
-    });
-    setEditMode(false);
-  };
 
   return (
     <div className="space-y-8">
@@ -232,18 +137,13 @@ const UserProfileView = () => {
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-4">
               <Avatar className="h-24 w-24 border-4 border-white shadow-md">
-                <AvatarImage src={profile.photoURL || undefined} />
+                <AvatarImage src={profile.photoURL} />
                 <AvatarFallback className="bg-gradient-to-r from-[#ee970d] to-amber-500 text-white text-xl">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
               <div className="absolute -bottom-2 -right-2">
-                <Button 
-                  size="icon" 
-                  variant="outline" 
-                  className="rounded-full h-8 w-8 bg-white"
-                  onClick={handleUpdateProfile}
-                >
+                <Button size="icon" variant="outline" className="rounded-full h-8 w-8 bg-white">
                   <Edit className="h-4 w-4" />
                 </Button>
               </div>
@@ -281,7 +181,7 @@ const UserProfileView = () => {
             </div>
           </div>
           <CardFooter className="flex justify-center pt-4 border-t border-gray-100 mt-4">
-            <Button variant="outline" onClick={handleUpdateProfile}>Editar perfil</Button>
+            <Button variant="outline">Editar perfil</Button>
           </CardFooter>
         </Card>
         
@@ -300,159 +200,7 @@ const UserProfileView = () => {
                   <CardDescription>Datos detallados de tu cuenta</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {editMode ? (
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="nombre"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Nombre</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Tu nombre" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="apellidos"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Apellidos</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Tus apellidos" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="tu@email.com" {...field} disabled />
-                                </FormControl>
-                                <FormDescription>
-                                  El email no se puede cambiar
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="telefono"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Teléfono</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Tu teléfono" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="direccion"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Dirección</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Tu dirección" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="codigoPostal"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Código Postal</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Código postal" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="ciudad"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Ciudad</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Ciudad" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="distrito"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Distrito</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Distrito" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="barrio"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Barrio</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Barrio" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        <div className="flex justify-end gap-2 mt-4">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={cancelEdit}
-                          >
-                            Cancelar
-                          </Button>
-                          <Button 
-                            type="submit"
-                            className="bg-[#ee970d] hover:bg-[#d28109]"
-                          >
-                            <Save className="h-4 w-4 mr-2" />
-                            Guardar cambios
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  ) : renderProfileFields()}
+                  {renderProfileFields()}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -501,7 +249,7 @@ const UserProfileView = () => {
                       </div>
                       <div>
                         <p className="text-sm text-amber-700">Recogidas solicitadas</p>
-                        <p className="text-2xl font-bold text-amber-800">{profile.numRecogidas || 0}</p>
+                        <p className="text-2xl font-bold text-amber-800">3</p>
                       </div>
                     </div>
                   </div>
@@ -522,12 +270,7 @@ const UserProfileView = () => {
                         <p className="font-medium">Notificaciones por correo</p>
                         <p className="text-sm text-gray-500">Recibe actualizaciones sobre recogidas y eventos</p>
                       </div>
-                      <Button 
-                        variant="outline"
-                        onClick={() => toast.info("Función en desarrollo")}
-                      >
-                        Configurar
-                      </Button>
+                      <Button variant="outline">Configurar</Button>
                     </div>
                     
                     <div className="flex items-center justify-between py-3 border-b">
@@ -535,12 +278,7 @@ const UserProfileView = () => {
                         <p className="font-medium">Cambiar contraseña</p>
                         <p className="text-sm text-gray-500">Actualiza tu contraseña periódicamente</p>
                       </div>
-                      <Button 
-                        variant="outline"
-                        onClick={() => toast.info("Función en desarrollo")}
-                      >
-                        Cambiar
-                      </Button>
+                      <Button variant="outline">Cambiar</Button>
                     </div>
                     
                     <div className="flex items-center justify-between py-3 border-b">
@@ -548,12 +286,7 @@ const UserProfileView = () => {
                         <p className="font-medium">Cambiar email</p>
                         <p className="text-sm text-gray-500">Actualiza tu dirección de correo electrónico</p>
                       </div>
-                      <Button 
-                        variant="outline"
-                        onClick={() => toast.info("Para cambiar tu email, contacta con el soporte")}
-                      >
-                        Cambiar
-                      </Button>
+                      <Button variant="outline">Cambiar</Button>
                     </div>
                     
                     <div className="flex items-center justify-between py-3">
@@ -561,13 +294,7 @@ const UserProfileView = () => {
                         <p className="font-medium">Cerrar sesión en todos los dispositivos</p>
                         <p className="text-sm text-gray-500">Cierra todas las sesiones activas</p>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        className="text-red-500 border-red-200 hover:bg-red-50"
-                        onClick={() => toast.info("Función en desarrollo")}
-                      >
-                        Cerrar sesiones
-                      </Button>
+                      <Button variant="outline" className="text-red-500 border-red-200 hover:bg-red-50">Cerrar sesiones</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -586,31 +313,31 @@ const UserProfileView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-              <p className="font-medium">{profile.direccion || 'No disponible'}</p>
+              <p className="font-medium">{profile.direccion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Distrito</p>
-              <p className="font-medium">{profile.distrito || 'No disponible'}</p>
+              <p className="font-medium">{profile.distrito}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Barrio</p>
-              <p className="font-medium">{profile.barrio || 'No disponible'}</p>
+              <p className="font-medium">{profile.barrio}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{profile.telefono || 'No disponible'}</p>
+              <p className="font-medium">{profile.telefono}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Número de Viviendas</p>
-              <p className="font-medium">{profile.numViviendas || 'No disponible'}</p>
+              <p className="font-medium">{profile.numViviendas}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Número de Contenedores</p>
-              <p className="font-medium">{profile.numContenedores || 'No disponible'}</p>
+              <p className="font-medium">{profile.numContenedores}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Frecuencia de Recogida</p>
-              <p className="font-medium">{profile.frecuenciaRecogida || 'No disponible'}</p>
+              <p className="font-medium">{profile.frecuenciaRecogida}</p>
             </div>
           </div>
         );
@@ -620,35 +347,35 @@ const UserProfileView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Nombre del Restaurante</p>
-              <p className="font-medium">{profile.nombreRestaurante || 'No disponible'}</p>
+              <p className="font-medium">{profile.nombreRestaurante}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-              <p className="font-medium">{profile.direccion || 'No disponible'}</p>
+              <p className="font-medium">{profile.direccion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Distrito</p>
-              <p className="font-medium">{profile.distrito || 'No disponible'}</p>
+              <p className="font-medium">{profile.distrito}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Barrio</p>
-              <p className="font-medium">{profile.barrio || 'No disponible'}</p>
+              <p className="font-medium">{profile.barrio}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{profile.telefono || 'No disponible'}</p>
+              <p className="font-medium">{profile.telefono}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Horario de Apertura</p>
-              <p className="font-medium">{profile.horarioApertura || 'No disponible'}</p>
+              <p className="font-medium">{profile.horarioApertura}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Litros Estimados</p>
-              <p className="font-medium">{profile.litrosEstimados || 'No disponible'}</p>
+              <p className="font-medium">{profile.litrosEstimados}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Frecuencia de Recogida</p>
-              <p className="font-medium">{profile.frecuenciaRecogida || 'No disponible'}</p>
+              <p className="font-medium">{profile.frecuenciaRecogida}</p>
             </div>
           </div>
         );
@@ -658,35 +385,35 @@ const UserProfileView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Nombre del Hotel</p>
-              <p className="font-medium">{profile.nombreHotel || 'No disponible'}</p>
+              <p className="font-medium">{profile.nombreHotel}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-              <p className="font-medium">{profile.direccion || 'No disponible'}</p>
+              <p className="font-medium">{profile.direccion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Distrito</p>
-              <p className="font-medium">{profile.distrito || 'No disponible'}</p>
+              <p className="font-medium">{profile.distrito}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Barrio</p>
-              <p className="font-medium">{profile.barrio || 'No disponible'}</p>
+              <p className="font-medium">{profile.barrio}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{profile.telefono || 'No disponible'}</p>
+              <p className="font-medium">{profile.telefono}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Número de Habitaciones</p>
-              <p className="font-medium">{profile.numHabitaciones || 'No disponible'}</p>
+              <p className="font-medium">{profile.numHabitaciones}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Litros Estimados</p>
-              <p className="font-medium">{profile.litrosEstimados || 'No disponible'}</p>
+              <p className="font-medium">{profile.litrosEstimados}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Frecuencia de Recogida</p>
-              <p className="font-medium">{profile.frecuenciaRecogida || 'No disponible'}</p>
+              <p className="font-medium">{profile.frecuenciaRecogida}</p>
             </div>
           </div>
         );
@@ -696,35 +423,35 @@ const UserProfileView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Nombre de la Asociación</p>
-              <p className="font-medium">{profile.nombreAsociacion || 'No disponible'}</p>
+              <p className="font-medium">{profile.nombreAsociacion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-              <p className="font-medium">{profile.direccion || 'No disponible'}</p>
+              <p className="font-medium">{profile.direccion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Distrito</p>
-              <p className="font-medium">{profile.distrito || 'No disponible'}</p>
+              <p className="font-medium">{profile.distrito}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Barrio</p>
-              <p className="font-medium">{profile.barrio || 'No disponible'}</p>
+              <p className="font-medium">{profile.barrio}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{profile.telefono || 'No disponible'}</p>
+              <p className="font-medium">{profile.telefono}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Tipo de Asociación</p>
-              <p className="font-medium">{profile.tipoAsociacion || 'No disponible'}</p>
+              <p className="font-medium">{profile.tipoAsociacion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Número de Miembros</p>
-              <p className="font-medium">{profile.numMiembros || 'No disponible'}</p>
+              <p className="font-medium">{profile.numMiembros}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Frecuencia de Recogida</p>
-              <p className="font-medium">{profile.frecuenciaRecogida || 'No disponible'}</p>
+              <p className="font-medium">{profile.frecuenciaRecogida}</p>
             </div>
           </div>
         );
@@ -734,31 +461,31 @@ const UserProfileView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Nombre del Centro</p>
-              <p className="font-medium">{profile.nombreCentro || 'No disponible'}</p>
+              <p className="font-medium">{profile.nombreCentro}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-              <p className="font-medium">{profile.direccion || 'No disponible'}</p>
+              <p className="font-medium">{profile.direccion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Distrito</p>
-              <p className="font-medium">{profile.distrito || 'No disponible'}</p>
+              <p className="font-medium">{profile.distrito}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Barrio</p>
-              <p className="font-medium">{profile.barrio || 'No disponible'}</p>
+              <p className="font-medium">{profile.barrio}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{profile.telefono || 'No disponible'}</p>
+              <p className="font-medium">{profile.telefono}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Número de Alumnos</p>
-              <p className="font-medium">{profile.numAlumnos || 'No disponible'}</p>
+              <p className="font-medium">{profile.numAlumnos}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Tipo de Centro</p>
-              <p className="font-medium">{profile.tipoEscolar || 'No disponible'}</p>
+              <p className="font-medium">{profile.tipoEscolar}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Participa en Alianza Verde</p>
@@ -772,35 +499,35 @@ const UserProfileView = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Nombre</p>
-              <p className="font-medium">{profile.nombre || 'No disponible'}</p>
+              <p className="font-medium">{profile.nombre}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Apellido</p>
-              <p className="font-medium">{profile.apellidos || 'No disponible'}</p>
+              <p className="font-medium">{profile.apellidos}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Email</p>
-              <p className="font-medium">{profile.email || 'No disponible'}</p>
+              <p className="font-medium">{profile.email}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-              <p className="font-medium">{profile.direccion || 'No disponible'}</p>
+              <p className="font-medium">{profile.direccion}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Distrito</p>
-              <p className="font-medium">{profile.distrito || 'No disponible'}</p>
+              <p className="font-medium">{profile.distrito}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Barrio</p>
-              <p className="font-medium">{profile.barrio || 'No disponible'}</p>
+              <p className="font-medium">{profile.barrio}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{profile.telefono || 'No disponible'}</p>
+              <p className="font-medium">{profile.telefono}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Código Postal</p>
-              <p className="font-medium">{profile.codigoPostal || 'No disponible'}</p>
+              <p className="font-medium">{profile.codigoPostal}</p>
             </div>
           </div>
         );

@@ -32,12 +32,10 @@ import type { Usuario } from "@/types";
 import { 
   BadgeEuro, 
   Calendar, 
-  ExternalLink,
   FilePlus2, 
   FileSpreadsheet, 
   FileText, 
   Loader2, 
-  LogIn,
   MapPin, 
   PenLine, 
   Percent, 
@@ -52,8 +50,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 type AdminFormData = {
   nombre: string;
@@ -69,7 +65,6 @@ const AdministradoresFincas = () => {
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Usuario | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<AdminFormData>({
     nombre: "",
     apellidos: "",
@@ -78,10 +73,10 @@ const AdministradoresFincas = () => {
     direccion: ""
   });
   
-  // Filter usuarios to only show those with administrador role
-  const adminFincas = usuarios.filter(user => user.role === 'administrador');
+  // Filter usuarios to only show those with admin_finca role
+  const adminFincas = usuarios.filter(user => user.role === 'admin_finca');
   
-  // Filter active administrador users
+  // Filter active admin_finca users
   const activeAdminFincas = adminFincas.filter(admin => admin.activo !== false);
   
   // Filter by search term
@@ -138,7 +133,7 @@ const AdministradoresFincas = () => {
     
     const dataToSubmit: Partial<Usuario> = {
       ...formData,
-      role: 'administrador',
+      role: 'admin_finca',
       activo: true,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -161,14 +156,10 @@ const AdministradoresFincas = () => {
     }
   };
   
-  const handleViewAdminDashboard = (adminId: string) => {
-    // Almacenar ID de administrador en sessionStorage para su uso posterior
-    sessionStorage.setItem('viewingAdminId', adminId);
-    sessionStorage.setItem('fromSuperAdmin', 'true');
-    
-    // Redirigir a la ruta del dashboard del administrador
-    navigate('/administrador/dashboard');
-    toast.success("Accediendo al panel del administrador de fincas");
+  const handleViewAdminDetails = (adminId: string) => {
+    // Aquí iría la navegación a la página de detalles del administrador
+    console.log("Ver detalles del administrador:", adminId);
+    // Esta funcionalidad se implementará en una tarea posterior
   };
   
   const handleExportData = (format: 'pdf' | 'excel') => {
@@ -566,12 +557,10 @@ const AdministradoresFincas = () => {
                             </Button>
                             <Button 
                               variant="outline" 
-                              size="icon" 
-                              className="text-asram"
-                              title="Acceder al dashboard"
-                              onClick={() => handleViewAdminDashboard(administrador.id)}
+                              size="icon"
+                              onClick={() => handleViewAdminDetails(administrador.id)}
                             >
-                              <LogIn className="h-4 w-4" />
+                              <Users className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>

@@ -22,11 +22,11 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Usuario, UserRole } from '@/types';
+import { Usuario } from '@/types';
 
 const clienteSchema = z.object({
   nombre: z.string().min(2, 'El nombre es obligatorio'),
-  apellidos: z.string().min(2, 'Los apellidos son obligatorios'),
+  apellidos: z.string().min(2, 'Los apellidos son obligatorios'), // Changed from apellido to apellidos
   telefono: z.string().min(9, 'Teléfono no válido'),
   email: z.string().email('Email no válido'),
   direccion: z.string().min(5, 'La dirección es obligatoria'),
@@ -34,8 +34,6 @@ const clienteSchema = z.object({
   barrio: z.string().min(1, 'El barrio es obligatorio'),
   codigoPostal: z.string().min(5, 'Código postal no válido'),
   frecuenciaRecogida: z.string(),
-  tipo: z.string().min(1, 'El tipo de cliente es obligatorio'),
-  role: z.string().min(1, 'El rol es obligatorio'),
   notas: z.string().optional(),
 });
 
@@ -47,33 +45,13 @@ interface ClienteFormProps {
   clienteId?: string;
 }
 
-const tipos = [
-  'Bar',
-  'Restaurante',
-  'Hotel',
-  'Asociación',
-  'Administración de Fincas',
-  'Centro Escolar', 
-  'Comunidad de Vecinos',
-  'Usuario Particular'
-];
-
-const roles = [
-  { value: 'user', label: 'Usuario' },
-  { value: 'admin_finca', label: 'Administrador de Fincas' },
-  { value: 'comercial', label: 'Comercial' },
-  { value: 'trabajador', label: 'Trabajador' },
-  { value: 'superadmin', label: 'Superadministrador' },
-  { value: 'escolar', label: 'Centro Escolar' },
-];
-
 const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId }) => {
   const { addUsuario, updateUsuario, usuarios } = useUsuarios();
   
   const defaultValues: ClienteFormValues = clienteId 
     ? usuarios.find(u => u.id === clienteId) || {
         nombre: '',
-        apellidos: '',
+        apellidos: '', // Changed from apellido to apellidos
         telefono: '',
         email: '',
         direccion: '',
@@ -81,13 +59,11 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
         barrio: '',
         codigoPostal: '',
         frecuenciaRecogida: 'mensual',
-        tipo: '',
-        role: 'user',
         notas: '',
       }
     : {
         nombre: '',
-        apellidos: '',
+        apellidos: '', // Changed from apellido to apellidos
         telefono: '',
         email: '',
         direccion: '',
@@ -95,8 +71,6 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
         barrio: '',
         codigoPostal: '',
         frecuenciaRecogida: 'mensual',
-        tipo: 'Comunidad de Vecinos',
-        role: 'user',
         notas: '',
       };
   
@@ -110,9 +84,8 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
       if (clienteId) {
         await updateUsuario(clienteId, {
           ...data,
+          tipo: 'comunidad',
           activo: true,
-          // Ensure role is properly typed as UserRole
-          role: data.role as UserRole,
         });
         toast.success('Cliente actualizado correctamente');
       } else {
@@ -126,17 +99,16 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           barrio: data.barrio,
           codigoPostal: data.codigoPostal,
           frecuenciaRecogida: data.frecuenciaRecogida,
-          tipo: data.tipo,
+          tipo: 'comunidad',
           activo: true,
-          // Ensure role is properly typed as UserRole
-          role: data.role as UserRole,
+          role: 'user',
           ciudad: '',
           provincia: '',
           pais: '',
           createdAt: new Date(),
           updatedAt: new Date(),
           uid: `temp-${Date.now()}`,
-          userId: `temp-${Date.now()}`
+          userId: `temp-${Date.now()}` // Adding the required userId property
         });
         toast.success('Cliente añadido correctamente');
       }
@@ -166,7 +138,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
           
           <FormField
             control={form.control}
-            name="apellidos"
+            name="apellidos" // Changed from apellido to apellidos
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Apellidos</FormLabel>
@@ -174,59 +146,6 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ onCancel, onSubmit, clienteId
                   <Input placeholder="Apellidos del cliente" {...field} />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="tipo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo de Cliente</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione tipo de cliente" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {tipos.map((tipo) => (
-                      <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Rol de Acceso</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione rol de acceso" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {roles.map((role) => (
-                      <SelectItem key={role.value} value={role.value}>
-                        {role.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Este rol determinará a qué dashboard tendrá acceso el usuario
-                </p>
               </FormItem>
             )}
           />

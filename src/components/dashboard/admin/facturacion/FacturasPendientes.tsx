@@ -330,7 +330,7 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
       
       {/* Put the Dialog outside of any nested components to avoid context issues */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
               {dialogType === 'ingreso' 
@@ -338,10 +338,10 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
                 : 'Nuevo Gasto Pendiente'}
             </DialogTitle>
             <DialogDescription>
-              Complete los datos para registrar un{dialogType === 'ingreso' ? ' ingreso' : ' gasto'} pendiente
+              Complete los datos de la factura pendiente
             </DialogDescription>
           </DialogHeader>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -488,14 +488,10 @@ export const FacturasPendientes: React.FC<FacturasPendientesProps> = ({ ingresos
               />
 
               <DialogFooter className="mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsDialogOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className={dialogType === 'ingreso' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}>
                   Guardar
                 </Button>
               </DialogFooter>

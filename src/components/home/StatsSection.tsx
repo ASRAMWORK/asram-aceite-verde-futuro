@@ -4,7 +4,7 @@ import { RecycleIcon, Droplet, MapPin, Users } from "lucide-react";
 const StatsSection = () => {
   const stats = [
     {
-      value: "10,000+",
+      value: "25,000+",
       label: "Litros reciclados",
       description: "Aceite recogido anualmente",
       icon: RecycleIcon,
@@ -18,14 +18,14 @@ const StatsSection = () => {
       color: "text-blue-600"
     },
     {
-      value: "1,000+",
+      value: "120+",
       label: "Puntos verdes",
       description: "En la Comunidad de Madrid",
       icon: MapPin,
       color: "text-green-600"
     },
     {
-      value: "300,000+",
+      value: "5,000+",
       label: "Usuarios activos",
       description: "Colaborando con nosotros",
       icon: Users,

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { 
@@ -10,91 +11,27 @@ import {
   doc, 
   serverTimestamp,
   orderBy,
-  getDoc,
+  Timestamp,
   setDoc,
-  Timestamp
+  getDoc
 } from 'firebase/firestore';
 import { 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  fetchSignInMethodsForEmail
+  updateEmail, 
+  updatePassword,
+  signInWithEmailAndPassword
 } from 'firebase/auth';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
-import { ComercialUser } from '@/types/comercial';
+import { ComercialUser, ClienteCaptado, Comision } from '@/types/comercial';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { UserRole, VinculacionAuthEstado } from '@/types';
+import { UserRole } from '@/types';
 
 export function useComerciales() {
   const [comerciales, setComerciales] = useState<ComercialUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { profile } = useUserProfile();
-
-  // Separate the data saving logic from authentication
-  const saveComercialToFirestore = async (
-    comercialData: Partial<ComercialUser>, 
-    uid: string | null = null, 
-    estadoVinculacion: VinculacionAuthEstado = 'completo'
-  ) => {
-    try {
-      // Generate unique referral code if not provided
-      const codigo = comercialData.codigo || generateUniqueCode();
-      
-      // Prepare common data to save
-      const commonData = {
-        ...comercialData,
-        uid, // This might be null if auth failed but we're still saving to Firestore
-        role: "comercial" as UserRole,
-        codigo,
-        activo: true,
-        aprobado: comercialData.aprobado ?? true,
-        saldo: comercialData.saldo || 0,
-        comisionesTotales: comercialData.comisionesTotales || 0,
-        comisionesPendientes: comercialData.comisionesPendientes || 0,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        email: comercialData.email,
-        estadoVinculacion,
-        intentosVinculacion: 1,
-        ultimoIntentoVinculacion: serverTimestamp()
-      };
-      
-      // Save in "usuarios" collection
-      const docRef = await addDoc(collection(db, "usuarios"), commonData);
-      
-      // If we have a UID, also save in "users" collection
-      if (uid) {
-        await setDoc(doc(db, "users", uid), commonData);
-      }
-      
-      return docRef.id;
-    } catch (err) {
-      console.error("Error guardando datos en Firestore:", err);
-      throw err;
-    }
-  };
-
-  // Check if email already exists in usuarios collection
-  const checkEmailExistsInFirestore = async (email: string) => {
-    const emailCheckQuery = query(
-      collection(db, "usuarios"), 
-      where("email", "==", email)
-    );
-    const emailCheckSnap = await getDocs(emailCheckQuery);
-    return !emailCheckSnap.empty;
-  };
-
-  // Check if email already exists in Firebase Auth
-  const checkEmailExistsInAuth = async (email: string) => {
-    try {
-      const methods = await fetchSignInMethodsForEmail(auth, email);
-      return methods.length > 0;
-    } catch (error) {
-      console.error("Error checking if email exists in Auth:", error);
-      return false;
-    }
-  };
 
   const loadComercialesData = async () => {
     try {
@@ -127,10 +64,7 @@ export function useComerciales() {
           comisionesPendientes: data.comisionesPendientes || 0,
           metodoPago: data.metodoPago || null,
           datosPersonalizados: data.datosPersonalizados,
-          uid: data.uid || '',
-          estadoVinculacion: data.estadoVinculacion || 'completo',
-          intentosVinculacion: data.intentosVinculacion || 0,
-          ultimoIntentoVinculacion: data.ultimoIntentoVinculacion?.toDate() || null
+          uid: data.uid || ''
         });
       });
       
@@ -153,225 +87,123 @@ export function useComerciales() {
       setLoading(true);
       const { password, ...restData } = comercialData;
       
-      if (!restData.email) {
-        throw new Error("El email es obligatorio para crear un comercial");
+      if (!password || !comercialData.email) {
+        throw new Error("Email y contraseña son obligatorios para crear un comercial");
       }
       
       // Check if email already exists in usuarios collection
-      const emailExistsInFirestore = await checkEmailExistsInFirestore(restData.email);
+      const emailCheckQuery = query(
+        collection(db, "usuarios"), 
+        where("email", "==", comercialData.email)
+      );
+      const emailCheckSnap = await getDocs(emailCheckQuery);
       
-      if (emailExistsInFirestore) {
-        toast.error("El correo electrónico ya está registrado en nuestra base de datos");
+      if (!emailCheckSnap.empty) {
+        toast.error("El correo electrónico ya está registrado como comercial");
         setLoading(false);
         return null;
       }
       
-      // If no password provided but we need to register in Auth, generate a temporary one
-      // or handle as "pendiente" status
-      const finalPassword = password || "";
+      // Generate unique referral code
+      const codigo = generateUniqueCode();
       
-      // Try to register in Auth if password is provided
-      if (finalPassword) {
-        try {
-          // 1. Create user in Firebase Authentication
-          const userCredential = await createUserWithEmailAndPassword(
-            auth, 
-            restData.email,
-            finalPassword
-          );
-          
-          const uid = userCredential.user.uid;
-          
-          // 2. Save data in Firestore with complete status
-          const docId = await saveComercialToFirestore(restData, uid, 'completo');
-          
-          toast.success("Comercial añadido correctamente y vinculado con Firebase Auth");
-          await loadComercialesData();
-          return docId;
-          
-        } catch (authErr: any) {
-          console.error("Error en el proceso de registro:", authErr);
-          
-          if (authErr.code === 'auth/email-already-in-use') {
-            // Auth email exists but not in our database
+      try {
+        // 1. Create user in Firebase Authentication
+        const userCredential = await createUserWithEmailAndPassword(
+          auth, 
+          comercialData.email,
+          password
+        );
+        
+        const uid = userCredential.user.uid;
+        
+        // 2. Save data in Firestore in both "usuarios" and "users" collections
+        const commonData = {
+          ...restData,
+          uid, // Save authentication UID
+          role: "comercial" as UserRole,
+          codigo,
+          activo: true,
+          aprobado: true, // Set to true by default for testing
+          saldo: 0,
+          comisionesTotales: 0,
+          comisionesPendientes: 0,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          email: comercialData.email // Ensure email is saved
+        };
+        
+        // Save in "usuarios" collection
+        const docRef = await addDoc(collection(db, "usuarios"), commonData);
+        
+        // Also save in "users" collection with the same uid as the document ID
+        await setDoc(doc(db, "users", uid), commonData);
+        
+        toast.success("Comercial añadido correctamente");
+        await loadComercialesData(); // Reload data to update the table
+        return docRef.id;
+      } catch (authErr: any) {
+        console.error("Error en el proceso de registro:", authErr);
+        
+        if (authErr.code === 'auth/email-already-in-use') {
+          // If auth email exists but not in our database, try to link the accounts
+          try {
+            // Try signing in with provided credentials
+            const userCredential = await signInWithEmailAndPassword(auth, comercialData.email, password);
+            const uid = userCredential.user.uid;
             
-            // If password provided, try to sign in to link
-            if (finalPassword) {
-              try {
-                // Try signing in with provided credentials
-                const userCredential = await signInWithEmailAndPassword(auth, restData.email, finalPassword);
-                const uid = userCredential.user.uid;
-                
-                // Password matched, save with complete status
-                const docId = await saveComercialToFirestore(restData, uid, 'completo');
-                toast.success("Comercial añadido correctamente y vinculado con cuenta existente");
-                await loadComercialesData();
-                return docId;
-                
-              } catch (signInErr) {
-                console.error("Error al enlazar cuenta existente:", signInErr);
-                
-                // Password didn't match but we still create the record
-                const docId = await saveComercialToFirestore(restData, null, 'falla_password');
-                toast.warning("El correo ya existe en Firebase Auth y la contraseña no coincide. Registrado como pendiente de vinculación.");
-                await loadComercialesData();
-                return docId;
-              }
+            // Generate data for both collections
+            const commonData = {
+              ...restData,
+              uid,
+              role: "comercial" as UserRole,
+              codigo: generateUniqueCode(),
+              activo: true,
+              aprobado: true,
+              saldo: 0,
+              comisionesTotales: 0,
+              comisionesPendientes: 0,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+              email: comercialData.email
+            };
+            
+            // Save in "usuarios" collection
+            const docRef = await addDoc(collection(db, "usuarios"), commonData);
+            
+            // Check if user exists in "users" collection, if not create it
+            const userDocRef = doc(db, "users", uid);
+            const userDoc = await getDoc(userDocRef);
+            
+            if (!userDoc.exists()) {
+              await setDoc(userDocRef, commonData);
             } else {
-              // No password provided but email exists in Auth
-              const docId = await saveComercialToFirestore(restData, null, 'pendiente');
-              toast.warning("El correo ya existe en Firebase Auth. Registrado como pendiente de vinculación.");
-              await loadComercialesData();
-              return docId;
+              // Update existing user with role
+              await updateDoc(userDocRef, {
+                role: "comercial",
+                updatedAt: serverTimestamp()
+              });
             }
-          } else {
-            // Other Auth error but still save to Firestore
-            const docId = await saveComercialToFirestore(restData, null, 'sin_vincular');
-            toast.warning(`Error al crear cuenta en Firebase Auth, pero se guardó en Firestore: ${authErr.message || 'Error desconocido'}`);
+            
+            toast.success("Comercial añadido correctamente");
             await loadComercialesData();
-            return docId;
+            return docRef.id;
+          } catch (loginErr) {
+            console.error("Error al enlazar cuenta existente:", loginErr);
+            toast.error("La contraseña proporcionada no coincide con la cuenta existente");
           }
+        } else {
+          toast.error(`Error al añadir comercial: ${authErr.message || 'Error desconocido'}`);
         }
-      } else {
-        // No password provided, just save to Firestore
-        const docId = await saveComercialToFirestore(restData, null, 'sin_vincular');
-        toast.info("Comercial guardado sin vincular a Firebase Auth (no se proporcionó contraseña)");
-        await loadComercialesData();
-        return docId;
+        
+        setLoading(false);
+        return null;
       }
     } catch (err: any) {
       console.error("Error añadiendo comercial:", err);
       toast.error(`Error al añadir comercial: ${err.message || 'Error desconocido'}`);
       setLoading(false);
       return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Nueva función para intentar vincular un comercial existente
-  const intentarVincularComercial = async (id: string, password: string) => {
-    try {
-      setLoading(true);
-      
-      const comercial = getComercialById(id);
-      if (!comercial) {
-        throw new Error("Comercial no encontrado");
-      }
-      
-      if (!comercial.email) {
-        throw new Error("El comercial no tiene email registrado");
-      }
-      
-      // Verificar primero si ya existe en Auth
-      const emailExistsInAuth = await checkEmailExistsInAuth(comercial.email);
-      
-      if (!emailExistsInAuth) {
-        // Si no existe en Auth, intentamos crear la cuenta
-        try {
-          const userCredential = await createUserWithEmailAndPassword(auth, comercial.email, password);
-          const uid = userCredential.user.uid;
-          
-          // Actualizar en Firestore
-          await updateDoc(doc(db, "usuarios", id), {
-            uid,
-            estadoVinculacion: 'completo',
-            intentosVinculacion: (comercial.intentosVinculacion || 0) + 1,
-            ultimoIntentoVinculacion: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-          
-          // Crear en users collection
-          await setDoc(doc(db, "users", uid), {
-            ...comercial,
-            uid,
-            id: comercial.id,
-            estadoVinculacion: 'completo',
-            intentosVinculacion: (comercial.intentosVinculacion || 0) + 1,
-            ultimoIntentoVinculacion: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-          
-          toast.success("Comercial vinculado correctamente con nueva cuenta de Firebase Auth");
-          await loadComercialesData();
-          return true;
-        } catch (err: any) {
-          console.error("Error creando cuenta en Auth:", err);
-          
-          // Actualizar el intento en Firestore
-          await updateDoc(doc(db, "usuarios", id), {
-            estadoVinculacion: 'sin_vincular',
-            intentosVinculacion: (comercial.intentosVinculacion || 0) + 1,
-            ultimoIntentoVinculacion: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-          
-          toast.error(`Error al crear cuenta: ${err.message}`);
-          await loadComercialesData();
-          return false;
-        }
-      } else {
-        // Si ya existe, intentamos iniciar sesión
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, comercial.email, password);
-          const uid = userCredential.user.uid;
-          
-          // Actualizar en Firestore
-          await updateDoc(doc(db, "usuarios", id), {
-            uid,
-            estadoVinculacion: 'completo',
-            intentosVinculacion: (comercial.intentosVinculacion || 0) + 1,
-            ultimoIntentoVinculacion: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-          
-          // Verificar y actualizar en users collection
-          const userRef = doc(db, "users", uid);
-          const userDoc = await getDoc(userRef);
-          
-          if (!userDoc.exists()) {
-            await setDoc(userRef, {
-              ...comercial,
-              uid,
-              id: comercial.id,
-              estadoVinculacion: 'completo',
-              intentosVinculacion: (comercial.intentosVinculacion || 0) + 1,
-              ultimoIntentoVinculacion: serverTimestamp(),
-              updatedAt: serverTimestamp()
-            });
-          } else {
-            await updateDoc(userRef, {
-              role: "comercial",
-              estadoVinculacion: 'completo',
-              intentosVinculacion: (comercial.intentosVinculacion || 0) + 1,
-              ultimoIntentoVinculacion: serverTimestamp(),
-              updatedAt: serverTimestamp()
-            });
-          }
-          
-          toast.success("Comercial vinculado correctamente con cuenta existente");
-          await loadComercialesData();
-          return true;
-        } catch (err) {
-          console.error("Error al iniciar sesión:", err);
-          
-          // Actualizar el intento en Firestore
-          await updateDoc(doc(db, "usuarios", id), {
-            estadoVinculacion: 'falla_password',
-            intentosVinculacion: (comercial.intentosVinculacion || 0) + 1,
-            ultimoIntentoVinculacion: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-          
-          toast.error("La contraseña no coincide con la cuenta existente");
-          await loadComercialesData();
-          return false;
-        }
-      }
-    } catch (err: any) {
-      console.error("Error vinculando comercial:", err);
-      toast.error(`Error: ${err.message || 'Error desconocido'}`);
-      return false;
     } finally {
       setLoading(false);
     }
@@ -519,8 +351,6 @@ export function useComerciales() {
     updateComercial,
     toggleComercialStatus,
     aprobarComercial,
-    generateUniqueCode,
-    intentarVincularComercial, // Nueva función para vincular comerciales existentes
-    checkEmailExistsInAuth    // Exponer función para verificar email
+    generateUniqueCode
   };
 }
