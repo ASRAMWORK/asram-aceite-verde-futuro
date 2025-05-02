@@ -58,6 +58,9 @@ export interface ComercialUser {
     zonas?: string[];
     [key: string]: any;
   };
+  estadoVinculacion?: 'completo' | 'pendiente' | 'falla_password' | 'sin_vincular';
+  intentosVinculacion?: number;
+  ultimoIntentoVinculacion?: Date;
 }
 
 export interface ProductoServicio {

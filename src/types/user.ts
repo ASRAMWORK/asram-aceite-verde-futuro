@@ -1,3 +1,4 @@
+
 export type UserRole = 
   | 'superadmin' 
   | 'admin' 
@@ -11,6 +12,12 @@ export type UserRole =
   | 'escolar' 
   | 'punto_verde' 
   | 'client';
+
+export type VinculacionAuthEstado = 
+  | 'completo' 
+  | 'pendiente' 
+  | 'falla_password' 
+  | 'sin_vincular';
 
 export interface UserProfile {
   id: string;
@@ -83,6 +90,11 @@ export interface Usuario {
   nombreAdministracion?: string;
   codigo?: string;
   aprobado?: boolean;
+  
+  // Estado de vinculación con Firebase Auth
+  estadoVinculacion?: VinculacionAuthEstado;
+  intentosVinculacion?: number;
+  ultimoIntentoVinculacion?: Date;
   
   // Add missing properties for comercial
   metodoPago?: {
