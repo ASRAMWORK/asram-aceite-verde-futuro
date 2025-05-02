@@ -14,7 +14,7 @@ import type { Usuario } from '@/types';
 import { toast } from '@/components/ui/use-toast';
 import formatDate from './litros-history/DateFormatter';
 import LitrosHistoryTable from './litros-history/LitrosHistoryTable';
-import AddHistoricalCollection from './litros-history/AddHistoricalCollection';
+import AddHistoricalRecogidaForm from './litros-history/AddHistoricalRecogidaForm';
 import RecogidaClienteButton from './RecogidaClienteButton';
 
 interface ClienteHistorialRecogidasProps {
@@ -128,9 +128,9 @@ const ClienteHistorialRecogidas: React.FC<ClienteHistorialRecogidasProps> = ({ c
             </div>
             
             <div className="flex space-x-2">
-              <AddHistoricalCollection 
+              <AddHistoricalRecogidaForm 
                 cliente={cliente} 
-                onAddCollection={handleAddHistoricalCollection} 
+                onAddRecogida={handleAddHistoricalCollection} 
               />
               <RecogidaClienteButton 
                 cliente={cliente} 
