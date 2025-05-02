@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Droplet } from "lucide-react";
@@ -46,7 +45,7 @@ const RecogidaClienteButton: React.FC<RecogidaClienteButtonProps> = ({
       
       await addRecogida(recogidaData);
       setIsDialogOpen(false);
-      toast.success(Recogida programada para ${cliente.nombre});
+      toast.success(`Recogida programada para ${cliente.nombre}`);
     } catch (error) {
       console.error("Error al programar recogida:", error);
       toast.error("Error al programar la recogida");

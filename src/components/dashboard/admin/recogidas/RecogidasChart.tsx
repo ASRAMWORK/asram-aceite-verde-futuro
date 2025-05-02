@@ -65,7 +65,7 @@ const RecogidasChart: React.FC<RecogidasChartProps> = ({ data }) => {
         boxPadding: 4,
         callbacks: {
           label: function(context: any) {
-            return ${context.dataset.label}: ${context.raw}L;
+            return `${context.dataset.label}: ${context.raw}L`;
           }
         }
       }
@@ -122,3 +122,5 @@ const RecogidasChart: React.FC<RecogidasChartProps> = ({ data }) => {
     </div>
   );
 };
+
+export default RecogidasChart;
