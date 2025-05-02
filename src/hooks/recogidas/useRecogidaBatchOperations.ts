@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, updateDoc, doc, where, serverTimestamp, addDoc } from 'firebase/firestore';
+import { collection, getDocs, query, updateDoc, doc, where, serverTimestamp, addDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 
@@ -25,8 +25,8 @@ export function useRecogidaBatchOperations() {
       const recogidasSnap = await getDocs(rutaRecogidasQuery);
       
       // Get the route information to link client data
-      const rutaDoc = await doc(db, "rutas", rutaId);
-      const rutaDocSnap = await doc(db, "rutas", rutaId).get();
+      const rutaDocRef = doc(db, "rutas", rutaId);
+      const rutaDocSnap = await getDoc(rutaDocRef);
       
       if (!rutaDocSnap.exists()) {
         console.error("La ruta no existe");
