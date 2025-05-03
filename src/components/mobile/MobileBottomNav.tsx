@@ -6,6 +6,7 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  active?: boolean;
 }
 
 interface MobileBottomNavProps {
@@ -25,13 +26,13 @@ export const MobileBottomNav = ({ items }: MobileBottomNavProps) => {
             key={index}
             to={item.href}
             className={`flex flex-col items-center justify-center w-full h-full text-xs ${
-              location.pathname === item.href
+              item.active || location.pathname === item.href
                 ? "text-[#ee970d]"
                 : "text-gray-600"
             }`}
           >
             {React.cloneElement(item.icon as React.ReactElement, { 
-              className: `h-5 w-5 ${location.pathname === item.href ? "text-[#ee970d]" : "text-gray-600"}` 
+              className: `h-5 w-5 ${item.active || location.pathname === item.href ? "text-[#ee970d]" : "text-gray-600"}` 
             })}
             <span className="mt-1">{item.label}</span>
           </Link>
