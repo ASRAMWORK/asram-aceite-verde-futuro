@@ -22,6 +22,7 @@ export function useClientesRanking(recogidas: Recogida[]) {
   const [distritoRankings, setDistritoRankings] = useState<{[key: string]: ClienteRanking[]}>({});
   const [tipoClienteRankings, setTipoClienteRankings] = useState<{[key: string]: ClienteRanking[]}>({});
   const [previousRanking, setPreviousRanking] = useState<{[key: string]: number}>({});
+  const [excludedClientes, setExcludedClientes] = useState<string[]>([]);
   
   useEffect(() => {
     if (!recogidas.length) return;
@@ -38,6 +39,9 @@ export function useClientesRanking(recogidas: Recogida[]) {
     
     recogidas.forEach(recogida => {
       if (!recogida.clienteId || recogida.litrosRecogidos === undefined) return;
+      
+      // Skip excluded clients
+      if (excludedClientes.includes(recogida.clienteId)) return;
       
       // Inicializar cliente si no existe en el mapa
       if (!clientesMap[recogida.clienteId]) {
@@ -122,12 +126,18 @@ export function useClientesRanking(recogidas: Recogida[]) {
     
     setTipoClienteRankings(tiposCliente);
     
-  }, [recogidas]);
+  }, [recogidas, excludedClientes]);
+
+  // Function to exclude a client from rankings
+  const excludeCliente = async (clienteId: string) => {
+    setExcludedClientes(prev => [...prev, clienteId]);
+  };
 
   return {
     clientesRanking,
     distritoRankings,
-    tipoClienteRankings
+    tipoClienteRankings,
+    excludeCliente
   };
 }
 

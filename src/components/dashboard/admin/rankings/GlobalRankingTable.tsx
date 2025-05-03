@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Trophy, Medal, Award, ArrowUp, ArrowDown } from "lucide-react";
+import { Eye, Trophy, Medal, Award, ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import type { ClienteRanking } from '@/hooks/useClientesRanking';
 import { 
@@ -19,17 +19,31 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface GlobalRankingTableProps {
   clientes: ClienteRanking[];
   limit?: number;
   sortOrder?: "asc" | "desc";
+  onDeleteCliente?: (clienteId: string) => Promise<void>;
 }
 
 const GlobalRankingTable: React.FC<GlobalRankingTableProps> = ({ 
   clientes, 
   limit = 10, 
-  sortOrder = "desc" 
+  sortOrder = "desc",
+  onDeleteCliente
 }) => {
   const navigate = useNavigate();
   
@@ -42,6 +56,18 @@ const GlobalRankingTable: React.FC<GlobalRankingTableProps> = ({
 
   const handleVerHistorial = (clienteId: string) => {
     navigate(`/admin/clientes/${clienteId}`);
+  };
+
+  const handleDeleteCliente = async (clienteId: string) => {
+    try {
+      if (onDeleteCliente) {
+        await onDeleteCliente(clienteId);
+        toast.success("Cliente eliminado del ranking correctamente");
+      }
+    } catch (error) {
+      console.error("Error eliminando cliente del ranking:", error);
+      toast.error("Error al eliminar el cliente del ranking");
+    }
   };
 
   // Function to render rank badge with appropriate styling
@@ -102,7 +128,7 @@ const GlobalRankingTable: React.FC<GlobalRankingTableProps> = ({
             <TableHead className="font-medium">Tipo</TableHead>
             <TableHead className="text-right font-medium">Recogidas</TableHead>
             <TableHead className="text-right font-medium">Litros</TableHead>
-            <TableHead className="text-right font-medium w-32">Acciones</TableHead>
+            <TableHead className="text-right font-medium w-40">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -143,24 +169,66 @@ const GlobalRankingTable: React.FC<GlobalRankingTableProps> = ({
                   <div className="font-medium font-mono">{cliente.litrosTotales.toFixed(1)} L</div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleVerHistorial(cliente.id)}
-                          className="ml-auto bg-white hover:bg-amber-50 hover:text-amber-700 border-amber-200"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Ver
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Ver historial de recogidas</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div className="flex justify-end gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleVerHistorial(cliente.id)}
+                            className="bg-white hover:bg-amber-50 hover:text-amber-700 border-amber-200"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Ver historial de recogidas</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    {onDeleteCliente && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-white hover:bg-red-50 hover:text-red-700 border-red-200"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Eliminar del ranking</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Eliminar cliente del ranking</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              ¿Está seguro de que desea eliminar a <span className="font-semibold">{cliente.nombre}</span> del ranking? 
+                              Esta acción no elimina al cliente del sistema, solo lo remove del ranking.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDeleteCliente(cliente.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Eliminar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))

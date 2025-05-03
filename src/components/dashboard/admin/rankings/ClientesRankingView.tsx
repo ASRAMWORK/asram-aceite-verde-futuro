@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface ClientesRankingViewProps {
   adminId: string;
@@ -25,13 +26,23 @@ interface ClientesRankingViewProps {
 
 const ClientesRankingView: React.FC<ClientesRankingViewProps> = ({ adminId }) => {
   const { recogidas } = useRecogidas();
-  const { clientesRanking, distritoRankings, tipoClienteRankings } = useClientesRanking(recogidas);
+  const { clientesRanking, distritoRankings, tipoClienteRankings, excludeCliente } = useClientesRanking(recogidas);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [limitCount, setLimitCount] = useState<number>(10);
   
   const totalLitros = clientesRanking.reduce((sum, cliente) => sum + cliente.litrosTotales, 0);
   const totalClientes = clientesRanking.length;
   const promedioLitros = totalClientes > 0 ? totalLitros / totalClientes : 0;
+
+  const handleDeleteCliente = async (clienteId: string) => {
+    try {
+      await excludeCliente(clienteId);
+      toast.success("Cliente eliminado del ranking correctamente");
+    } catch (error) {
+      console.error("Error eliminando cliente del ranking:", error);
+      toast.error("Error al eliminar el cliente del ranking");
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -161,6 +172,7 @@ const ClientesRankingView: React.FC<ClientesRankingViewProps> = ({ adminId }) =>
                   clientes={clientesRanking} 
                   limit={limitCount} 
                   sortOrder={sortOrder}
+                  onDeleteCliente={handleDeleteCliente}
                 />
               </CardContent>
             </Card>
