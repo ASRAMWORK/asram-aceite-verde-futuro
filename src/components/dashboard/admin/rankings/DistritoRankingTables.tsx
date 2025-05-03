@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ClienteRanking } from '@/hooks/useClientesRanking';
 import { 
@@ -37,7 +36,7 @@ const DistritoRankingTables: React.FC<DistritoRankingTablesProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleVerHistorial = (clienteId: string) => {
-    navigate(`/admin/clientes/${clienteId}`);
+    navigate(`/admin/clientes/historial/${clienteId}`);
   };
 
   // Filter districts by search term

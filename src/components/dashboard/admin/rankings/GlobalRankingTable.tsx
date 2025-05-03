@@ -55,7 +55,8 @@ const GlobalRankingTable: React.FC<GlobalRankingTableProps> = ({
   }).slice(0, limit);
 
   const handleVerHistorial = (clienteId: string) => {
-    navigate(`/admin/clientes/${clienteId}`);
+    // Fix the navigation path to match the existing route structure
+    navigate(`/admin/clientes/historial/${clienteId}`);
   };
 
   const handleDeleteCliente = async (clienteId: string) => {

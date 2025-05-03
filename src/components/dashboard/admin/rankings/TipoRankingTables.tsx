@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ClienteRanking } from '@/hooks/useClientesRanking';
 import { 
@@ -37,7 +36,7 @@ const TipoRankingTables: React.FC<TipoRankingTablesProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleVerHistorial = (clienteId: string) => {
-    navigate(`/admin/clientes/${clienteId}`);
+    navigate(`/admin/clientes/historial/${clienteId}`);
   };
 
   // Filter types by search term
