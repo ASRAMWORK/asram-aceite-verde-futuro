@@ -10,13 +10,11 @@ export const AdminMobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Determinar qué tab está activo basado en el query param
   const getActiveTab = () => {
     const searchParams = new URLSearchParams(location.search);
     return searchParams.get('tab') || 'panel-control';
   };
   
-  // Función para cambiar de pestaña
   const handleTabChange = (tab?: string) => {
     if (!tab) {
       navigate('/admin/dashboard');
@@ -60,7 +58,7 @@ export const AdminMobileBottomNav = () => {
       icon: <Menu />,
       active: false,
       onClick: () => {
-        // Aquí se puede abrir un modal o drawer con más opciones
+        // Trigger mobile menu button click
         const mobileNavButton = document.querySelector('[aria-label="Toggle mobile menu"]');
         if (mobileNavButton instanceof HTMLButtonElement) {
           mobileNavButton.click();
@@ -73,5 +71,5 @@ export const AdminMobileBottomNav = () => {
     return null;
   }
   
-  return <MobileBottomNav items={navigationItems} />;
+  return null; // We're not using bottom nav anymore, but keeping component for backward compatibility
 };

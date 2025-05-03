@@ -53,6 +53,7 @@ import AdministradoresManagement from "@/components/dashboard/admin/administrado
 import ComunidadesViviendas from "@/components/dashboard/admin/administradores/ComunidadesViviendas";
 import { MobileNavigation } from '@/components/mobile/MobileNavigation';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useMobileStyles } from '@/utils/mobileStyles';
 
 const AdminDashboardPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,6 +63,7 @@ const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const location = useLocation();
+  const { touchTarget, padding } = useMobileStyles();
 
   // Update state when URL changes
   useEffect(() => {
@@ -133,6 +135,11 @@ const AdminDashboardPage = () => {
   // Función para manejar cambios de tab
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    
+    // On mobile, scroll to top after tab change for better UX
+    if (isMobile) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   if (loading) {
@@ -150,130 +157,152 @@ const AdminDashboardPage = () => {
         label: "Panel de Control",
         href: "/admin/dashboard",
         icon: <Activity className="h-5 w-5" />,
-        onClick: () => handleTabChange("panel-control")
+        onClick: () => handleTabChange("panel-control"),
+        active: activeTab === "panel-control"
       },
       {
         label: "Gestión de Clientes",
         href: "/admin/dashboard?tab=gestion-clientes",
         icon: <Users className="h-5 w-5" />,
-        onClick: () => handleTabChange("gestion-clientes")
+        onClick: () => handleTabChange("gestion-clientes"),
+        active: activeTab === "gestion-clientes"
       },
       {
         label: "Ranking Clientes",
         href: "/admin/dashboard?tab=ranking",
         icon: <Trophy className="h-5 w-5" />,
-        onClick: () => handleTabChange("ranking")
+        onClick: () => handleTabChange("ranking"),
+        active: activeTab === "ranking"
       },
       {
         label: "Gestión de Recogidas",
         href: "/admin/dashboard?tab=gestion-recogidas",
         icon: <Truck className="h-5 w-5" />,
-        onClick: () => handleTabChange("gestion-recogidas")
+        onClick: () => handleTabChange("gestion-recogidas"),
+        active: activeTab === "gestion-recogidas"
       },
       {
         label: "Retiradas de Contenedores",
         href: "/admin/dashboard?tab=gestion-retiradas",
         icon: <Container className="h-5 w-5" />,
-        onClick: () => handleTabChange("gestion-retiradas")
+        onClick: () => handleTabChange("gestion-retiradas"),
+        active: activeTab === "gestion-retiradas"
       },
       {
         label: "Rutas por Distritos",
         href: "/admin/dashboard?tab=rutas-distritos",
         icon: <MapPin className="h-5 w-5" />,
-        onClick: () => handleTabChange("rutas-distritos")
+        onClick: () => handleTabChange("rutas-distritos"),
+        active: activeTab === "rutas-distritos"
       },
       {
         label: "Instalaciones",
         href: "/admin/dashboard?tab=instalaciones",
         icon: <Building className="h-5 w-5" />,
-        onClick: () => handleTabChange("instalaciones")
+        onClick: () => handleTabChange("instalaciones"),
+        active: activeTab === "instalaciones"
       },
       {
         label: "Trabajadores",
         href: "/admin/dashboard?tab=trabajadores",
         icon: <Briefcase className="h-5 w-5" />,
-        onClick: () => handleTabChange("trabajadores")
+        onClick: () => handleTabChange("trabajadores"),
+        active: activeTab === "trabajadores"
       },
       {
         label: "Gestión Voluntarios",
         href: "/admin/dashboard?tab=voluntarios",
         icon: <User className="h-5 w-5" />,
-        onClick: () => handleTabChange("voluntarios")
+        onClick: () => handleTabChange("voluntarios"),
+        active: activeTab === "voluntarios"
       },
       {
         label: "Simulador Impacto",
         href: "/admin/dashboard?tab=simulador",
         icon: <Calculator className="h-5 w-5" />,
-        onClick: () => handleTabChange("simulador")
+        onClick: () => handleTabChange("simulador"),
+        active: activeTab === "simulador"
       },
       {
         label: "Facturación",
         href: "/admin/dashboard?tab=facturacion",
         icon: <Receipt className="h-5 w-5" />,
-        onClick: () => handleTabChange("facturacion")
+        onClick: () => handleTabChange("facturacion"),
+        active: activeTab === "facturacion"
       },
       {
         label: "Alianza Escolar",
         href: "/admin/dashboard?tab=alianza-escolar",
         icon: <GraduationCap className="h-5 w-5" />,
-        onClick: () => handleTabChange("alianza-escolar")
+        onClick: () => handleTabChange("alianza-escolar"),
+        active: activeTab === "alianza-escolar"
       },
       {
         label: "Calles Apadrinadas",
         href: "/admin/dashboard?tab=calles-apadrinadas",
         icon: <MapPin className="h-5 w-5" />,
-        onClick: () => handleTabChange("calles-apadrinadas")
+        onClick: () => handleTabChange("calles-apadrinadas"),
+        active: activeTab === "calles-apadrinadas"
       },
       {
         label: "Puntos Verdes",
         href: "/admin/dashboard?tab=puntos-verdes",
         icon: <MapPin className="h-5 w-5" />,
-        onClick: () => handleTabChange("puntos-verdes")
+        onClick: () => handleTabChange("puntos-verdes"),
+        active: activeTab === "puntos-verdes"
       },
       {
         label: "Tienda",
         href: "/admin/dashboard?tab=tienda",
         icon: <ShoppingCart className="h-5 w-5" />,
-        onClick: () => handleTabChange("tienda")
+        onClick: () => handleTabChange("tienda"),
+        active: activeTab === "tienda"
       },
       {
         label: "Mi Sitio Web",
         href: "/admin/dashboard?tab=mi-sitio-web",
         icon: <Globe className="h-5 w-5" />,
-        onClick: () => handleTabChange("mi-sitio-web")
+        onClick: () => handleTabChange("mi-sitio-web"),
+        active: activeTab === "mi-sitio-web"
       },
       {
         label: "Gestión Administradores",
         href: "/admin/dashboard?tab=administradores-management",
         icon: <UserCog className="h-5 w-5" />,
-        onClick: () => handleTabChange("administradores-management")
+        onClick: () => handleTabChange("administradores-management"),
+        active: activeTab === "administradores-management"
       },
       {
         label: "Comunidades y Viviendas",
         href: "/admin/dashboard?tab=comunidades-viviendas",
         icon: <Building className="h-5 w-5" />,
-        onClick: () => handleTabChange("comunidades-viviendas")
+        onClick: () => handleTabChange("comunidades-viviendas"),
+        active: activeTab === "comunidades-viviendas"
       },
       {
         label: "Comerciales",
         href: "/admin/dashboard?tab=comerciales",
         icon: <User className="h-5 w-5" />,
-        onClick: () => handleTabChange("comerciales")
+        onClick: () => handleTabChange("comerciales"),
+        active: activeTab === "comerciales"
       },
       {
         label: "Control de Inventario",
         href: "/admin/dashboard?tab=inventario",
         icon: <Box className="h-5 w-5" />,
-        onClick: () => handleTabChange("inventario")
+        onClick: () => handleTabChange("inventario"),
+        active: activeTab === "inventario"
       },
       {
         label: "Reuniones y Eventos",
         href: "/admin/dashboard?tab=reuniones",
         icon: <CalendarDays className="h-5 w-5" />,
-        onClick: () => handleTabChange("reuniones")
+        onClick: () => handleTabChange("reuniones"),
+        active: activeTab === "reuniones"
       },
       {
         label: "Cerrar sesión",
+        href: "/login",
         onClick: handleSignOut,
         icon: <User className="h-5 w-5 text-red-500" />,
       }
@@ -588,20 +617,28 @@ const AdminDashboardPage = () => {
       
       <div className="flex-1 overflow-auto">
         <header className="bg-white border-b sticky top-0 z-10">
-          <div className="container flex items-center justify-between h-16 px-4">
+          <div className="container flex items-center justify-between h-16 px-4 md:px-6">
             {isMobile && (
               <MobileNavigation 
                 items={generateMobileNavItems()} 
                 title="ASRAM Admin" 
                 logoComponent={
-                  <div className="rounded-full bg-[#ee970d] w-10 h-10 flex items-center justify-center text-white font-bold">
+                  <div className="rounded-full bg-[#ee970d] w-10 h-10 flex items-center justify-center text-white font-bold text-lg">
                     A
                   </div>
                 }
               />
             )}
             
-            <h2 className="text-lg font-medium md:hidden">ASRAM Admin</h2>
+            <h2 className="text-lg font-medium md:hidden">
+              {activeTab === "panel-control" ? "Panel Principal" : 
+               activeTab === "gestion-clientes" ? "Gestión Clientes" :
+               activeTab === "gestion-recogidas" ? "Recogidas" :
+               activeTab === "facturacion" ? "Facturación" :
+               activeTab === "trabajadores" ? "Trabajadores" :
+               // Add more cases for commonly used tabs for better mobile UX
+               activeTab.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            </h2>
             
             <div className="flex items-center gap-4 ml-auto">
               <span className="text-sm text-muted-foreground hidden md:inline-block">
@@ -609,7 +646,7 @@ const AdminDashboardPage = () => {
               </span>
               <Button
                 variant="ghost"
-                className="md:hidden min-h-[44px]"
+                className={`md:hidden ${touchTarget}`}
                 onClick={handleSignOut}
               >
                 Salir
@@ -618,7 +655,7 @@ const AdminDashboardPage = () => {
           </div>
         </header>
         
-        <main className="container py-8 px-4 mb-20 md:mb-0">
+        <main className={`container py-6 px-4 mb-0 ${isMobile ? 'pb-6' : ''}`}>
           {renderContent()}
         </main>
       </div>
