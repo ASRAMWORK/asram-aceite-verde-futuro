@@ -41,7 +41,9 @@ import {
   Box,
   CalendarDays,
   Trophy,
-  UserCog
+  UserCog,
+  Menu, // Added missing Menu import
+  Calendar // Added missing Calendar import
 } from "lucide-react";
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
