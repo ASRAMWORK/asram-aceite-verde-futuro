@@ -47,7 +47,8 @@ import {
   Route as RouteIcon,
   Eye,
   Check,
-  AlertTriangle
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
 import { useRecogidas } from '@/hooks/useRecogidas';
 import { useRutas } from '@/hooks/useRutas';
@@ -64,12 +65,13 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRutaId, setSelectedRutaId] = useState<string | null>(null);
   const [completingRutaId, setCompletingRutaId] = useState<string | null>(null);
+  const [deletingRutaId, setDeletingRutaId] = useState<string | null>(null);
   const [clientesLitros, setClientesLitros] = useState<Record<string, number>>({});
   const [showDetallesDialog, setShowDetallesDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('pendientes');
 
   const { updateRutaRecogida, updateRecogida, completarRecogidasRuta } = useRecogidas();
-  const { completeRuta } = useRutas();
+  const { completeRuta, deleteRuta } = useRutas();
 
   // Get the selected ruta
   const selectedRuta = selectedRutaId ? rutas.find(r => r.id === selectedRutaId) : null;
@@ -110,6 +112,24 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
 
   const handleCompleteRuta = (rutaId: string) => {
     setCompletingRutaId(rutaId);
+  };
+
+  const handleDeleteRuta = (rutaId: string) => {
+    setDeletingRutaId(rutaId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingRutaId) return;
+    
+    try {
+      await deleteRuta(deletingRutaId);
+      toast.success('Ruta eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar la ruta:', error);
+      toast.error('Error al eliminar la ruta');
+    }
+    
+    setDeletingRutaId(null);
   };
 
   const handleConfirmComplete = async () => {
@@ -322,12 +342,21 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Button 
-                                onClick={() => handleSelectRuta(ruta.id)}
-                                className="bg-[#EE970D] hover:bg-[#DB8B0C] text-white"
-                              >
-                                Gestionar Recogida
-                              </Button>
+                              <div className="flex items-center gap-2">
+                                <Button 
+                                  onClick={() => handleSelectRuta(ruta.id)}
+                                  className="bg-[#EE970D] hover:bg-[#DB8B0C] text-white"
+                                >
+                                  Gestionar Recogida
+                                </Button>
+                                <Button 
+                                  variant="outline"
+                                  onClick={() => handleDeleteRuta(ruta.id)}
+                                  className="border-red-200 text-red-600 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))
@@ -428,6 +457,32 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
               className="bg-[#EE970D] hover:bg-[#DB8B0C] text-white"
             >
               Completar Ruta
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Ruta Alert Dialog */}
+      <AlertDialog open={!!deletingRutaId} onOpenChange={(open) => !open && setDeletingRutaId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-red-500" />
+              Eliminar Ruta
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Está seguro de que desea eliminar esta ruta? 
+              Esta acción no se puede deshacer y eliminará todos los datos asociados a esta ruta.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Eliminar Ruta
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
