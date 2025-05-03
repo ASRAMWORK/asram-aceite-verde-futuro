@@ -2,22 +2,17 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Droplet, Edit, Trash2 } from 'lucide-react';
+import { Droplet } from 'lucide-react';
 import formatDate from './DateFormatter';
-import { Button } from '@/components/ui/button';
 
 interface HistorialRecogidasTableProps {
   recogidasCliente: any[];
   direccionCliente?: string;
-  onDeleteRecogida?: (recogidaId: string) => void;
-  onEditRecogida?: (recogida: any) => void;
 }
 
 const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({ 
   recogidasCliente,
-  direccionCliente,
-  onDeleteRecogida,
-  onEditRecogida
+  direccionCliente
 }) => {
   // Safety check to ensure recogidasCliente is an array
   const validRecogidas = Array.isArray(recogidasCliente) ? recogidasCliente : [];
@@ -38,7 +33,6 @@ const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({
     if (!dateA) return 1;
     if (!dateB) return -1;
     
-    // Make sure that dateA and dateB are proper Date objects before calling getTime()
     const timeA = dateA instanceof Date ? dateA.getTime() : new Date(dateA).getTime();
     const timeB = dateB instanceof Date ? dateB.getTime() : new Date(dateB).getTime();
     
@@ -54,7 +48,6 @@ const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({
           <TableHead>Origen</TableHead>
           <TableHead className="text-right">Litros</TableHead>
           <TableHead className="text-right">Estado</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -78,30 +71,6 @@ const HistorialRecogidasTable: React.FC<HistorialRecogidasTableProps> = ({
               >
                 {recogida.completada || recogida.estadoRecogida === "completada" ? "Completada" : "Pendiente"}
               </Badge>
-            </TableCell>
-            <TableCell className="text-right">
-              <div className="flex justify-end gap-2">
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                  onClick={() => onEditRecogida && onEditRecogida(recogida)}
-                  disabled={!onEditRecogida}
-                >
-                  <Edit className="h-4 w-4" />
-                  <span className="sr-only">Editar</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={() => onDeleteRecogida && onDeleteRecogida(recogida.id)}
-                  disabled={!onDeleteRecogida}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="sr-only">Eliminar</span>
-                </Button>
-              </div>
             </TableCell>
           </TableRow>
         ))}
