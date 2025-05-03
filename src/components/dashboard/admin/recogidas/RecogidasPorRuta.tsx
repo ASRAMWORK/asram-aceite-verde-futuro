@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -71,7 +70,7 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
   const [activeTab, setActiveTab] = useState('pendientes');
 
   const { updateRutaRecogida, updateRecogida, completarRecogidasRuta } = useRecogidas();
-  const { completeRuta, deleteRuta } = useRutas();
+  const { completeRuta, deleteRuta, addRecogida } = useRutas();
 
   // Get the selected ruta
   const selectedRuta = selectedRutaId ? rutas.find(r => r.id === selectedRutaId) : null;
@@ -141,26 +140,57 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
       return;
     }
 
-    // Update each client's liters in the route
-    const updatePromises = Object.entries(clientesLitros).map(([clienteId, litros]) => 
-      updateRutaRecogida(completingRutaId, clienteId, litros)
-    );
-    
-    // Wait for all updates to complete
-    await Promise.all(updatePromises);
-    
-    // Calculate total liters collected
-    const totalLitros = Object.values(clientesLitros).reduce((sum, litros) => sum + litros, 0);
-    
-    // Mark the route as complete
-    await completeRuta(completingRutaId, totalLitros);
-    
-    // Mark all recogidas in this route as complete
-    await completarRecogidasRuta(completingRutaId);
-    
-    setCompletingRutaId(null);
-    setSelectedRutaId(null);
-    toast.success('Ruta completada correctamente');
+    try {
+      // Update each client's liters in the route
+      const updatePromises = Object.entries(clientesLitros).map(([clienteId, litros]) => 
+        updateRutaRecogida(completingRutaId, clienteId, litros)
+      );
+      
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+      
+      // Calculate total liters collected
+      const totalLitros = Object.values(clientesLitros).reduce((sum, litros) => sum + litros, 0);
+      
+      // Mark the route as complete
+      await completeRuta(completingRutaId, totalLitros);
+      
+      // Mark all recogidas in this route as complete and add to client history
+      await completarRecogidasRuta(completingRutaId);
+      
+      // Add recogidas to client history
+      const historicalPromises = ruta.clientes.map(cliente => {
+        const litros = clientesLitros[cliente.id] || 0;
+        if (litros > 0) {
+          return addRecogida({
+            clienteId: cliente.id,
+            fecha: new Date(),
+            fechaRecogida: new Date(),
+            litrosRecogidos: litros,
+            completada: true,
+            estadoRecogida: "completada",
+            direccion: cliente.direccion,
+            nombreContacto: cliente.nombre,
+            distrito: cliente.distrito || ruta.distrito,
+            barrio: cliente.barrio,
+            rutaId: completingRutaId,
+            esRecogidaZona: true,
+            fechaCompletada: new Date(),
+          });
+        }
+        return Promise.resolve(true);
+      });
+      
+      await Promise.all(historicalPromises);
+      
+      setCompletingRutaId(null);
+      setSelectedRutaId(null);
+      toast.success('Ruta completada correctamente');
+    } catch (error) {
+      console.error("Error al completar la ruta:", error);
+      toast.error('Error al completar la ruta');
+      setCompletingRutaId(null);
+    }
   };
 
   // Format date helper function

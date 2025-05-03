@@ -65,21 +65,48 @@ export function useRecogidas() {
 
   const addRecogida = async (nuevaRecogida: Partial<Omit<Recogida, "id">>) => {
     try {
+      // Si es una recogida de ruta, verificamos si ya existe una recogida para este cliente en esta ruta
+      // para evitar duplicados cuando se completa una ruta
+      if (nuevaRecogida.rutaId && nuevaRecogida.clienteId && nuevaRecogida.esRecogidaZona) {
+        const existingRecogidas = recogidas.filter(r => 
+          r.rutaId === nuevaRecogida.rutaId && 
+          r.clienteId === nuevaRecogida.clienteId &&
+          r.fecha && nuevaRecogida.fecha &&
+          r.fecha.toDateString() === nuevaRecogida.fecha.toDateString()
+        );
+        
+        // Si ya existe una recogida para este cliente en esta ruta en la misma fecha, actualizamos en lugar de crear
+        if (existingRecogidas.length > 0) {
+          const existingId = existingRecogidas[0].id;
+          await updateDoc(doc(db, "recogidas", existingId), {
+            litrosRecogidos: nuevaRecogida.litrosRecogidos,
+            estadoRecogida: "completada",
+            completada: true,
+            fechaCompletada: nuevaRecogida.fechaCompletada || new Date(),
+            updatedAt: serverTimestamp()
+          });
+          
+          await loadRecogidasData(); // Recargar datos
+          return true;
+        }
+      }
+      
       const recogidaData = {
         ...nuevaRecogida,
         estadoRecogida: nuevaRecogida.estadoRecogida || "pendiente",
         fechaRecogida: nuevaRecogida.fechaRecogida || nuevaRecogida.fecha || new Date(),
         fecha: nuevaRecogida.fecha || nuevaRecogida.fechaRecogida || new Date(),
-        completada: false,
+        completada: nuevaRecogida.completada ?? false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
       
       await addDoc(collection(db, "recogidas"), recogidaData);
       
-      if (!nuevaRecogida.esRecogidaZona) {
+      if (!nuevaRecogida.esRecogidaZona && !nuevaRecogida.esHistorico) {
         toast.success("Recogida programada correctamente");
       }
+      
       await loadRecogidasData();
       return true;
     } catch (err) {
