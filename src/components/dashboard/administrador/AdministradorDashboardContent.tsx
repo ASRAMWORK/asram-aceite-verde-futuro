@@ -6,7 +6,6 @@ import GestionarComunidad from "./GestionarComunidad";
 import InformesPanel from "./informes/InformesPanel";
 import AdministradorEstadisticas from "./estadisticas/AdministradorEstadisticas";
 import AdministradorPerfil from "./perfil/AdministradorPerfil";
-import ClienteRankingWrapper from "../admin/rankings/ClienteRankingWrapper";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -36,9 +35,6 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
       
       case "estadisticas":
         return <AdministradorEstadisticas />;
-      
-      case "ranking":
-        return <ClienteRankingWrapper adminId={adminId} />;
       
       case "perfil":
         return <AdministradorPerfil />;

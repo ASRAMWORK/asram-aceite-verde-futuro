@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
@@ -67,7 +66,6 @@ const AdministradorDashboardPage = () => {
       case "informes": tabValue = "informes"; break;
       case "estadisticas": tabValue = "estadisticas"; break;
       case "perfil": tabValue = "perfil"; break;
-      case "ranking": tabValue = "ranking"; break;
       default: tabValue = "home";
     }
     setActiveTab(tabValue);
@@ -79,7 +77,6 @@ const AdministradorDashboardPage = () => {
     { label: "Añadir Comunidad", href: "#gestionar", icon: <PlusCircle className="h-5 w-5" />, onClick: () => handleTabChange("gestionar") },
     { label: "Informes y Contratos", href: "#informes", icon: <FileText className="h-5 w-5" />, onClick: () => handleTabChange("informes") },
     { label: "Estadísticas", href: "#estadisticas", icon: <BarChart className="h-5 w-5" />, onClick: () => handleTabChange("estadisticas") },
-    { label: "Ranking Clientes", href: "#ranking", icon: <Trophy className="h-5 w-5" />, onClick: () => handleTabChange("ranking") },
     { label: "Mi perfil", href: "#perfil", icon: <User className="h-5 w-5" />, onClick: () => handleTabChange("perfil") }
   ];
 
