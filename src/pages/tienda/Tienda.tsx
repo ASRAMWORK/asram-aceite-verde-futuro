@@ -12,19 +12,19 @@ import UnsplashImage from '@/components/common/UnsplashImage';
 const productos = [
   {
     id: 1,
-    nombre: "Kit de reciclaje doméstico",
-    descripcion: "Todo lo necesario para empezar a reciclar aceite en casa",
-    precio: 24.99,
-    imagen: "https://via.placeholder.com/300x200",
+    nombre: "Kit para fabricar velas infinitas",
+    descripcion: "Todo lo necesario para un corte de luz",
+    precio: 19.99,
+    imagen: "klc04-mysdv.webp",
     categoria: "productos",
     stripeLink: "https://buy.stripe.com/test_fZebKH5WGdmm9pu3cf"
   },
   {
     id: 2,
-    nombre: "Embudo con filtro",
-    descripcion: "Accesorio para facilitar el vertido del aceite usado",
-    precio: 8.99,
-    imagen: "https://via.placeholder.com/300x200",
+    nombre: "Contenedor de Reciclaje, varios colores",
+    descripcion: "Accesorio para facilitar el reciclaje en el hogar",
+    precio: 29.99,
+    imagen: "q3xya-cpugq.webp",
     categoria: "productos",
     stripeLink: "https://buy.stripe.com/test_7sI8yv84O0zA7hm004"
   },
@@ -32,8 +32,8 @@ const productos = [
     id: 3,
     nombre: "Detergente ecológico ASRAM",
     descripcion: "Elaborado a partir de aceite reciclado",
-    precio: 12.50,
-    imagen: "https://via.placeholder.com/300x200",
+    precio: 19.99,
+    imagen: "9ncwl-wk3my.webp",
     categoria: "productos",
     stripeLink: "https://buy.stripe.com/test_14kcOLdp86XY316dQV"
   }
@@ -43,21 +43,21 @@ const formaciones = [
   {
     id: 1,
     nombre: "Curso online: Economía circular",
-    descripcion: "Fundamentos teóricos y casos prácticos. 10 horas de formación.",
+    descripcion: "Fundamentos teóricos y casos prácticos. 40 horas de formación.",
     precio: 49.99,
-    imagen: "https://via.placeholder.com/300x200",
+    imagen: "yz1x8-x3vw0.webp",
     categoria: "formaciones",
-    fechaInicio: "15 de mayo",
+    fechaInicio: "CONTINUO",
     stripeLink: "https://buy.stripe.com/test_3csaGD2Ku96645acMT"
   },
   {
     id: 2,
     nombre: "Taller: Elaboración de jabón casero",
-    descripcion: "Aprende a crear tus propios productos de limpieza sostenibles",
-    precio: 35.00,
-    imagen: "https://via.placeholder.com/300x200",
+    descripcion: "Aprende a crear tus propios productos de limpieza sostenibles. Se aplica precio por participante maximo 40 personas",
+    precio: 9.99,
+    imagen: "9hixf-y026j.webp",
     categoria: "formaciones",
-    fechaInicio: "22 de mayo",
+    fechaInicio: "CONTINUO",
     stripeLink: "https://buy.stripe.com/test_aEUcOLfxg8229pueV2"
   }
 ];
@@ -68,21 +68,21 @@ const talleres = [
     nombre: "Taller infantil: Pequeños recicladores",
     descripcion: "Actividad para niños de 6-12 años. Duración: 2 horas.",
     precio: 15.00,
-    imagen: "https://via.placeholder.com/300x200",
+    imagen: "fdsip-6x4jd.webp",
     categoria: "talleres",
-    fechaInicio: "5 de junio",
-    lugar: "Centro Cultural Las Rozas",
+    fechaInicio: "CONTINUO",
+    lugar: "ONLINE",
     stripeLink: "https://buy.stripe.com/test_dR6aGD1Gq3LMatyeV3"
   },
   {
     id: 2,
     nombre: "Taller familiar: Huerto urbano",
     descripcion: "Aprende a crear tu propio huerto en casa. Para todas las edades.",
-    precio: 25.00,
-    imagen: "https://via.placeholder.com/300x200",
+    precio: 24.99,
+    imagen: "utbhm-olobu.webp",
     categoria: "talleres",
-    fechaInicio: "12 de junio",
-    lugar: "Parque del Retiro",
+    fechaInicio: "CONTINUO",
+    lugar: "ONLINE",
     stripeLink: "https://buy.stripe.com/test_6oE01Zetc966eJO3ci"
   }
 ];
@@ -96,8 +96,8 @@ const eventos = [
     gratuito: true,
     imagen: "https://via.placeholder.com/300x200",
     categoria: "eventos",
-    fechaInicio: "18 de junio",
-    lugar: "Madrid Río"
+    fechaInicio: "CONTINUO",
+    lugar: ""
   },
   {
     id: 2,
