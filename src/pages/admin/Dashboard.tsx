@@ -61,6 +61,17 @@ const AdminDashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const location = useLocation();
+
+  // Update state when URL changes
+  useEffect(() => {
+    const newTab = searchParams.get("tab");
+    if (newTab && newTab !== activeTab) {
+      setActiveTab(newTab);
+    } else if (!newTab && activeTab !== "panel-control") {
+      setActiveTab("panel-control");
+    }
+  }, [searchParams, location.search]);
 
   // Update URL when tab changes
   useEffect(() => {
@@ -74,13 +85,6 @@ const AdminDashboardPage = () => {
       }
     }
   }, [activeTab, searchParams, setSearchParams]);
-
-  // Sync tab from URL
-  useEffect(() => {
-    if (tabFromUrl && tabFromUrl !== activeTab) {
-      setActiveTab(tabFromUrl);
-    }
-  }, [tabFromUrl]);
 
   useEffect(() => {
     const createAdminIfNeeded = async () => {
@@ -126,6 +130,11 @@ const AdminDashboardPage = () => {
     }
   };
 
+  // Función para manejar cambios de tab
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen dash-gradient flex items-center justify-center">
@@ -140,7 +149,8 @@ const AdminDashboardPage = () => {
       {
         label: "Panel",
         href: "/admin/dashboard",
-        icon: <Activity className="h-5 w-5" />
+        icon: <Activity className="h-5 w-5" />,
+        onClick: () => handleTabChange("panel-control")
       },
       {
         label: "Gestión",
@@ -150,22 +160,26 @@ const AdminDashboardPage = () => {
           {
             label: "Clientes",
             href: "/admin/dashboard?tab=gestion-clientes",
-            icon: <Users className="h-5 w-5" />
+            icon: <Users className="h-5 w-5" />,
+            onClick: () => handleTabChange("gestion-clientes")
           },
           {
             label: "Recogidas",
             href: "/admin/dashboard?tab=gestion-recogidas",
-            icon: <CalendarIcon className="h-5 w-5" />
+            icon: <CalendarIcon className="h-5 w-5" />,
+            onClick: () => handleTabChange("gestion-recogidas")
           },
           {
             label: "Retiradas",
             href: "/admin/dashboard?tab=gestion-retiradas",
-            icon: <Container className="h-5 w-5" />
+            icon: <Container className="h-5 w-5" />,
+            onClick: () => handleTabChange("gestion-retiradas")
           },
           {
             label: "Rutas",
             href: "/admin/dashboard?tab=rutas-distritos",
-            icon: <MapPin className="h-5 w-5" />
+            icon: <MapPin className="h-5 w-5" />,
+            onClick: () => handleTabChange("rutas-distritos")
           }
         ]
       },
@@ -287,6 +301,9 @@ const AdminDashboardPage = () => {
         return <AdministradoresManagement />;
       case "comunidades-viviendas":
         return <ComunidadesViviendas />;
+      case "settings":
+        // Podemos implementar una vista de configuración o simplemente mostrar el panel principal
+        return <AdminDashboard />;
       default:
         return <AdminDashboard />;
     }
@@ -569,7 +586,7 @@ const AdminDashboardPage = () => {
               </span>
               <Button
                 variant="ghost"
-                className="md:hidden"
+                className="md:hidden min-h-[44px]"
                 onClick={handleSignOut}
               >
                 Salir

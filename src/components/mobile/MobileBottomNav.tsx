@@ -7,6 +7,7 @@ interface NavItem {
   href: string;
   icon: React.ReactNode;
   active?: boolean;
+  onClick?: () => void;
 }
 
 interface MobileBottomNavProps {
@@ -25,11 +26,17 @@ export const MobileBottomNav = ({ items }: MobileBottomNavProps) => {
           <Link
             key={index}
             to={item.href}
+            onClick={(e) => {
+              if (item.onClick) {
+                e.preventDefault();
+                item.onClick();
+              }
+            }}
             className={`flex flex-col items-center justify-center w-full h-full text-xs ${
               item.active || location.pathname === item.href
                 ? "text-[#ee970d]"
                 : "text-gray-600"
-            }`}
+            } touch-target`}
           >
             {React.cloneElement(item.icon as React.ReactElement, { 
               className: `h-5 w-5 ${item.active || location.pathname === item.href ? "text-[#ee970d]" : "text-gray-600"}` 

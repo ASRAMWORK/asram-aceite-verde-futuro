@@ -3,11 +3,12 @@ import React from 'react';
 import { Activity, Users, CalendarIcon, Settings, Menu } from 'lucide-react';
 import { MobileBottomNav } from './MobileBottomNav';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const AdminMobileBottomNav = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Determinar qué tab está activo basado en el query param
   const getActiveTab = () => {
@@ -15,36 +16,56 @@ export const AdminMobileBottomNav = () => {
     return searchParams.get('tab') || 'panel-control';
   };
   
+  // Función para cambiar de pestaña
+  const handleTabChange = (tab?: string) => {
+    if (!tab) {
+      navigate('/admin/dashboard');
+    } else {
+      navigate(`/admin/dashboard?tab=${tab}`);
+    }
+  };
+  
   const navigationItems = [
     {
       label: "Panel",
       href: "/admin/dashboard",
       icon: <Activity />,
-      active: getActiveTab() === 'panel-control' || !location.search
+      active: getActiveTab() === 'panel-control' || !location.search,
+      onClick: () => handleTabChange()
     },
     {
       label: "Clientes",
       href: "/admin/dashboard?tab=gestion-clientes",
       icon: <Users />,
-      active: getActiveTab() === 'gestion-clientes'
+      active: getActiveTab() === 'gestion-clientes',
+      onClick: () => handleTabChange('gestion-clientes')
     },
     {
       label: "Recogidas",
       href: "/admin/dashboard?tab=gestion-recogidas",
       icon: <CalendarIcon />,
-      active: getActiveTab() === 'gestion-recogidas'
+      active: getActiveTab() === 'gestion-recogidas',
+      onClick: () => handleTabChange('gestion-recogidas')
     },
     {
       label: "Ajustes",
       href: "/admin/dashboard?tab=settings",
       icon: <Settings />,
-      active: getActiveTab() === 'settings'
+      active: getActiveTab() === 'settings',
+      onClick: () => handleTabChange('settings')
     },
     {
       label: "Más",
       href: "#",
       icon: <Menu />,
-      active: false
+      active: false,
+      onClick: () => {
+        // Aquí se puede abrir un modal o drawer con más opciones
+        const mobileNavButton = document.querySelector('[aria-label="Toggle mobile menu"]');
+        if (mobileNavButton instanceof HTMLButtonElement) {
+          mobileNavButton.click();
+        }
+      }
     }
   ];
   
