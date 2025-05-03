@@ -27,8 +27,8 @@ export const MobileBottomNav = ({ items }: MobileBottomNavProps) => {
             key={index}
             to={item.href}
             onClick={(e) => {
+              e.preventDefault(); // Prevenir la navegación predeterminada
               if (item.onClick) {
-                e.preventDefault();
                 item.onClick();
               }
             }}

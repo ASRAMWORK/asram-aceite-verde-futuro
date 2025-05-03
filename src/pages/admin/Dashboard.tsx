@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -51,7 +52,6 @@ import ClienteRankingWrapper from "@/components/dashboard/admin/rankings/Cliente
 import AdministradoresManagement from "@/components/dashboard/admin/administradores/AdministradoresManagement";
 import ComunidadesViviendas from "@/components/dashboard/admin/administradores/ComunidadesViviendas";
 import { MobileNavigation } from '@/components/mobile/MobileNavigation';
-import { AdminMobileBottomNav } from '@/components/mobile/AdminMobileBottomNav';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AdminDashboardPage = () => {
@@ -143,116 +143,139 @@ const AdminDashboardPage = () => {
     );
   }
 
-  // Generate mobile navigation items
+  // Generate mobile navigation items - incluye todas las secciones que están en el sidebar de escritorio
   const generateMobileNavItems = () => {
     return [
       {
-        label: "Panel",
+        label: "Panel de Control",
         href: "/admin/dashboard",
         icon: <Activity className="h-5 w-5" />,
         onClick: () => handleTabChange("panel-control")
       },
       {
-        label: "Gestión",
-        href: "#",
-        icon: <Building className="h-5 w-5" />,
-        subItems: [
-          {
-            label: "Clientes",
-            href: "/admin/dashboard?tab=gestion-clientes",
-            icon: <Users className="h-5 w-5" />,
-            onClick: () => handleTabChange("gestion-clientes")
-          },
-          {
-            label: "Recogidas",
-            href: "/admin/dashboard?tab=gestion-recogidas",
-            icon: <CalendarIcon className="h-5 w-5" />,
-            onClick: () => handleTabChange("gestion-recogidas")
-          },
-          {
-            label: "Retiradas",
-            href: "/admin/dashboard?tab=gestion-retiradas",
-            icon: <Container className="h-5 w-5" />,
-            onClick: () => handleTabChange("gestion-retiradas")
-          },
-          {
-            label: "Rutas",
-            href: "/admin/dashboard?tab=rutas-distritos",
-            icon: <MapPin className="h-5 w-5" />,
-            onClick: () => handleTabChange("rutas-distritos")
-          }
-        ]
-      },
-      {
-        label: "Equipo",
-        href: "#",
+        label: "Gestión de Clientes",
+        href: "/admin/dashboard?tab=gestion-clientes",
         icon: <Users className="h-5 w-5" />,
-        subItems: [
-          {
-            label: "Trabajadores",
-            href: "/admin/dashboard?tab=trabajadores",
-            icon: <Briefcase className="h-5 w-5" />
-          },
-          {
-            label: "Voluntarios",
-            href: "/admin/dashboard?tab=voluntarios",
-            icon: <User className="h-5 w-5" />
-          },
-          {
-            label: "Administradores",
-            href: "/admin/dashboard?tab=administradores-management",
-            icon: <UserCog className="h-5 w-5" />
-          }
-        ]
+        onClick: () => handleTabChange("gestion-clientes")
       },
       {
-        label: "Finanzas",
-        href: "#",
+        label: "Ranking Clientes",
+        href: "/admin/dashboard?tab=ranking",
+        icon: <Trophy className="h-5 w-5" />,
+        onClick: () => handleTabChange("ranking")
+      },
+      {
+        label: "Gestión de Recogidas",
+        href: "/admin/dashboard?tab=gestion-recogidas",
+        icon: <Truck className="h-5 w-5" />,
+        onClick: () => handleTabChange("gestion-recogidas")
+      },
+      {
+        label: "Retiradas de Contenedores",
+        href: "/admin/dashboard?tab=gestion-retiradas",
+        icon: <Container className="h-5 w-5" />,
+        onClick: () => handleTabChange("gestion-retiradas")
+      },
+      {
+        label: "Rutas por Distritos",
+        href: "/admin/dashboard?tab=rutas-distritos",
+        icon: <MapPin className="h-5 w-5" />,
+        onClick: () => handleTabChange("rutas-distritos")
+      },
+      {
+        label: "Instalaciones",
+        href: "/admin/dashboard?tab=instalaciones",
+        icon: <Building className="h-5 w-5" />,
+        onClick: () => handleTabChange("instalaciones")
+      },
+      {
+        label: "Trabajadores",
+        href: "/admin/dashboard?tab=trabajadores",
+        icon: <Briefcase className="h-5 w-5" />,
+        onClick: () => handleTabChange("trabajadores")
+      },
+      {
+        label: "Gestión Voluntarios",
+        href: "/admin/dashboard?tab=voluntarios",
+        icon: <User className="h-5 w-5" />,
+        onClick: () => handleTabChange("voluntarios")
+      },
+      {
+        label: "Simulador Impacto",
+        href: "/admin/dashboard?tab=simulador",
+        icon: <Calculator className="h-5 w-5" />,
+        onClick: () => handleTabChange("simulador")
+      },
+      {
+        label: "Facturación",
+        href: "/admin/dashboard?tab=facturacion",
         icon: <Receipt className="h-5 w-5" />,
-        subItems: [
-          {
-            label: "Facturación",
-            href: "/admin/dashboard?tab=facturacion",
-            icon: <Receipt className="h-5 w-5" />
-          },
-          {
-            label: "Simulador",
-            href: "/admin/dashboard?tab=simulador",
-            icon: <Calculator className="h-5 w-5" />
-          }
-        ]
+        onClick: () => handleTabChange("facturacion")
       },
       {
-        label: "Más",
-        href: "#",
-        icon: <Menu className="h-5 w-5" />,
-        subItems: [
-          {
-            label: "Instalaciones",
-            href: "/admin/dashboard?tab=instalaciones",
-            icon: <Building className="h-5 w-5" />
-          },
-          {
-            label: "Puntos Verdes",
-            href: "/admin/dashboard?tab=puntos-verdes",
-            icon: <MapPin className="h-5 w-5" />
-          },
-          {
-            label: "Alianza Escolar",
-            href: "/admin/dashboard?tab=alianza-escolar",
-            icon: <GraduationCap className="h-5 w-5" />
-          },
-          {
-            label: "Tienda",
-            href: "/admin/dashboard?tab=tienda",
-            icon: <ShoppingCart className="h-5 w-5" />
-          },
-          {
-            label: "Cerrar Sesión",
-            onClick: handleSignOut,
-            icon: <User className="h-5 w-5 text-red-500" />
-          }
-        ]
+        label: "Alianza Escolar",
+        href: "/admin/dashboard?tab=alianza-escolar",
+        icon: <GraduationCap className="h-5 w-5" />,
+        onClick: () => handleTabChange("alianza-escolar")
+      },
+      {
+        label: "Calles Apadrinadas",
+        href: "/admin/dashboard?tab=calles-apadrinadas",
+        icon: <MapPin className="h-5 w-5" />,
+        onClick: () => handleTabChange("calles-apadrinadas")
+      },
+      {
+        label: "Puntos Verdes",
+        href: "/admin/dashboard?tab=puntos-verdes",
+        icon: <MapPin className="h-5 w-5" />,
+        onClick: () => handleTabChange("puntos-verdes")
+      },
+      {
+        label: "Tienda",
+        href: "/admin/dashboard?tab=tienda",
+        icon: <ShoppingCart className="h-5 w-5" />,
+        onClick: () => handleTabChange("tienda")
+      },
+      {
+        label: "Mi Sitio Web",
+        href: "/admin/dashboard?tab=mi-sitio-web",
+        icon: <Globe className="h-5 w-5" />,
+        onClick: () => handleTabChange("mi-sitio-web")
+      },
+      {
+        label: "Gestión Administradores",
+        href: "/admin/dashboard?tab=administradores-management",
+        icon: <UserCog className="h-5 w-5" />,
+        onClick: () => handleTabChange("administradores-management")
+      },
+      {
+        label: "Comunidades y Viviendas",
+        href: "/admin/dashboard?tab=comunidades-viviendas",
+        icon: <Building className="h-5 w-5" />,
+        onClick: () => handleTabChange("comunidades-viviendas")
+      },
+      {
+        label: "Comerciales",
+        href: "/admin/dashboard?tab=comerciales",
+        icon: <User className="h-5 w-5" />,
+        onClick: () => handleTabChange("comerciales")
+      },
+      {
+        label: "Control de Inventario",
+        href: "/admin/dashboard?tab=inventario",
+        icon: <Box className="h-5 w-5" />,
+        onClick: () => handleTabChange("inventario")
+      },
+      {
+        label: "Reuniones y Eventos",
+        href: "/admin/dashboard?tab=reuniones",
+        icon: <CalendarDays className="h-5 w-5" />,
+        onClick: () => handleTabChange("reuniones")
+      },
+      {
+        label: "Cerrar sesión",
+        onClick: handleSignOut,
+        icon: <User className="h-5 w-5 text-red-500" />,
       }
     ];
   };
@@ -595,12 +618,9 @@ const AdminDashboardPage = () => {
           </div>
         </header>
         
-        <main className="container py-8 px-4">
+        <main className="container py-8 px-4 mb-20 md:mb-0">
           {renderContent()}
         </main>
-
-        {/* Mobile bottom navigation */}
-        <AdminMobileBottomNav />
       </div>
     </div>
   );
