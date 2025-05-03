@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -20,6 +22,23 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+// Define the form schema for validation
+const formSchema = z.object({
+  nombreContacto: z.string().min(1, 'Nombre es obligatorio'),
+  telefonoContacto: z.string().optional(),
+  emailContacto: z.string().email('Email no válido').optional(),
+  direccionRecogida: z.string().min(1, 'Dirección es obligatoria'),
+  distrito: z.string().min(1, 'Distrito es obligatorio'),
+  barrio: z.string().optional(),
+  fechaRecogida: z.date(),
+  horaRecogida: z.string().optional(),
+  cantidadAproximada: z.number().min(0).optional(),
+  tipoAceite: z.string().optional(),
+  notasAdicionales: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 interface RecogidaFormProps {
   onCancel: () => void;
   onSubmit: (data: any) => void;
@@ -27,7 +46,8 @@ interface RecogidaFormProps {
 }
 
 const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initialData }) => {
-  const form = useForm({
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       nombreContacto: '',
       telefonoContacto: '',
@@ -43,7 +63,7 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
     },
   });
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: FormValues) => {
     onSubmit({
       ...data,
       fecha: data.fechaRecogida,
@@ -210,7 +230,12 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
               <FormItem>
                 <FormLabel>Cantidad aproximada (litros)</FormLabel>
                 <FormControl>
-                  <Input type="number" min={0} {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                  <Input 
+                    type="number" 
+                    min={0} 
+                    {...field} 
+                    onChange={(e) => field.onChange(Number(e.target.value))} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
