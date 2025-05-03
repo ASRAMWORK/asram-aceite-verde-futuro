@@ -16,7 +16,8 @@ const productos = [
     descripcion: "Todo lo necesario para empezar a reciclar aceite en casa",
     precio: 24.99,
     imagen: "https://via.placeholder.com/300x200",
-    categoria: "productos"
+    categoria: "productos",
+    stripeLink: "https://buy.stripe.com/test_fZebKH5WGdmm9pu3cf"
   },
   {
     id: 2,
@@ -24,7 +25,8 @@ const productos = [
     descripcion: "Accesorio para facilitar el vertido del aceite usado",
     precio: 8.99,
     imagen: "https://via.placeholder.com/300x200",
-    categoria: "productos"
+    categoria: "productos",
+    stripeLink: "https://buy.stripe.com/test_7sI8yv84O0zA7hm004"
   },
   {
     id: 3,
@@ -32,7 +34,8 @@ const productos = [
     descripcion: "Elaborado a partir de aceite reciclado",
     precio: 12.50,
     imagen: "https://via.placeholder.com/300x200",
-    categoria: "productos"
+    categoria: "productos",
+    stripeLink: "https://buy.stripe.com/test_14kcOLdp86XY316dQV"
   }
 ];
 
@@ -115,6 +118,11 @@ const Tienda = () => {
     );
   };
 
+  // Function to handle product purchase via Stripe
+  const handlePurchase = (stripeLink: string) => {
+    window.open(stripeLink, '_blank');
+  };
+
   return (
     <PageLayout 
       title="Tienda ASRAM" 
@@ -172,7 +180,10 @@ const Tienda = () => {
                     <div className="mt-4 text-xl font-bold text-asram">{producto.precio.toFixed(2)}€</div>
                   </CardContent>
                   <CardFooter className="mt-auto">
-                    <Button className="w-full bg-asram hover:bg-asram-600">
+                    <Button 
+                      className="w-full bg-asram hover:bg-asram-600"
+                      onClick={() => handlePurchase(producto.stripeLink)}
+                    >
                       <ShoppingCart className="w-4 h-4 mr-2" />
                       Añadir al carrito
                     </Button>
