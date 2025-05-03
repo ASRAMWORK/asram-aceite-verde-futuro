@@ -1,5 +1,12 @@
 
 import React, { useState } from 'react';
+import { ClienteRanking } from '@/hooks/useClientesRanking';
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Table,
   TableBody,
@@ -10,108 +17,163 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Trophy } from "lucide-react";
+import { Eye, Medal, MapPin } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import type { ClienteRanking } from '@/hooks/useClientesRanking';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 interface DistritoRankingTablesProps {
   distritoRankings: {[key: string]: ClienteRanking[]};
+  limit?: number;
+  sortOrder?: "asc" | "desc";
 }
 
-const DistritoRankingTables: React.FC<DistritoRankingTablesProps> = ({ distritoRankings }) => {
+const DistritoRankingTables: React.FC<DistritoRankingTablesProps> = ({ 
+  distritoRankings, 
+  limit = 10,
+  sortOrder = "desc" 
+}) => {
   const navigate = useNavigate();
-  const [expandedDistritos, setExpandedDistritos] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleVerHistorial = (clienteId: string) => {
     navigate(`/admin/clientes/${clienteId}`);
   };
 
+  // Filter districts by search term
+  const filteredDistricts = Object.keys(distritoRankings).filter(
+    distrito => distrito.toLowerCase().includes(searchTerm.toLowerCase())
+  ).sort();
+
   return (
-    <div>
-      {Object.keys(distritoRankings).length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          No hay datos disponibles por distritos
+    <div className="space-y-4">
+      <div className="relative w-full max-w-sm mb-4">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por distrito..."
+          className="pl-8"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {filteredDistricts.length === 0 ? (
+        <div className="text-center py-8 bg-blue-50/30 rounded-lg">
+          <MapPin className="h-12 w-12 text-blue-300 mx-auto mb-2" />
+          <p className="text-muted-foreground">No se encontraron distritos con el término de búsqueda.</p>
         </div>
       ) : (
-        <Accordion type="multiple" value={expandedDistritos} onValueChange={setExpandedDistritos} className="space-y-4">
-          {Object.entries(distritoRankings)
-            .sort(([distritoA], [distritoB]) => distritoA.localeCompare(distritoB))
-            .map(([distrito, clientes]) => (
-              <AccordionItem key={distrito} value={distrito} className="border rounded-lg overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:bg-muted/30 hover:no-underline">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-lg">{distrito}</span>
-                    <Badge variant="outline" className="ml-2">
-                      {clientes.length} clientes
-                    </Badge>
+        <Accordion type="multiple" className="space-y-4">
+          {filteredDistricts.map((distrito) => {
+            // Sort clients based on sortOrder
+            const clientesOrdenados = [...distritoRankings[distrito]].sort((a, b) => {
+              return sortOrder === "desc" 
+                ? b.litrosTotales - a.litrosTotales 
+                : a.litrosTotales - b.litrosTotales;
+            }).slice(0, limit);
+
+            const totalLitrosDistrito = clientesOrdenados.reduce(
+              (total, cliente) => total + cliente.litrosTotales, 
+              0
+            );
+
+            return (
+              <AccordionItem 
+                key={distrito} 
+                value={distrito}
+                className="border bg-white rounded-lg overflow-hidden shadow-sm"
+              >
+                <AccordionTrigger className="px-4 py-3 hover:bg-blue-50/50 data-[state=open]:bg-blue-50">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-blue-100 p-2 rounded-full">
+                        <MapPin className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-medium">{distrito}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          {clientesOrdenados.length} clientes · {totalLitrosDistrito.toFixed(1)} litros totales
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="relative overflow-x-auto">
+                  <div className="overflow-x-auto bg-blue-50/20">
                     <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
-                          <TableHead className="w-16 text-center">#</TableHead>
-                          <TableHead>Cliente</TableHead>
-                          <TableHead className="text-right">Recogidas</TableHead>
-                          <TableHead className="text-right">Litros</TableHead>
-                          <TableHead className="text-right">Acciones</TableHead>
+                      <TableHeader className="bg-blue-50">
+                        <TableRow>
+                          <TableHead className="w-16 text-center font-medium">#</TableHead>
+                          <TableHead className="font-medium">Cliente</TableHead>
+                          <TableHead className="font-medium">Tipo</TableHead>
+                          <TableHead className="text-right font-medium">Recogidas</TableHead>
+                          <TableHead className="text-right font-medium">Litros</TableHead>
+                          <TableHead className="text-right font-medium w-32">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {clientes.map((cliente, index) => (
-                          <TableRow key={cliente.id} className="transition-colors hover:bg-muted/30">
-                            <TableCell className="text-center font-medium">
-                              {index < 3 ? (
-                                <span className={`
-                                  inline-flex items-center justify-center w-8 h-8 rounded-full
-                                  ${index === 0 ? 'bg-yellow-100 text-yellow-700' : 
-                                    index === 1 ? 'bg-gray-100 text-gray-700' : 
-                                      'bg-amber-100 text-amber-700'
-                                  }
-                                `}>
-                                  <Trophy className={`h-4 w-4 ${
-                                    index === 0 ? 'text-yellow-500' : 
-                                    index === 1 ? 'text-gray-500' : 
-                                    'text-amber-500'
-                                  }`} />
-                                </span>
-                              ) : (
-                                <Badge variant="outline" className="px-2">
-                                  {index + 1}
-                                </Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="font-medium">{cliente.nombre}</div>
-                              <div className="text-xs text-muted-foreground">{cliente.direccion}</div>
-                            </TableCell>
-                            <TableCell className="text-right">{cliente.recogidasCount}</TableCell>
-                            <TableCell className="text-right font-medium">{cliente.litrosTotales.toFixed(1)} L</TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleVerHistorial(cliente.id)}
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                Ver Historial
-                              </Button>
+                        {clientesOrdenados.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                              No hay datos disponibles
                             </TableCell>
                           </TableRow>
-                        ))}
+                        ) : (
+                          clientesOrdenados.map((cliente, index) => (
+                            <TableRow 
+                              key={cliente.id} 
+                              className={`transition-colors hover:bg-blue-50/30 ${index < 3 ? 'bg-blue-50/20' : ''}`}
+                            >
+                              <TableCell className="text-center">
+                                {index < 3 ? (
+                                  <div className="flex items-center justify-center">
+                                    <div className="bg-gradient-to-r from-blue-100 to-blue-50 w-8 h-8 rounded-full flex items-center justify-center">
+                                      <Medal className={`h-4 w-4 ${index === 0 ? 'text-blue-700' : index === 1 ? 'text-blue-600' : 'text-blue-500'}`} />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <Badge 
+                                    variant="outline" 
+                                    className="bg-white"
+                                  >
+                                    {index + 1}
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">{cliente.nombre}</div>
+                                <div className="text-xs text-muted-foreground truncate max-w-40">{cliente.direccion || "Sin dirección"}</div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+                                  {cliente.tipo || "No especificado"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right font-mono">{cliente.recogidasCount}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="font-medium font-mono">{cliente.litrosTotales.toFixed(1)} L</div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleVerHistorial(cliente.id)}
+                                  className="ml-auto bg-white hover:bg-blue-50 hover:text-blue-700 border-blue-200"
+                                >
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  Ver
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
                       </TableBody>
                     </Table>
                   </div>
                 </AccordionContent>
               </AccordionItem>
-            ))}
+            );
+          })}
         </Accordion>
       )}
     </div>

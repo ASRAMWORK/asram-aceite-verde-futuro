@@ -13,15 +13,25 @@ interface ClienteRanking {
   ranking?: number;
   rankingDistrito?: number;
   rankingTipo?: number;
+  tendencia?: 'up' | 'down' | 'stable';
+  cambioLitros?: number;
 }
 
 export function useClientesRanking(recogidas: Recogida[]) {
   const [clientesRanking, setClientesRanking] = useState<ClienteRanking[]>([]);
   const [distritoRankings, setDistritoRankings] = useState<{[key: string]: ClienteRanking[]}>({});
   const [tipoClienteRankings, setTipoClienteRankings] = useState<{[key: string]: ClienteRanking[]}>({});
+  const [previousRanking, setPreviousRanking] = useState<{[key: string]: number}>({});
   
   useEffect(() => {
     if (!recogidas.length) return;
+
+    // Save previous ranking state before updating
+    const prevRankMap: {[key: string]: number} = {};
+    clientesRanking.forEach((cliente, index) => {
+      prevRankMap[cliente.id] = index + 1;
+    });
+    setPreviousRanking(prevRankMap);
 
     // Procesar datos de recogidas para construir rankings
     const clientesMap: {[key: string]: ClienteRanking} = {};
@@ -52,9 +62,26 @@ export function useClientesRanking(recogidas: Recogida[]) {
       b.litrosTotales - a.litrosTotales
     );
     
-    // Asignar rankings
+    // Asignar rankings y tendencias
     clientesArray.forEach((cliente, index) => {
       cliente.ranking = index + 1;
+      
+      // Calculate trends
+      if (prevRankMap[cliente.id]) {
+        const previousPosition = prevRankMap[cliente.id];
+        const currentPosition = index + 1;
+        
+        if (previousPosition < currentPosition) {
+          cliente.tendencia = 'down';
+          cliente.cambioLitros = previousPosition - currentPosition;
+        } else if (previousPosition > currentPosition) {
+          cliente.tendencia = 'up';
+          cliente.cambioLitros = previousPosition - currentPosition;
+        } else {
+          cliente.tendencia = 'stable';
+          cliente.cambioLitros = 0;
+        }
+      }
     });
     
     setClientesRanking(clientesArray);

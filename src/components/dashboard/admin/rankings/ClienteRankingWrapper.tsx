@@ -1,13 +1,17 @@
 
 import React from 'react';
 import ClientesRankingView from './ClientesRankingView';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
-interface ClienteRankingWrapperProps {
-  adminId: string;
-}
+const ClienteRankingWrapper: React.FC = () => {
+  const { profile } = useUserProfile();
+  const adminId = profile?.id || '';
 
-const ClienteRankingWrapper: React.FC<ClienteRankingWrapperProps> = ({ adminId }) => {
-  return <ClientesRankingView adminId={adminId} />;
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <ClientesRankingView adminId={adminId} />
+    </div>
+  );
 };
 
 export default ClienteRankingWrapper;
