@@ -26,7 +26,12 @@ const Apadrina = () => {
                   </li>
                 ))}
               </ul>
-              <Button className="w-full mt-6">Seleccionar Plan</Button>
+              <Button 
+                className="w-full mt-6"
+                onClick={() => window.open("https://buy.stripe.com/test_6oEcOL3Oygyy59e7ss", "_blank")}
+              >
+                Seleccionar Plan
+              </Button>
             </CardContent>
           </Card>
 
@@ -52,7 +57,12 @@ const Apadrina = () => {
                   </li>
                 ))}
               </ul>
-              <Button className="w-full mt-6">Seleccionar Plan</Button>
+              <Button 
+                className="w-full mt-6"
+                onClick={() => window.open("https://buy.stripe.com/test_9AQ8yvdp8bee45a5kl", "_blank")}
+              >
+                Seleccionar Plan
+              </Button>
             </CardContent>
           </Card>
 
@@ -76,7 +86,12 @@ const Apadrina = () => {
                   </li>
                 ))}
               </ul>
-              <Button className="w-full mt-6">Seleccionar Plan</Button>
+              <Button 
+                className="w-full mt-6"
+                onClick={() => window.open("https://buy.stripe.com/test_6oE9Czcl46XY6di9AC", "_blank")}
+              >
+                Seleccionar Plan
+              </Button>
             </CardContent>
           </Card>
         </div>
