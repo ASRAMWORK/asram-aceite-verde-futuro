@@ -10,17 +10,24 @@ import ReferidosView from "./ReferidosView";
 import ReportesComercialesView from "./ReportesComercialesView";
 import PagosComercialesView from "./PagosComercialesView";
 import ComercialForm from "./ComercialForm";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { mobileTouchTarget } from "@/utils/mobileStyles";
 
 const GestionComercialesView = () => {
   const [formOpen, setFormOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Gestión de Comerciales</h2>
-        <Button onClick={() => setFormOpen(true)} className="bg-asram hover:bg-asram-700">
+        <h2 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-bold tracking-tight`}>Gestión de Comerciales</h2>
+        <Button 
+          onClick={() => setFormOpen(true)} 
+          className={`bg-asram hover:bg-asram-700 ${mobileTouchTarget()}`}
+          size={isMobile ? "sm" : "default"}
+        >
           <Plus className="mr-2 h-4 w-4" />
-          Nuevo Comercial
+          {isMobile ? "Nuevo" : "Nuevo Comercial"}
         </Button>
       </div>
       
@@ -28,25 +35,36 @@ const GestionComercialesView = () => {
         <ComercialForm onClose={() => setFormOpen(false)} />
       )}
 
-      <Tabs defaultValue="comerciales" className="space-y-6">
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full">
+      <Tabs defaultValue="comerciales" className="space-y-4 md:space-y-6">
+        <TabsList className={`grid ${isMobile ? 'grid-cols-3 text-xs' : 'grid-cols-2 md:grid-cols-5'} w-full`}>
           <TabsTrigger value="comerciales">
             <User className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Comerciales</span>
+            <span className={isMobile ? "text-xs" : "hidden sm:inline"}>Comerciales</span>
           </TabsTrigger>
           <TabsTrigger value="precios">
-            <span className="hidden sm:inline">Precios y Comisiones</span>
+            <span className={isMobile ? "text-xs" : "hidden sm:inline"}>Precios y Comisiones</span>
           </TabsTrigger>
           <TabsTrigger value="referidos">
-            <span className="hidden sm:inline">Referidos</span>
+            <span className={isMobile ? "text-xs" : "hidden sm:inline"}>Referidos</span>
           </TabsTrigger>
-          <TabsTrigger value="reportes">
-            <span className="hidden sm:inline">Reportes</span>
-          </TabsTrigger>
-          <TabsTrigger value="pagos">
-            <span className="hidden sm:inline">Pagos</span>
-          </TabsTrigger>
+          {!isMobile && (
+            <>
+              <TabsTrigger value="reportes">
+                <span className="hidden sm:inline">Reportes</span>
+              </TabsTrigger>
+              <TabsTrigger value="pagos">
+                <span className="hidden sm:inline">Pagos</span>
+              </TabsTrigger>
+            </>
+          )}
         </TabsList>
+        
+        {isMobile && (
+          <TabsList className="grid grid-cols-2 w-full text-xs">
+            <TabsTrigger value="reportes">Reportes</TabsTrigger>
+            <TabsTrigger value="pagos">Pagos</TabsTrigger>
+          </TabsList>
+        )}
         
         <TabsContent value="comerciales">
           <ComercialList />
@@ -68,6 +86,9 @@ const GestionComercialesView = () => {
           <PagosComercialesView />
         </TabsContent>
       </Tabs>
+      
+      {/* Add spacing at the bottom for mobile to prevent content being hidden behind bottom navigation */}
+      {isMobile && <div className="h-16"></div>}
     </div>
   );
 };

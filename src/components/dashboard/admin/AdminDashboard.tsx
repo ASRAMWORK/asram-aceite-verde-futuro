@@ -15,6 +15,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { useRecogidas } from "@/hooks/useRecogidas";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { mobileTextSize, mobileHeadingSize, mobilePadding } from "@/utils/mobileStyles";
 
 const AdminDashboard = () => {
   const { puntosVerdes, loading: loadingPuntos } = usePuntosVerdes();
@@ -24,7 +26,8 @@ const AdminDashboard = () => {
   const { instalaciones, loading: loadingInstalaciones } = useInstalaciones();
   const { ingresos, gastos, loading: loadingFacturacion } = useFacturacion();
   const { recogidas, getTotalLitrosRecogidos } = useRecogidas();
-
+  const isMobile = useIsMobile();
+  
   // Calculate statistics - now counts all registered users plus active community clients
   const clientesActivos = usuarios.filter(u => u.activo).length;
   const clientesComunidad = usuarios.filter(u => u.activo && u.tipo === 'comunidad').length;
@@ -212,20 +215,20 @@ const AdminDashboard = () => {
                    loadingTrabajadores || loadingInstalaciones || loadingFacturacion;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Panel de Control</h2>
-          <p className="text-muted-foreground">
+          <h2 className={`${mobileHeadingSize()} font-bold tracking-tight`}>Panel de Control</h2>
+          <p className={`text-muted-foreground ${mobileTextSize()}`}>
             Vista general del sistema ASRAM
           </p>
         </div>
         
         {/* Notifications bell */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="relative">
+              <Button variant="outline" size={isMobile ? "icon" : "icon"} className="relative min-h-[44px] min-w-[44px] md:h-10 md:w-10">
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 px-1 min-w-5 h-5 flex items-center justify-center bg-red-500">
@@ -242,6 +245,7 @@ const AdminDashboard = () => {
                 </Button>
               </div>
               <ScrollArea className="h-80">
+                {/* ... keep existing code (notifications rendering) */}
                 {notifications.length > 0 ? (
                   <div className="divide-y">
                     {notifications.map(notification => (
@@ -271,21 +275,25 @@ const AdminDashboard = () => {
             </PopoverContent>
           </Popover>
           
-          <Button variant="default" className="bg-asram hover:bg-asram-700">
-            Actualizar datos
+          <Button 
+            variant="default" 
+            className="bg-asram hover:bg-asram-700 min-h-[44px] md:h-10"
+            size={isMobile ? "sm" : "default"}
+          >
+            {isMobile ? "Actualizar" : "Actualizar datos"}
           </Button>
         </div>
       </div>
 
       {/* Cards de estadísticas generales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Card className="border-l-4 border-l-asram hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clientes Activos</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Clientes Activos</CardTitle>
             <Building className="h-5 w-5 text-asram" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
               {isLoading ? "..." : clientesActivos}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -295,27 +303,27 @@ const AdminDashboard = () => {
         </Card>
 
         <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contenedores Instalados</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Contenedores</CardTitle>
             <Home className="h-5 w-5 text-blue-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
               {isLoading ? "..." : totalContenedores}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total contenedores instalados
+              Total instalados
             </p>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Equipo ASRAM</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Equipo ASRAM</CardTitle>
             <Users className="h-5 w-5 text-green-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
               {isLoading ? "..." : `${totalTrabajadores} / ${totalVoluntarios}`}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -325,66 +333,66 @@ const AdminDashboard = () => {
         </Card>
 
         <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Litros Recogidos</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Litros Recogidos</CardTitle>
             <Droplet className="h-4 w-4 text-purple-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
               {isLoading ? "..." : `${totalLitrosRecogidos}L`}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total litros de aceite recogidos
+              Total litros de aceite
             </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Cards de facturación */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-green-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos Mes</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Ingresos Mes</CardTitle>
             <FileText className="h-5 w-5 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-green-600`}>
               {isLoading ? "..." : `${ingresosDelMes.toLocaleString()}€`}
             </div>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-red-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gastos Mes</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Gastos Mes</CardTitle>
             <FileText className="h-5 w-5 text-red-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-500">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-red-500`}>
               {isLoading ? "..." : `${gastosDelMes.toLocaleString()}€`}
             </div>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-blue-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Previsión Anual</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Previsión Anual</CardTitle>
             <FileText className="h-5 w-5 text-blue-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-blue-600`}>
               {isLoading ? "..." : `${previsionAnual.toLocaleString()}€`}
             </div>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-amber-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pendiente Cobro</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${mobilePadding()}`}>
+            <CardTitle className={`${mobileTextSize()} font-medium`}>Pendiente Cobro</CardTitle>
             <FileText className="h-5 w-5 text-amber-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-500">
+          <CardContent className={mobilePadding()}>
+            <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-amber-500`}>
               {isLoading ? "..." : `${pendienteCobro.toLocaleString()}€`}
             </div>
           </CardContent>
@@ -392,15 +400,15 @@ const AdminDashboard = () => {
       </div>
 
       {/* Tabs con gráficas mejoradas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle>Evolución Financiera</CardTitle>
-            <CardDescription>
+          <CardHeader className={mobilePadding()}>
+            <CardTitle className={mobileHeadingSize()}>Evolución Financiera</CardTitle>
+            <CardDescription className={mobileTextSize()}>
               Ingresos y gastos de los últimos 6 meses
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className={mobilePadding()}>
             <Chart
               type="line"
               data={financialData}
@@ -439,26 +447,26 @@ const AdminDashboard = () => {
                   }
                 },
               }}
-              className="h-80"
+              className="h-64 md:h-80"
             />
           </CardContent>
         </Card>
 
         <Tabs defaultValue="recogidas" className="flex flex-col h-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsList className={`grid w-full grid-cols-2 mb-4 ${isMobile ? 'text-xs' : ''}`}>
             <TabsTrigger value="recogidas">Recogidas por Distrito</TabsTrigger>
             <TabsTrigger value="usuarios">Usuarios por Tipo</TabsTrigger>
           </TabsList>
           
           <Card className="flex-grow hover:shadow-lg transition-shadow">
             <TabsContent value="recogidas" className="m-0 h-full">
-              <CardHeader>
-                <CardTitle>Aceite Recogido por Distrito</CardTitle>
-                <CardDescription>
+              <CardHeader className={mobilePadding()}>
+                <CardTitle className={mobileHeadingSize()}>Aceite Recogido por Distrito</CardTitle>
+                <CardDescription className={mobileTextSize()}>
                   Distribución de litros recogidos por cada distrito
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pl-2">
+              <CardContent className={`pl-2 ${mobilePadding()}`}>
                 <Chart
                   type="bar"
                   data={litrosChartData}
@@ -495,19 +503,19 @@ const AdminDashboard = () => {
                       }
                     },
                   }}
-                  className="h-80"
+                  className="h-64 md:h-80"
                 />
               </CardContent>
             </TabsContent>
             
             <TabsContent value="usuarios" className="m-0 h-full">
-              <CardHeader>
-                <CardTitle>Distribución de Usuarios</CardTitle>
-                <CardDescription>
+              <CardHeader className={mobilePadding()}>
+                <CardTitle className={mobileHeadingSize()}>Distribución de Usuarios</CardTitle>
+                <CardDescription className={mobileTextSize()}>
                   Tipos de usuarios registrados en el sistema
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pl-2">
+              <CardContent className={`pl-2 ${mobilePadding()}`}>
                 <Chart
                   type="doughnut"
                   data={usersChartData}
@@ -515,10 +523,13 @@ const AdminDashboard = () => {
                     maintainAspectRatio: false,
                     plugins: {
                       legend: {
-                        position: 'right',
+                        position: isMobile ? 'bottom' : 'right',
                         labels: {
-                          boxWidth: 15,
-                          padding: 15
+                          boxWidth: 12,
+                          padding: isMobile ? 10 : 15,
+                          font: {
+                            size: isMobile ? 10 : 12
+                          }
                         }
                       },
                       tooltip: {
@@ -538,13 +549,16 @@ const AdminDashboard = () => {
                       animateRotate: true
                     }
                   }}
-                  className="h-80"
+                  className="h-64 md:h-80"
                 />
               </CardContent>
             </TabsContent>
           </Card>
         </Tabs>
       </div>
+      
+      {/* Add spacing at the bottom for mobile to prevent content being hidden behind bottom navigation */}
+      {isMobile && <div className="h-16"></div>}
     </div>
   );
 };

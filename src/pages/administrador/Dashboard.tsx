@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
@@ -7,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Loader2, Trophy } from "lucide-react";
+import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Loader2, Trophy, User } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileNavigation } from "@/components/mobile/MobileNavigation";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { mobileTouchTarget } from "@/utils/mobileStyles";
 
 const AdministradorDashboardPage = () => {
   const [loading, setLoading] = useState(true);
@@ -63,8 +65,6 @@ const AdministradorDashboardPage = () => {
       case "comunidades": tabValue = "comunidades"; break;
       case "gestionar": tabValue = "gestionar"; break;
       case "informes": tabValue = "informes"; break;
-      case "clientes": tabValue = "clientes"; break;
-      case "recogidas": tabValue = "recogidas"; break;
       case "estadisticas": tabValue = "estadisticas"; break;
       case "perfil": tabValue = "perfil"; break;
       case "ranking": tabValue = "ranking"; break;
@@ -74,19 +74,20 @@ const AdministradorDashboardPage = () => {
   };
 
   const menuItems = [
-    { label: "Inicio", href: "#home", icon: <Home className="h-5 w-5" /> },
-    { label: "Mis Comunidades", href: "#comunidades", icon: <Users className="h-5 w-5" /> },
-    { label: "Añadir Comunidad", href: "#gestionar", icon: <PlusCircle className="h-5 w-5" /> },
-    { label: "Informes y Contratos", href: "#informes", icon: <FileText className="h-5 w-5" /> },
-    { label: "Estadísticas", href: "#estadisticas", icon: <BarChart className="h-5 w-5" /> },
-    { label: "Ranking Clientes", href: "#ranking", icon: <Trophy className="h-5 w-5" /> }
+    { label: "Inicio", href: "#home", icon: <Home className="h-5 w-5" />, onClick: () => handleTabChange("home") },
+    { label: "Mis Comunidades", href: "#comunidades", icon: <Users className="h-5 w-5" />, onClick: () => handleTabChange("comunidades") },
+    { label: "Añadir Comunidad", href: "#gestionar", icon: <PlusCircle className="h-5 w-5" />, onClick: () => handleTabChange("gestionar") },
+    { label: "Informes y Contratos", href: "#informes", icon: <FileText className="h-5 w-5" />, onClick: () => handleTabChange("informes") },
+    { label: "Estadísticas", href: "#estadisticas", icon: <BarChart className="h-5 w-5" />, onClick: () => handleTabChange("estadisticas") },
+    { label: "Ranking Clientes", href: "#ranking", icon: <Trophy className="h-5 w-5" />, onClick: () => handleTabChange("ranking") },
+    { label: "Mi perfil", href: "#perfil", icon: <User className="h-5 w-5" />, onClick: () => handleTabChange("perfil") }
   ];
 
   const bottomNavItems = [
-    { label: "Inicio", href: "#home", icon: <Home /> },
-    { label: "Comunidades", href: "#comunidades", icon: <Users /> },
-    { label: "Informes", href: "#informes", icon: <FileText /> },
-    { label: "Estadísticas", href: "#estadisticas", icon: <BarChart /> }
+    { label: "Inicio", href: "#home", icon: <Home />, onClick: () => handleTabChange("home") },
+    { label: "Comunidades", href: "#comunidades", icon: <Users />, onClick: () => handleTabChange("comunidades") },
+    { label: "Informes", href: "#informes", icon: <FileText />, onClick: () => handleTabChange("informes") },
+    { label: "Estadísticas", href: "#estadisticas", icon: <BarChart />, onClick: () => handleTabChange("estadisticas") }
   ];
 
   if (loading) {
@@ -123,7 +124,7 @@ const AdministradorDashboardPage = () => {
           </div>
           
           <nav className="flex-1 px-4 pb-6 space-y-1.5">
-            {/* ... keep existing code for desktop navigation buttons */}
+            {/* Desktop navigation buttons */}
             {menuItems.map((item) => (
               <Button
                 key={item.label}
@@ -131,7 +132,7 @@ const AdministradorDashboardPage = () => {
                 className={`w-full justify-start ${
                   activeTab === item.href.substring(1) ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
                 }`}
-                onClick={() => handleTabChange(item.href.substring(1))}
+                onClick={item.onClick}
               >
                 {item.icon}
                 <span className="ml-3">{item.label}</span>
@@ -151,14 +152,10 @@ const AdministradorDashboardPage = () => {
           </nav>
         </div>
         
-        {/* Mobile navigation */}
+        {/* Mobile hamburger menu */}
         {isMobile && (
           <MobileNavigation 
-            items={menuItems.map(item => ({
-              ...item,
-              href: item.href,
-              onClick: () => handleTabChange(item.href.substring(1))
-            }))}
+            items={menuItems}
             title="ASRAM Admin"
           />
         )}
@@ -169,11 +166,7 @@ const AdministradorDashboardPage = () => {
               {isMobile ? (
                 <div className="flex items-center">
                   <MobileNavigation 
-                    items={menuItems.map(item => ({
-                      ...item,
-                      href: item.href,
-                      onClick: () => handleTabChange(item.href.substring(1))
-                    }))}
+                    items={menuItems}
                     title="ASRAM Admin"
                   />
                   <h2 className="text-lg font-medium ml-2">ASRAM Admin Fincas</h2>
@@ -196,6 +189,7 @@ const AdministradorDashboardPage = () => {
                     variant="ghost"
                     size="icon"
                     onClick={handleSignOut}
+                    className={mobileTouchTarget()}
                   >
                     <LogOut className="h-5 w-5" />
                   </Button>
@@ -218,12 +212,7 @@ const AdministradorDashboardPage = () => {
           
           {/* Mobile bottom navigation */}
           {isMobile && (
-            <MobileBottomNav 
-              items={bottomNavItems.map(item => ({
-                ...item,
-                onClick: () => handleTabChange(item.href.substring(1))
-              }))}
-            />
+            <MobileBottomNav items={bottomNavItems} />
           )}
         </div>
       </div>
