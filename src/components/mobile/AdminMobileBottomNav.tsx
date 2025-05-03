@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Activity, Users, Calendar, Menu, Settings } from 'lucide-react';
+import { Activity, Users, Calendar as CalendarIcon, Menu, Settings } from 'lucide-react';
 import { MobileBottomNav } from './MobileBottomNav';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -21,7 +21,7 @@ export const AdminMobileBottomNav = () => {
     {
       label: "Recogidas",
       href: "/admin/dashboard?tab=gestion-recogidas",
-      icon: <Calendar />
+      icon: <CalendarIcon />
     },
     {
       label: "Ajustes",
