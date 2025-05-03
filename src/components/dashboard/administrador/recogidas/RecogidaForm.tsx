@@ -201,6 +201,7 @@ const RecogidaForm: React.FC<RecogidaFormProps> = ({ onCancel, onSubmit, initial
                       onSelect={field.onChange}
                       disabled={(date) => date < new Date()}
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
