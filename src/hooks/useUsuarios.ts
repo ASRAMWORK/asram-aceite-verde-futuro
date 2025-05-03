@@ -267,8 +267,9 @@ export function useUsuarios() {
         }
       }
       
+      // Eliminar completamente el documento de la base de datos
       await deleteDoc(doc(db, "usuarios", id));
-      toast.success("Usuario eliminado correctamente");
+      toast.success("Usuario eliminado permanentemente");
       await loadUsuariosData();
       return true;
     } catch (err) {

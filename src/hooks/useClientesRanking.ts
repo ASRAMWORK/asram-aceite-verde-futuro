@@ -131,6 +131,7 @@ export function useClientesRanking(recogidas: Recogida[]) {
   // Function to exclude a client from rankings
   const excludeCliente = async (clienteId: string) => {
     setExcludedClientes(prev => [...prev, clienteId]);
+    return true;
   };
 
   return {

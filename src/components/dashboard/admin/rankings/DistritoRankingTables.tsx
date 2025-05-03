@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ClienteRanking } from '@/hooks/useClientesRanking';
 import { 
@@ -16,27 +17,39 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Medal, MapPin } from "lucide-react";
+import { Eye, Medal, MapPin, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface DistritoRankingTablesProps {
   distritoRankings: {[key: string]: ClienteRanking[]};
   limit?: number;
   sortOrder?: "asc" | "desc";
+  onDeleteCliente?: (clienteId: string) => Promise<boolean>;
 }
 
 const DistritoRankingTables: React.FC<DistritoRankingTablesProps> = ({ 
   distritoRankings, 
   limit = 10,
-  sortOrder = "desc" 
+  sortOrder = "desc",
+  onDeleteCliente
 }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleVerHistorial = (clienteId: string) => {
     navigate(`/admin/clientes/historial/${clienteId}`);
+  };
+
+  const handleDeleteCliente = async (clienteId: string) => {
+    if (onDeleteCliente) {
+      const success = await onDeleteCliente(clienteId);
+      if (success) {
+        toast.success("Cliente eliminado del ranking");
+      }
+    }
   };
 
   // Filter districts by search term
@@ -153,15 +166,27 @@ const DistritoRankingTables: React.FC<DistritoRankingTablesProps> = ({
                                 <div className="font-medium font-mono">{cliente.litrosTotales.toFixed(1)} L</div>
                               </TableCell>
                               <TableCell className="text-right">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleVerHistorial(cliente.id)}
-                                  className="ml-auto bg-white hover:bg-blue-50 hover:text-blue-700 border-blue-200"
-                                >
-                                  <Eye className="h-4 w-4 mr-1" />
-                                  Ver
-                                </Button>
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleVerHistorial(cliente.id)}
+                                    className="bg-white hover:bg-blue-50 hover:text-blue-700 border-blue-200"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                  
+                                  {onDeleteCliente && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleDeleteCliente(cliente.id)}
+                                      className="bg-white hover:bg-red-50 hover:text-red-700 border-red-200"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))

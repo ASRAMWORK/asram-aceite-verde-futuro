@@ -62,8 +62,9 @@ const ClientesList: React.FC<ClientesListProps> = ({ searchTerm, filter }) => {
   const confirmDelete = async () => {
     if (clienteToDelete) {
       try {
+        // Llamar a deleteUsuario para eliminar físicamente el cliente
         await deleteUsuario(clienteToDelete);
-        toast.success("Cliente eliminado correctamente");
+        toast.success("Cliente eliminado permanentemente");
         setClienteToDelete(null);
       } catch (error) {
         toast.error("Error al eliminar cliente");

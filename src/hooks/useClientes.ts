@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
@@ -105,26 +104,14 @@ export function useClientes() {
 
   const deleteCliente = async (id: string) => {
     try {
-      // Soft delete - just mark as inactive
-      await updateDoc(doc(db, "usuarios", id), {
-        activo: false,
-        updatedAt: new Date()
-      });
+      // Borrado físico - elimina el documento completamente de la base de datos
+      await deleteDoc(doc(db, "usuarios", id));
       
       setClientes((prevClientes) => 
         prevClientes.filter((cliente) => cliente.id !== id)
       );
       
-      // Actualizar la lista de inactivos si ya se ha cargado antes
-      if (clientesInactivos.length > 0) {
-        const clienteEliminado = clientes.find(c => c.id === id);
-        if (clienteEliminado) {
-          const clienteInactivo = { ...clienteEliminado, activo: false };
-          setClientesInactivos(prev => [...prev, clienteInactivo]);
-        }
-      }
-      
-      toast.success("Cliente eliminado correctamente");
+      toast.success("Cliente eliminado permanentemente");
     } catch (err) {
       console.error("Error eliminando cliente:", err);
       toast.error("Error al eliminar cliente");
