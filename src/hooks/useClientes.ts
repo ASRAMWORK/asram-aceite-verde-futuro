@@ -7,7 +7,9 @@ import { toast } from 'sonner';
 
 export function useClientes() {
   const [clientes, setClientes] = useState<Usuario[]>([]);
+  const [clientesInactivos, setClientesInactivos] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingInactivos, setLoadingInactivos] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadClientesData = async () => {
@@ -28,6 +30,25 @@ export function useClientes() {
       setError("Error al cargar datos de clientes");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadClientesInactivos = async () => {
+    try {
+      setLoadingInactivos(true);
+      const clientesRef = collection(db, "usuarios");
+      const clientesSnap = await getDocs(query(clientesRef, where("activo", "==", false)));
+      
+      const clientesData: Usuario[] = [];
+      clientesSnap.forEach((doc) => {
+        clientesData.push({ id: doc.id, ...doc.data() } as Usuario);
+      });
+      
+      setClientesInactivos(clientesData);
+    } catch (err) {
+      console.error("Error cargando clientes inactivos:", err);
+    } finally {
+      setLoadingInactivos(false);
     }
   };
 
@@ -94,10 +115,46 @@ export function useClientes() {
         prevClientes.filter((cliente) => cliente.id !== id)
       );
       
+      // Actualizar la lista de inactivos si ya se ha cargado antes
+      if (clientesInactivos.length > 0) {
+        const clienteEliminado = clientes.find(c => c.id === id);
+        if (clienteEliminado) {
+          const clienteInactivo = { ...clienteEliminado, activo: false };
+          setClientesInactivos(prev => [...prev, clienteInactivo]);
+        }
+      }
+      
       toast.success("Cliente eliminado correctamente");
     } catch (err) {
       console.error("Error eliminando cliente:", err);
       toast.error("Error al eliminar cliente");
+      throw err;
+    }
+  };
+
+  const restaurarCliente = async (id: string) => {
+    try {
+      // Restaurar cliente - marcar como activo
+      await updateDoc(doc(db, "usuarios", id), {
+        activo: true,
+        updatedAt: new Date()
+      });
+      
+      // Actualizar listado de clientes inactivos
+      const clienteRestaurado = clientesInactivos.find(c => c.id === id);
+      setClientesInactivos(prev => prev.filter(c => c.id !== id));
+      
+      // Actualizar listado de clientes activos si ya está cargado
+      if (clienteRestaurado) {
+        const clienteActivo = { ...clienteRestaurado, activo: true };
+        setClientes(prev => [...prev, clienteActivo]);
+      }
+      
+      toast.success("Cliente restaurado correctamente");
+      return true;
+    } catch (err) {
+      console.error("Error restaurando cliente:", err);
+      toast.error("Error al restaurar cliente");
       throw err;
     }
   };
@@ -125,12 +182,16 @@ export function useClientes() {
 
   return { 
     clientes, 
-    loading, 
+    clientesInactivos,
+    loading,
+    loadingInactivos,
     error, 
     loadClientesData,
+    loadClientesInactivos,
     addCliente,
     updateCliente,
     deleteCliente,
+    restaurarCliente,
     getDistritosUnicos,
     getBarriosUnicos 
   };

@@ -6,11 +6,12 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, UserRound } from 'lucide-react';
+import { Plus, Search, UserRound, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ClientesList from './ClientesList';
 import ClienteForm from './ClienteForm';
 import { useUsuarios } from '@/hooks/useUsuarios';
+import ClientesEliminados from './ClientesEliminados';
 
 const AdministradorClientes = () => {
   const [showForm, setShowForm] = useState(false);
@@ -79,6 +80,10 @@ const AdministradorClientes = () => {
               <TabsTrigger value="todos">Todos</TabsTrigger>
               <TabsTrigger value="activos">Activos</TabsTrigger>
               <TabsTrigger value="inactivos">Inactivos</TabsTrigger>
+              <TabsTrigger value="eliminados" className="flex items-center gap-1">
+                <Trash2 className="h-4 w-4" />
+                Eliminados
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </CardHeader>
@@ -91,6 +96,9 @@ const AdministradorClientes = () => {
           </TabsContent>
           <TabsContent value="inactivos" className="mt-0">
             <ClientesList searchTerm={searchTerm} filter="inactivos" />
+          </TabsContent>
+          <TabsContent value="eliminados" className="mt-0">
+            <ClientesEliminados searchTerm={searchTerm} />
           </TabsContent>
         </CardContent>
       </Card>
