@@ -69,8 +69,8 @@ const RecogidasPorRuta: React.FC<RecogidasPorRutaProps> = ({ rutas }) => {
   const [showDetallesDialog, setShowDetallesDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('pendientes');
 
-  const { updateRutaRecogida, updateRecogida, completarRecogidasRuta } = useRecogidas();
-  const { completeRuta, deleteRuta, addRecogida } = useRutas();
+  const { updateRutaRecogida, updateRecogida, completarRecogidasRuta, addRecogida } = useRecogidas();
+  const { completeRuta, deleteRuta } = useRutas();
 
   // Get the selected ruta
   const selectedRuta = selectedRutaId ? rutas.find(r => r.id === selectedRutaId) : null;
