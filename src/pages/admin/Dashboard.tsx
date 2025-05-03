@@ -46,7 +46,6 @@ import {
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
 import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView";
-import ClienteRankingWrapper from "@/components/dashboard/admin/rankings/ClienteRankingWrapper";
 import AdministradoresManagement from "@/components/dashboard/admin/administradores/AdministradoresManagement";
 import ComunidadesViviendas from "@/components/dashboard/admin/administradores/ComunidadesViviendas";
 import { MobileNavigation } from '@/components/mobile/MobileNavigation';
@@ -164,13 +163,6 @@ const AdminDashboardPage = () => {
         icon: <Users className="h-5 w-5" />,
         onClick: () => handleTabChange("gestion-clientes"),
         active: activeTab === "gestion-clientes"
-      },
-      {
-        label: "Ranking Clientes",
-        href: "/admin/dashboard?tab=ranking",
-        icon: <Trophy className="h-5 w-5" />,
-        onClick: () => handleTabChange("ranking"),
-        active: activeTab === "ranking"
       },
       {
         label: "Gestión de Recogidas",
@@ -345,8 +337,6 @@ const AdminDashboardPage = () => {
         return <InventarioView />;
       case "reuniones":
         return <ReunionesView />;
-      case "ranking":
-        return <ClienteRankingWrapper adminId={auth.currentUser?.uid} />;
       case "administradores-management":
         return <AdministradoresManagement />;
       case "comunidades-viviendas":
@@ -387,17 +377,6 @@ const AdminDashboardPage = () => {
           >
             <Users className="mr-2 h-4 w-4" />
             Gestión de Clientes
-          </Button>
-          
-          <Button
-            variant={activeTab === "ranking" ? "default" : "ghost"}
-            className={`w-full justify-start ${
-              activeTab === "ranking" ? "bg-asram hover:bg-asram-700" : ""
-            }`}
-            onClick={() => setActiveTab("ranking")}
-          >
-            <Trophy className="mr-2 h-4 w-4" />
-            Ranking Clientes
           </Button>
           
           <Button
@@ -633,7 +612,6 @@ const AdminDashboardPage = () => {
                activeTab === "gestion-recogidas" ? "Recogidas" :
                activeTab === "facturacion" ? "Facturación" :
                activeTab === "trabajadores" ? "Trabajadores" :
-               // Add more cases for commonly used tabs for better mobile UX
                activeTab.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
             </h2>
             
