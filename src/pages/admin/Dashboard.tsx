@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -42,7 +41,6 @@ import {
   CalendarDays,
   Trophy,
   UserCog,
-  Menu,
   CalendarIcon
 } from "lucide-react";
 
@@ -63,7 +61,7 @@ const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const location = useLocation();
-  const { touchTarget, padding } = useMobileStyles();
+  const { touchTarget, padding, fullGrid, compactGrid } = useMobileStyles();
 
   // Update state when URL changes
   useEffect(() => {
@@ -354,7 +352,6 @@ const AdminDashboardPage = () => {
       case "comunidades-viviendas":
         return <ComunidadesViviendas />;
       case "settings":
-        // Podemos implementar una vista de configuración o simplemente mostrar el panel principal
         return <AdminDashboard />;
       default:
         return <AdminDashboard />;
@@ -362,7 +359,7 @@ const AdminDashboardPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Desktop sidebar */}
       <div className="hidden md:flex flex-col w-64 bg-white border-r">
         <div className="p-6">
@@ -615,7 +612,7 @@ const AdminDashboardPage = () => {
         </nav>
       </div>
       
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-hidden w-full">
         <header className="bg-white border-b sticky top-0 z-10">
           <div className="container flex items-center justify-between h-16 px-4 md:px-6">
             {isMobile && (
@@ -630,7 +627,7 @@ const AdminDashboardPage = () => {
               />
             )}
             
-            <h2 className="text-lg font-medium md:hidden">
+            <h2 className="text-lg font-medium md:hidden truncate max-w-[200px]">
               {activeTab === "panel-control" ? "Panel Principal" : 
                activeTab === "gestion-clientes" ? "Gestión Clientes" :
                activeTab === "gestion-recogidas" ? "Recogidas" :
@@ -655,8 +652,10 @@ const AdminDashboardPage = () => {
           </div>
         </header>
         
-        <main className={`container py-6 px-4 mb-0 ${isMobile ? 'pb-6' : ''}`}>
-          {renderContent()}
+        <main className={`container py-4 px-3 md:py-6 md:px-6 mb-0 ${isMobile ? 'overflow-x-hidden w-full' : ''}`}>
+          <div className={fullGrid}>
+            {renderContent()}
+          </div>
         </main>
       </div>
     </div>

@@ -24,6 +24,13 @@ export const mobileCardPadding = () => "p-3 md:p-5";
 export const mobileGap = () => "gap-3 md:gap-4";
 export const mobileFlexCol = () => "flex flex-col md:flex-row";
 export const mobileScrollArea = () => "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent";
+export const mobileCardMinHeight = () => "min-h-[12rem] md:min-height-0";
+export const mobileCompactLayout = () => "grid-cols-1 md:grid-cols-3";
+
+// Enhanced mobile grid layouts
+export const mobileGrid = (cols: number) => `grid grid-cols-1 md:grid-cols-${cols} ${mobileGap()}`;
+export const mobileCompactGrid = () => "grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4";
+export const mobileFullGrid = () => "grid grid-cols-1 w-full overflow-x-hidden";
 
 // Preset color schemes for mobile-specific theming
 export const mobilePrimaryColor = "#ee970d";
@@ -55,6 +62,10 @@ export const useMobileStyles = () => {
     gap: mobileGap(),
     flexCol: mobileFlexCol(),
     scrollArea: mobileScrollArea(),
+    compactGrid: mobileCompactGrid(),
+    fullGrid: mobileFullGrid(),
+    cardMinHeight: mobileCardMinHeight(),
+    compactLayout: mobileCompactLayout(),
     colors: {
       primary: mobilePrimaryColor,
       accent: mobileAccentColor,

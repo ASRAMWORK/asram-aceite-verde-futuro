@@ -49,9 +49,8 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   };
 
   return (
-    <div className={`space-y-${isMobile ? '4' : '6'}`}>
+    <div className={`space-y-${isMobile ? '4' : '6'} w-full overflow-x-hidden`}>
       {renderActiveTabContent()}
-      {isMobile && <div className="h-16"></div>} {/* Extra space at bottom for mobile navigation */}
     </div>
   );
 };

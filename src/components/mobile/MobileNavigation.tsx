@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useLocation, Link } from 'react-router-dom';
 import { useMobileStyles } from '@/utils/mobileStyles';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MenuItem {
   label: string;
@@ -51,44 +52,46 @@ export const MobileNavigation = ({ items, title = "ASRAM", logoComponent }: Mobi
               </Button>
             </div>
             
-            <nav className="flex-1 overflow-y-auto py-2">
-              <div className="space-y-0.5">
-                {items.map((item, index) => {
-                  // Check if the item is active based on the URL or the active prop
-                  const isActive = item.active || location.pathname === item.href || 
-                                   (item.href.includes("?") && location.search.includes(item.href.split("?")[1]));
-                  
-                  return (
-                    <div key={index} className="px-2">
-                      <Link
-                        to={item.href}
-                        className={`flex items-center gap-3 px-4 py-3.5 rounded-md text-base ${touchTarget} ${
-                          isActive
-                            ? "bg-[#ee970d] text-white font-medium"
-                            : "hover:bg-gray-100"
-                        }`}
-                        onClick={(e) => {
-                          if (item.onClick) {
-                            e.preventDefault();
-                            item.onClick();
-                          }
-                          setOpen(false);
-                        }}
-                      >
-                        {item.icon && (
-                          <span className={`${isActive ? "text-white" : "text-[#ee970d]"}`}>
-                            {item.icon}
-                          </span>
-                        )}
-                        <span>{item.label}</span>
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
-            </nav>
+            <ScrollArea className="flex-1 h-full">
+              <nav className="py-2">
+                <div className="space-y-0.5">
+                  {items.map((item, index) => {
+                    // Check if the item is active based on the URL or the active prop
+                    const isActive = item.active || location.pathname === item.href || 
+                                    (item.href.includes("?") && location.search.includes(item.href.split("?")[1]));
+                    
+                    return (
+                      <div key={index} className="px-2">
+                        <Link
+                          to={item.href}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm ${touchTarget} ${
+                            isActive
+                              ? "bg-[#ee970d] text-white font-medium"
+                              : "hover:bg-gray-100"
+                          }`}
+                          onClick={(e) => {
+                            if (item.onClick) {
+                              e.preventDefault();
+                              item.onClick();
+                            }
+                            setOpen(false);
+                          }}
+                        >
+                          {item.icon && (
+                            <span className={`${isActive ? "text-white" : "text-[#ee970d]"}`}>
+                              {item.icon}
+                            </span>
+                          )}
+                          <span>{item.label}</span>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </nav>
+            </ScrollArea>
             
-            <div className="border-t p-4 bg-gray-50">
+            <div className="border-t p-3 bg-gray-50">
               <div className="text-xs text-gray-500 text-center">
                 © {new Date().getFullYear()} ASRAM Admin Panel
               </div>

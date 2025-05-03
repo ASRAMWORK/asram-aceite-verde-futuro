@@ -19,7 +19,7 @@ import AdministradoresList from './AdministradoresList';
 import AddAdministradorForm from './AddAdministradorForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { mobileHeadingSize, mobileTextSize, mobilePadding } from '@/utils/mobileStyles';
+import { mobileHeadingSize, mobileTextSize, mobilePadding, mobileFullGrid } from '@/utils/mobileStyles';
 
 const AdministradoresManagement = () => {
   const [activeTab, setActiveTab] = useState<string>("list");
@@ -32,8 +32,8 @@ const AdministradoresManagement = () => {
   );
 
   return (
-    <div className="space-y-4">
-      <Card>
+    <div className="space-y-4 w-full overflow-x-hidden">
+      <Card className="w-full">
         <CardHeader className={mobilePadding()}>
           <div className="flex items-center justify-between">
             <div>
@@ -42,20 +42,20 @@ const AdministradoresManagement = () => {
                 Administra los usuarios con rol de administrador de fincas
               </CardDescription>
             </div>
-            <UserCog className="h-8 w-8 text-muted-foreground" />
+            <UserCog className="h-7 w-7 text-muted-foreground" />
           </div>
         </CardHeader>
         
         <CardContent className={mobilePadding()}>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 w-full">
             <TabsList className="w-full">
-              <TabsTrigger value="list" className={isMobile ? "text-xs py-2" : ""}>Lista de Administradores</TabsTrigger>
-              <TabsTrigger value="add" className={isMobile ? "text-xs py-2" : ""}>Añadir Administrador</TabsTrigger>
+              <TabsTrigger value="list" className={isMobile ? "text-xs py-2 flex-1" : ""}>Lista de Administradores</TabsTrigger>
+              <TabsTrigger value="add" className={isMobile ? "text-xs py-2 flex-1" : ""}>Añadir Administrador</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="list">
+            <TabsContent value="list" className="w-full">
               {loading ? (
-                <div className="space-y-3">
+                <div className="space-y-3 w-full">
                   <Skeleton className="h-12 w-full" />
                   <Skeleton className="h-12 w-full" />
                   <Skeleton className="h-12 w-full" />
@@ -65,15 +65,12 @@ const AdministradoresManagement = () => {
               )}
             </TabsContent>
             
-            <TabsContent value="add">
+            <TabsContent value="add" className="w-full">
               <AddAdministradorForm onSuccess={() => setActiveTab("list")} />
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
-      
-      {/* Add spacing at the bottom for mobile to prevent content being hidden behind bottom navigation */}
-      {isMobile && <div className="h-16"></div>}
     </div>
   );
 };
