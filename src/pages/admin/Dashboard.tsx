@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Button } from "@/components/ui/button";
@@ -49,11 +49,37 @@ import ReunionesView from "@/components/dashboard/admin/reuniones/ReunionesView"
 import ClienteRankingWrapper from "@/components/dashboard/admin/rankings/ClienteRankingWrapper";
 import AdministradoresManagement from "@/components/dashboard/admin/administradores/AdministradoresManagement";
 import ComunidadesViviendas from "@/components/dashboard/admin/administradores/ComunidadesViviendas";
+import { MobileNavigation } from '@/components/mobile/MobileNavigation';
+import { AdminMobileBottomNav } from '@/components/mobile/AdminMobileBottomNav';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AdminDashboardPage = () => {
-  const [activeTab, setActiveTab] = useState("panel-control");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "panel-control");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+
+  // Update URL when tab changes
+  useEffect(() => {
+    if (activeTab !== "panel-control") {
+      searchParams.set("tab", activeTab);
+      setSearchParams(searchParams);
+    } else {
+      if (searchParams.has("tab")) {
+        searchParams.delete("tab");
+        setSearchParams(searchParams);
+      }
+    }
+  }, [activeTab, searchParams, setSearchParams]);
+
+  // Sync tab from URL
+  useEffect(() => {
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   useEffect(() => {
     const createAdminIfNeeded = async () => {
@@ -107,6 +133,115 @@ const AdminDashboardPage = () => {
     );
   }
 
+  // Generate mobile navigation items
+  const generateMobileNavItems = () => {
+    return [
+      {
+        label: "Panel",
+        href: "/admin/dashboard",
+        icon: <Activity className="h-5 w-5" />
+      },
+      {
+        label: "Gestión",
+        href: "#",
+        icon: <Building className="h-5 w-5" />,
+        subItems: [
+          {
+            label: "Clientes",
+            href: "/admin/dashboard?tab=gestion-clientes",
+            icon: <Users className="h-5 w-5" />
+          },
+          {
+            label: "Recogidas",
+            href: "/admin/dashboard?tab=gestion-recogidas",
+            icon: <Calendar className="h-5 w-5" />
+          },
+          {
+            label: "Retiradas",
+            href: "/admin/dashboard?tab=gestion-retiradas",
+            icon: <Container className="h-5 w-5" />
+          },
+          {
+            label: "Rutas",
+            href: "/admin/dashboard?tab=rutas-distritos",
+            icon: <MapPin className="h-5 w-5" />
+          }
+        ]
+      },
+      {
+        label: "Equipo",
+        href: "#",
+        icon: <Users className="h-5 w-5" />,
+        subItems: [
+          {
+            label: "Trabajadores",
+            href: "/admin/dashboard?tab=trabajadores",
+            icon: <Briefcase className="h-5 w-5" />
+          },
+          {
+            label: "Voluntarios",
+            href: "/admin/dashboard?tab=voluntarios",
+            icon: <User className="h-5 w-5" />
+          },
+          {
+            label: "Administradores",
+            href: "/admin/dashboard?tab=administradores-management",
+            icon: <UserCog className="h-5 w-5" />
+          }
+        ]
+      },
+      {
+        label: "Finanzas",
+        href: "#",
+        icon: <Receipt className="h-5 w-5" />,
+        subItems: [
+          {
+            label: "Facturación",
+            href: "/admin/dashboard?tab=facturacion",
+            icon: <Receipt className="h-5 w-5" />
+          },
+          {
+            label: "Simulador",
+            href: "/admin/dashboard?tab=simulador",
+            icon: <Calculator className="h-5 w-5" />
+          }
+        ]
+      },
+      {
+        label: "Más",
+        href: "#",
+        icon: <Menu className="h-5 w-5" />,
+        subItems: [
+          {
+            label: "Instalaciones",
+            href: "/admin/dashboard?tab=instalaciones",
+            icon: <Building className="h-5 w-5" />
+          },
+          {
+            label: "Puntos Verdes",
+            href: "/admin/dashboard?tab=puntos-verdes",
+            icon: <MapPin className="h-5 w-5" />
+          },
+          {
+            label: "Alianza Escolar",
+            href: "/admin/dashboard?tab=alianza-escolar",
+            icon: <GraduationCap className="h-5 w-5" />
+          },
+          {
+            label: "Tienda",
+            href: "/admin/dashboard?tab=tienda",
+            icon: <ShoppingCart className="h-5 w-5" />
+          },
+          {
+            label: "Cerrar Sesión",
+            onClick: handleSignOut,
+            icon: <User className="h-5 w-5 text-red-500" />
+          }
+        ]
+      }
+    ];
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "panel-control":
@@ -158,6 +293,7 @@ const AdminDashboardPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      {/* Desktop sidebar */}
       <div className="hidden md:flex flex-col w-64 bg-white border-r">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-asram">ASRAM Admin</h1>
@@ -412,6 +548,18 @@ const AdminDashboardPage = () => {
       <div className="flex-1 overflow-auto">
         <header className="bg-white border-b sticky top-0 z-10">
           <div className="container flex items-center justify-between h-16 px-4">
+            {isMobile && (
+              <MobileNavigation 
+                items={generateMobileNavItems()} 
+                title="ASRAM Admin" 
+                logoComponent={
+                  <div className="rounded-full bg-[#ee970d] w-10 h-10 flex items-center justify-center text-white font-bold">
+                    A
+                  </div>
+                }
+              />
+            )}
+            
             <h2 className="text-lg font-medium md:hidden">ASRAM Admin</h2>
             
             <div className="flex items-center gap-4 ml-auto">
@@ -432,6 +580,9 @@ const AdminDashboardPage = () => {
         <main className="container py-8 px-4">
           {renderContent()}
         </main>
+
+        {/* Mobile bottom navigation */}
+        <AdminMobileBottomNav />
       </div>
     </div>
   );
