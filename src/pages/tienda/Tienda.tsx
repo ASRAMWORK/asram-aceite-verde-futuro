@@ -48,6 +48,7 @@ const formaciones = [
     imagen: "https://via.placeholder.com/300x200",
     categoria: "formaciones",
     fechaInicio: "15 de mayo",
+    stripeLink: "https://buy.stripe.com/test_3csaGD2Ku96645acMT"
   },
   {
     id: 2,
@@ -57,6 +58,7 @@ const formaciones = [
     imagen: "https://via.placeholder.com/300x200",
     categoria: "formaciones",
     fechaInicio: "22 de mayo",
+    stripeLink: "https://buy.stripe.com/test_aEUcOLfxg8229pueV2"
   }
 ];
 
@@ -69,7 +71,8 @@ const talleres = [
     imagen: "https://via.placeholder.com/300x200",
     categoria: "talleres",
     fechaInicio: "5 de junio",
-    lugar: "Centro Cultural Las Rozas"
+    lugar: "Centro Cultural Las Rozas",
+    stripeLink: "https://buy.stripe.com/test_dR6aGD1Gq3LMatyeV3"
   },
   {
     id: 2,
@@ -79,7 +82,8 @@ const talleres = [
     imagen: "https://via.placeholder.com/300x200",
     categoria: "talleres",
     fechaInicio: "12 de junio",
-    lugar: "Parque del Retiro"
+    lugar: "Parque del Retiro",
+    stripeLink: "https://buy.stripe.com/test_6oE01Zetc966eJO3ci"
   }
 ];
 
@@ -216,7 +220,10 @@ const Tienda = () => {
                     <div className="mt-4 text-xl font-bold text-asram">{formacion.precio.toFixed(2)}€</div>
                   </CardContent>
                   <CardFooter className="mt-auto">
-                    <Button className="w-full bg-asram hover:bg-asram-600">
+                    <Button 
+                      className="w-full bg-asram hover:bg-asram-600"
+                      onClick={() => handlePurchase(formacion.stripeLink)}
+                    >
                       <BookOpen className="w-4 h-4 mr-2" />
                       Inscribirme
                     </Button>
@@ -253,7 +260,10 @@ const Tienda = () => {
                     <div className="mt-4 text-xl font-bold text-asram">{taller.precio.toFixed(2)}€</div>
                   </CardContent>
                   <CardFooter className="mt-auto">
-                    <Button className="w-full bg-asram hover:bg-asram-600">
+                    <Button 
+                      className="w-full bg-asram hover:bg-asram-600"
+                      onClick={() => handlePurchase(taller.stripeLink)}
+                    >
                       <Users className="w-4 h-4 mr-2" />
                       Reservar plaza
                     </Button>
