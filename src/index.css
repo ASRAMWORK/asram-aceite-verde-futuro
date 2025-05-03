@@ -88,6 +88,18 @@
   background-color: #d58407;
 }
 
+.bg-asram-50 {
+  background-color: #fff5e5;
+}
+
+.border-asram {
+  border-color: #ee970d;
+}
+
+.hover\:bg-asram-50:hover {
+  background-color: #fff5e5;
+}
+
 .dash-gradient {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
@@ -122,5 +134,32 @@
   
   .overflow-x-hidden-mobile {
     overflow-x: hidden;
+  }
+  
+  /* Mobile nav button improvements */
+  .mobile-nav-btn {
+    min-height: 44px;  /* Improved touch target */
+    min-width: 90px;   /* Wider button for better usability */
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  /* Fixed position bottom buttons for mobile */
+  .mobile-fixed-buttons {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(229, 231, 235, 0.8);
+    z-index: 40;
+    display: flex;
+    gap: 0.5rem;
   }
 }

@@ -4,10 +4,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const isMobile = useIsMobile();
   
   // Handle scroll effect
   useEffect(() => {
@@ -102,17 +104,31 @@ const NavBar = () => {
             </Button>
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile view - Modified button display and menu */}
+          <div className="flex items-center gap-2 lg:hidden">
+            {!isMenuOpen && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                asChild 
+                className="border-asram text-asram"
+              >
+                <Link to="/login">Acceder</Link>
+              </Button>
+            )}
+            
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
       
-      {/* Mobile menu */}
+      {/* Mobile menu with improved button placement */}
       {isMenuOpen && (
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
@@ -124,13 +140,25 @@ const NavBar = () => {
             <div>
               <h3 className="font-medium text-gray-500 mb-2">Sobre Nosotros</h3>
               <div className="space-y-2">
-                <Link to="/about" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/about" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   ASRAM Madrid
                 </Link>
-                <Link to="/mision" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/mision" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Misión y Visión
                 </Link>
-                <Link to="/modelo" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/modelo" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Modelo Circular
                 </Link>
               </div>
@@ -139,16 +167,32 @@ const NavBar = () => {
             <div>
               <h3 className="font-medium text-gray-500 mb-2">Programas</h3>
               <div className="space-y-2">
-                <Link to="/alianza-verde" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/alianza-verde" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Alianza Verde Escolar
                 </Link>
-                <Link to="/asram-kids" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/asram-kids" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   ASRAM Kids
                 </Link>
-                <Link to="/puntos-verdes" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/puntos-verdes" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Puntos Verdes
                 </Link>
-                <Link to="/asram-rural" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/asram-rural" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   ASRAM Rural
                 </Link>
               </div>
@@ -157,28 +201,49 @@ const NavBar = () => {
             <div>
               <h3 className="font-medium text-gray-500 mb-2">Colabora</h3>
               <div className="space-y-2">
-                <Link to="/apadrina" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/apadrina" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Apadrina una Calle
                 </Link>
-                <Link to="/detergente" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/detergente" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Detergente Solidario
                 </Link>
-                <Link to="/contacto" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+                <Link 
+                  to="/contacto" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Contacto
                 </Link>
               </div>
             </div>
             
-            <Link to="/tienda" className="block px-3 py-2 rounded-md hover:bg-gray-100">
+            <Link 
+              to="/tienda" 
+              className="block px-3 py-2 rounded-md hover:bg-gray-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Tienda
             </Link>
             
-            <div className="pt-4 flex flex-col gap-3">
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/login">Acceder</Link>
+            {/* Mobile action buttons - repositioned and redesigned */}
+            <div className="pt-4 mt-2 flex flex-col gap-3 border-t border-gray-100">
+              <Button variant="outline" className="w-full justify-center border-asram text-asram" asChild>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  Acceder
+                </Link>
               </Button>
-              <Button className="w-full bg-asram hover:bg-asram-700" asChild>
-                <Link to="/contacto">Solicitar Recogida</Link>
+              <Button className="w-full justify-center bg-asram hover:bg-asram-700" asChild>
+                <Link to="/contacto" onClick={() => setIsMenuOpen(false)}>
+                  Solicitar Recogida
+                </Link>
               </Button>
             </div>
           </div>
