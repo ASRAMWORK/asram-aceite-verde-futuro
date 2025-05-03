@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { auth } from "@/lib/firebase";
@@ -41,8 +42,8 @@ import {
   CalendarDays,
   Trophy,
   UserCog,
-  Menu,
-  Calendar as CalendarIcon
+  Menu, // Added missing Menu import
+  Calendar // Added missing Calendar import
 } from "lucide-react";
 
 import InventarioView from "@/components/dashboard/admin/inventario/InventarioView";
@@ -155,7 +156,7 @@ const AdminDashboardPage = () => {
           {
             label: "Recogidas",
             href: "/admin/dashboard?tab=gestion-recogidas",
-            icon: <CalendarIcon className="h-5 w-5" />
+            icon: <Calendar className="h-5 w-5" />
           },
           {
             label: "Retiradas",
