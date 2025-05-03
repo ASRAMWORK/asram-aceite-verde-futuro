@@ -68,7 +68,7 @@ const talleres = [
     nombre: "Taller infantil: Pequeños recicladores",
     descripcion: "Actividad para niños de 6-12 años. Duración: 2 horas.",
     precio: 15.00,
-    imagen: "fdsip-6x4jd.webp",
+    imagen: "file:///C:/Users/Nitro/Downloads/Dise%C3%B1o%20sin%20t%C3%ADtulo%20(6).webp",
     categoria: "talleres",
     fechaInicio: "CONTINUO",
     lugar: "ONLINE",
