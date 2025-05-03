@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -47,6 +46,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { Separator } from "@/components/ui/separator";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
