@@ -10,12 +10,16 @@ import { toast } from "sonner";
 import { Home, Users, PlusCircle, LogOut, FileText, BarChart, Loader2, Trophy } from "lucide-react";
 import AdministradorDashboardContent from "@/components/dashboard/administrador/AdministradorDashboardContent";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { MobileNavigation } from "@/components/mobile/MobileNavigation";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 
 const AdministradorDashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
   const navigate = useNavigate();
   const { profile } = useUserProfile();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -69,6 +73,22 @@ const AdministradorDashboardPage = () => {
     setActiveTab(tabValue);
   };
 
+  const menuItems = [
+    { label: "Inicio", href: "#home", icon: <Home className="h-5 w-5" /> },
+    { label: "Mis Comunidades", href: "#comunidades", icon: <Users className="h-5 w-5" /> },
+    { label: "Añadir Comunidad", href: "#gestionar", icon: <PlusCircle className="h-5 w-5" /> },
+    { label: "Informes y Contratos", href: "#informes", icon: <FileText className="h-5 w-5" /> },
+    { label: "Estadísticas", href: "#estadisticas", icon: <BarChart className="h-5 w-5" /> },
+    { label: "Ranking Clientes", href: "#ranking", icon: <Trophy className="h-5 w-5" /> }
+  ];
+
+  const bottomNavItems = [
+    { label: "Inicio", href: "#home", icon: <Home /> },
+    { label: "Comunidades", href: "#comunidades", icon: <Users /> },
+    { label: "Informes", href: "#informes", icon: <FileText /> },
+    { label: "Estadísticas", href: "#estadisticas", icon: <BarChart /> }
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen dash-gradient flex items-center justify-center">
@@ -83,6 +103,7 @@ const AdministradorDashboardPage = () => {
   return (
     <Dialog>
       <div className="flex min-h-screen bg-gray-50">
+        {/* Desktop sidebar - hidden on mobile */}
         <div className="hidden md:flex flex-col w-72 bg-white border-r shadow-sm">
           <div className="p-6 flex items-center justify-center">
             <h1 className="text-2xl font-bold text-[#ee970d]">ASRAM Admin Fincas</h1>
@@ -102,71 +123,20 @@ const AdministradorDashboardPage = () => {
           </div>
           
           <nav className="flex-1 px-4 pb-6 space-y-1.5">
-            <Button
-              variant={activeTab === "home" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "home" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
-              }`}
-              onClick={() => handleTabChange("home")}
-            >
-              <Home className="mr-3 h-5 w-5" />
-              Inicio
-            </Button>
-            
-            <Button
-              variant={activeTab === "comunidades" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "comunidades" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
-              }`}
-              onClick={() => handleTabChange("comunidades")}
-            >
-              <Users className="mr-3 h-5 w-5" />
-              Mis Comunidades
-            </Button>
-            
-            <Button
-              variant={activeTab === "gestionar" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "gestionar" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
-              }`}
-              onClick={() => handleTabChange("gestionar")}
-            >
-              <PlusCircle className="mr-3 h-5 w-5" />
-              Añadir Comunidad
-            </Button>
-            
-            <Button
-              variant={activeTab === "informes" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "informes" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
-              }`}
-              onClick={() => handleTabChange("informes")}
-            >
-              <FileText className="mr-3 h-5 w-5" />
-              Informes y Contratos
-            </Button>
-            
-            <Button
-              variant={activeTab === "estadisticas" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "estadisticas" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
-              }`}
-              onClick={() => handleTabChange("estadisticas")}
-            >
-              <BarChart className="mr-3 h-5 w-5" />
-              Estadísticas
-            </Button>
-            
-            <Button
-              variant={activeTab === "ranking" ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                activeTab === "ranking" ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
-              }`}
-              onClick={() => handleTabChange("ranking")}
-            >
-              <Trophy className="mr-3 h-5 w-5" />
-              Ranking Clientes
-            </Button>
+            {/* ... keep existing code for desktop navigation buttons */}
+            {menuItems.map((item) => (
+              <Button
+                key={item.label}
+                variant={activeTab === item.href.substring(1) ? "default" : "ghost"}
+                className={`w-full justify-start ${
+                  activeTab === item.href.substring(1) ? "bg-[#ee970d] hover:bg-[#ee970d]/90 text-white" : ""
+                }`}
+                onClick={() => handleTabChange(item.href.substring(1))}
+              >
+                {item.icon}
+                <span className="ml-3">{item.label}</span>
+              </Button>
+            ))}
             
             <Separator className="my-4" />
             
@@ -181,10 +151,36 @@ const AdministradorDashboardPage = () => {
           </nav>
         </div>
         
+        {/* Mobile navigation */}
+        {isMobile && (
+          <MobileNavigation 
+            items={menuItems.map(item => ({
+              ...item,
+              href: item.href,
+              onClick: () => handleTabChange(item.href.substring(1))
+            }))}
+            title="ASRAM Admin"
+          />
+        )}
+        
         <div className="flex-1 overflow-auto">
           <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
             <div className="container flex items-center justify-between h-16 px-4">
-              <h2 className="text-lg font-medium md:hidden">ASRAM Admin Fincas</h2>
+              {isMobile ? (
+                <div className="flex items-center">
+                  <MobileNavigation 
+                    items={menuItems.map(item => ({
+                      ...item,
+                      href: item.href,
+                      onClick: () => handleTabChange(item.href.substring(1))
+                    }))}
+                    title="ASRAM Admin"
+                  />
+                  <h2 className="text-lg font-medium ml-2">ASRAM Admin Fincas</h2>
+                </div>
+              ) : (
+                <h2 className="text-lg font-medium md:hidden">ASRAM Admin Fincas</h2>
+              )}
               
               <div className="flex items-center gap-4 ml-auto">
                 <DialogTrigger asChild>
@@ -195,20 +191,40 @@ const AdministradorDashboardPage = () => {
                     Solicitar Recogida
                   </Button>
                 </DialogTrigger>
-                <Button
-                  variant="ghost"
-                  className="md:hidden"
-                  onClick={handleSignOut}
-                >
-                  Salir
-                </Button>
+                {isMobile ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="md:hidden"
+                    onClick={handleSignOut}
+                  >
+                    Salir
+                  </Button>
+                )}
               </div>
             </div>
           </header>
           
-          <main className="container py-8 px-4">
+          <main className={`container py-4 md:py-8 px-3 md:px-4`}>
             <AdministradorDashboardContent activeTab={activeTab} />
           </main>
+          
+          {/* Mobile bottom navigation */}
+          {isMobile && (
+            <MobileBottomNav 
+              items={bottomNavItems.map(item => ({
+                ...item,
+                onClick: () => handleTabChange(item.href.substring(1))
+              }))}
+            />
+          )}
         </div>
       </div>
     </Dialog>

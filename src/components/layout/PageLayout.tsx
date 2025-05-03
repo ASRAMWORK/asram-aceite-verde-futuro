@@ -2,6 +2,7 @@
 import NavBar from "@/components/home/NavBar";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -11,10 +12,12 @@ interface PageLayoutProps {
 }
 
 const PageLayout = ({ children, title, subtitle, showDecoration = true }: PageLayoutProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <NavBar />
-      <div className="pt-24 pb-16 relative overflow-hidden bg-gradient-to-b from-asram-100/30 to-transparent">
+      <div className={`pt-20 md:pt-24 pb-8 md:pb-16 relative overflow-hidden bg-gradient-to-b from-asram-100/30 to-transparent`}>
         {showDecoration && (
           <>
             <div className="absolute top-12 right-0 w-72 h-72 bg-asram/5 rounded-full blur-3xl -z-10" />
@@ -26,7 +29,7 @@ const PageLayout = ({ children, title, subtitle, showDecoration = true }: PageLa
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-bold text-asram-800 bg-clip-text text-transparent bg-gradient-to-r from-asram-800 to-asram"
+            className={`${isMobile ? 'text-3xl' : 'text-4xl md:text-5xl'} font-bold text-asram-800 bg-clip-text text-transparent bg-gradient-to-r from-asram-800 to-asram`}
           >
             {title}
           </motion.h1>
@@ -35,7 +38,7 @@ const PageLayout = ({ children, title, subtitle, showDecoration = true }: PageLa
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-4 text-xl text-gray-700 max-w-3xl"
+              className={`mt-3 md:mt-4 ${isMobile ? 'text-lg' : 'text-xl'} text-gray-700 max-w-3xl`}
             >
               {subtitle}
             </motion.p>
@@ -46,7 +49,7 @@ const PageLayout = ({ children, title, subtitle, showDecoration = true }: PageLa
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="container mx-auto px-4 py-12"
+        className={`container mx-auto px-4 ${isMobile ? 'py-6' : 'py-12'}`}
       >
         {children}
       </motion.main>

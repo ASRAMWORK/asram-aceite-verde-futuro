@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building, Home, Droplet, Package, BarChart3 } from 'lucide-react';
@@ -6,6 +5,7 @@ import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface PanelControlProps {
   adminId?: string;
@@ -16,6 +16,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
   const efectiveAdminId = adminId || profile?.id;
   const { comunidades, loading } = useComunidadesVecinos(efectiveAdminId);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Calcular estadísticas
   const totalComunidades = comunidades.length;
@@ -58,17 +59,17 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
   }
   
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Panel de Control</h2>
+    <div className="space-y-4 md:space-y-6">
+      <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>Panel de Control</h2>
       <p className="text-gray-600">Bienvenido de nuevo, {profile?.nombreAdministracion || profile?.nombre || 'Administrador'}.</p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className={`grid grid-cols-2 ${isMobile ? 'gap-3' : 'md:grid-cols-4 gap-6'} mb-4 md:mb-6`}>
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+          <CardHeader className={`${isMobile ? 'p-3' : 'pb-2'}`}>
             <CardDescription>Comunidades</CardDescription>
-            <CardTitle className="text-3xl">{totalComunidades}</CardTitle>
+            <CardTitle className={`${isMobile ? 'text-2xl' : 'text-3xl'}`}>{totalComunidades}</CardTitle>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className={`${isMobile ? 'p-3 pt-0' : 'pt-2'}`}>
             <div className="flex items-center">
               <Building className="h-5 w-5 text-[#ee970d] mr-2" />
               <span className="text-sm text-gray-500">Comunidades gestionadas</span>
@@ -77,11 +78,11 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
         </Card>
         
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+          <CardHeader className={`${isMobile ? 'p-3' : 'pb-2'}`}>
             <CardDescription>Viviendas</CardDescription>
-            <CardTitle className="text-3xl">{totalViviendas}</CardTitle>
+            <CardTitle className={`${isMobile ? 'text-2xl' : 'text-3xl'}`}>{totalViviendas}</CardTitle>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className={`${isMobile ? 'p-3 pt-0' : 'pt-2'}`}>
             <div className="flex items-center">
               <Home className="h-5 w-5 text-[#ee970d] mr-2" />
               <span className="text-sm text-gray-500">Viviendas en comunidades</span>
@@ -90,11 +91,11 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
         </Card>
         
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+          <CardHeader className={`${isMobile ? 'p-3' : 'pb-2'}`}>
             <CardDescription>Contenedores</CardDescription>
-            <CardTitle className="text-3xl">{totalContenedores}</CardTitle>
+            <CardTitle className={`${isMobile ? 'text-2xl' : 'text-3xl'}`}>{totalContenedores}</CardTitle>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className={`${isMobile ? 'p-3 pt-0' : 'pt-2'}`}>
             <div className="flex items-center">
               <Package className="h-5 w-5 text-[#ee970d] mr-2" />
               <span className="text-sm text-gray-500">Contenedores instalados</span>
@@ -103,11 +104,11 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
         </Card>
         
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+          <CardHeader className={`${isMobile ? 'p-3' : 'pb-2'}`}>
             <CardDescription>Aceite recogido</CardDescription>
-            <CardTitle className="text-3xl">{totalLitrosRecogidos} L</CardTitle>
+            <CardTitle className={`${isMobile ? 'text-2xl' : 'text-3xl'}`}>{totalLitrosRecogidos} L</CardTitle>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className={`${isMobile ? 'p-3 pt-0' : 'pt-2'}`}>
             <div className="flex items-center">
               <Droplet className="h-5 w-5 text-[#ee970d] mr-2" />
               <span className="text-sm text-gray-500">Total aceite recogido</span>
@@ -116,13 +117,13 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-6'} mb-4 md:mb-6`}>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Impacto Medioambiental</CardTitle>
+          <CardHeader className={isMobile ? 'p-4' : ''}>
+            <CardTitle className={`${isMobile ? 'text-lg' : 'text-xl'}`}>Impacto Medioambiental</CardTitle>
             <CardDescription>Beneficios generados por tus comunidades</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? 'p-4 pt-0' : ''}>
             <div className="grid grid-cols-1 gap-4">
               <div className="flex items-center justify-between p-3 bg-green-50 rounded-md">
                 <div className="flex items-center">
@@ -131,7 +132,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">CO2 Reducido</p>
-                    <p className="text-2xl font-bold">{Math.round(totalCO2)} kg</p>
+                    <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>{Math.round(totalCO2)} kg</p>
                   </div>
                 </div>
               </div>
@@ -143,7 +144,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Agua ahorrada</p>
-                    <p className="text-2xl font-bold">{Math.round(totalAguaAhorrada)} L</p>
+                    <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>{Math.round(totalAguaAhorrada)} L</p>
                   </div>
                 </div>
               </div>
@@ -155,7 +156,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Energía ahorrada</p>
-                    <p className="text-2xl font-bold">{Math.round(totalEnergiaAhorrada)} kWh</p>
+                    <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>{Math.round(totalEnergiaAhorrada)} kWh</p>
                   </div>
                 </div>
               </div>
@@ -164,28 +165,43 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Acciones rápidas</CardTitle>
+          <CardHeader className={isMobile ? 'p-4' : ''}>
+            <CardTitle className={`${isMobile ? 'text-lg' : 'text-xl'}`}>Acciones rápidas</CardTitle>
             <CardDescription>Gestiona tus comunidades y servicios</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <Button onClick={() => navegarA('gestionar')} className="w-full bg-[#ee970d] hover:bg-[#ee970d]/90">
+          <CardContent className={isMobile ? 'p-4 pt-0' : ''}>
+            <div className="space-y-3 md:space-y-4">
+              <Button 
+                onClick={() => navegarA('gestionar')} 
+                className={`w-full bg-[#ee970d] hover:bg-[#ee970d]/90 ${isMobile ? 'h-12' : ''}`}
+              >
                 <Building className="mr-2 h-5 w-5" />
                 Añadir nueva comunidad
               </Button>
               
-              <Button onClick={() => navegarA('comunidades')} variant="outline" className="w-full">
+              <Button 
+                onClick={() => navegarA('comunidades')} 
+                variant="outline" 
+                className={`w-full ${isMobile ? 'h-12' : ''}`}
+              >
                 <Home className="mr-2 h-5 w-5" />
                 Ver mis comunidades
               </Button>
               
-              <Button onClick={() => navegarA('estadisticas')} variant="outline" className="w-full">
+              <Button 
+                onClick={() => navegarA('estadisticas')} 
+                variant="outline" 
+                className={`w-full ${isMobile ? 'h-12' : ''}`}
+              >
                 <BarChart3 className="mr-2 h-5 w-5" />
                 Ver estadísticas detalladas
               </Button>
               
-              <Button onClick={() => navegarA('informes')} variant="outline" className="w-full">
+              <Button 
+                onClick={() => navegarA('informes')} 
+                variant="outline" 
+                className={`w-full ${isMobile ? 'h-12' : ''}`}
+              >
                 <Droplet className="mr-2 h-5 w-5" />
                 Informes y documentación
               </Button>
@@ -196,11 +212,11 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
       
       {comunidades.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Últimas comunidades</CardTitle>
+          <CardHeader className={isMobile ? 'p-4' : ''}>
+            <CardTitle className={`${isMobile ? 'text-lg' : 'text-xl'}`}>Últimas comunidades</CardTitle>
             <CardDescription>Resumen de tus comunidades recientes</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? 'p-4 pt-0' : ''}>
             <div className="space-y-2">
               {comunidades.slice(0, 3).map((comunidad) => (
                 <div key={comunidad.id} className="p-3 border rounded-md hover:bg-gray-50 flex justify-between items-center">
@@ -208,7 +224,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
                     <Building className="h-5 w-5 text-gray-500 mr-3" />
                     <div>
                       <p className="font-medium">{comunidad.nombre}</p>
-                      <p className="text-sm text-gray-500">{comunidad.direccion}, {comunidad.ciudad}</p>
+                      <p className={`text-sm text-gray-500 ${isMobile ? 'max-w-[150px] truncate' : ''}`}>{comunidad.direccion}, {comunidad.ciudad}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -226,6 +242,8 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
           </CardContent>
         </Card>
       )}
+      
+      {isMobile && <div className="h-16"></div>} {/* Space for mobile bottom nav */}
     </div>
   );
 };

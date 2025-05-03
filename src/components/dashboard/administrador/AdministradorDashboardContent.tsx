@@ -8,6 +8,7 @@ import AdministradorEstadisticas from "./estadisticas/AdministradorEstadisticas"
 import AdministradorPerfil from "./perfil/AdministradorPerfil";
 import ClienteRankingWrapper from "../admin/rankings/ClienteRankingWrapper";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface AdministradorDashboardContentProps {
   activeTab: string;
@@ -16,7 +17,8 @@ interface AdministradorDashboardContentProps {
 const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps> = ({ activeTab }) => {
   const { profile } = useUserProfile();
   const adminId = profile?.id || '';
-
+  const isMobile = useIsMobile();
+  
   // Function to render the active tab content
   const renderActiveTabContent = () => {
     switch (activeTab) {
@@ -47,8 +49,9 @@ const AdministradorDashboardContent: React.FC<AdministradorDashboardContentProps
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-${isMobile ? '4' : '6'}`}>
       {renderActiveTabContent()}
+      {isMobile && <div className="h-16"></div>} {/* Extra space at bottom for mobile navigation */}
     </div>
   );
 };

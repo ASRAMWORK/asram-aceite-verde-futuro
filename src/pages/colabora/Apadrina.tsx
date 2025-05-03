@@ -3,15 +3,18 @@ import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const Apadrina = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <PageLayout 
       title="Apadrina una Calle" 
       subtitle="Ayúdanos a expandir nuestra red de reciclaje"
     >
       <div className="max-w-5xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className={`grid ${isMobile ? "grid-cols-1 gap-6" : "md:grid-cols-3 gap-8"}`}>
           <Card className="relative overflow-hidden">
             <CardHeader>
               <CardTitle>Plan Básico</CardTitle>
@@ -27,7 +30,7 @@ const Apadrina = () => {
                 ))}
               </ul>
               <Button 
-                className="w-full mt-6"
+                className={`w-full mt-6 ${isMobile ? "h-12" : ""}`}
                 onClick={() => window.open("https://buy.stripe.com/test_6oEcOL3Oygyy59e7ss", "_blank")}
               >
                 Seleccionar Plan
@@ -58,7 +61,7 @@ const Apadrina = () => {
                 ))}
               </ul>
               <Button 
-                className="w-full mt-6"
+                className={`w-full mt-6 ${isMobile ? "h-12" : ""}`}
                 onClick={() => window.open("https://buy.stripe.com/test_9AQ8yvdp8bee45a5kl", "_blank")}
               >
                 Seleccionar Plan
@@ -87,7 +90,7 @@ const Apadrina = () => {
                 ))}
               </ul>
               <Button 
-                className="w-full mt-6"
+                className={`w-full mt-6 ${isMobile ? "h-12" : ""}`}
                 onClick={() => window.open("https://buy.stripe.com/test_6oE9Czcl46XY6di9AC", "_blank")}
               >
                 Seleccionar Plan
@@ -97,11 +100,11 @@ const Apadrina = () => {
         </div>
 
         <Card className="mt-12 bg-white/70 backdrop-blur-sm">
-          <CardContent className="p-8">
+          <CardContent className={`p-6 ${isMobile ? "px-4" : "p-8"}`}>
             <h2 className="text-2xl font-bold text-asram-800 mb-4">
               ¿Por qué apadrinar una calle?
             </h2>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className={`grid ${isMobile ? "grid-cols-1 gap-4" : "md:grid-cols-2 gap-6"}`}>
               <div>
                 <h3 className="font-semibold text-asram-700 mb-2">Impacto Ambiental</h3>
                 <p className="text-gray-600">
@@ -120,6 +123,7 @@ const Apadrina = () => {
           </CardContent>
         </Card>
       </div>
+      {isMobile && <div className="h-16"></div>}
     </PageLayout>
   );
 };
