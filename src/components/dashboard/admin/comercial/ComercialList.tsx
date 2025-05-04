@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ import {
   PieChart,
   UserPlus,
   AlertTriangle,
-  Link
+  Link as LinkIcon
 } from "lucide-react";
 import { toast } from "sonner";
 import { useComerciales } from "@/hooks/useComerciales";
@@ -29,6 +30,7 @@ import DetalleComercialDialog from "./DetalleComercialDialog";
 import { addSpecificComerciales } from "@/hooks/addSpecificComerciales";
 import VincularComercialDialog from "./VincularComercialDialog";
 import AdminStatusToggle from "@/components/shared/AdminStatusToggle";
+import { Usuario } from "@/types";
 
 const ComercialList = () => {
   const { comerciales, loading, aprobarComercial, loadComercialesData } = useComerciales();
@@ -159,84 +161,92 @@ const ComercialList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredComerciales.map((comercial) => (
-                    <TableRow key={comercial.id} className={
-                      comercial.estadoVinculacion && 
-                      comercial.estadoVinculacion !== 'completo' ? 
-                      'bg-red-50' : ''
-                    }>
-                      <TableCell className="font-medium">
-                        <div>
-                          {comercial.nombre} {comercial.apellidos}
-                          <div className="text-xs text-gray-500">{comercial.email}</div>
-                          {comercial.estadoVinculacion && comercial.estadoVinculacion !== 'completo' && (
-                            <Badge variant="outline" className="mt-1 bg-red-100 text-red-800 flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" />
-                              {comercial.estadoVinculacion === 'pendiente' && "Pendiente de vincular"}
-                              {comercial.estadoVinculacion === 'falla_password' && "Password incorrecto"}
-                              {comercial.estadoVinculacion === 'sin_vincular' && "Sin vincular"}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-mono">
-                          {comercial.codigo || "-"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{getTotalClientesByComercialId(comercial.id)}</TableCell>
-                      <TableCell>{getTotalLitrosByComercialId(comercial.id)} L</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <AdminStatusToggle 
-                            user={comercial} 
-                            userType="comercial" 
-                          />
-                          {!comercial.aprobado && (
-                            <Badge variant="outline" className="bg-amber-100 text-amber-800">
-                              Pendiente de aprobación
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleViewDetails(comercial.id)}
-                            title="Ver detalles"
-                          >
-                            <FileText className="h-4 w-4" />
-                          </Button>
-                          
-                          {comercial.estadoVinculacion && comercial.estadoVinculacion !== 'completo' && (
+                  {filteredComerciales.map((comercial) => {
+                    // Create user object with required role property for AdminStatusToggle
+                    const userWithRole: Usuario = {
+                      ...comercial,
+                      role: 'comercial', // Add the required role property
+                    };
+                    
+                    return (
+                      <TableRow key={comercial.id} className={
+                        comercial.estadoVinculacion && 
+                        comercial.estadoVinculacion !== 'completo' ? 
+                        'bg-red-50' : ''
+                      }>
+                        <TableCell className="font-medium">
+                          <div>
+                            {comercial.nombre} {comercial.apellidos}
+                            <div className="text-xs text-gray-500">{comercial.email}</div>
+                            {comercial.estadoVinculacion && comercial.estadoVinculacion !== 'completo' && (
+                              <Badge variant="outline" className="mt-1 bg-red-100 text-red-800 flex items-center gap-1">
+                                <AlertTriangle className="h-3 w-3" />
+                                {comercial.estadoVinculacion === 'pendiente' && "Pendiente de vincular"}
+                                {comercial.estadoVinculacion === 'falla_password' && "Password incorrecto"}
+                                {comercial.estadoVinculacion === 'sin_vincular' && "Sin vincular"}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono">
+                            {comercial.codigo || "-"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{getTotalClientesByComercialId(comercial.id)}</TableCell>
+                        <TableCell>{getTotalLitrosByComercialId(comercial.id)} L</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <AdminStatusToggle 
+                              user={userWithRole}
+                              userType="comercial" 
+                            />
+                            {!comercial.aprobado && (
+                              <Badge variant="outline" className="bg-amber-100 text-amber-800">
+                                Pendiente de aprobación
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
                             <Button
                               variant="outline"
                               size="icon"
-                              onClick={() => handleVincularComercial(comercial.id)}
-                              title="Vincular con Firebase Auth"
-                              className="text-blue-600 hover:text-blue-700"
+                              onClick={() => handleViewDetails(comercial.id)}
+                              title="Ver detalles"
                             >
-                              <Link className="h-4 w-4" />
+                              <FileText className="h-4 w-4" />
                             </Button>
-                          )}
-                          
-                          {!comercial.aprobado && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleApprove(comercial.id)}
-                              title="Aprobar comercial"
-                              className="text-green-600 hover:text-green-700"
-                            >
-                              <UserCheck className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            
+                            {comercial.estadoVinculacion && comercial.estadoVinculacion !== 'completo' && (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleVincularComercial(comercial.id)}
+                                title="Vincular con Firebase Auth"
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                <LinkIcon className="h-4 w-4" />
+                              </Button>
+                            )}
+                            
+                            {!comercial.aprobado && (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleApprove(comercial.id)}
+                                title="Aprobar comercial"
+                                className="text-green-600 hover:text-green-700"
+                              >
+                                <UserCheck className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

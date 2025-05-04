@@ -1,23 +1,6 @@
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { 
-  BadgeCheck,
-  Building2, 
-  Home, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  User
-} from 'lucide-react';
 import { Usuario } from '@/types';
-import { formatDate } from '@/utils/dates';
 
 interface AdminPerfilTabProps {
   admin: Usuario;
@@ -25,71 +8,61 @@ interface AdminPerfilTabProps {
 
 const AdminPerfilTab: React.FC<AdminPerfilTabProps> = ({ admin }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Información Personal</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Nombre:</span>
-            <span className="text-sm">{admin.nombre} {admin.apellidos}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Email:</span>
-            <span className="text-sm">{admin.email}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Teléfono:</span>
-            <span className="text-sm">{admin.telefono || "No especificado"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Fecha de registro:</span>
-            <span className="text-sm">
-              {admin.createdAt ? formatDate(admin.createdAt) : "No disponible"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <BadgeCheck className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Estado cuenta:</span>
-            <span className={`text-sm ${admin.activo ? 'text-green-600' : 'text-red-600'}`}>
-              {admin.activo ? 'Activo' : 'Inactivo'}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Datos de la Administración</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Nombre de la administración:</span>
-            <span className="text-sm">{admin.nombreAdministracion || "No especificado"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Dirección:</span>
-            <span className="text-sm">{admin.direccion || "No especificada"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Ciudad:</span>
-            <span className="text-sm">{admin.ciudad || "No especificada"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Código Postal:</span>
-            <span className="text-sm">{admin.codigoPostal || "No especificado"}</span>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 className="text-lg font-medium mb-4">Información personal</h3>
+          <dl className="space-y-2">
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Nombre</dt>
+              <dd className="col-span-2">{admin.nombre} {admin.apellidos || ''}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Email</dt>
+              <dd className="col-span-2">{admin.email}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Teléfono</dt>
+              <dd className="col-span-2">{admin.telefono || '—'}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Fecha de registro</dt>
+              <dd className="col-span-2">
+                {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : '—'}
+              </dd>
+            </div>
+          </dl>
+        </div>
+        <div>
+          <h3 className="text-lg font-medium mb-4">Información de la administración</h3>
+          <dl className="space-y-2">
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Nombre</dt>
+              <dd className="col-span-2">{admin.nombreAdministracion || '—'}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">CIF</dt>
+              <dd className="col-span-2">{admin.cif || '—'}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Dirección</dt>
+              <dd className="col-span-2">{admin.direccion || '—'}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Ciudad</dt>
+              <dd className="col-span-2">{admin.ciudad || '—'}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Provincia</dt>
+              <dd className="col-span-2">{admin.provincia || '—'}</dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="font-medium text-gray-500">Código postal</dt>
+              <dd className="col-span-2">{admin.codigoPostal || '—'}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
     </div>
   );
 };

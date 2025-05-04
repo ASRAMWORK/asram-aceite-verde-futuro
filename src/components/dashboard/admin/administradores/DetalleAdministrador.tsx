@@ -13,11 +13,15 @@ import AdminEstadisticasTab from './tabs/AdminEstadisticasTab';
 import { toast } from 'sonner';
 import AdminStatusToggle from '@/components/shared/AdminStatusToggle';
 
-const DetalleAdministrador = () => {
+interface DetalleAdministradorProps {
+  admin?: Usuario;
+}
+
+const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin: initialAdmin }) => {
   const { id } = useParams<{ id: string }>();
-  const { getUsuarioById, aprobarAdministrador } = useUsuarios();
-  const [admin, setAdmin] = useState<Usuario | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { usuarios, updateUsuario } = useUsuarios();
+  const [admin, setAdmin] = useState<Usuario | null>(initialAdmin || null);
+  const [loading, setLoading] = useState(!initialAdmin);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,8 +29,13 @@ const DetalleAdministrador = () => {
       try {
         setLoading(true);
         if (id) {
-          const adminData = await getUsuarioById(id);
-          setAdmin(adminData);
+          // Find the admin in the usuarios array
+          const foundAdmin = usuarios.find(usuario => usuario.id === id);
+          if (foundAdmin) {
+            setAdmin(foundAdmin);
+          } else {
+            console.error('Administrador no encontrado');
+          }
         }
       } catch (error) {
         console.error('Error al cargar datos del administrador:', error);
@@ -35,13 +44,15 @@ const DetalleAdministrador = () => {
       }
     };
 
-    fetchData();
-  }, [id, getUsuarioById]);
+    if (!initialAdmin && id) {
+      fetchData();
+    }
+  }, [id, usuarios, initialAdmin]);
 
   const handleAprobar = async () => {
     if (admin && admin.id) {
       try {
-        await aprobarAdministrador(admin.id);
+        await updateUsuario(admin.id, { aprobado: true });
         setAdmin({ ...admin, aprobado: true });
         toast.success('Administrador aprobado correctamente');
       } catch (error) {

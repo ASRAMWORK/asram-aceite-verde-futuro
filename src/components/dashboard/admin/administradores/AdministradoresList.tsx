@@ -36,7 +36,7 @@ const AdministradoresList: React.FC<AdministradoresListProps> = ({ administrador
   const [adminToDelete, setAdminToDelete] = useState<Usuario | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { deleteUsuario, getUsuariosByRole } = useUsuarios();
+  const { deleteUsuario } = useUsuarios();
 
   const handleVerDetalles = (admin: Usuario) => {
     setSelectedAdmin(admin);

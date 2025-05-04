@@ -1,71 +1,36 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Building } from 'lucide-react';
-import { ComunidadVecinos } from '@/types';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+import { Usuario } from '@/types';
 
-interface AdminComunidadesTabProps {
-  comunidades: ComunidadVecinos[];
+export interface AdminComunidadesTabProps {
+  admin: Usuario;
 }
 
-const AdminComunidadesTab: React.FC<AdminComunidadesTabProps> = ({ comunidades }) => {
+const AdminComunidadesTab: React.FC<AdminComunidadesTabProps> = ({ admin }) => {
   return (
-    <>
-      <div className="mb-4 flex justify-between items-center">
-        <h3 className="text-lg font-medium">Comunidades</h3>
-      </div>
-      
-      {comunidades.length === 0 ? (
-        <div className="text-center py-8">
-          <Building className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
-          <p className="mt-2 text-muted-foreground">Este administrador no tiene comunidades asignadas</p>
+    <div>
+      {admin.comunidades && admin.comunidades.length > 0 ? (
+        <div>
+          <h3 className="text-lg font-medium mb-4">Comunidades administradas ({admin.comunidades.length})</h3>
+          <div className="space-y-4">
+            {admin.comunidades.map((comunidad) => (
+              <div key={comunidad.id} className="border p-4 rounded-md">
+                <h4 className="font-bold">{comunidad.nombre}</h4>
+                <p className="text-sm text-gray-600">{comunidad.direccion}</p>
+                <div className="mt-2 text-sm">
+                  <span className="mr-4">Viviendas: {comunidad.numViviendas || 0}</span>
+                  <span>Contenedores: {comunidad.numContenedores || 0}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Dirección</TableHead>
-                <TableHead>Viviendas</TableHead>
-                <TableHead>Contenedores</TableHead>
-                <TableHead>Litros Recogidos</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {comunidades.map((comunidad) => (
-                <TableRow key={comunidad.id}>
-                  <TableCell className="font-medium">{comunidad.nombre}</TableCell>
-                  <TableCell>
-                    {comunidad.direccion}, {comunidad.codigoPostal} {comunidad.ciudad}
-                  </TableCell>
-                  <TableCell>{comunidad.numViviendas || comunidad.totalViviendas || 0}</TableCell>
-                  <TableCell>{comunidad.numContenedores || 0}</TableCell>
-                  <TableCell>{comunidad.litrosRecogidos || 0} L</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="text-center py-8 text-gray-500">
+          Este administrador no tiene comunidades asignadas
         </div>
       )}
-      
-      <div className="mt-4 flex justify-end">
-        <Button 
-          variant="outline" 
-          disabled={comunidades.length === 0}
-        >
-          Exportar datos
-        </Button>
-      </div>
-    </>
+    </div>
   );
 };
 
