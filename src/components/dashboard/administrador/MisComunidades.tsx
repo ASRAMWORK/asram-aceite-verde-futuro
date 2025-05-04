@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import {
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { ComunidadVecinos } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import RecogidaClienteButton from '../admin/clientes/RecogidaClienteButton';
 import { toast } from 'sonner';
 
 interface MisComunidadesProps {
@@ -168,7 +168,7 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                   </div>
                 </div>
                 
-                <div className="mt-4 grid grid-cols-3 gap-2">
+                <div className="mt-4 grid grid-cols-2 gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -178,23 +178,6 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                     <Eye className="h-4 w-4 mr-1" />
                     Detalles
                   </Button>
-                  
-                  <RecogidaClienteButton 
-                    cliente={{
-                      id: comunidad.id,
-                      nombre: comunidad.nombre,
-                      direccion: comunidad.direccion,
-                      distrito: comunidad.distrito,
-                      barrio: comunidad.barrio,
-                      ciudad: comunidad.ciudad,
-                      telefono: comunidad.telefono || '',
-                      email: comunidad.email || '',
-                      role: 'client',
-                      activo: true
-                    }}
-                    variant="secondary"
-                    size="sm"
-                  />
                   
                   <Button 
                     variant="outline" 
@@ -279,26 +262,10 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                 </div>
               </div>
               
-              <div className="flex justify-between mt-4">
+              <div className="flex justify-end mt-4">
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>
                   Cerrar
                 </Button>
-                <RecogidaClienteButton 
-                  cliente={{
-                    id: selectedComunidad.id,
-                    nombre: selectedComunidad.nombre,
-                    direccion: selectedComunidad.direccion,
-                    distrito: selectedComunidad.distrito,
-                    barrio: selectedComunidad.barrio,
-                    ciudad: selectedComunidad.ciudad,
-                    telefono: selectedComunidad.telefono || '',
-                    email: selectedComunidad.email || '',
-                    role: 'client',
-                    activo: true
-                  }}
-                  variant="default"
-                  size="default"
-                />
               </div>
             </>
           )}
