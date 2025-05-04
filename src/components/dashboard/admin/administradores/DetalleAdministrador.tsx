@@ -41,7 +41,6 @@ import {
 } from '@/components/ui/table';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useNavigate } from 'react-router-dom';
 
 interface DetalleAdministradorProps {
   admin: Usuario;
@@ -54,7 +53,6 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
   const [activeTab, setActiveTab] = useState("perfil");
   const [totalViviendas, setTotalViviendas] = useState(0);
   const [totalContenedores, setTotalContenedores] = useState(0);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadComunidades = async () => {
@@ -113,14 +111,6 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleVerComunidades = () => {
-    // Almacenar el ID del administrador en sessionStorage
-    sessionStorage.setItem('viewingAdminId', admin.id);
-    sessionStorage.setItem('fromSuperAdmin', 'true');
-    // Redirigir al panel del administrador
-    navigate('/administrador/dashboard');
   };
 
   return (
@@ -217,17 +207,6 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
         </TabsContent>
         
         <TabsContent value="comunidades" className="pt-4">
-          <div className="mb-4 flex justify-between items-center">
-            <h3 className="text-lg font-medium">Comunidades de {admin.nombre} {admin.apellidos}</h3>
-            <Button 
-              onClick={handleVerComunidades}
-              variant="default"
-            >
-              <Building className="mr-2 h-4 w-4" />
-              Ver en el panel del administrador
-            </Button>
-          </div>
-          
           {comunidades.length === 0 ? (
             <div className="text-center py-8">
               <Building className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
