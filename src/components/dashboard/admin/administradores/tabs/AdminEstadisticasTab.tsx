@@ -21,6 +21,11 @@ const AdminEstadisticasTab: React.FC<AdminEstadisticasTabProps> = ({
   totalViviendas, 
   totalContenedores 
 }) => {
+  // Calculate the total liters collected across all communities
+  const totalLitrosRecogidos = comunidades.reduce((total, comunidad) => {
+    return total + (comunidad.litrosRecogidos || 0);
+  }, 0);
+  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -81,7 +86,9 @@ const AdminEstadisticasTab: React.FC<AdminEstadisticasTabProps> = ({
                   {comunidades.slice(0, 5).map((comunidad) => (
                     <li key={comunidad.id} className="flex justify-between">
                       <span>{comunidad.nombre}</span>
-                      <span className="text-muted-foreground">{comunidad.litrosRecogidos || 0} litros</span>
+                      <span className="text-muted-foreground">
+                        {comunidad.litrosRecogidos || 0} litros
+                      </span>
                     </li>
                   ))}
                   {comunidades.length > 5 && (
@@ -90,6 +97,16 @@ const AdminEstadisticasTab: React.FC<AdminEstadisticasTabProps> = ({
                     </li>
                   )}
                 </ul>
+              </div>
+              
+              <div className="pt-4">
+                <h4 className="text-sm font-medium mb-2">Litros totales recogidos</h4>
+                <div className="flex items-center justify-between">
+                  <span>{totalLitrosRecogidos} litros</span>
+                  <span className="text-xs text-muted-foreground">
+                    {comunidades.length} comunidades activas
+                  </span>
+                </div>
               </div>
             </div>
           )}

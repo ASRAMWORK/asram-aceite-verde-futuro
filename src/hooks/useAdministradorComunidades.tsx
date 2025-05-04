@@ -52,9 +52,10 @@ export const useAdministradorComunidades = (adminId: string | undefined) => {
           comunidadesData.push(comunidad);
           
           // Count properties and containers
-          if (comunidad.numViviendas) viviendasCount += comunidad.numViviendas;
-          if (comunidad.totalViviendas) viviendasCount += comunidad.totalViviendas;
-          if (comunidad.numContenedores) contenedoresCount += comunidad.numContenedores;
+          const numViviendas = comunidad.numViviendas || comunidad.totalViviendas || 0;
+          viviendasCount += numViviendas;
+          const numContenedores = comunidad.numContenedores || 0;
+          contenedoresCount += numContenedores;
         });
         
         setComunidades(comunidadesData);
@@ -62,6 +63,8 @@ export const useAdministradorComunidades = (adminId: string | undefined) => {
         setTotalContenedores(contenedoresCount);
         
         console.log("Communities loaded:", comunidadesData.length);
+        console.log("Total properties:", viviendasCount);
+        console.log("Total containers:", contenedoresCount);
       } catch (error) {
         console.error("Error loading communities:", error);
         toast.error("Error al cargar las comunidades");
