@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import PageLayout from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,8 +43,7 @@ const formaciones = [
     nombre: "Curso online: Economía circular",
     descripcion: "Fundamentos teóricos y casos prácticos. 40 horas de formación.",
     precio: 49.99,
-    imagen: "/lovable-uploads/94155982-51c6-404b-9586-ceb767dfa9e8.png
-",
+    imagen: "/lovable-uploads/94155982-51c6-404b-9586-ceb767dfa9e8.png",
     categoria: "formaciones",
     fechaInicio: "CONTINUO",
     stripeLink: "https://buy.stripe.com/test_3csaGD2Ku96645acMT"
