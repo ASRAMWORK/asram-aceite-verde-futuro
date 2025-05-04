@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +28,7 @@ import { useClientesCaptados } from "@/hooks/useClientesCaptados";
 import DetalleComercialDialog from "./DetalleComercialDialog";
 import { addSpecificComerciales } from "@/hooks/addSpecificComerciales";
 import VincularComercialDialog from "./VincularComercialDialog";
-import AdminStatusToggle from "../../administradores/AdminStatusToggle";
+import AdminStatusToggle from "@/components/shared/AdminStatusToggle";
 
 const ComercialList = () => {
   const { comerciales, loading, aprobarComercial, loadComercialesData } = useComerciales();
