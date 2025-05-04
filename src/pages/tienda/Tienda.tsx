@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Calendar, BookOpen, Users, Award, MapPin, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const productos = [
   {
@@ -113,6 +120,8 @@ const eventos = [
 const Tienda = () => {
   const [activeTab, setActiveTab] = useState("productos");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   const filterItems = (items: any[]) => {
     return items.filter(item => 
@@ -124,6 +133,56 @@ const Tienda = () => {
   // Function to handle product purchase via Stripe
   const handlePurchase = (stripeLink: string) => {
     window.open(stripeLink, '_blank');
+  };
+
+  // Function to open item details dialog
+  const openItemDetails = (item: any) => {
+    setSelectedItem(item);
+    setDialogOpen(true);
+  };
+
+  // Render the appropriate action button based on item type
+  const renderActionButton = (item: any) => {
+    if (item.categoria === "productos") {
+      return (
+        <Button 
+          className="w-full bg-asram hover:bg-asram-600"
+          onClick={() => handlePurchase(item.stripeLink)}
+        >
+          <ShoppingCart className="w-4 h-4 mr-2" />
+          Añadir al carrito
+        </Button>
+      );
+    } else if (item.categoria === "formaciones") {
+      return (
+        <Button 
+          className="w-full bg-asram hover:bg-asram-600"
+          onClick={() => handlePurchase(item.stripeLink)}
+        >
+          <BookOpen className="w-4 h-4 mr-2" />
+          Inscribirme
+        </Button>
+      );
+    } else if (item.categoria === "talleres") {
+      return (
+        <Button 
+          className="w-full bg-asram hover:bg-asram-600"
+          onClick={() => handlePurchase(item.stripeLink)}
+        >
+          <Users className="w-4 h-4 mr-2" />
+          Reservar plaza
+        </Button>
+      );
+    } else if (item.categoria === "eventos") {
+      return (
+        <Button className="w-full bg-asram hover:bg-asram-600">
+          <Calendar className="w-4 h-4 mr-2" />
+          {item.gratuito ? "Inscribirme" : "Comprar entrada"}
+        </Button>
+      );
+    }
+    
+    return null;
   };
 
   return (
@@ -167,7 +226,11 @@ const Tienda = () => {
           <TabsContent value="productos" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filterItems(productos).map(producto => (
-                <Card key={producto.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
+                <Card 
+                  key={producto.id} 
+                  className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => openItemDetails(producto)}
+                >
                   <div className="aspect-video relative overflow-hidden">
                     <img 
                       src={producto.imagen} 
@@ -182,15 +245,6 @@ const Tienda = () => {
                     <p className="text-gray-600 line-clamp-2">{producto.descripcion}</p>
                     <div className="mt-4 text-xl font-bold text-asram">{producto.precio.toFixed(2)}€</div>
                   </CardContent>
-                  <CardFooter className="mt-auto">
-                    <Button 
-                      className="w-full bg-asram hover:bg-asram-600"
-                      onClick={() => handlePurchase(producto.stripeLink)}
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Añadir al carrito
-                    </Button>
-                  </CardFooter>
                 </Card>
               ))}
             </div>
@@ -199,7 +253,11 @@ const Tienda = () => {
           <TabsContent value="formaciones" className="mt-6">
             <div className="grid md:grid-cols-2 gap-6">
               {filterItems(formaciones).map(formacion => (
-                <Card key={formacion.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
+                <Card 
+                  key={formacion.id} 
+                  className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => openItemDetails(formacion)}
+                >
                   <div className="aspect-video relative overflow-hidden">
                     <img 
                       src={formacion.imagen} 
@@ -211,22 +269,13 @@ const Tienda = () => {
                     <CardTitle>{formacion.nombre}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">{formacion.descripcion}</p>
+                    <p className="text-gray-600 line-clamp-3">{formacion.descripcion}</p>
                     <div className="flex items-center mt-4">
                       <Calendar className="w-4 h-4 text-gray-500 mr-2" />
                       <span className="text-gray-600">Comienza: {formacion.fechaInicio}</span>
                     </div>
                     <div className="mt-4 text-xl font-bold text-asram">{formacion.precio.toFixed(2)}€</div>
                   </CardContent>
-                  <CardFooter className="mt-auto">
-                    <Button 
-                      className="w-full bg-asram hover:bg-asram-600"
-                      onClick={() => handlePurchase(formacion.stripeLink)}
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Inscribirme
-                    </Button>
-                  </CardFooter>
                 </Card>
               ))}
             </div>
@@ -235,7 +284,11 @@ const Tienda = () => {
           <TabsContent value="talleres" className="mt-6">
             <div className="grid md:grid-cols-2 gap-6">
               {filterItems(talleres).map(taller => (
-                <Card key={taller.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
+                <Card 
+                  key={taller.id} 
+                  className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => openItemDetails(taller)}
+                >
                   <div className="aspect-video relative overflow-hidden">
                     <img 
                       src={taller.imagen} 
@@ -247,7 +300,7 @@ const Tienda = () => {
                     <CardTitle>{taller.nombre}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">{taller.descripcion}</p>
+                    <p className="text-gray-600 line-clamp-3">{taller.descripcion}</p>
                     <div className="flex items-center mt-4">
                       <Calendar className="w-4 h-4 text-gray-500 mr-2" />
                       <span className="text-gray-600">Fecha: {taller.fechaInicio}</span>
@@ -258,15 +311,6 @@ const Tienda = () => {
                     </div>
                     <div className="mt-4 text-xl font-bold text-asram">{taller.precio.toFixed(2)}€</div>
                   </CardContent>
-                  <CardFooter className="mt-auto">
-                    <Button 
-                      className="w-full bg-asram hover:bg-asram-600"
-                      onClick={() => handlePurchase(taller.stripeLink)}
-                    >
-                      <Users className="w-4 h-4 mr-2" />
-                      Reservar plaza
-                    </Button>
-                  </CardFooter>
                 </Card>
               ))}
             </div>
@@ -275,7 +319,11 @@ const Tienda = () => {
           <TabsContent value="eventos" className="mt-6">
             <div className="grid md:grid-cols-2 gap-6">
               {filterItems(eventos).map(evento => (
-                <Card key={evento.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
+                <Card 
+                  key={evento.id}
+                  className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => openItemDetails(evento)}
+                >
                   <div className="aspect-video relative overflow-hidden">
                     <img 
                       src={evento.imagen}
@@ -294,7 +342,7 @@ const Tienda = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">{evento.descripcion}</p>
+                    <p className="text-gray-600 line-clamp-3">{evento.descripcion}</p>
                     <div className="flex items-center mt-4">
                       <Calendar className="w-4 h-4 text-gray-500 mr-2" />
                       <span className="text-gray-600">Fecha: {evento.fechaInicio}</span>
@@ -307,12 +355,6 @@ const Tienda = () => {
                       <div className="mt-4 text-xl font-bold text-asram">{evento.precio.toFixed(2)}€</div>
                     )}
                   </CardContent>
-                  <CardFooter className="mt-auto">
-                    <Button className="w-full bg-asram hover:bg-asram-600">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {evento.gratuito ? "Inscribirme" : "Comprar entrada"}
-                    </Button>
-                  </CardFooter>
                 </Card>
               ))}
             </div>
@@ -334,6 +376,62 @@ const Tienda = () => {
           </div>
         </div>
       </div>
+
+      {/* Item Detail Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          {selectedItem && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedItem.nombre}</DialogTitle>
+                {selectedItem.categoria === "eventos" && selectedItem.gratuito && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800 w-fit">
+                    Gratuito
+                  </Badge>
+                )}
+              </DialogHeader>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div className="aspect-video overflow-hidden rounded-md">
+                  <img 
+                    src={selectedItem.imagen}
+                    alt={selectedItem.nombre}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <p className="text-gray-600">{selectedItem.descripcion}</p>
+                  </div>
+                  
+                  {(selectedItem.categoria === "formaciones" || selectedItem.categoria === "talleres") && (
+                    <div className="flex items-center mt-2">
+                      <Calendar className="w-4 h-4 text-gray-500 mr-2" />
+                      <span className="text-gray-600">Fecha: {selectedItem.fechaInicio}</span>
+                    </div>
+                  )}
+                  
+                  {(selectedItem.categoria === "talleres" || selectedItem.categoria === "eventos") && selectedItem.lugar && (
+                    <div className="flex items-center mt-2">
+                      <MapPin className="w-4 h-4 text-gray-500 mr-2" />
+                      <span className="text-gray-600">Lugar: {selectedItem.lugar}</span>
+                    </div>
+                  )}
+                  
+                  {!selectedItem.gratuito && (
+                    <div className="mt-4 text-xl font-bold text-asram">{selectedItem.precio.toFixed(2)}€</div>
+                  )}
+                  
+                  <div className="mt-6">
+                    {renderActionButton(selectedItem)}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 };
