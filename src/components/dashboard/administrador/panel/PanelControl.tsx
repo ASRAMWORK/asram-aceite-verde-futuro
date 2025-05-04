@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building, Home, Droplet, Package, BarChart3 } from 'lucide-react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
@@ -6,6 +7,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useRecogidaData } from '@/hooks/recogidas/useRecogidaData';
 
 interface PanelControlProps {
   adminId?: string;
@@ -15,6 +17,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
   const { profile } = useUserProfile();
   const efectiveAdminId = adminId || profile?.id;
   const { comunidades, loading } = useComunidadesVecinos(efectiveAdminId);
+  const { recogidas } = useRecogidaData(efectiveAdminId);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
@@ -22,7 +25,23 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
   const totalComunidades = comunidades.length;
   const totalViviendas = comunidades.reduce((sum, com) => sum + (com.numViviendas || 0), 0);
   const totalContenedores = comunidades.reduce((sum, com) => sum + (com.numContenedores || 0), 0);
-  const totalLitrosRecogidos = comunidades.reduce((sum, com) => sum + (com.litrosRecogidos || 0), 0);
+  
+  // Calcular total de litros recogidos basado en historialRecogidas de todas las comunidades
+  const totalLitrosRecogidos = comunidades.reduce((totalLitros, comunidad) => {
+    // Si la comunidad tiene historial de recogidas, sumamos los litros de cada recogida
+    if (comunidad.historialRecogidas && Array.isArray(comunidad.historialRecogidas)) {
+      return totalLitros + comunidad.historialRecogidas.reduce((sum, recogida) => {
+        // Asegurarnos de que 'litros' sea un número
+        const litros = typeof recogida.litros === 'number' ? recogida.litros : 0;
+        return sum + litros;
+      }, 0);
+    }
+    // Si no hay historial de recogidas pero hay litrosRecogidos, lo añadimos
+    else if (comunidad.litrosRecogidos) {
+      return totalLitros + comunidad.litrosRecogidos;
+    }
+    return totalLitros;
+  }, 0);
   
   // Calcular beneficios medioambientales totales
   const totalCO2 = comunidades.reduce((sum, com) => {
