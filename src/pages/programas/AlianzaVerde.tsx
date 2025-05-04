@@ -354,7 +354,7 @@ const AlianzaVerde = () => {
                         <div className="w-10 h-10 rounded-full bg-asram flex items-center justify-center text-white font-bold">1</div>
                         <div>
                           <h3 className="font-semibold text-lg mb-1">Contacta con ASRAM</h3>
-                          <p>Escribe a <a href="mailto:alianzaverde@asramadrid.com" className="text-asram hover:underline">alianzaverde@asramadrid.com</a> o llama al +34 695 83 17 84.</p>
+                          <p>Escribe a <a href="mailto:alianzaverde@asramadrid.com" className="text-asram hover:underline">colabora@asramadrid.com</a> o llama al +34 695 83 17 84.</p>
                         </div>
                       </div>
                       
