@@ -153,17 +153,41 @@ const ProtectedAdministradorRoute = () => {
               const superadminDoc = await getDoc(doc(db, "users", user.uid));
               if (superadminDoc.exists() && 
                   (superadminDoc.data().role === "superadmin" || isAdminEmail(user.email))) {
+                console.log("Permitiendo acceso como superadministrador viendo panel de administrador");
                 setIsAdministrador(true);
-              }
-            } else {
-              // Verificación normal para el administrador de fincas
-              const userDoc = await getDoc(doc(db, "users", user.uid));
-              if (userDoc.exists() && 
-                  (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
-                setIsAdministrador(true);
-                setUserData(userDoc.data());
+                return;
               }
             }
+            
+            // Verificación normal para el administrador de fincas
+            // Primero verificamos en la colección "users"
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && 
+                (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
+              console.log("Usuario verificado en colección 'users' como:", userDoc.data().role);
+              setIsAdministrador(true);
+              setUserData(userDoc.data());
+              return;
+            }
+            
+            // Si no se encuentra en "users", buscar en "usuarios"
+            const usuariosQuery = query(
+              collection(db, "usuarios"),
+              where("email", "==", user.email)
+            );
+            
+            const usuariosSnap = await getDocs(usuariosQuery);
+            if (!usuariosSnap.empty) {
+              const userData = usuariosSnap.docs[0].data();
+              if (userData.role === "administrador" || userData.role === "admin_finca") {
+                console.log("Usuario verificado en colección 'usuarios' como:", userData.role);
+                setIsAdministrador(true);
+                setUserData(userData);
+                return;
+              }
+            }
+            
+            console.log("Usuario no tiene permisos de administrador");
           } catch (error) {
             console.error("Error checking role:", error);
           }

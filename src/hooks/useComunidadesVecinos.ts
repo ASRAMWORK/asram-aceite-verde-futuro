@@ -26,14 +26,14 @@ export const useComunidadesVecinos = (adminId?: string) => {
         return;
       }
       
-      // Modificar la consulta para evitar el error de índice
-      // Primero filtramos por administradorId y luego ordenamos en memoria
+      console.log("Cargando comunidades para adminId:", efectiveAdminId);
+      
+      // Primero intentamos cargar de comunidadesVecinos (nueva colección)
       const comunidadesRef = collection(db, 'comunidadesVecinos');
       const comunidadSnapshot = await getDocs(
         query(
           comunidadesRef, 
           where('administradorId', '==', efectiveAdminId)
-          // Eliminamos el orderBy para evitar requerir el índice compuesto
         )
       );
       
@@ -44,11 +44,31 @@ export const useComunidadesVecinos = (adminId?: string) => {
         updatedAt: doc.data().updatedAt?.toDate()
       }));
       
+      // Si no hay resultados, intentamos cargar de la colección antigua 'comunidades'
+      if (comunidadesData.length === 0) {
+        console.log("No se encontraron comunidades en 'comunidadesVecinos', buscando en 'comunidades'");
+        const comunidadesLegacyRef = collection(db, 'comunidades');
+        const legacySnapshot = await getDocs(
+          query(
+            comunidadesLegacyRef, 
+            where('administradorId', '==', efectiveAdminId)
+          )
+        );
+        
+        comunidadesData = legacySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data() as ComunidadVecinos,
+          createdAt: doc.data().createdAt?.toDate(),
+          updatedAt: doc.data().updatedAt?.toDate()
+        }));
+      }
+      
       // Ordenamos en memoria por nombre para evitar requerir el índice
       comunidadesData = comunidadesData.sort((a, b) => {
         return a.nombre.localeCompare(b.nombre);
       });
       
+      console.log(`Se encontraron ${comunidadesData.length} comunidades para el administrador`);
       setComunidades(comunidadesData);
     } catch (e: any) {
       console.error("Error al cargar comunidades:", e);

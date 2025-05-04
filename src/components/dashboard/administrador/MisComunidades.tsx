@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,12 +19,32 @@ interface MisComunidadesProps {
 
 const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
   const { profile } = useUserProfile();
-  const efectiveAdminId = adminId || profile?.id;
-  const { comunidades, loading, error, deleteComunidad } = useComunidadesVecinos(efectiveAdminId);
+  const [viewingAdminId, setViewingAdminId] = useState<string | null>(null);
   const navigate = useNavigate();
   
+  // Check for any adminId in sessionStorage (set when accessed from superadmin)
+  useEffect(() => {
+    const storedAdminId = sessionStorage.getItem('viewingAdminId');
+    if (storedAdminId) {
+      console.log("Using admin ID from sessionStorage:", storedAdminId);
+      setViewingAdminId(storedAdminId);
+    }
+  }, []);
+  
+  // Use either the admin ID from props, sessionStorage, or current profile
+  const effectiveAdminId = adminId || viewingAdminId || profile?.id;
+  
+  const { comunidades, loading, error, deleteComunidad, loadComunidades } = useComunidadesVecinos(effectiveAdminId);
   const [selectedComunidad, setSelectedComunidad] = useState<ComunidadVecinos | null>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  
+  // Additional refresh for when coming from superadmin view
+  useEffect(() => {
+    if (effectiveAdminId) {
+      console.log("Loading communities for adminId:", effectiveAdminId);
+      loadComunidades();
+    }
+  }, [effectiveAdminId]);
 
   if (loading) {
     return (
@@ -43,7 +63,7 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
   }
   
   const handleAddComunidad = () => {
-    navigate('/administrador/dashboard/gestionar');
+    navigate('/administrador/dashboard#gestionar');
   };
   
   const handleViewDetails = (comunidad: ComunidadVecinos) => {
@@ -80,13 +100,30 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
     return 0;
   };
   
+  // Clear the stored admin ID when leaving (only if viewing from superadmin)
+  const handleReturnToSuperAdmin = () => {
+    sessionStorage.removeItem('viewingAdminId');
+    sessionStorage.removeItem('fromSuperAdmin');
+    navigate('/admin/dashboard');
+  };
+  
+  // Determine if we're in superadmin viewing mode
+  const isViewingSuperAdmin = sessionStorage.getItem('fromSuperAdmin') === 'true';
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Mis Comunidades</h2>
-        <Button onClick={handleAddComunidad} className="bg-green-600 hover:bg-green-700">
-          <Plus className="mr-2 h-4 w-4" /> Añadir Comunidad
-        </Button>
+        <div className="flex gap-2">
+          {isViewingSuperAdmin && (
+            <Button variant="outline" onClick={handleReturnToSuperAdmin}>
+              Volver al panel de superadmin
+            </Button>
+          )}
+          <Button onClick={handleAddComunidad} className="bg-green-600 hover:bg-green-700">
+            <Plus className="mr-2 h-4 w-4" /> Añadir Comunidad
+          </Button>
+        </div>
       </div>
       
       {comunidades.length === 0 ? (
@@ -121,7 +158,7 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                 <div className="grid grid-cols-2 gap-y-2">
                   <div className="flex items-center gap-2">
                     <Building className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm">CIF: {comunidad.cif}</span>
+                    <span className="text-sm">CIF: {comunidad.cif || 'N/A'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-gray-500" />
@@ -213,7 +250,7 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
                   <h4 className="font-medium">Información General</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="font-medium text-gray-500">CIF:</div>
-                    <div>{selectedComunidad.cif}</div>
+                    <div>{selectedComunidad.cif || 'No especificado'}</div>
                     <div className="font-medium text-gray-500">Provincia:</div>
                     <div>{selectedComunidad.provincia || 'No especificado'}</div>
                     <div className="font-medium text-gray-500">Teléfono:</div>
