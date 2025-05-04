@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import PageLayout from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -64,7 +65,7 @@ const talleres = [
   {
     id: 1,
     nombre: "Taller infantil: Pequeños recicladores",
-    descripcion: " En el taller "Pequeños Recicladores", los niños aprenden jugando la importancia de reducir, reutilizar y reciclar. A través de actividades creativas, descubrirán cómo dar una segunda vida a los residuos. Educación ambiental divertida y adaptada a todas las edades. ¡Reciclar nunca fue tan entretenido! Actividad para niños de 6-12 años. Duración: 2 horas.",
+    descripcion: " En el taller \"Pequeños Recicladores\", los niños aprenden jugando la importancia de reducir, reutilizar y reciclar. A través de actividades creativas, descubrirán cómo dar una segunda vida a los residuos. Educación ambiental divertida y adaptada a todas las edades. ¡Reciclar nunca fue tan entretenido! Actividad para niños de 6-12 años. Duración: 2 horas.",
     precio: 19.99,
     imagen: "/lovable-uploads/7882a253-85f5-4147-bd23-636e45eadf54.png",
     categoria: "talleres",
