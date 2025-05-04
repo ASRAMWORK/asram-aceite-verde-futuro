@@ -23,7 +23,9 @@ import {
   Calendar, 
   User,
   Building,
-  Container
+  Container,
+  PlusCircle,
+  Droplet
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -39,9 +41,19 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useNavigate } from 'react-router-dom';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { doc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface DetalleAdministradorProps {
   admin: Usuario;
@@ -50,55 +62,22 @@ interface DetalleAdministradorProps {
 const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) => {
   const { updateUsuario } = useUsuarios();
   const [isLoading, setIsLoading] = useState(false);
-  const [comunidades, setComunidades] = useState<ComunidadVecinos[]>([]);
   const [activeTab, setActiveTab] = useState("perfil");
-  const [totalViviendas, setTotalViviendas] = useState(0);
-  const [totalContenedores, setTotalContenedores] = useState(0);
   const navigate = useNavigate();
+  
+  // Usar el hook useComunidadesVecinos para cargar las comunidades del administrador
+  const { comunidades, loading: loadingComunidades } = useComunidadesVecinos(admin.id);
+  
+  // Estado para el diálogo de añadir litros recogidos
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedComunidad, setSelectedComunidad] = useState<ComunidadVecinos | null>(null);
+  const [litrosRecogidos, setLitrosRecogidos] = useState<number>(0);
+  const [fechaRecogida, setFechaRecogida] = useState<string>(new Date().toISOString().split('T')[0]);
 
-  useEffect(() => {
-    const loadComunidades = async () => {
-      try {
-        if (!admin.id) return;
-        
-        const comunidadesQuery = query(
-          collection(db, "comunidades"),
-          where("administradorId", "==", admin.id)
-        );
-        
-        const querySnapshot = await getDocs(comunidadesQuery);
-        const comunidadesData: ComunidadVecinos[] = [];
-        
-        let viviendasCount = 0;
-        let contenedoresCount = 0;
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data() as Omit<ComunidadVecinos, 'id'>;
-          const comunidad = {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
-            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date()
-          } as ComunidadVecinos;
-          
-          comunidadesData.push(comunidad);
-          
-          // Contar viviendas y contenedores
-          if (comunidad.numViviendas) viviendasCount += comunidad.numViviendas;
-          if (comunidad.numContenedores) contenedoresCount += comunidad.numContenedores;
-        });
-        
-        setComunidades(comunidadesData);
-        setTotalViviendas(viviendasCount);
-        setTotalContenedores(contenedoresCount);
-      } catch (error) {
-        console.error("Error cargando comunidades:", error);
-        toast.error("Error al cargar las comunidades");
-      }
-    };
-    
-    loadComunidades();
-  }, [admin.id]);
+  // Calcular totales
+  const totalViviendas = comunidades.reduce((sum, comunidad) => sum + (comunidad.numViviendas || 0), 0);
+  const totalContenedores = comunidades.reduce((sum, comunidad) => sum + (comunidad.numContenedores || 0), 0);
+  const totalLitrosRecogidos = comunidades.reduce((sum, comunidad) => sum + (comunidad.litrosRecogidos || 0), 0);
 
   const handleActivarDesactivar = async () => {
     if (!admin.id) return;
@@ -121,6 +100,63 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
     sessionStorage.setItem('fromSuperAdmin', 'true');
     // Redirigir al panel del administrador
     navigate('/administrador/dashboard');
+  };
+  
+  const handleOpenAddLitrosDialog = (comunidad: ComunidadVecinos) => {
+    setSelectedComunidad(comunidad);
+    setLitrosRecogidos(0);
+    setFechaRecogida(new Date().toISOString().split('T')[0]);
+    setDialogOpen(true);
+  };
+  
+  const handleAddLitrosRecogidos = async () => {
+    if (!selectedComunidad || litrosRecogidos <= 0) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // Determinar la colección correcta basada en dónde existe la comunidad
+      let collectionName = 'comunidadesVecinos';
+      
+      // Crear el nuevo registro de historial
+      const newHistoryEntry = {
+        fecha: new Date(fechaRecogida),
+        litros: litrosRecogidos,
+        id: Date.now().toString()
+      };
+      
+      // Actualizar la comunidad con los nuevos litros y el nuevo registro en el historial
+      const comunidadRef = doc(db, collectionName, selectedComunidad.id);
+      
+      await updateDoc(comunidadRef, {
+        litrosRecogidos: (selectedComunidad.litrosRecogidos || 0) + litrosRecogidos,
+        historialRecogidas: arrayUnion(newHistoryEntry),
+        updatedAt: serverTimestamp()
+      });
+      
+      toast.success(`Se han añadido ${litrosRecogidos}L a la comunidad ${selectedComunidad.nombre}`);
+      setDialogOpen(false);
+      
+      // Intentar actualizar también en la otra colección si existe
+      try {
+        const otraColeccion = 'comunidades';
+        const otraComunidadRef = doc(db, otraColeccion, selectedComunidad.id);
+        await updateDoc(otraComunidadRef, {
+          litrosRecogidos: (selectedComunidad.litrosRecogidos || 0) + litrosRecogidos,
+          historialRecogidas: arrayUnion(newHistoryEntry),
+          updatedAt: serverTimestamp()
+        });
+      } catch (error) {
+        // Si falla, simplemente ignoramos el error ya que podría no existir en la otra colección
+        console.log("Nota: No se encontró la comunidad en la otra colección");
+      }
+      
+    } catch (error) {
+      console.error("Error al añadir litros recogidos:", error);
+      toast.error("Error al añadir litros recogidos");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -228,7 +264,12 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
             </Button>
           </div>
           
-          {comunidades.length === 0 ? (
+          {loadingComunidades ? (
+            <div className="text-center py-8">
+              <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Cargando comunidades...</p>
+            </div>
+          ) : comunidades.length === 0 ? (
             <div className="text-center py-8">
               <Building className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
               <p className="mt-2 text-muted-foreground">Este administrador no tiene comunidades asignadas</p>
@@ -243,6 +284,7 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
                     <TableHead>Viviendas</TableHead>
                     <TableHead>Contenedores</TableHead>
                     <TableHead>Litros Recogidos</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -255,25 +297,26 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
                       <TableCell>{comunidad.numViviendas || 0}</TableCell>
                       <TableCell>{comunidad.numContenedores || 0}</TableCell>
                       <TableCell>{comunidad.litrosRecogidos || 0} L</TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleOpenAddLitrosDialog(comunidad)}
+                        >
+                          <PlusCircle className="h-4 w-4 mr-1" />
+                          Añadir litros
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
           )}
-          
-          <div className="mt-4 flex justify-end">
-            <Button 
-              variant="outline" 
-              disabled={comunidades.length === 0}
-            >
-              Exportar datos
-            </Button>
-          </div>
         </TabsContent>
         
         <TabsContent value="estadisticas" className="space-y-6 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Total Comunidades</CardTitle>
@@ -309,6 +352,18 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
                 </div>
               </CardContent>
             </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Litros Recogidos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <Droplet className="h-8 w-8 text-blue-500 mr-2" />
+                  <span className="text-2xl font-bold">{totalLitrosRecogidos} L</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
           <Card>
@@ -319,14 +374,77 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Aquí podrían ir gráficos o más estadísticas avanzadas */}
-              <p className="text-center py-4 text-muted-foreground">
-                Las estadísticas detalladas estarán disponibles próximamente
-              </p>
+              <div className="space-y-4">
+                <p className="text-sm">
+                  <span className="font-medium">Fecha de registro:</span> {admin.createdAt ? formatDate(admin.createdAt) : "No disponible"}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Última actualización:</span> {admin.updatedAt ? formatDate(admin.updatedAt) : "No disponible"}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Comunidades activas:</span> {comunidades.length}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Promedio de viviendas por comunidad:</span> {comunidades.length > 0 ? Math.round(totalViviendas / comunidades.length) : 0}
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Diálogo para añadir litros recogidos */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Añadir litros recogidos</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {selectedComunidad && (
+              <p className="font-medium">
+                Comunidad: {selectedComunidad.nombre}
+              </p>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="fechaRecogida">Fecha de recogida</Label>
+              <Input
+                id="fechaRecogida"
+                type="date"
+                value={fechaRecogida}
+                onChange={(e) => setFechaRecogida(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="litrosRecogidos">Litros recogidos</Label>
+              <Input
+                id="litrosRecogidos"
+                type="number"
+                value={litrosRecogidos}
+                onChange={(e) => setLitrosRecogidos(Number(e.target.value))}
+                min={1}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleAddLitrosRecogidos}
+              disabled={isLoading || litrosRecogidos <= 0}
+            >
+              {isLoading ? 'Guardando...' : 'Guardar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
