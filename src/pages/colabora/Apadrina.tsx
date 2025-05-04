@@ -18,11 +18,11 @@ const Apadrina = () => {
           <Card className="relative overflow-hidden">
             <CardHeader>
               <CardTitle>Plan Básico</CardTitle>
-              <div className="text-3xl font-bold text-asram mt-2">29€/mes</div>
+              <div className="text-3xl font-bold text-asram mt-2">9.90€/mes</div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {["1 contenedor", "Mantenimiento básico", "Informes mensuales"].map((feature) => (
+                {["Certificado digital de padrino", "Acceso a nuestra revista mensual", "Invitación a jornadas comunitarias y eventos de ASRAM"].map((feature) => (
                   <li key={feature} className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-asram mr-2" />
                     <span>{feature}</span>
@@ -44,15 +44,15 @@ const Apadrina = () => {
             </div>
             <CardHeader>
               <CardTitle>Plan Plus</CardTitle>
-              <div className="text-3xl font-bold text-asram mt-2">49€/mes</div>
+              <div className="text-3xl font-bold text-asram mt-2">49.90€/mes</div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
                 {[
-                  "2 contenedores",
-                  "Mantenimiento premium",
-                  "Informes semanales",
-                  "Placa conmemorativa",
+                  "Todo lo incuido en el plan basico",
+                  "Placa conmemorativa con todos los padrinos de una calle",
+                  "Acceso prioritario a charlas, talleres y encuentros",
+                  "Mencion especial en nuestra revista",
                 ].map((feature) => (
                   <li key={feature} className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-asram mr-2" />
@@ -72,16 +72,14 @@ const Apadrina = () => {
           <Card className="relative overflow-hidden">
             <CardHeader>
               <CardTitle>Plan Premium</CardTitle>
-              <div className="text-3xl font-bold text-asram mt-2">89€/mes</div>
+              <div className="text-3xl font-bold text-asram mt-2">99.90€/mes</div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
                 {[
-                  "4 contenedores",
-                  "Mantenimiento VIP",
-                  "Informes personalizados",
-                  "Placa conmemorativa",
-                  "Eventos exclusivos",
+                  "Todos los beneficios anteriores",
+                  "Placa conmemorativa personalizada con tu nombre o el de tu organización",
+                  "Informes personalizados del impacto generado",
                 ].map((feature) => (
                   <li key={feature} className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-asram mr-2" />
