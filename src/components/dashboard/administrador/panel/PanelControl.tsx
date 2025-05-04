@@ -63,7 +63,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
       <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>Panel de Control</h2>
       <p className="text-gray-600">Bienvenido de nuevo, {profile?.nombreAdministracion || profile?.nombre || 'Administrador'}.</p>
       
-      <div className={`grid grid-cols-2 ${isMobile ? 'gap-3' : 'md:grid-cols-3 gap-6'} mb-4 md:mb-6`}>
+      <div className={`grid grid-cols-3 ${isMobile ? 'gap-3' : 'md:grid-cols-3 gap-6'} mb-4 md:mb-6`}>
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className={`${isMobile ? 'p-3' : 'pb-2'}`}>
             <CardDescription>Comunidades</CardDescription>

@@ -4,16 +4,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useUsuarios } from '@/hooks/useUsuarios';
 import { Chart } from '@/components/ui/chart';
-import { Building, Users, Workflow } from 'lucide-react';
+import { Building, Users, Droplet, Workflow } from 'lucide-react';
 import { useRecogidas } from '@/hooks/useRecogidas';
 
 const AdministradorDashboardOverview = () => {
   const { comunidades, loading } = useComunidadesVecinos();
   const { usuarios, loading: loadingUsuarios } = useUsuarios();
-  const { recogidas } = useRecogidas();
+  const { recogidas, getTotalLitrosRecogidos } = useRecogidas();
   
   const totalComunidades = comunidades.length;
   const totalViviendas = comunidades.reduce((acc, com) => acc + (com.numViviendas || 0), 0);
+  
+  // Get total litros from recogidas
+  const totalLitros = getTotalLitrosRecogidos();
   
   // Clientes asociados a las comunidades de este administrador
   const clientesActivos = usuarios.filter(u => u.activo && u.tipo === 'comunidad').length;
@@ -78,7 +81,7 @@ const AdministradorDashboardOverview = () => {
   
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Comunidades</CardTitle>
@@ -101,6 +104,19 @@ const AdministradorDashboardOverview = () => {
             <div className="text-2xl font-bold">{loading ? '...' : totalViviendas}</div>
             <p className="text-xs text-muted-foreground">
               Total viviendas registradas
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Litros Recogidos</CardTitle>
+            <Droplet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{loading ? '...' : `${totalLitros}L`}</div>
+            <p className="text-xs text-muted-foreground">
+              Total aceite recogido
             </p>
           </CardContent>
         </Card>
