@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Tabs, 
@@ -58,16 +59,27 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
       try {
         if (!admin.id) return;
         
+        // Try first with "comunidades" collection
         const comunidadesQuery = query(
           collection(db, "comunidades"),
           where("administradorId", "==", admin.id)
         );
         
-        const querySnapshot = await getDocs(comunidadesQuery);
-        const comunidadesData: ComunidadVecinos[] = [];
-        
+        let querySnapshot = await getDocs(comunidadesQuery);
+        let comunidadesData: ComunidadVecinos[] = [];
         let viviendasCount = 0;
         let contenedoresCount = 0;
+        
+        // If no results, try with "comunidadesVecinos" collection
+        if (querySnapshot.empty) {
+          console.log("No communities found in 'comunidades' collection, trying 'comunidadesVecinos'");
+          const comunidadesVecinosQuery = query(
+            collection(db, "comunidadesVecinos"),
+            where("administradorId", "==", admin.id)
+          );
+          
+          querySnapshot = await getDocs(comunidadesVecinosQuery);
+        }
         
         querySnapshot.forEach((doc) => {
           const data = doc.data() as Omit<ComunidadVecinos, 'id'>;
@@ -80,16 +92,19 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
           
           comunidadesData.push(comunidad);
           
-          // Contar viviendas y contenedores
+          // Count properties and containers
           if (comunidad.numViviendas) viviendasCount += comunidad.numViviendas;
+          if (comunidad.totalViviendas) viviendasCount += comunidad.totalViviendas;
           if (comunidad.numContenedores) contenedoresCount += comunidad.numContenedores;
         });
         
         setComunidades(comunidadesData);
         setTotalViviendas(viviendasCount);
         setTotalContenedores(contenedoresCount);
+        
+        console.log("Communities loaded:", comunidadesData.length);
       } catch (error) {
-        console.error("Error cargando comunidades:", error);
+        console.error("Error loading communities:", error);
         toast.error("Error al cargar las comunidades");
       }
     };
@@ -234,7 +249,7 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
                       <TableCell>
                         {comunidad.direccion}, {comunidad.codigoPostal} {comunidad.ciudad}
                       </TableCell>
-                      <TableCell>{comunidad.numViviendas || 0}</TableCell>
+                      <TableCell>{comunidad.numViviendas || comunidad.totalViviendas || 0}</TableCell>
                       <TableCell>{comunidad.numContenedores || 0}</TableCell>
                       <TableCell>{comunidad.litrosRecogidos || 0} L</TableCell>
                     </TableRow>
@@ -301,10 +316,30 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Aquí podrían ir gráficos o más estadísticas avanzadas */}
-              <p className="text-center py-4 text-muted-foreground">
-                Las estadísticas detalladas estarán disponibles próximamente
-              </p>
+              {comunidades.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground">No hay datos disponibles para mostrar</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-2">
+                    <h4 className="text-sm font-medium">Comunidades administradas</h4>
+                    <ul className="space-y-1 text-sm">
+                      {comunidades.slice(0, 5).map((comunidad) => (
+                        <li key={comunidad.id} className="flex justify-between">
+                          <span>{comunidad.nombre}</span>
+                          <span className="text-muted-foreground">{comunidad.litrosRecogidos || 0} litros</span>
+                        </li>
+                      ))}
+                      {comunidades.length > 5 && (
+                        <li className="text-xs text-muted-foreground text-center pt-1">
+                          Y {comunidades.length - 5} más...
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
