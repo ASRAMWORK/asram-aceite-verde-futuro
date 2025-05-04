@@ -12,6 +12,8 @@ import AdminComunidadesTab from './tabs/AdminComunidadesTab';
 import AdminEstadisticasTab from './tabs/AdminEstadisticasTab';
 import { toast } from 'sonner';
 import AdminStatusToggle from '@/components/shared/AdminStatusToggle';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface DetalleAdministradorProps {
   admin?: Usuario;
@@ -31,8 +33,18 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin: init
         if (id) {
           // Find the admin in the usuarios array
           const foundAdmin = usuarios.find(usuario => usuario.id === id);
+          
           if (foundAdmin) {
-            setAdmin(foundAdmin);
+            // Get the user doc directly from Firestore for most up-to-date data
+            const userDoc = await getDoc(doc(db, "usuarios", id));
+            if (userDoc.exists()) {
+              setAdmin({
+                ...foundAdmin,
+                ...userDoc.data() as Omit<Usuario, 'id'>
+              });
+            } else {
+              setAdmin(foundAdmin);
+            }
           } else {
             console.error('Administrador no encontrado');
           }
