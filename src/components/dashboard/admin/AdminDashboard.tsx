@@ -8,7 +8,7 @@ import { useVoluntarios } from "@/hooks/useVoluntarios";
 import { useTrabajadores } from "@/hooks/useTrabajadores";
 import { useInstalaciones } from "@/hooks/useInstalaciones";
 import { useFacturacion } from "@/hooks/useFacturacion";
-import { Building, Briefcase, Users, Home, CalendarDays, User, FileText, Bell, AlertCircle, Droplet } from "lucide-react";
+import { Building, Briefcase, Users, Home, CalendarDays, User, FileText, Bell, AlertCircle, Droplet, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useRecogidas } from "@/hooks/useRecogidas";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { mobileTextSize, mobileHeadingSize, mobilePadding } from "@/utils/mobileStyles";
+import ClientesRankingView from './rankings/ClientesRankingView';
 
 const AdminDashboard = () => {
   const { puntosVerdes, loading: loadingPuntos } = usePuntosVerdes();
