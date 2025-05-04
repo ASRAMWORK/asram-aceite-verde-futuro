@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, query, collection, where, getDocs } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -30,11 +31,46 @@ const AdministradorDashboardPage = () => {
       }
       
       try {
+        // First check in users collection
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists() || (userDoc.data().role !== "administrador" && userDoc.data().role !== "admin_finca")) {
-          toast.error("No tienes permisos para acceder a este panel");
-          navigate("/login");
+        if (userDoc.exists() && (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
+          setLoading(false);
+          return;
         }
+        
+        // If not in users, check in usuarios collection by UID
+        const usuariosQuery = query(
+          collection(db, "usuarios"),
+          where("uid", "==", user.uid)
+        );
+        
+        const usuariosSnap = await getDocs(usuariosQuery);
+        if (!usuariosSnap.empty) {
+          const userData = usuariosSnap.docs[0].data();
+          if (userData.role === "administrador" || userData.role === "admin_finca") {
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // Finally check by email as fallback
+        const emailQuery = query(
+          collection(db, "usuarios"),
+          where("email", "==", user.email)
+        );
+        
+        const emailSnap = await getDocs(emailQuery);
+        if (!emailSnap.empty) {
+          const userData = emailSnap.docs[0].data();
+          if (userData.role === "administrador" || userData.role === "admin_finca") {
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // If we get here, the user doesn't have permission
+        toast.error("No tienes permisos para acceder a este panel");
+        navigate("/login");
       } catch (error) {
         console.error("Error verificando rol:", error);
         navigate("/login");

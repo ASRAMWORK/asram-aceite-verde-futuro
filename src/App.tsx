@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -220,7 +221,7 @@ const ProtectedAdministradorRoute = () => {
   }
 
   if (!isAdministrador) {
-    toast("No tienes permisos para acceder al panel de administrador de fincas");
+    toast.error("No tienes permisos para acceder al panel de administrador de fincas");
     return <Navigate to="/login" />;
   }
 
