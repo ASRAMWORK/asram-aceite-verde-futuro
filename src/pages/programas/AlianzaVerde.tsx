@@ -80,7 +80,7 @@ const AlianzaVerde = () => {
               <div className="text-sm text-gray-600">Estudiantes</div>
             </div>
             <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">100+</div>
+              <div className="text-3xl font-bold text-asram">50+</div>
               <div className="text-sm text-gray-600">Talleres realizados</div>
             </div>
             <div className="text-center p-3">
@@ -183,7 +183,7 @@ const AlianzaVerde = () => {
                         </div>
                         <div className="flex justify-between border-b pb-2">
                           <span>Litros de aceite recolectados:</span>
-                          <span className="font-semibold">1.245 L</span>
+                          <span className="font-semibold">10.000 L</span>
                         </div>
                         <div className="flex justify-between border-b pb-2">
                           <span>Contaminación de agua evitada:</span>
@@ -212,10 +212,10 @@ const AlianzaVerde = () => {
                     <div className="w-12 h-12 rounded-full bg-asram/20 flex items-center justify-center">
                       <Leaf className="w-6 h-6 text-asram" />
                     </div>
-                    <CardTitle>Talleres de Reciclaje Creativo</CardTitle>
+                    <CardTitle>Taller jabon de la abuela con aceite reciclado</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p>Sesiones prácticas donde los alumnos aprenden a transformar residuos en objetos útiles o decorativos, fomentando la creatividad y conciencia ambiental.</p>
+                    <p>Taller escolar de jabón con aceite reciclado: el alumnado aprende a reutilizar aceite usado para fabricar jabón artesanal. Una actividad práctica y divertida que enseña química básica, reciclaje y sostenibilidad. ¡Cuidamos el planeta con nuestras propias manos!.</p>
                     <div className="mt-4 flex gap-2">
                       <Badge variant="outline" className="text-xs">Primaria</Badge>
                       <Badge variant="outline" className="text-xs">ESO</Badge>
@@ -229,10 +229,10 @@ const AlianzaVerde = () => {
                     <div className="w-12 h-12 rounded-full bg-asram/20 flex items-center justify-center">
                       <School className="w-6 h-6 text-asram" />
                     </div>
-                    <CardTitle>Mini Huertos Escolares</CardTitle>
+                    <CardTitle> Taller de Velas Infinitas con Aceite Reciclado</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p>Creación y mantenimiento de pequeños huertos dentro del centro educativo, donde los estudiantes aprenden sobre agricultura sostenible y alimentación saludable.</p>
+                    <p>Taller escolar de Velas Infinitas con aceite reciclado: una actividad creativa y educativa donde el alumnado aprende a reutilizar aceite usado para crear velas sostenibles. Fomentamos el reciclaje, el consumo responsable y el cuidado del medioambiente. ¡Aprender haciendo y creando luz!.</p>
                     <div className="mt-4 flex gap-2">
                       <Badge variant="outline" className="text-xs">Primaria</Badge>
                       <Badge variant="outline" className="text-xs">ESO</Badge>
@@ -245,10 +245,10 @@ const AlianzaVerde = () => {
                     <div className="w-12 h-12 rounded-full bg-asram/20 flex items-center justify-center">
                       <Lightbulb className="w-6 h-6 text-asram" />
                     </div>
-                    <CardTitle>Energías Renovables</CardTitle>
+                    <CardTitle>Taller Escolar de Fabricación de Biodiésel con Aceite Reciclado</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p>Experimentos prácticos y demostraciones sobre energía solar, eólica y otras fuentes renovables, con construcción de pequeños modelos funcionales.</p>
+                    <p>Taller escolar de fabricación de biodiésel: el alumnado aprende a transformar aceite usado en combustible de forma segura y práctica. Una experiencia educativa que conecta ciencia, sostenibilidad y economía circular. ¡Convierte residuos en energía y conciencia ambiental!</p>
                     <div className="mt-4 flex gap-2">
                       <Badge variant="outline" className="text-xs">ESO</Badge>
                       <Badge variant="outline" className="text-xs">Bachillerato</Badge>
@@ -267,7 +267,7 @@ const AlianzaVerde = () => {
                     <p>Capacitación de alumnos como líderes ambientales que promueven buenas prácticas entre sus compañeros y en sus hogares, creando una red de jóvenes comprometidos.</p>
                     <div className="mt-4 flex gap-2">
                       <Badge variant="outline" className="text-xs">ESO</Badge>
-                      <Badge variant="outline" className="text-xs">Bachillerato</Badge>
+                      <Badge variant="outline" className="text-xs">Primaria</Badge>
                     </div>
                   </CardContent>
                 </Card>
@@ -288,7 +288,7 @@ const AlianzaVerde = () => {
                           </div>
                           <div>
                             <div className="font-medium">Taller Jabón Casero</div>
-                            <div className="text-sm text-muted-foreground">CEIP Miguel Hernández</div>
+                            <div className="text-sm text-muted-foreground">CEIP </div>
                           </div>
                         </div>
                         <div className="text-right">
@@ -306,7 +306,7 @@ const AlianzaVerde = () => {
                           </div>
                           <div>
                             <div className="font-medium">Mini Huerto Urbano</div>
-                            <div className="text-sm text-muted-foreground">Colegio Montserrat</div>
+                            <div className="text-sm text-muted-foreground">Colegio </div>
                           </div>
                         </div>
                         <div className="text-right">
@@ -324,7 +324,7 @@ const AlianzaVerde = () => {
                           </div>
                           <div>
                             <div className="font-medium">Energía Solar</div>
-                            <div className="text-sm text-muted-foreground">IES Ramiro de Maeztu</div>
+                            <div className="text-sm text-muted-foreground">IES </div>
                           </div>
                         </div>
                         <div className="text-right">
