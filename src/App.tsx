@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -158,44 +157,11 @@ const ProtectedAdministradorRoute = () => {
               }
             } else {
               // Verificación normal para el administrador de fincas
-              // Check in "users" collection first
               const userDoc = await getDoc(doc(db, "users", user.uid));
               if (userDoc.exists() && 
                   (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
                 setIsAdministrador(true);
                 setUserData(userDoc.data());
-              } else {
-                // If not found in users, check in usuarios collection
-                const usuariosQuery = query(
-                  collection(db, "usuarios"),
-                  where("uid", "==", user.uid)
-                );
-                
-                const usuariosSnap = await getDocs(usuariosQuery);
-                
-                if (!usuariosSnap.empty) {
-                  const userData = usuariosSnap.docs[0].data();
-                  if (userData.role === "administrador" || userData.role === "admin_finca") {
-                    setIsAdministrador(true);
-                    setUserData(userData);
-                  }
-                } else {
-                  // Check by email as final fallback
-                  const emailQuery = query(
-                    collection(db, "usuarios"),
-                    where("email", "==", user.email)
-                  );
-                  
-                  const emailSnap = await getDocs(emailQuery);
-                  
-                  if (!emailSnap.empty) {
-                    const userData = emailSnap.docs[0].data();
-                    if (userData.role === "administrador" || userData.role === "admin_finca") {
-                      setIsAdministrador(true);
-                      setUserData(userData);
-                    }
-                  }
-                }
               }
             }
           } catch (error) {
@@ -221,7 +187,7 @@ const ProtectedAdministradorRoute = () => {
   }
 
   if (!isAdministrador) {
-    toast.error("No tienes permisos para acceder al panel de administrador de fincas");
+    toast("No tienes permisos para acceder al panel de administrador de fincas");
     return <Navigate to="/login" />;
   }
 
