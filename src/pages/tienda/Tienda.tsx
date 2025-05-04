@@ -11,7 +11,7 @@ const productos = [
   {
     id: 1,
     nombre: "Kit para fabricar velas infinitas",
-    descripcion: "Todo lo necesario para un corte de luz",
+    descripcion: "Todo lo que necesitas para crear tu propia Vela Infinita. El kit incluye recipiente, mecha reutilizable, soporte y guía de uso. Solo añade aceite vegetal y disfruta de una llama cálida, ecológica y sin residuos. Perfecto para regalar, decorar o iniciarte en un consumo más sostenible.",
     precio: 19.99,
     imagen: "/lovable-uploads/d13e8bef-6a34-475e-b1a9-dbd4cfe6b3ba.png",
     categoria: "productos",
@@ -20,7 +20,7 @@ const productos = [
   {
     id: 2,
     nombre: "Contenedor de Reciclaje, varios colores",
-    descripcion: "Accesorio para facilitar el reciclaje en el hogar",
+    descripcion: "Con una capacidad de 80 litros, este contenedor de basura es perfecto para gestionar grandes volúmenes de residuos. Su estructura robusta y diseño elegante en color azul lo convierten en una opción ideal para cualquier entorno, desde cocinas hasta oficinas, facilitando la correcta gestión de residuos. Sus dimensiones óptimas (700 mm de alto, base de 350 x 350 mm y abertura de tapa de 200 mm) lo hacen ideal para espacios reducidos sin sacrificar capacidad.",
     precio: 29.99,
     imagen: "/lovable-uploads/e3de3e40-8e1b-468c-9c91-fa93d6b8216a.png",
     categoria: "productos",
@@ -29,7 +29,7 @@ const productos = [
   {
     id: 3,
     nombre: "Detergente ecológico ASRAM",
-    descripcion: "Elaborado a partir de aceite reciclado",
+    descripcion: "Detergente ecológico ASRAM: eficaz, biodegradable y respetuoso con tu piel y el planeta. Formulado con ingredientes naturales, ideal para ropa blanca y de color. Sin fosfatos ni químicos agresivos. Limpia a fondo cuidando el medioambiente. ¡Elige limpio, elige sostenible!",
     precio: 19.99,
     imagen: "/lovable-uploads/fd435684-868a-4b15-842a-b80cea599978.png",
     categoria: "productos",
@@ -41,7 +41,7 @@ const formaciones = [
   {
     id: 1,
     nombre: "Curso online: Economía circular",
-    descripcion: "Fundamentos teóricos y casos prácticos. 40 horas de formación.",
+    descripcion: "Aprende desde casa los principios de la economía circular y cómo aplicarlos en tu vida, negocio o comunidad. Un curso online práctico y accesible que te ayudará a reducir residuos, optimizar recursos y generar un impacto positivo. ¡Transforma tu forma de consumir y producir!.Fundamentos teóricos y casos prácticos. 40 horas de formación.",
     precio: 49.99,
     imagen: "/lovable-uploads/94155982-51c6-404b-9586-ceb767dfa9e8.png",
     categoria: "formaciones",
@@ -51,7 +51,7 @@ const formaciones = [
   {
     id: 2,
     nombre: "Taller: Elaboración de jabón casero",
-    descripcion: "Aprende a crear tus propios productos de limpieza sostenibles. Se aplica precio por participante maximo 40 personas",
+    descripcion: "Aprende a crear jabones únicos y sostenibles en nuestro Taller de Jabón Reciclado. Reutilizamos restos de jabón y los transformamos en nuevas piezas aromáticas y decorativas. Una actividad creativa, ecológica y perfecta para todas las edades. ¡Cuida el planeta con tus propias manos!. Se aplican descuertos a grupos en presencial maximo 40 personas",
     precio: 9.99,
     imagen: "/lovable-uploads/36059e6a-aa65-4800-808f-67be41a76bc0.png",
     categoria: "formaciones",
@@ -64,8 +64,8 @@ const talleres = [
   {
     id: 1,
     nombre: "Taller infantil: Pequeños recicladores",
-    descripcion: "Actividad para niños de 6-12 años. Duración: 2 horas.",
-    precio: 15.00,
+    descripcion: " En el taller "Pequeños Recicladores", los niños aprenden jugando la importancia de reducir, reutilizar y reciclar. A través de actividades creativas, descubrirán cómo dar una segunda vida a los residuos. Educación ambiental divertida y adaptada a todas las edades. ¡Reciclar nunca fue tan entretenido! Actividad para niños de 6-12 años. Duración: 2 horas.",
+    precio: 19.99,
     imagen: "/lovable-uploads/7882a253-85f5-4147-bd23-636e45eadf54.png",
     categoria: "talleres",
     fechaInicio: "CONTINUO",
@@ -75,7 +75,7 @@ const talleres = [
   {
     id: 2,
     nombre: "Taller familiar: Huerto urbano",
-    descripcion: "Aprende a crear tu propio huerto en casa. Para todas las edades.",
+    descripcion: "Descubre en familia cómo cultivar tus propios alimentos en casa con nuestro Taller de Huerto Urbano. Aprende a sembrar, cuidar y cosechar en espacios pequeños usando métodos sostenibles. Una actividad práctica, educativa y divertida para todas las edades. ¡Manos a la tierra!",
     precio: 24.99,
     imagen: "/lovable-uploads/9810563a-3e20-4f20-a965-f549375cbedd.png",
     categoria: "talleres",
