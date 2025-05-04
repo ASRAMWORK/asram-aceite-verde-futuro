@@ -29,13 +29,19 @@ import { useClientesCaptados } from "@/hooks/useClientesCaptados";
 import DetalleComercialDialog from "./DetalleComercialDialog";
 import { addSpecificComerciales } from "@/hooks/addSpecificComerciales";
 import VincularComercialDialog from "./VincularComercialDialog";
+import AdminStatusToggle from "../../administradores/AdminStatusToggle";
 
 const ComercialList = () => {
-  const { comerciales, loading, toggleComercialStatus, aprobarComercial, loadComercialesData } = useComerciales();
+  const { comerciales, loading, aprobarComercial, loadComercialesData } = useComerciales();
   const { getTotalLitrosByComercialId, getTotalClientesByComercialId } = useClientesCaptados();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedComercial, setSelectedComercial] = useState<string | null>(null);
   const [vincularComercialId, setVincularComercialId] = useState<string | null>(null);
+
+  // Make sure comerciales data is loaded
+  useEffect(() => {
+    loadComercialesData();
+  }, []);
 
   const filteredComerciales = comerciales.filter(
     (comercial) =>
@@ -43,16 +49,6 @@ const ComercialList = () => {
       comercial.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (comercial.codigo && comercial.codigo.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-
-  const handleStatusToggle = async (id: string, currentStatus: boolean) => {
-    try {
-      await toggleComercialStatus(id, !currentStatus);
-      toast.success(`Comercial ${!currentStatus ? "activado" : "desactivado"} correctamente`);
-    } catch (error) {
-      console.error("Error al cambiar estado:", error);
-      toast.error("Error al cambiar el estado del comercial");
-    }
-  };
 
   const handleApprove = async (id: string) => {
     try {
@@ -90,6 +86,9 @@ const ComercialList = () => {
     c.estadoVinculacion === 'sin_vincular'
   ).length;
 
+  console.log("Comerciales loaded:", comerciales.length);
+  console.log("Comerciales data:", comerciales);
+
   return (
     <>
       <Card>
@@ -113,6 +112,14 @@ const ComercialList = () => {
               >
                 <UserPlus className="h-4 w-4" />
                 <span>Añadir usuarios específicos</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={loadComercialesData}
+              >
+                <Users className="h-4 w-4" />
+                <span>Actualizar lista</span>
               </Button>
               <Badge variant="outline" className="bg-gray-100">
                 <Users className="h-3 w-3 mr-1" />
@@ -182,12 +189,10 @@ const ComercialList = () => {
                       <TableCell>{getTotalLitrosByComercialId(comercial.id)} L</TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
-                          <Badge
-                            variant={comercial.activo ? "default" : "outline"}
-                            className={comercial.activo ? "bg-green-600" : ""}
-                          >
-                            {comercial.activo ? "Activo" : "Inactivo"}
-                          </Badge>
+                          <AdminStatusToggle 
+                            user={comercial} 
+                            userType="comercial" 
+                          />
                           {!comercial.aprobado && (
                             <Badge variant="outline" className="bg-amber-100 text-amber-800">
                               Pendiente de aprobación
@@ -229,24 +234,6 @@ const ComercialList = () => {
                               <UserCheck className="h-4 w-4" />
                             </Button>
                           )}
-                          
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleStatusToggle(comercial.id, comercial.activo)}
-                            title={comercial.activo ? "Desactivar" : "Activar"}
-                            className={
-                              comercial.activo
-                                ? "text-red-600 hover:text-red-700"
-                                : "text-green-600 hover:text-green-700"
-                            }
-                          >
-                            {comercial.activo ? (
-                              <UserX className="h-4 w-4" />
-                            ) : (
-                              <UserCheck className="h-4 w-4" />
-                            )}
-                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

@@ -40,7 +40,8 @@ const LoginForm = () => {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       
       if (userDoc.exists()) {
-        const userRole = userDoc.data().role;
+        const userData = userDoc.data();
+        const userRole = userData.role;
         console.log("Found user in users collection with role:", userRole);
         
         if (userRole === "superadmin") {
@@ -48,11 +49,19 @@ const LoginForm = () => {
           toast.success("Bienvenido, Superadministrador");
         } else if (userRole === "admin_finca" || userRole === "administrador") {
           navigate("/administrador/dashboard");
-          toast.success(`Bienvenido, ${userDoc.data().nombreAdministracion || "Administrador de Fincas"}`);
+          toast.success(`Bienvenido, ${userData.nombreAdministracion || "Administrador de Fincas"}`);
         } else if (userRole === "comercial") {
-          console.log("Redirecting to comercial dashboard");
-          navigate("/comercial/dashboard");
-          toast.success("Bienvenido, Comercial");
+          console.log("Comercial account, checking approval status");
+          if (userData.aprobado) {
+            console.log("Approved comercial, redirecting to dashboard");
+            navigate("/comercial/dashboard");
+            toast.success("Bienvenido, Comercial");
+          } else {
+            console.log("Comercial not approved yet");
+            navigate("/comercial/dashboard");
+            toast.warning("Tu cuenta está pendiente de aprobación por un administrador");
+          }
+          setLoading(false);
           return;
         } else {
           navigate("/user/dashboard");
@@ -74,9 +83,17 @@ const LoginForm = () => {
           console.log("Found user in usuarios collection by uid with role:", userRole);
           
           if (userRole === "comercial") {
-            console.log("Redirecting to comercial dashboard");
-            navigate("/comercial/dashboard");
-            toast.success("Bienvenido, Comercial");
+            console.log("Comercial account, checking approval status");
+            if (userData.aprobado) {
+              console.log("Approved comercial, redirecting to dashboard");
+              navigate("/comercial/dashboard");
+              toast.success("Bienvenido, Comercial");
+            } else {
+              console.log("Comercial not approved yet");
+              navigate("/comercial/dashboard");
+              toast.warning("Tu cuenta está pendiente de aprobación por un administrador");
+            }
+            setLoading(false);
             return;
           } else {
             navigate("/user/dashboard");
@@ -97,9 +114,17 @@ const LoginForm = () => {
             console.log("Found user in usuarios collection by email with role:", userRole);
             
             if (userRole === "comercial") {
-              console.log("Redirecting to comercial dashboard");
-              navigate("/comercial/dashboard");
-              toast.success("Bienvenido, Comercial");
+              console.log("Comercial account, checking approval status");
+              if (userData.aprobado) {
+                console.log("Approved comercial, redirecting to dashboard");
+                navigate("/comercial/dashboard");
+                toast.success("Bienvenido, Comercial");
+              } else {
+                console.log("Comercial not approved yet");
+                navigate("/comercial/dashboard");
+                toast.warning("Tu cuenta está pendiente de aprobación por un administrador");
+              }
+              setLoading(false);
               return;
             }
           }
