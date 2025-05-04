@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building, Home, Droplet, Package, BarChart3 } from 'lucide-react';
+import { Building, Home, Package, BarChart3 } from 'lucide-react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,6 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
   const totalComunidades = comunidades.length;
   const totalViviendas = comunidades.reduce((sum, com) => sum + (com.numViviendas || 0), 0);
   const totalContenedores = comunidades.reduce((sum, com) => sum + (com.numContenedores || 0), 0);
-  const totalLitrosRecogidos = comunidades.reduce((sum, com) => sum + (com.litrosRecogidos || 0), 0);
   
   // Calcular beneficios medioambientales totales
   const totalCO2 = comunidades.reduce((sum, com) => {
@@ -63,7 +63,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
       <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>Panel de Control</h2>
       <p className="text-gray-600">Bienvenido de nuevo, {profile?.nombreAdministracion || profile?.nombre || 'Administrador'}.</p>
       
-      <div className={`grid grid-cols-2 ${isMobile ? 'gap-3' : 'md:grid-cols-4 gap-6'} mb-4 md:mb-6`}>
+      <div className={`grid grid-cols-2 ${isMobile ? 'gap-3' : 'md:grid-cols-3 gap-6'} mb-4 md:mb-6`}>
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className={`${isMobile ? 'p-3' : 'pb-2'}`}>
             <CardDescription>Comunidades</CardDescription>
@@ -102,19 +102,6 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
             </div>
           </CardContent>
         </Card>
-        
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className={`${isMobile ? 'p-3' : 'pb-2'}`}>
-            <CardDescription>Aceite recogido</CardDescription>
-            <CardTitle className={`${isMobile ? 'text-2xl' : 'text-3xl'}`}>{totalLitrosRecogidos} L</CardTitle>
-          </CardHeader>
-          <CardContent className={`${isMobile ? 'p-3 pt-0' : 'pt-2'}`}>
-            <div className="flex items-center">
-              <Droplet className="h-5 w-5 text-[#ee970d] mr-2" />
-              <span className="text-sm text-gray-500">Total aceite recogido</span>
-            </div>
-          </CardContent>
-        </Card>
       </div>
       
       <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-6'} mb-4 md:mb-6`}>
@@ -140,7 +127,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
               <div className="flex items-center justify-between p-3 bg-blue-50 rounded-md">
                 <div className="flex items-center">
                   <div className="bg-blue-100 p-2 rounded-full mr-4">
-                    <Droplet className="h-5 w-5 text-blue-700" />
+                    <BarChart3 className="h-5 w-5 text-blue-700" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Agua ahorrada</p>
@@ -202,7 +189,7 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
                 variant="outline" 
                 className={`w-full ${isMobile ? 'h-12' : ''}`}
               >
-                <Droplet className="mr-2 h-5 w-5" />
+                <BarChart3 className="mr-2 h-5 w-5" />
                 Informes y documentación
               </Button>
             </div>
@@ -229,7 +216,6 @@ const PanelControl: React.FC<PanelControlProps> = ({ adminId }) => {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">{comunidad.numViviendas || 0} viviendas</p>
-                    <p className="text-xs text-gray-500">{comunidad.litrosRecogidos || 0}L recogidos</p>
                   </div>
                 </div>
               ))}
