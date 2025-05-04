@@ -23,9 +23,7 @@ import {
   Calendar, 
   User,
   Building,
-  Container,
-  PlusCircle,
-  Droplet
+  Container
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -44,7 +42,6 @@ import {
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useNavigate } from 'react-router-dom';
-import AddLitrosRecogidosDialog from './AddLitrosRecogidosDialog';
 
 interface DetalleAdministradorProps {
   admin: Usuario;
@@ -57,52 +54,25 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
   const [activeTab, setActiveTab] = useState("perfil");
   const [totalViviendas, setTotalViviendas] = useState(0);
   const [totalContenedores, setTotalContenedores] = useState(0);
-  const [selectedComunidad, setSelectedComunidad] = useState<ComunidadVecinos | null>(null);
-  const [isAddLitrosDialogOpen, setIsAddLitrosDialogOpen] = useState(false);
   const navigate = useNavigate();
 
-  const loadComunidades = async () => {
-    try {
-      if (!admin.id) return;
-      
-      // Try querying comunidadesVecinos collection first (most recently updated structure)
-      const comunidadesQuery = query(
-        collection(db, "comunidadesVecinos"),
-        where("administradorId", "==", admin.id)
-      );
-      
-      const querySnapshot = await getDocs(comunidadesQuery);
-      const comunidadesData: ComunidadVecinos[] = [];
-      
-      let viviendasCount = 0;
-      let contenedoresCount = 0;
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as Omit<ComunidadVecinos, 'id'>;
-        const comunidad = {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
-          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date()
-        } as ComunidadVecinos;
+  useEffect(() => {
+    const loadComunidades = async () => {
+      try {
+        if (!admin.id) return;
         
-        comunidadesData.push(comunidad);
-        
-        // Count units and containers
-        if (comunidad.numViviendas) viviendasCount += comunidad.numViviendas;
-        if (comunidad.numContenedores) contenedoresCount += comunidad.numContenedores;
-      });
-      
-      // If no communities found, try the legacy "comunidades" collection as fallback
-      if (comunidadesData.length === 0) {
-        const legacyQuery = query(
+        const comunidadesQuery = query(
           collection(db, "comunidades"),
           where("administradorId", "==", admin.id)
         );
         
-        const legacySnapshot = await getDocs(legacyQuery);
+        const querySnapshot = await getDocs(comunidadesQuery);
+        const comunidadesData: ComunidadVecinos[] = [];
         
-        legacySnapshot.forEach((doc) => {
+        let viviendasCount = 0;
+        let contenedoresCount = 0;
+        
+        querySnapshot.forEach((doc) => {
           const data = doc.data() as Omit<ComunidadVecinos, 'id'>;
           const comunidad = {
             id: doc.id,
@@ -113,22 +83,20 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
           
           comunidadesData.push(comunidad);
           
-          // Count units and containers
+          // Contar viviendas y contenedores
           if (comunidad.numViviendas) viviendasCount += comunidad.numViviendas;
           if (comunidad.numContenedores) contenedoresCount += comunidad.numContenedores;
         });
+        
+        setComunidades(comunidadesData);
+        setTotalViviendas(viviendasCount);
+        setTotalContenedores(contenedoresCount);
+      } catch (error) {
+        console.error("Error cargando comunidades:", error);
+        toast.error("Error al cargar las comunidades");
       }
-      
-      setComunidades(comunidadesData);
-      setTotalViviendas(viviendasCount);
-      setTotalContenedores(contenedoresCount);
-    } catch (error) {
-      console.error("Error loading communities:", error);
-      toast.error("Error al cargar las comunidades");
-    }
-  };
-
-  useEffect(() => {
+    };
+    
     loadComunidades();
   }, [admin.id]);
 
@@ -153,11 +121,6 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
     sessionStorage.setItem('fromSuperAdmin', 'true');
     // Redirigir al panel del administrador
     navigate('/administrador/dashboard');
-  };
-  
-  const handleOpenAddLitrosDialog = (comunidad: ComunidadVecinos) => {
-    setSelectedComunidad(comunidad);
-    setIsAddLitrosDialogOpen(true);
   };
 
   return (
@@ -280,7 +243,6 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
                     <TableHead>Viviendas</TableHead>
                     <TableHead>Contenedores</TableHead>
                     <TableHead>Litros Recogidos</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -293,17 +255,6 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
                       <TableCell>{comunidad.numViviendas || 0}</TableCell>
                       <TableCell>{comunidad.numContenedores || 0}</TableCell>
                       <TableCell>{comunidad.litrosRecogidos || 0} L</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleOpenAddLitrosDialog(comunidad)}
-                          className="text-green-600 hover:text-green-800 hover:bg-green-50"
-                        >
-                          <Droplet className="h-4 w-4 mr-1" />
-                          <span>Añadir litros</span>
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -376,16 +327,6 @@ const DetalleAdministrador: React.FC<DetalleAdministradorProps> = ({ admin }) =>
           </Card>
         </TabsContent>
       </Tabs>
-      
-      {/* Dialog for adding liters collected */}
-      {selectedComunidad && (
-        <AddLitrosRecogidosDialog 
-          isOpen={isAddLitrosDialogOpen}
-          onClose={() => setIsAddLitrosDialogOpen(false)}
-          comunidad={selectedComunidad}
-          onSuccess={loadComunidades}
-        />
-      )}
     </div>
   );
 };
