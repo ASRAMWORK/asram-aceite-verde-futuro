@@ -26,63 +26,34 @@ export const useComunidadesVecinos = (adminId?: string) => {
         return;
       }
       
-      // Consultar en ambas colecciones: comunidadesVecinos y comunidades
-      const comunidadesVecinosRef = collection(db, 'comunidadesVecinos');
-      const comunidadesRef = collection(db, 'comunidades');
-      
-      // Consulta en comunidadesVecinos
-      const comunidadVecinosSnapshot = await getDocs(
-        query(
-          comunidadesVecinosRef, 
-          where('administradorId', '==', efectiveAdminId)
-        )
-      );
-      
-      // Consulta en comunidades
-      const comunidadesSnapshot = await getDocs(
+      // Modificar la consulta para evitar el error de índice
+      // Primero filtramos por administradorId y luego ordenamos en memoria
+      const comunidadesRef = collection(db, 'comunidadesVecinos');
+      const comunidadSnapshot = await getDocs(
         query(
           comunidadesRef, 
           where('administradorId', '==', efectiveAdminId)
+          // Eliminamos el orderBy para evitar requerir el índice compuesto
         )
       );
       
-      let comunidadesData: ComunidadVecinos[] = [];
-      
-      // Procesar datos de comunidadesVecinos
-      comunidadesData = comunidadVecinosSnapshot.docs.map(doc => ({
+      let comunidadesData: ComunidadVecinos[] = comunidadSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data() as ComunidadVecinos,
-        createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
-        updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate()
       }));
       
-      // Procesar datos de comunidades
-      const comunidadesAdicionales = comunidadesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data() as ComunidadVecinos,
-        createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
-        updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
-      }));
-      
-      // Combinar ambas fuentes de datos
-      comunidadesData = [...comunidadesData, ...comunidadesAdicionales];
-      
-      // Eliminar posibles duplicados (por ID)
-      const uniqueComunidades = Array.from(
-        new Map(comunidadesData.map(item => [item.id, item])).values()
-      );
-      
-      // Ordenar por nombre
-      const ordenadas = uniqueComunidades.sort((a, b) => {
-        return (a.nombre || '').localeCompare(b.nombre || '');
+      // Ordenamos en memoria por nombre para evitar requerir el índice
+      comunidadesData = comunidadesData.sort((a, b) => {
+        return a.nombre.localeCompare(b.nombre);
       });
       
-      setComunidades(ordenadas);
-      console.log("Comunidades cargadas:", ordenadas.length);
+      setComunidades(comunidadesData);
     } catch (e: any) {
       console.error("Error al cargar comunidades:", e);
       setError(e.message);
-      toast.error('Error al cargar las comunidades');
+      toast.error('Error al cargar las comunidades de vecinos');
     } finally {
       setLoading(false);
     }

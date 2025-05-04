@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useComunidadesVecinos } from '@/hooks/useComunidadesVecinos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,24 +19,12 @@ interface MisComunidadesProps {
 
 const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
   const { profile } = useUserProfile();
-  const viewingAdminId = sessionStorage.getItem('viewingAdminId');
-  const fromSuperAdmin = sessionStorage.getItem('fromSuperAdmin') === 'true';
-  
-  // Determinar el ID correcto del administrador
-  const efectiveAdminId = adminId || (fromSuperAdmin ? viewingAdminId : profile?.id);
-  
-  const { comunidades, loading, error, deleteComunidad, loadComunidades } = useComunidadesVecinos(efectiveAdminId);
+  const efectiveAdminId = adminId || profile?.id;
+  const { comunidades, loading, error, deleteComunidad } = useComunidadesVecinos(efectiveAdminId);
   const navigate = useNavigate();
   
   const [selectedComunidad, setSelectedComunidad] = useState<ComunidadVecinos | null>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-  
-  // Recargar las comunidades cuando cambia el adminId
-  useEffect(() => {
-    if (efectiveAdminId) {
-      console.log("Cargando comunidades para admin ID:", efectiveAdminId);
-    }
-  }, [efectiveAdminId]);
 
   if (loading) {
     return (
@@ -73,7 +61,7 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
   };
   
   // Helper function to safely get environmental impact values
-  const getImpactoValue = (comunidad: ComunidadVecinos, property: string): number => {
+  const getImpactoValue = (comunidad, property) => {
     if (property === 'co2') {
       return comunidad.beneficiosMedioambientales?.co2Reducido !== undefined
         ? comunidad.beneficiosMedioambientales.co2Reducido
@@ -91,8 +79,6 @@ const MisComunidades: React.FC<MisComunidadesProps> = ({ adminId }) => {
     }
     return 0;
   };
-
-  console.log("Comunidades cargadas en MisComunidades:", comunidades.length, efectiveAdminId);
   
   return (
     <div className="space-y-6">

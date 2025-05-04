@@ -149,59 +149,19 @@ const ProtectedAdministradorRoute = () => {
             const fromSuperAdmin = sessionStorage.getItem('fromSuperAdmin') === 'true';
             
             if (viewingAdminId && fromSuperAdmin) {
-              console.log("Acceso como superadministrador viendo panel de:", viewingAdminId);
               // Si estamos accediendo como superadministrador, verificar que el usuario actual es un superadmin
               const superadminDoc = await getDoc(doc(db, "users", user.uid));
-              
-              // Verificar si es superadmin o tiene email de admin
               if (superadminDoc.exists() && 
-                  (superadminDoc.data().role === "superadmin" || 
-                   superadminDoc.data().role === "admin" || 
-                   isAdminEmail(user.email))) {
+                  (superadminDoc.data().role === "superadmin" || isAdminEmail(user.email))) {
                 setIsAdministrador(true);
               }
             } else {
               // Verificación normal para el administrador de fincas
               const userDoc = await getDoc(doc(db, "users", user.uid));
-              
-              // Verificar en colección users
               if (userDoc.exists() && 
-                  (userDoc.data().role === "administrador" || 
-                   userDoc.data().role === "admin_finca")) {
+                  (userDoc.data().role === "administrador" || userDoc.data().role === "admin_finca")) {
                 setIsAdministrador(true);
                 setUserData(userDoc.data());
-              } else {
-                // Si no está en users, buscar en colección usuarios
-                const usuariosQuery = query(
-                  collection(db, "usuarios"),
-                  where("uid", "==", user.uid)
-                );
-                
-                const usuariosSnapshot = await getDocs(usuariosQuery);
-                
-                if (!usuariosSnapshot.empty) {
-                  const userData = usuariosSnapshot.docs[0].data();
-                  if (userData.role === "administrador" || userData.role === "admin_finca") {
-                    setIsAdministrador(true);
-                    setUserData(userData);
-                  }
-                } else {
-                  // Intentar buscar por email como último recurso
-                  const usuariosPorEmailQuery = query(
-                    collection(db, "usuarios"),
-                    where("email", "==", user.email)
-                  );
-                  
-                  const usuariosPorEmailSnapshot = await getDocs(usuariosPorEmailQuery);
-                  
-                  if (!usuariosPorEmailSnapshot.empty) {
-                    const userData = usuariosPorEmailSnapshot.docs[0].data();
-                    if (userData.role === "administrador" || userData.role === "admin_finca") {
-                      setIsAdministrador(true);
-                      setUserData(userData);
-                    }
-                  }
-                }
               }
             }
           } catch (error) {
@@ -227,7 +187,7 @@ const ProtectedAdministradorRoute = () => {
   }
 
   if (!isAdministrador) {
-    toast.error("No tienes permisos para acceder al panel de administrador de fincas");
+    toast("No tienes permisos para acceder al panel de administrador de fincas");
     return <Navigate to="/login" />;
   }
 
