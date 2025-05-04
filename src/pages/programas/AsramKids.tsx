@@ -10,14 +10,14 @@ const AsramKids = () => {
   // Mock data for testimonials and upcoming events
   const testimonials = [
     { name: "María Rodríguez", role: "Profesora de infantil", text: "Los niños esperan con ilusión los talleres de ASRAM Kids. Han aprendido tanto sobre reciclaje mientras se divierten." },
-    { name: "Carlos Jiménez", role: "Director CEIP García Lorca", text: "El programa ha conseguido que los más pequeños traigan aceite usado de casa y entiendan por qué es importante reciclarlo." },
+    { name: "Carlos Jiménez", role: "Director", text: "El programa ha conseguido que los más pequeños traigan aceite usado de casa y entiendan por qué es importante reciclarlo." },
     { name: "Ana Martín", role: "Madre de Pablo (6 años)", text: "Mi hijo ahora me corrige en casa cuando ve que voy a tirar el aceite por el fregadero. ¡Increíble el impacto!" }
   ];
   
   const upcomingEvents = [
-    { title: "Cuentacuentos: La gota viajera", date: "15 mayo 2025", location: "Biblioteca Municipal de Chamberí" },
-    { title: "Taller de reciclaje creativo", date: "22 mayo 2025", location: "Centro Cultural García Lorca" },
-    { title: "Fiesta del Agua", date: "5 junio 2025", location: "Parque del Retiro" }
+    { title: "Cuentacuentos: La gota viajera", date: "Continuo", location: "Biblioteca Municipal de Chamberí" },
+    { title: "Taller de reciclaje creativo", date: "Continuo", location: "Centro Cultural García Lorca" },
+    { title: "Fiesta del reciclaje", date: "Continuo", location: "Parque del Retiro" }
   ];
   
   // Animations
@@ -90,11 +90,11 @@ const AsramKids = () => {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-8 bg-white/70 backdrop-blur-sm border-t">
             <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">35+</div>
+              <div className="text-3xl font-bold text-asram">50+</div>
               <div className="text-sm text-gray-600">Centros escolares</div>
             </div>
             <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">120+</div>
+              <div className="text-3xl font-bold text-asram">50+</div>
               <div className="text-sm text-gray-600">Talleres realizados</div>
             </div>
             <div className="text-center p-3">
@@ -286,7 +286,7 @@ const AsramKids = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between border-b pb-2">
                     <span>Talleres realizados:</span>
-                    <span className="font-semibold">120+</span>
+                    <span className="font-semibold">50+</span>
                   </div>
                   <div className="flex justify-between border-b pb-2">
                     <span>Niños sensibilizados:</span>
@@ -294,11 +294,11 @@ const AsramKids = () => {
                   </div>
                   <div className="flex justify-between border-b pb-2">
                     <span>Litros aceite recolectados:</span>
-                    <span className="font-semibold">785 L</span>
+                    <span className="font-semibold">10.000 L</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Familia involucradas:</span>
-                    <span className="font-semibold">950+</span>
+                    <span className="font-semibold">5.000+</span>
                   </div>
                 </div>
               </CardContent>
