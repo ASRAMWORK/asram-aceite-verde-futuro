@@ -73,7 +73,12 @@ const LoginForm = () => {
           const userRole = userData.role;
           console.log("Found user in usuarios collection by uid with role:", userRole);
           
-          if (userRole === "comercial") {
+          if (userRole === "administrador" || userRole === "admin_finca") {
+            console.log("Redirecting to administrador dashboard");
+            navigate("/administrador/dashboard");
+            toast.success(`Bienvenido, ${userData.nombreAdministracion || "Administrador de Fincas"}`);
+            return;
+          } else if (userRole === "comercial") {
             console.log("Redirecting to comercial dashboard");
             navigate("/comercial/dashboard");
             toast.success("Bienvenido, Comercial");
@@ -96,7 +101,12 @@ const LoginForm = () => {
             const userRole = userData.role;
             console.log("Found user in usuarios collection by email with role:", userRole);
             
-            if (userRole === "comercial") {
+            if (userRole === "administrador" || userRole === "admin_finca") {
+              console.log("Redirecting to administrador dashboard");
+              navigate("/administrador/dashboard");
+              toast.success(`Bienvenido, ${userData.nombreAdministracion || "Administrador de Fincas"}`);
+              return;
+            } else if (userRole === "comercial") {
               console.log("Redirecting to comercial dashboard");
               navigate("/comercial/dashboard");
               toast.success("Bienvenido, Comercial");
