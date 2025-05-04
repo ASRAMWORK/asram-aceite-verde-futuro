@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Calendar, BookOpen, Users, Award, MapPin, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import UnsplashImage from '@/components/common/UnsplashImage';
 
 const productos = [
   {
@@ -15,7 +14,7 @@ const productos = [
     nombre: "Kit para fabricar velas infinitas",
     descripcion: "Todo lo necesario para un corte de luz",
     precio: 19.99,
-    imagen: "klc04-mysdv.webp",
+    imagen: "/lovable-uploads/d13e8bef-6a34-475e-b1a9-dbd4cfe6b3ba.png",
     categoria: "productos",
     stripeLink: "https://buy.stripe.com/test_fZebKH5WGdmm9pu3cf"
   },
@@ -24,7 +23,7 @@ const productos = [
     nombre: "Contenedor de Reciclaje, varios colores",
     descripcion: "Accesorio para facilitar el reciclaje en el hogar",
     precio: 29.99,
-    imagen: "q3xya-cpugq.webp",
+    imagen: "/lovable-uploads/94155982-51c6-404b-9586-ceb767dfa9e8.png",
     categoria: "productos",
     stripeLink: "https://buy.stripe.com/test_7sI8yv84O0zA7hm004"
   },
@@ -33,7 +32,7 @@ const productos = [
     nombre: "Detergente ecológico ASRAM",
     descripcion: "Elaborado a partir de aceite reciclado",
     precio: 19.99,
-    imagen: "9ncwl-wk3my.webp",
+    imagen: "/lovable-uploads/fd435684-868a-4b15-842a-b80cea599978.png",
     categoria: "productos",
     stripeLink: "https://buy.stripe.com/test_14kcOLdp86XY316dQV"
   }
@@ -45,7 +44,7 @@ const formaciones = [
     nombre: "Curso online: Economía circular",
     descripcion: "Fundamentos teóricos y casos prácticos. 40 horas de formación.",
     precio: 49.99,
-    imagen: "yz1x8-x3vw0.webp",
+    imagen: "/lovable-uploads/e3de3e40-8e1b-468c-9c91-fa93d6b8216a.png",
     categoria: "formaciones",
     fechaInicio: "CONTINUO",
     stripeLink: "https://buy.stripe.com/test_3csaGD2Ku96645acMT"
@@ -55,7 +54,7 @@ const formaciones = [
     nombre: "Taller: Elaboración de jabón casero",
     descripcion: "Aprende a crear tus propios productos de limpieza sostenibles. Se aplica precio por participante maximo 40 personas",
     precio: 9.99,
-    imagen: "9hixf-y026j.webp",
+    imagen: "/lovable-uploads/36059e6a-aa65-4800-808f-67be41a76bc0.png",
     categoria: "formaciones",
     fechaInicio: "CONTINUO",
     stripeLink: "https://buy.stripe.com/test_aEUcOLfxg8229pueV2"
@@ -68,7 +67,7 @@ const talleres = [
     nombre: "Taller infantil: Pequeños recicladores",
     descripcion: "Actividad para niños de 6-12 años. Duración: 2 horas.",
     precio: 15.00,
-    imagen: "file:///C:/Users/Nitro/Downloads/Dise%C3%B1o%20sin%20t%C3%ADtulo%20(6).webp",
+    imagen: "/lovable-uploads/7882a253-85f5-4147-bd23-636e45eadf54.png",
     categoria: "talleres",
     fechaInicio: "CONTINUO",
     lugar: "ONLINE",
@@ -79,7 +78,7 @@ const talleres = [
     nombre: "Taller familiar: Huerto urbano",
     descripcion: "Aprende a crear tu propio huerto en casa. Para todas las edades.",
     precio: 24.99,
-    imagen: "utbhm-olobu.webp",
+    imagen: "/lovable-uploads/9810563a-3e20-4f20-a965-f549375cbedd.png",
     categoria: "talleres",
     fechaInicio: "CONTINUO",
     lugar: "ONLINE",
@@ -170,8 +169,8 @@ const Tienda = () => {
               {filterItems(productos).map(producto => (
                 <Card key={producto.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <UnsplashImage 
-                      query={`${producto.nombre} eco sustainable recycling`}
+                    <img 
+                      src={producto.imagen} 
                       className="w-full h-full object-cover"
                       alt={producto.nombre}
                     />
@@ -202,8 +201,8 @@ const Tienda = () => {
               {filterItems(formaciones).map(formacion => (
                 <Card key={formacion.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <UnsplashImage 
-                      query={`${formacion.nombre} education sustainability workshop`}
+                    <img 
+                      src={formacion.imagen} 
                       className="w-full h-full object-cover"
                       alt={formacion.nombre}
                     />
@@ -238,8 +237,8 @@ const Tienda = () => {
               {filterItems(talleres).map(taller => (
                 <Card key={taller.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <UnsplashImage 
-                      query={`${taller.nombre} workshop activity sustainability`}
+                    <img 
+                      src={taller.imagen} 
                       className="w-full h-full object-cover"
                       alt={taller.nombre}
                     />
@@ -278,8 +277,8 @@ const Tienda = () => {
               {filterItems(eventos).map(evento => (
                 <Card key={evento.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video relative overflow-hidden">
-                    <UnsplashImage 
-                      query={`${evento.nombre} event sustainable environment`}
+                    <img 
+                      src={evento.imagen}
                       className="w-full h-full object-cover"
                       alt={evento.nombre}
                     />

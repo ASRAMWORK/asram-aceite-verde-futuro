@@ -142,6 +142,19 @@ const ProductoForm: React.FC<ProductoFormProps> = ({ initialData, onSubmit, onCa
             label="Imagen principal"
             showPreview={true}
           />
+          
+          {formData.imageUrl && (
+            <div className="mt-4">
+              <p className="text-sm font-medium mb-2">Imagen seleccionada:</p>
+              <div className="border rounded p-2 bg-gray-50">
+                <img 
+                  src={formData.imageUrl}
+                  alt="Imagen del producto"
+                  className="max-h-48 object-contain mx-auto"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
       

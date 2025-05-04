@@ -31,6 +31,7 @@ const productos = [
     stock: 35,
     activo: true,
     fechaCreacion: "12/04/2024",
+    imageUrl: "/lovable-uploads/d13e8bef-6a34-475e-b1a9-dbd4cfe6b3ba.png"
   },
   {
     id: 2,
@@ -39,6 +40,7 @@ const productos = [
     stock: 50,
     activo: true,
     fechaCreacion: "15/03/2024",
+    imageUrl: null
   },
   {
     id: 3,
@@ -47,6 +49,7 @@ const productos = [
     stock: 20,
     activo: true,
     fechaCreacion: "20/02/2024",
+    imageUrl: "/lovable-uploads/fd435684-868a-4b15-842a-b80cea599978.png"
   },
   {
     id: 4,
@@ -55,6 +58,7 @@ const productos = [
     stock: 15,
     activo: false,
     fechaCreacion: "05/01/2024",
+    imageUrl: "/lovable-uploads/94155982-51c6-404b-9586-ceb767dfa9e8.png"
   },
   {
     id: 5,
@@ -63,6 +67,7 @@ const productos = [
     stock: 45,
     activo: true,
     fechaCreacion: "10/04/2024",
+    imageUrl: null
   },
 ];
 
@@ -82,6 +87,7 @@ const ProductosManager = ({ onEditItem }: ProductosManagerProps) => {
           <TableHeader>
             <TableRow>
               <TableHead className={isMobile ? "text-xs px-2" : ""}>ID</TableHead>
+              {!isMobile && <TableHead>Imagen</TableHead>}
               <TableHead className={isMobile ? "text-xs px-2" : ""}>Producto</TableHead>
               <TableHead className={`text-right ${isMobile ? "text-xs px-1" : ""}`}>Precio</TableHead>
               <TableHead className={`text-right ${isMobile ? "text-xs px-1" : ""}`}>Stock</TableHead>
@@ -94,6 +100,23 @@ const ProductosManager = ({ onEditItem }: ProductosManagerProps) => {
             {productos.map((producto) => (
               <TableRow key={producto.id}>
                 <TableCell className={`font-medium ${isMobile ? "text-xs px-2 py-2" : ""}`}>{producto.id}</TableCell>
+                {!isMobile && (
+                  <TableCell>
+                    {producto.imageUrl ? (
+                      <div className="w-12 h-12 relative">
+                        <img 
+                          src={producto.imageUrl} 
+                          alt={producto.nombre}
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                        N/A
+                      </div>
+                    )}
+                  </TableCell>
+                )}
                 <TableCell className={isMobile ? "text-xs px-2 py-2 max-w-[120px]" : ""}>
                   <div className={isMobile ? "truncate max-w-[120px]" : ""}>
                     {producto.nombre}
