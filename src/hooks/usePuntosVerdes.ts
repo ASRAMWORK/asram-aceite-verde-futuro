@@ -1,16 +1,17 @@
-
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, doc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
 import type { PuntoVerde } from '@/types';
 import { toast } from 'sonner';
 import { useUsuarios } from './useUsuarios';
+import { useClientes } from './useClientes';
 
 export function usePuntosVerdes(administradorId?: string) {
   const [puntosVerdes, setPuntosVerdes] = useState<PuntoVerde[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { addUsuario } = useUsuarios();
+  const { addUsuario, usuarios } = useUsuarios();
+  const { clientes } = useClientes();
 
   const loadPuntosVerdesData = async () => {
     try {
@@ -71,11 +72,58 @@ export function usePuntosVerdes(administradorId?: string) {
       });
       
       setPuntosVerdes(puntosOrdenados);
+      
+      // Sincronizar con clientes - comprobamos si todos los puntos verdes tienen un cliente asociado
+      await sincronizarPuntosVerdesConClientes(puntosOrdenados);
+      
     } catch (err) {
       console.error("Error cargando puntos verdes:", err);
       setError("Error al cargar datos de Puntos Verdes");
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // Nueva función para sincronizar los puntos verdes con el sistema de clientes
+  const sincronizarPuntosVerdesConClientes = async (puntos: PuntoVerde[]) => {
+    // Verificar qué puntos verdes no tienen un cliente asociado
+    const todosLosClientes = usuarios.length > 0 ? usuarios : clientes;
+    const clientesPuntoVerde = todosLosClientes.filter(cliente => cliente.tipo === "punto_verde");
+    
+    for (const punto of puntos) {
+      // Comprobar si ya existe un cliente para este punto verde
+      const clienteExistente = clientesPuntoVerde.find(
+        cliente => cliente.puntoVerdeId === punto.id
+      );
+      
+      if (!clienteExistente && punto.activo) {
+        // No hay cliente asociado a este punto verde, crear uno nuevo
+        try {
+          await addUsuario({
+            nombre: punto.nombre || `Punto Verde - ${punto.direccion}`,
+            email: punto.email || "",
+            telefono: punto.telefono || "",
+            direccion: punto.direccion,
+            ciudad: punto.ciudad || "Madrid",
+            provincia: punto.provincia || "Madrid",
+            codigoPostal: punto.codigoPostal || "",
+            tipo: "punto_verde",
+            activo: true,
+            role: "client",
+            distrito: punto.distrito || "",
+            barrio: punto.barrio || "",
+            numViviendas: punto.numViviendas || 0,
+            numContenedores: punto.numContenedores || 0,
+            puntoVerdeId: punto.id,  // Referencia al ID del punto verde
+            litrosRecogidos: punto.litrosRecogidos || 0,
+            puntosVerdes: 0,
+            frecuenciaRecogida: "Semanal",
+          });
+          console.log(`Cliente creado automáticamente para punto verde: ${punto.id}`);
+        } catch (err) {
+          console.error(`Error creando cliente para punto verde ${punto.id}:`, err);
+        }
+      }
     }
   };
 
@@ -90,34 +138,48 @@ export function usePuntosVerdes(administradorId?: string) {
       // Add punto verde to puntosVerdes collection
       const puntoRef = await addDoc(collection(db, "puntosVerdes"), puntoData);
       
-      // Crear un usuario cliente asociado al punto verde
-      await addUsuario({
-        nombre: nuevoPunto.nombre || `Punto Verde - ${nuevoPunto.direccion}`,
-        email: nuevoPunto.email || "",
-        telefono: nuevoPunto.telefono || "",
-        direccion: nuevoPunto.direccion,
-        ciudad: nuevoPunto.ciudad || "Madrid",
-        provincia: nuevoPunto.provincia || "Madrid",
-        codigoPostal: nuevoPunto.codigoPostal || "",
-        tipo: "punto_verde",
-        activo: true,
-        role: "client",
-        distrito: nuevoPunto.distrito || "",
-        barrio: nuevoPunto.barrio || "",
-        numViviendas: nuevoPunto.numViviendas || 0,
-        numContenedores: nuevoPunto.numContenedores || 0,
-        puntoVerdeId: puntoRef.id,  // Referencia al ID del punto verde
-        litrosRecogidos: 0,
-        puntosVerdes: 0,
-        frecuenciaRecogida: "Semanal",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        fechaRegistro: new Date(),
-        userId: `pv-${Date.now()}`,  // ID temporal para el usuario
-        uid: `pv-${Date.now()}`      // ID temporal para la autenticación
-      });
+      // Verificar si ya existe un cliente para esta dirección/localización
+      const todosLosClientes = usuarios.length > 0 ? usuarios : clientes;
+      const clienteExistente = todosLosClientes.find(
+        cliente => 
+          (cliente.direccion === nuevoPunto.direccion && 
+           cliente.distrito === nuevoPunto.distrito &&
+           cliente.barrio === nuevoPunto.barrio) ||
+          cliente.puntoVerdeId === puntoRef.id
+      );
       
-      toast.success("Punto verde añadido correctamente y registrado como cliente");
+      if (!clienteExistente) {
+        // Crear un usuario cliente asociado al punto verde
+        await addUsuario({
+          nombre: nuevoPunto.nombre || `Punto Verde - ${nuevoPunto.direccion}`,
+          email: nuevoPunto.email || "",
+          telefono: nuevoPunto.telefono || "",
+          direccion: nuevoPunto.direccion,
+          ciudad: nuevoPunto.ciudad || "Madrid",
+          provincia: nuevoPunto.provincia || "Madrid",
+          codigoPostal: nuevoPunto.codigoPostal || "",
+          tipo: "punto_verde",
+          activo: true,
+          role: "client",
+          distrito: nuevoPunto.distrito || "",
+          barrio: nuevoPunto.barrio || "",
+          numViviendas: nuevoPunto.numViviendas || 0,
+          numContenedores: nuevoPunto.numContenedores || 0,
+          puntoVerdeId: puntoRef.id,  // Referencia al ID del punto verde
+          litrosRecogidos: 0,
+          puntosVerdes: 0,
+          frecuenciaRecogida: "Semanal",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          fechaRegistro: new Date(),
+          userId: `pv-${Date.now()}`,  // ID temporal para el usuario
+          uid: `pv-${Date.now()}`      // ID temporal para la autenticación
+        });
+        toast.success("Punto verde añadido correctamente y registrado como cliente");
+      } else {
+        toast.success("Punto verde añadido correctamente (cliente ya existente)");
+      }
+      
       await loadPuntosVerdesData();
       return true;
     } catch (err) {
@@ -187,6 +249,7 @@ export function usePuntosVerdes(administradorId?: string) {
     getPuntosByDistrito,
     getPuntosByBarrio,
     getDistritosUnicos,
-    getBarriosUnicos
+    getBarriosUnicos,
+    sincronizarPuntosVerdesConClientes
   };
 }
