@@ -151,5 +151,8 @@ export interface Usuario {
   
   // Add the comunidades property that was missing
   comunidades?: ComunidadVecinos[];
+  
+  // Adding puntoVerdeId to link a user to a punto verde
+  puntoVerdeId?: string;
 }
 
