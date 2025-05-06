@@ -65,9 +65,9 @@ export function usePuntosVerdes(administradorId?: string) {
       // Ordenamos en memoria por distrito y luego por barrio
       const puntosOrdenados = puntosData.sort((a, b) => {
         if (a.distrito === b.distrito) {
-          return a.barrio.localeCompare(b.barrio);
+          return (a.barrio || '').localeCompare(b.barrio || '');
         }
-        return a.distrito.localeCompare(b.distrito);
+        return (a.distrito || '').localeCompare(b.distrito || '');
       });
       
       setPuntosVerdes(puntosOrdenados);
@@ -90,31 +90,34 @@ export function usePuntosVerdes(administradorId?: string) {
       // Add punto verde to puntosVerdes collection
       const puntoRef = await addDoc(collection(db, "puntosVerdes"), puntoData);
       
-      // Also create a user record as a client
+      // Crear un usuario cliente asociado al punto verde
       await addUsuario({
-        nombre: `Punto Verde - ${nuevoPunto.direccion}`,
+        nombre: nuevoPunto.nombre || `Punto Verde - ${nuevoPunto.direccion}`,
         email: nuevoPunto.email || "",
         telefono: nuevoPunto.telefono || "",
         direccion: nuevoPunto.direccion,
-        ciudad: "Madrid",
-        provincia: "Madrid",
-        codigoPostal: "",
+        ciudad: nuevoPunto.ciudad || "Madrid",
+        provincia: nuevoPunto.provincia || "Madrid",
+        codigoPostal: nuevoPunto.codigoPostal || "",
         tipo: "punto_verde",
         activo: true,
         role: "client",
-        distrito: nuevoPunto.distrito,
-        barrio: nuevoPunto.barrio,
-        numViviendas: nuevoPunto.numViviendas,
-        numContenedores: nuevoPunto.numContenedores,
-        puntosVerdes: 0, // Changed from puntoVerdeId
+        distrito: nuevoPunto.distrito || "",
+        barrio: nuevoPunto.barrio || "",
+        numViviendas: nuevoPunto.numViviendas || 0,
+        numContenedores: nuevoPunto.numContenedores || 0,
+        puntoVerdeId: puntoRef.id,  // Referencia al ID del punto verde
+        litrosRecogidos: 0,
+        puntosVerdes: 0,
+        frecuenciaRecogida: "Semanal",
         createdAt: new Date(),
         updatedAt: new Date(),
         fechaRegistro: new Date(),
-        userId: `temp-${Date.now()}`,  // Adding required userId property
-        uid: `temp-${Date.now()}`      // Adding required uid property
+        userId: `pv-${Date.now()}`,  // ID temporal para el usuario
+        uid: `pv-${Date.now()}`      // ID temporal para la autenticación
       });
       
-      toast.success("Punto verde añadido correctamente");
+      toast.success("Punto verde añadido correctamente y registrado como cliente");
       await loadPuntosVerdesData();
       return true;
     } catch (err) {
@@ -162,11 +165,11 @@ export function usePuntosVerdes(administradorId?: string) {
   };
 
   const getDistritosUnicos = () => {
-    return Array.from(new Set(puntosVerdes.map(punto => punto.distrito))).sort();
+    return Array.from(new Set(puntosVerdes.map(punto => punto.distrito).filter(Boolean))).sort();
   };
 
   const getBarriosUnicos = () => {
-    return Array.from(new Set(puntosVerdes.map(punto => punto.barrio))).sort();
+    return Array.from(new Set(puntosVerdes.map(punto => punto.barrio).filter(Boolean))).sort();
   };
 
   useEffect(() => {
