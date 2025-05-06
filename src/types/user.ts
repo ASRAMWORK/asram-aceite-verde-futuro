@@ -154,5 +154,7 @@ export interface Usuario {
   
   // Adding puntoVerdeId to link a user to a punto verde
   puntoVerdeId?: string;
+  
+  // Adding litrosRecogidos property needed for users linked to puntos verdes
+  litrosRecogidos?: number;
 }
-
