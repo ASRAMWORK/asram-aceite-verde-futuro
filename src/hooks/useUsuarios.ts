@@ -232,16 +232,6 @@ export function useUsuarios() {
 
   const updateUsuario = async (id: string, data: Partial<Usuario>) => {
     try {
-      // Verificar que si el usuario es administrador, solo pueda actualizar sus propios usuarios
-      if (profile?.role === 'administrador') {
-        const usuarioDoc = doc(db, "usuarios", id);
-        const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
-        if (usuario.empty) {
-          toast.error("No tienes permiso para actualizar este usuario");
-          return false;
-        }
-      }
-      
       await updateDoc(doc(db, "usuarios", id), {
         ...data,
         updatedAt: serverTimestamp()
@@ -256,130 +246,43 @@ export function useUsuarios() {
     }
   };
 
+  const toggleEstadoUsuario = async (id: string, activo: boolean) => {
+    try {
+      await updateDoc(doc(db, "usuarios", id), {
+        activo,
+        updatedAt: serverTimestamp()
+      });
+      
+      toast.success(`Usuario ${activo ? 'activado' : 'desactivado'} correctamente`);
+      await loadUsuariosData();
+      return true;
+    } catch (err) {
+      console.error("Error cambiando estado del usuario:", err);
+      toast.error("Error al cambiar el estado del usuario");
+      return false;
+    }
+  };
+
   const deleteUsuario = async (id: string) => {
     try {
-      // Verificar que si el usuario es administrador, solo pueda eliminar sus propios usuarios
-      if (profile?.role === 'administrador') {
-        const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
-        if (usuario.empty) {
-          toast.error("No tienes permiso para eliminar este usuario");
-          return false;
-        }
-      }
-      
-      // Eliminar completamente el documento de la base de datos
-      await deleteDoc(doc(db, "usuarios", id));
-      toast.success("Usuario eliminado permanentemente");
-      await loadUsuariosData();
-      return true;
-    } catch (err) {
-      console.error("Error eliminando usuario:", err);
-      toast.error("Error al eliminar el usuario");
-      return false;
-    }
-  };
-
-  const updateUserRole = async (id: string, role: string) => {
-    try {
+      // Soft delete
       await updateDoc(doc(db, "usuarios", id), {
-        role,
+        activo: false,
         updatedAt: serverTimestamp()
       });
-      toast.success("Rol actualizado correctamente");
+      toast.success("Usuario desactivado correctamente");
       await loadUsuariosData();
       return true;
     } catch (err) {
-      console.error("Error actualizando rol:", err);
-      toast.error("Error al actualizar el rol");
-      return false;
-    }
-  };
-
-  // Nueva función para intentar vincular un usuario existente en Firestore con Firebase Auth
-  const reintentarVinculacionAuth = async (id: string, email: string, newPassword: string) => {
-    try {
-      setLoading(true);
-      
-      // Buscar el usuario en Firestore
-      const usuarioDoc = await getDoc(doc(db, "usuarios", id));
-      if (!usuarioDoc.exists()) {
-        toast.error("Usuario no encontrado");
-        return { success: false, error: "Usuario no encontrado" };
-      }
-      
-      const usuarioData = usuarioDoc.data() as Usuario;
-      
-      let uid: string | undefined = undefined;
-      let estadoVinculacion: VinculacionAuthEstado = 'pendiente';
-      let mensajeResultado = "";
-      
-      try {
-        // Intentar crear nuevo usuario con el email y nueva contraseña
-        const userCredential = await createUserWithEmailAndPassword(auth, email, newPassword);
-        uid = userCredential.user.uid;
-        estadoVinculacion = 'completo';
-        mensajeResultado = "Usuario vinculado correctamente con nueva cuenta de autenticación";
-      } catch (authError: any) {
-        console.error("Error en reintento de vinculación:", authError);
-        
-        if (authError.code === 'auth/email-already-in-use') {
-          // El email ya está en uso, pero la contraseña podría ser diferente
-          estadoVinculacion = 'falla_password';
-          mensajeResultado = "El email ya está registrado pero no se pudo acceder. Intente con otra contraseña";
-        } else {
-          estadoVinculacion = 'pendiente';
-          mensajeResultado = `Error al vincular: ${authError.message}`;
-        }
-      }
-      
-      // Actualizar el usuario en Firestore con el nuevo estado
-      await updateDoc(doc(db, "usuarios", id), {
-        uid,
-        estadoVinculacion,
-        intentosVinculacion: (usuarioData.intentosVinculacion || 0) + 1,
-        ultimoIntentoVinculacion: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        activo: estadoVinculacion === 'completo'
-      });
-      
-      toast[estadoVinculacion === 'completo' ? 'success' : 'error'](mensajeResultado);
-      
-      await loadUsuariosData();
-      return { 
-        success: estadoVinculacion === 'completo', 
-        estado: estadoVinculacion,
-        uid
-      };
-    } catch (err: any) {
-      console.error("Error en proceso de revinculación:", err);
-      toast.error(`Error al reintentar vinculación: ${err.message}`);
-      return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Nueva función para actualizar el estado de vinculación manualmente
-  const actualizarEstadoVinculacion = async (id: string, estado: VinculacionAuthEstado) => {
-    try {
-      await updateDoc(doc(db, "usuarios", id), {
-        estadoVinculacion: estado,
-        updatedAt: serverTimestamp()
-      });
-      
-      toast.success(`Estado de vinculación actualizado a: ${estado}`);
-      await loadUsuariosData();
-      return true;
-    } catch (err) {
-      console.error("Error actualizando estado de vinculación:", err);
-      toast.error("Error al actualizar el estado de vinculación");
+      console.error("Error borrando usuario:", err);
+      toast.error("Error al borrar usuario");
       return false;
     }
   };
 
   useEffect(() => {
     loadUsuariosData();
-  }, [profile?.id]);
+  }, []);
 
   return {
     usuarios,
@@ -387,14 +290,12 @@ export function useUsuarios() {
     error,
     loadUsuariosData,
     getUsuariosByTipo,
-    getUsuariosByRole,
     getPuntosVerdes,
-    updateUsuario,
-    deleteUsuario,
-    updateUserRole,
-    addCliente,
+    getUsuariosByRole,
     addUsuario,
-    reintentarVinculacionAuth,
-    actualizarEstadoVinculacion
+    addCliente,
+    updateUsuario,
+    toggleEstadoUsuario,
+    deleteUsuario
   };
 }

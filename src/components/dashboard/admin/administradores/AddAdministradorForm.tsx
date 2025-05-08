@@ -61,6 +61,12 @@ const AddAdministradorForm: React.FC<AddAdministradorFormProps> = ({ onSuccess }
 
   const onSubmit = async (values: FormValues) => {
     try {
+      console.log("Creando administrador con datos:", {
+        ...values,
+        role: 'administrador',
+        tipo: 'administrador'
+      });
+      
       // Asegurar que el rol "administrador" y tipo "administrador" se asignen explícitamente
       const result = await addUsuario({
         email: values.email,
@@ -80,12 +86,15 @@ const AddAdministradorForm: React.FC<AddAdministradorFormProps> = ({ onSuccess }
       
       if (result.success) {
         toast.success('Administrador creado correctamente');
+        console.log("Administrador creado exitosamente:", result);
         form.reset();
         onSuccess?.();
       } else {
+        console.error("Error al crear administrador:", result.error);
         toast.error(`Error al crear administrador: ${result.error}`);
       }
     } catch (error: any) {
+      console.error("Error en el formulario:", error);
       toast.error(`Error: ${error.message}`);
     }
   };
