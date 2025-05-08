@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,8 +61,8 @@ const AddAdministradorForm: React.FC<AddAdministradorFormProps> = ({ onSuccess }
 
   const onSubmit = async (values: FormValues) => {
     try {
-      // Make sure the 'administrador' role and type are explicitly assigned
-      const adminData = {
+      // Asegurar que el rol "administrador" y tipo "administrador" se asignen explícitamente
+      const result = await addUsuario({
         email: values.email,
         nombre: values.nombre,
         apellidos: values.apellidos,
@@ -72,14 +73,10 @@ const AddAdministradorForm: React.FC<AddAdministradorFormProps> = ({ onSuccess }
         provincia: values.provincia || '',
         codigoPostal: values.codigoPostal || '',
         password: values.password,
-        role: 'administrador' as const, // Force TypeScript to see this as a literal type
-        tipo: 'administrador',
+        role: 'administrador', // Asignación explícita del rol administrador
+        tipo: 'administrador', // Asignación explícita del tipo administrador
         activo: true
-      };
-      
-      console.log("Sending admin data:", adminData);
-      
-      const result = await addUsuario(adminData);
+      });
       
       if (result.success) {
         toast.success('Administrador creado correctamente');

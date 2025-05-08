@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, addDoc, updateDoc, doc, deleteDoc, where, orderBy, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -122,36 +123,26 @@ export function useUsuarios() {
   const addUsuario = async (usuario: Omit<Usuario, "id"> & { administradorId?: string, password?: string }) => {
     try {
       setLoading(true);
-      
-      // If un administrador who's creating the usuario, associate automatically
+      // Si es un administrador quien está creando el usuario, se asocia automáticamente
       const usuarioData = {
         ...usuario,
         administradorId: profile?.role === 'administrador' ? profile.id : usuario.administradorId || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
+        // Asegurarnos de que el role y el tipo sean explícitamente los proporcionados
+        role: usuario.role || 'user', // Usar el rol proporcionado o 'user' como fallback
+        tipo: usuario.tipo || usuario.role || 'user' // Usar el tipo proporcionado, o el rol, o 'user' como fallback
       };
       
-      // Make sure role and tipo are explicitly preserved
-      if (!usuarioData.role) {
-        usuarioData.role = 'user' as UserRole;
-      }
-      
-      if (!usuarioData.tipo) {
-        usuarioData.tipo = usuarioData.role;
-      }
-      
-      console.log("Creating user with role:", usuarioData.role);
-      console.log("User data before saving:", usuarioData);
-      
-      // Variables for handling vinculación state and UID
+      // Variables para manejar el estado de vinculación y el UID
       let uid: string | undefined = undefined;
       let estadoVinculacion: VinculacionAuthEstado = 'sin_vincular';
       let mensajeResultado = "";
       
-      // If password is provided and it's an administrador or comercial, try to create Auth account
+      // Si se proporciona contraseña y es un administrador o comercial, intentamos crear cuenta en Auth
       if (usuario.password && (usuario.role === 'administrador' || usuario.role === 'comercial')) {
         try {
-          // Step 1: Try to create the user in Firebase Auth
+          // Paso 1: Intentar crear el usuario en Firebase Auth
           const userCredential = await createUserWithEmailAndPassword(auth, usuario.email, usuario.password);
           uid = userCredential.user.uid;
           estadoVinculacion = 'completo';
@@ -160,51 +151,46 @@ export function useUsuarios() {
         } catch (authError: any) {
           console.error(`Error creando usuario ${usuario.role} en Auth:`, authError);
           
-          // If email already in use, try to login to get the UID
+          // Si el email ya está en uso, intentar iniciar sesión para obtener el UID
           if (authError.code === 'auth/email-already-in-use') {
             try {
-              // Try to login with provided credentials
+              // Intento de login con las credenciales proporcionadas
               const loginResult = await signInWithEmailAndPassword(auth, usuario.email, usuario.password);
               uid = loginResult.user.uid;
               estadoVinculacion = 'completo';
               mensajeResultado = `Usuario ${usuario.role} vinculado a una cuenta existente`;
               console.log(`Vinculado a cuenta existente con UID: ${uid}`);
             } catch (loginError: any) {
-              // If password doesn't match, still save user but with error status
+              // Si la contraseña no coincide, seguimos guardando el usuario pero con estado de falla
               estadoVinculacion = 'falla_password';
               mensajeResultado = `Usuario ${usuario.role} guardado pero la contraseña no coincide con la cuenta existente`;
               console.error("Error al iniciar sesión con credenciales:", loginError);
             }
           } else {
-            // Other authentication error
+            // Otro tipo de error de autenticación
             estadoVinculacion = 'pendiente';
             mensajeResultado = `Usuario ${usuario.role} guardado pero con vinculación pendiente: ${authError.message}`;
           }
         }
       }
       
-      // Add Auth vinculación information
+      // Añadir información de vinculación con Auth
       const usuarioFinal = {
         ...usuarioData,
         uid,
         estadoVinculacion,
         intentosVinculacion: 1,
         ultimoIntentoVinculacion: serverTimestamp(),
-        activo: estadoVinculacion === 'completo', // Automatically active if vinculación was successful
-        role: usuarioData.role, // Ensure role is explicitly set again here
+        activo: estadoVinculacion === 'completo' // Automáticamente activo si la vinculación fue exitosa
       };
       
-      // Remove password from object before saving to Firestore
-      if (usuarioFinal.password) {
-        delete usuarioFinal.password;
-      }
+      // Eliminar la contraseña del objeto antes de guardar en Firestore
+      delete usuarioFinal.password;
       
-      console.log("Final user data to be saved:", { ...usuarioFinal, role: usuarioFinal.role });
-      
-      // Save to Firestore regardless of Auth result
+      // Guardar en Firestore independientemente del resultado de Auth
       const docRef = await addDoc(collection(db, "usuarios"), usuarioFinal);
       
-      // Show appropriate message based on result
+      // Mostrar mensaje apropiado según el resultado
       toast.success(mensajeResultado);
       
       await loadUsuariosData();
@@ -225,7 +211,7 @@ export function useUsuarios() {
 
   const addCliente = async (cliente: Omit<Usuario, "id"> & { administradorId?: string }) => {
     try {
-      // If is an administrator who's creating the client, associate automatically
+      // Si es un administrador quien está creando el cliente, se asocia automáticamente
       const clienteData = {
         ...cliente,
         administradorId: profile?.role === 'administrador' ? profile.id : cliente.administradorId || null,
@@ -246,7 +232,7 @@ export function useUsuarios() {
 
   const updateUsuario = async (id: string, data: Partial<Usuario>) => {
     try {
-      // Verify that if the user is an administrator, they can only update their own users
+      // Verificar que si el usuario es administrador, solo pueda actualizar sus propios usuarios
       if (profile?.role === 'administrador') {
         const usuarioDoc = doc(db, "usuarios", id);
         const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
@@ -272,7 +258,7 @@ export function useUsuarios() {
 
   const deleteUsuario = async (id: string) => {
     try {
-      // Verify that if the user is an administrator, they can only delete their own users
+      // Verificar que si el usuario es administrador, solo pueda eliminar sus propios usuarios
       if (profile?.role === 'administrador') {
         const usuario = await getDocs(query(collection(db, "usuarios"), where("id", "==", id), where("administradorId", "==", profile.id)));
         if (usuario.empty) {
@@ -281,7 +267,7 @@ export function useUsuarios() {
         }
       }
       
-      // Delete the document completely from the database
+      // Eliminar completamente el documento de la base de datos
       await deleteDoc(doc(db, "usuarios", id));
       toast.success("Usuario eliminado permanentemente");
       await loadUsuariosData();

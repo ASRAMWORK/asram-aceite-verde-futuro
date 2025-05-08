@@ -48,7 +48,6 @@ const LoginForm = () => {
           navigate("/admin/dashboard");
           toast.success("Bienvenido, Superadministrador");
         } else if (userRole === "admin_finca" || userRole === "administrador") {
-          console.log("Redirecting to administrador dashboard");
           navigate("/administrador/dashboard");
           toast.success(`Bienvenido, ${userData.nombreAdministracion || "Administrador de Fincas"}`);
         } else if (userRole === "comercial") {
@@ -83,13 +82,7 @@ const LoginForm = () => {
           const userRole = userData.role;
           console.log("Found user in usuarios collection by uid with role:", userRole);
           
-          if (userRole === "administrador" || userRole === "admin_finca") {
-            console.log("Administrator account, redirecting to admin dashboard");
-            navigate("/administrador/dashboard");
-            toast.success(`Bienvenido, ${userData.nombreAdministracion || "Administrador de Fincas"}`);
-            setLoading(false);
-            return;
-          } else if (userRole === "comercial") {
+          if (userRole === "comercial") {
             console.log("Comercial account, checking approval status");
             if (userData.aprobado) {
               console.log("Approved comercial, redirecting to dashboard");
@@ -120,13 +113,7 @@ const LoginForm = () => {
             const userRole = userData.role;
             console.log("Found user in usuarios collection by email with role:", userRole);
             
-            if (userRole === "administrador" || userRole === "admin_finca") {
-              console.log("Administrator account from email check, redirecting to admin dashboard");
-              navigate("/administrador/dashboard");
-              toast.success(`Bienvenido, ${userData.nombreAdministracion || "Administrador de Fincas"}`);
-              setLoading(false);
-              return;
-            } else if (userRole === "comercial") {
+            if (userRole === "comercial") {
               console.log("Comercial account, checking approval status");
               if (userData.aprobado) {
                 console.log("Approved comercial, redirecting to dashboard");
