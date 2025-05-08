@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, addDoc, updateDoc, doc, deleteDoc, where, orderBy, serverTimestamp, getDoc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth';
 import { toast } from 'sonner';
 import type { Usuario, UserRole, VinculacionAuthEstado, ComunidadVecinos } from '@/types';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -280,6 +279,129 @@ export function useUsuarios() {
     }
   };
 
+  // Nueva función para reintentar la vinculación de un usuario con Firebase Auth
+  const reintentarVinculacionAuth = async (id: string, email: string, password: string) => {
+    try {
+      setLoading(true);
+      // Obtener el usuario actual
+      const usuarioRef = doc(db, "usuarios", id);
+      const usuarioSnap = await getDoc(usuarioRef);
+      
+      if (!usuarioSnap.exists()) {
+        toast.error("Usuario no encontrado");
+        return { success: false, error: "Usuario no encontrado" };
+      }
+      
+      const usuarioData = usuarioSnap.data() as Usuario;
+      
+      // Comprobar si el email ya existe en Auth
+      try {
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        
+        if (methods.length > 0) {
+          // El email ya está registrado en Auth, intentar iniciar sesión con las credenciales proporcionadas
+          try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const uid = userCredential.user.uid;
+            
+            // Actualizar en Firestore con la vinculación exitosa
+            await updateDoc(usuarioRef, {
+              uid,
+              email: email, // Actualizamos el email si ha cambiado
+              estadoVinculacion: 'completo',
+              intentosVinculacion: (usuarioData.intentosVinculacion || 0) + 1,
+              ultimoIntentoVinculacion: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            
+            toast.success("Usuario vinculado correctamente con cuenta existente");
+            await loadUsuariosData();
+            return { success: true, uid };
+            
+          } catch (signInError: any) {
+            console.error("Error al iniciar sesión:", signInError);
+            
+            // Actualizar el estado de la vinculación a falla_password
+            await updateDoc(usuarioRef, {
+              estadoVinculacion: 'falla_password',
+              intentosVinculacion: (usuarioData.intentosVinculacion || 0) + 1,
+              ultimoIntentoVinculacion: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            
+            toast.error("La contraseña no coincide con la cuenta existente");
+            await loadUsuariosData();
+            return { success: false, error: "Contraseña incorrecta" };
+          }
+        } else {
+          // El email no está registrado, crear nuevo usuario
+          try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const uid = userCredential.user.uid;
+            
+            // Actualizar en Firestore con la vinculación exitosa
+            await updateDoc(usuarioRef, {
+              uid,
+              email: email, // Actualizamos el email si ha cambiado
+              estadoVinculacion: 'completo',
+              intentosVinculacion: (usuarioData.intentosVinculacion || 0) + 1,
+              ultimoIntentoVinculacion: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            
+            toast.success("Usuario vinculado correctamente con nueva cuenta");
+            await loadUsuariosData();
+            return { success: true, uid };
+            
+          } catch (createError: any) {
+            console.error("Error al crear usuario en Auth:", createError);
+            
+            // Actualizar el estado de la vinculación a pendiente
+            await updateDoc(usuarioRef, {
+              estadoVinculacion: 'pendiente',
+              intentosVinculacion: (usuarioData.intentosVinculacion || 0) + 1,
+              ultimoIntentoVinculacion: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            
+            toast.error(`Error al crear cuenta: ${createError.message}`);
+            await loadUsuariosData();
+            return { success: false, error: createError.message };
+          }
+        }
+      } catch (methodsError: any) {
+        console.error("Error al verificar métodos de inicio de sesión:", methodsError);
+        toast.error("Error al verificar la cuenta");
+        return { success: false, error: methodsError.message };
+      }
+      
+    } catch (err: any) {
+      console.error("Error reintentando vinculación:", err);
+      toast.error(`Error: ${err.message}`);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Nueva función para actualizar manualmente el estado de vinculación
+  const actualizarEstadoVinculacion = async (id: string, estado: VinculacionAuthEstado) => {
+    try {
+      await updateDoc(doc(db, "usuarios", id), {
+        estadoVinculacion: estado,
+        updatedAt: serverTimestamp()
+      });
+      
+      toast.success(`Estado de vinculación actualizado a: ${estado}`);
+      await loadUsuariosData();
+      return true;
+    } catch (err) {
+      console.error("Error actualizando estado de vinculación:", err);
+      toast.error("Error al actualizar el estado de vinculación");
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadUsuariosData();
   }, []);
@@ -296,6 +418,8 @@ export function useUsuarios() {
     addCliente,
     updateUsuario,
     toggleEstadoUsuario,
-    deleteUsuario
+    deleteUsuario,
+    reintentarVinculacionAuth,     // Nueva función exportada
+    actualizarEstadoVinculacion    // Nueva función exportada
   };
 }
