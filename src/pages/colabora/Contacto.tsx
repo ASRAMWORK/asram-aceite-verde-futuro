@@ -1,4 +1,3 @@
-
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,12 @@ import {
   Youtube 
 } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Contacto = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -33,20 +36,39 @@ const Contacto = () => {
     }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here would go the form submission logic
-    console.log("Form submitted:", formData);
-    // Reset form
-    setFormData({
-      nombre: "",
-      email: "",
-      telefono: "",
-      asunto: "",
-      mensaje: "",
-    });
-    // Show success message (would use a toast in a real app)
-    alert("Mensaje enviado correctamente. Nos pondremos en contacto contigo pronto.");
+    setIsSubmitting(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: formData
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Mensaje enviado",
+        description: "Nos pondremos en contacto contigo pronto.",
+      });
+      
+      setFormData({
+        nombre: "",
+        email: "",
+        telefono: "",
+        asunto: "",
+        mensaje: "",
+      });
+    } catch (error: any) {
+      console.error("Error sending email:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -189,9 +211,9 @@ const Contacto = () => {
                   />
                 </div>
                 
-                <Button type="submit" className="w-full flex items-center gap-2">
+                <Button type="submit" className="w-full flex items-center gap-2" disabled={isSubmitting}>
                   <Send className="w-4 h-4" />
-                  Enviar mensaje
+                  {isSubmitting ? "Enviando..." : "Enviar mensaje"}
                 </Button>
               </form>
             </CardContent>
