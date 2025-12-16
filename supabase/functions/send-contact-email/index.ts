@@ -28,10 +28,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Sending contact email from:", email);
 
-    // Send notification to ASRAM
+    // Send notification to ASRAM (temporalmente usando email de prueba)
     const notificationResponse = await resend.emails.send({
       from: "ASRAM <onboarding@resend.dev>",
-      to: ["info@asramadrid.com"],
+      to: ["tonoone9607@gmail.com"],
       subject: `Nuevo mensaje de contacto: ${asunto}`,
       html: `
         <h1>Nuevo mensaje de contacto</h1>
