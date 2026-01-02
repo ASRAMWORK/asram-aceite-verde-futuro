@@ -1,14 +1,13 @@
 import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Calendar, FileText, ArrowRight, ThumbsUp, Droplet, CheckCircle, Search, ArrowUpRight, Send, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { MapPin, Calendar, FileText, ArrowRight, ThumbsUp, Droplet, CheckCircle, Search, Send, Loader2, Home, Building, Users, Recycle, Truck, Clock, Shield, Leaf, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,8 +78,17 @@ const PuntosVerdes = () => {
       setIsSubmitting(false);
     }
   };
-  
-  // Mock data for the district calendar
+
+  const fadeIn = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
   const districtCalendar = [
     { distrito: "Centro", semana1: "Lunes", semana2: "-", semana3: "Lunes", semana4: "-" },
     { distrito: "Chamberí", semana1: "Martes", semana2: "-", semana3: "Martes", semana4: "-" },
@@ -89,7 +97,7 @@ const PuntosVerdes = () => {
     { distrito: "Chamartín", semana1: "Viernes", semana2: "-", semana3: "Viernes", semana4: "-" },
     { distrito: "Tetuán", semana1: "-", semana2: "Lunes", semana3: "-", semana4: "Lunes" },
     { distrito: "Moncloa", semana1: "-", semana2: "Martes", semana3: "-", semana4: "Martes" },
-    { distrito: "Fuencarral-El Pardo", semana1: "-", semana2: "Miércoles", semana3: "-", semana4: "Miércoles" },
+    { distrito: "Fuencarral", semana1: "-", semana2: "Miércoles", semana3: "-", semana4: "Miércoles" },
     { distrito: "Latina", semana1: "-", semana2: "Jueves", semana3: "-", semana4: "Jueves" },
     { distrito: "Carabanchel", semana1: "-", semana2: "Viernes", semana3: "-", semana4: "Viernes" }
   ];
@@ -97,19 +105,32 @@ const PuntosVerdes = () => {
   const filteredDistricts = districtCalendar.filter(
     district => district.distrito.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
-  // Animation variants
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-  
-  // Mock data for success metrics
-  const successMetrics = [
-    { metric: "Puntos Verdes instalados", value: "250+", icon: "MapPin" },
-    { metric: "Comunidades de vecinos", value: "180+", icon: "Home" },
-    { metric: "Centros educativos", value: "45+", icon: "School" },
-    { metric: "Litros recogidos/mes", value: "2.500+", icon: "Droplet" }
+
+  const processSteps = [
+    {
+      icon: MapPin,
+      title: "Instalación gratuita",
+      desc: "ASRAM instala contenedores especiales en tu comunidad junto con recipientes para cada hogar.",
+      color: "bg-green-100 text-green-700"
+    },
+    {
+      icon: FileText,
+      title: "Formación",
+      desc: "Sesión informativa para explicar el correcto uso del sistema y resolver dudas.",
+      color: "bg-blue-100 text-blue-700"
+    },
+    {
+      icon: Droplet,
+      title: "Depósito",
+      desc: "Los vecinos depositan aceite usado en botellas cerradas dentro del contenedor.",
+      color: "bg-amber-100 text-amber-700"
+    },
+    {
+      icon: Truck,
+      title: "Recogida periódica",
+      desc: "ASRAM vacía los contenedores según programación, sin coste alguno.",
+      color: "bg-purple-100 text-purple-700"
+    }
   ];
 
   return (
@@ -117,245 +138,396 @@ const PuntosVerdes = () => {
       title="Puntos Verdes" 
       subtitle="Red de contenedores para el reciclaje de aceite usado"
     >
-      <div className="max-w-7xl mx-auto space-y-12">
-        {/* Hero section with illustration */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-asram-50 to-green-50 mb-6">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-asram-200 rounded-full opacity-30 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-green-200 rounded-full opacity-30 blur-3xl" />
+      {/* Hero Section Full Width */}
+      <section className="relative -mx-4 md:-mx-8 lg:-mx-16 mb-16">
+        <div className="relative h-[500px] md:h-[600px] overflow-hidden">
+          <img 
+            src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=1920&q=80"
+            alt="Reciclaje sostenible en comunidades"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-asram-900/90 via-green-800/70 to-transparent" />
           
-          <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12 relative">
-            <div className="space-y-6">
-              <Badge className="bg-asram-100 text-asram-800 hover:bg-asram-200 px-3 py-1 text-sm">
-                Programa Presencial
-              </Badge>
+          <div className="relative h-full max-w-7xl mx-auto px-4 md:px-8 flex items-center">
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+              className="max-w-2xl text-white space-y-6"
+            >
+              <motion.div variants={fadeIn}>
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                  <Recycle className="w-4 h-4 mr-2" />
+                  100% Gratuito
+                </Badge>
+              </motion.div>
               
-              <motion.h2 
-                initial="hidden"
-                animate="visible"
-                variants={fadeInUp}
-                transition={{ duration: 0.5 }}
-                className="text-3xl font-bold text-gray-800"
-              >
-                Contenedores de reciclaje gratuitos para tu comunidad
-              </motion.h2>
+              <motion.h1 variants={fadeIn} className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                Contenedores de reciclaje para tu comunidad
+              </motion.h1>
               
-              <p className="text-lg leading-relaxed">
+              <motion.p variants={fadeIn} className="text-lg md:text-xl text-white/90 leading-relaxed">
                 Los Puntos Verdes son contenedores gratuitos instalados en comunidades de vecinos, 
                 centros escolares y entidades colaboradoras para depositar aceite de cocina usado 
-                de forma segura e higiénica, facilitando su posterior reciclaje.
-              </p>
+                de forma segura e higiénica.
+              </motion.p>
               
-              <div className="pt-4">
-                <Button asChild className="bg-asram hover:bg-asram-700">
-                  <Link to="/contacto">Solicitar un Punto Verde</Link>
+              <motion.div variants={fadeIn} className="flex flex-wrap gap-4 pt-4">
+                <Button size="lg" className="bg-white text-asram-800 hover:bg-white/90">
+                  <Home className="w-5 h-5 mr-2" />
+                  Solicitar Punto Verde
                 </Button>
-              </div>
-            </div>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative hidden md:block"
-            >
-              <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden p-6">
-                <img 
-                  src="/placeholder.svg"
-                  alt="Punto Verde ASRAM" 
-                  className="w-full h-auto max-w-sm mx-auto rounded-lg aspect-square object-cover"
-                />
-              </div>
-              
-              <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-xl shadow-lg border border-gray-100 rotate-3">
-                <div className="flex items-center space-x-2 text-asram font-semibold">
-                  <Droplet className="h-5 w-5" />
-                  <span>Fácil y gratuito</span>
-                </div>
-              </div>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Ver calendario de recogidas
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-8 bg-white/70 backdrop-blur-sm border-t">
-            {successMetrics.map((item, index) => (
-              <div key={index} className="text-center p-3">
-                <div className="text-3xl font-bold text-asram">{item.value}</div>
-                <div className="text-sm text-gray-600">{item.metric}</div>
-              </div>
+        </div>
+        
+        {/* Stats Bar */}
+        <div className="bg-white shadow-xl -mt-16 relative z-10 mx-4 md:mx-8 lg:mx-16 rounded-2xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
+            {[
+              { value: "250+", label: "Puntos Verdes", icon: MapPin },
+              { value: "180+", label: "Comunidades", icon: Home },
+              { value: "45+", label: "Centros educativos", icon: Building },
+              { value: "2.500L", label: "Recogidos/mes", icon: Droplet }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="p-6 md:p-8 text-center"
+              >
+                <stat.icon className="w-8 h-8 text-asram mx-auto mb-3" />
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
             ))}
           </div>
         </div>
+      </section>
 
-        <Tabs defaultValue="informacion" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="informacion">¿Cómo funciona?</TabsTrigger>
-            <TabsTrigger value="requisitos">Requisitos</TabsTrigger>
-            <TabsTrigger value="calendario">Calendario de recogidas</TabsTrigger>
-          </TabsList>
+      <div className="max-w-7xl mx-auto space-y-20">
+        {/* Cómo funciona */}
+        <section>
+          <div className="text-center mb-12">
+            <Badge className="bg-asram-100 text-asram-800 mb-4">El proceso</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Cómo funcionan los Puntos Verdes
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Un sistema sencillo y gratuito para reciclar el aceite usado de tu comunidad
+            </p>
+          </div>
           
-          <TabsContent value="informacion" className="space-y-8 mt-6">
-            <div>
-              <h2 className="text-2xl font-bold text-asram-800 mb-6">El proceso es muy sencillo</h2>
-              <div className="grid md:grid-cols-4 gap-6">
-                <Card className="bg-white/70 backdrop-blur-sm shadow-md">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <MapPin className="w-6 h-6 text-asram" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {processSteps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="relative"
+              >
+                <Card className="h-full hover:shadow-lg transition-shadow">
+                  <CardContent className="pt-6">
+                    <div className={`w-14 h-14 rounded-xl ${step.color} flex items-center justify-center mb-4`}>
+                      <step.icon className="w-7 h-7" />
                     </div>
-                    <CardTitle className="text-base">1. Instalación</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">ASRAM instala gratuitamente contenedores especiales en la ubicación designada, junto con pequeños recipientes para cada hogar.</p>
+                    <div className="absolute top-6 right-6 text-4xl font-bold text-gray-100">{index + 1}</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
+                    <p className="text-gray-600">{step.desc}</p>
                   </CardContent>
                 </Card>
-                
-                <Card className="bg-white/70 backdrop-blur-sm shadow-md">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-asram" />
+                {index < processSteps.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2">
+                    <ArrowRight className="w-6 h-6 text-gray-300" />
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Beneficios */}
+        <section className="grid lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+            className="relative"
+          >
+            <img 
+              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80"
+              alt="Comunidad sostenible"
+              className="w-full h-[500px] object-cover rounded-2xl shadow-2xl"
+            />
+            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-xl">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <Shield className="w-8 h-8 text-green-600" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">1.000L</div>
+                  <div className="text-gray-600">agua protegida por litro</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+          
+          <div className="space-y-6">
+            <Badge className="bg-green-100 text-green-800">Beneficios</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              ¿Por qué instalar un Punto Verde?
+            </h2>
+            
+            <div className="grid gap-4">
+              <Card className="border-green-200 bg-green-50/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-green-800">
+                    <Home className="w-5 h-5" />
+                    Para tu comunidad
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {[
+                    "Solución higiénica para un residuo problemático",
+                    "Prevención de atascos y problemas de fontanería",
+                    "Mejora de imagen como espacio sostenible",
+                    "Recogida gratuita y sin esfuerzo"
+                  ].map((benefit, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">{benefit}</span>
                     </div>
-                    <CardTitle className="text-base">2. Formación</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Se imparte una breve sesión informativa para explicar el correcto uso del sistema y resolver dudas de los residentes.</p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-white/70 backdrop-blur-sm shadow-md">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <Droplet className="w-6 h-6 text-asram" />
+                  ))}
+                </CardContent>
+              </Card>
+              
+              <Card className="border-asram-200 bg-asram-50/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-asram-800">
+                    <Leaf className="w-5 h-5" />
+                    Para el medio ambiente
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {[
+                    "1L de aceite contamina hasta 1.000L de agua",
+                    "Reducción de huella de carbono",
+                    "Conversión de residuo en biocombustible",
+                    "Menor coste municipal de depuración"
+                  ].map((benefit, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-asram-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">{benefit}</span>
                     </div>
-                    <CardTitle className="text-base">3. Depósito</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Los vecinos depositan su aceite usado en botellas cerradas dentro del contenedor específico, de forma higiénica y sencilla.</p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-white/70 backdrop-blur-sm shadow-md">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-asram" />
-                    </div>
-                    <CardTitle className="text-base">4. Recogida periódica</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">ASRAM se encarga del vaciado periódico según la programación establecida para cada zona, sin coste alguno.</p>
-                  </CardContent>
-                </Card>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Calendario de recogidas */}
+        <section className="bg-gradient-to-br from-asram-50 to-green-50 rounded-3xl p-8 md:p-12">
+          <div className="text-center mb-8">
+            <Badge className="bg-asram-100 text-asram-800 mb-4">Calendario</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Calendario de recogidas por distrito
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Consulta cuándo pasamos por tu zona
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Buscar tu distrito..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-white"
+                />
               </div>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ThumbsUp className="w-6 h-6 text-asram" />
-                    Beneficios para la comunidad
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Solución higiénica y cómoda para un residuo problemático que suele causar obstrucciones en tuberías</p>
-                  </div>
-                  
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Mejora de la imagen del edificio como espacio comprometido con la sostenibilidad</p>
-                  </div>
-                  
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Prevención de atascos y problemas de fontanería, con el consiguiente ahorro económico</p>
-                  </div>
-                  
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Recogida gratuita a domicilio y sin esfuerzo para los residentes</p>
-                  </div>
-                </CardContent>
-              </Card>
-                
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ThumbsUp className="w-6 h-6 text-asram" />
-                    Beneficios para el medio ambiente
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Prevención de la contaminación de aguas - 1L de aceite puede contaminar hasta 1.000L de agua</p>
-                  </div>
-                  
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Reducción de la huella de carbono al transformar un residuo en biocombustible</p>
-                  </div>
-                  
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Conversión de un residuo en recurso valioso, fomentando la economía circular</p>
-                  </div>
-                  
-                  <div className="flex gap-3 items-start">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </div>
-                    <p>Disminución de costes municipales de depuración de aguas residuales</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card className="bg-gradient-to-br from-asram-50 to-asram-100/50 shadow-md">
-              <CardContent className="p-8">
-                <div className="flex flex-col md:flex-row md:items-center gap-6">
-                  <div className="flex-grow space-y-4">
-                    <h3 className="text-xl font-semibold">Solicita la instalación gratuita de un Punto Verde en tu comunidad</h3>
-                    <p>Completa el formulario de solicitud y nuestro equipo se pondrá en contacto contigo en 48 horas.</p>
-                  </div>
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="text-left p-4 font-semibold">Distrito</th>
+                        <th className="text-center p-4 font-semibold">Semana 1</th>
+                        <th className="text-center p-4 font-semibold">Semana 2</th>
+                        <th className="text-center p-4 font-semibold">Semana 3</th>
+                        <th className="text-center p-4 font-semibold">Semana 4</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredDistricts.map((district, index) => (
+                        <tr key={index} className="border-b hover:bg-gray-50">
+                          <td className="p-4 font-medium">{district.distrito}</td>
+                          <td className="p-4 text-center">
+                            <Badge variant={district.semana1 !== "-" ? "default" : "secondary"}>
+                              {district.semana1}
+                            </Badge>
+                          </td>
+                          <td className="p-4 text-center">
+                            <Badge variant={district.semana2 !== "-" ? "default" : "secondary"}>
+                              {district.semana2}
+                            </Badge>
+                          </td>
+                          <td className="p-4 text-center">
+                            <Badge variant={district.semana3 !== "-" ? "default" : "secondary"}>
+                              {district.semana3}
+                            </Badge>
+                          </td>
+                          <td className="p-4 text-center">
+                            <Badge variant={district.semana4 !== "-" ? "default" : "secondary"}>
+                              {district.semana4}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
             
-            {/* Formulario de inscripción */}
-            <Card className="mt-8">
+            <p className="text-center text-sm text-gray-600 mt-4">
+              ¿No encuentras tu distrito? <Link to="/contacto" className="text-asram underline">Contáctanos</Link> para más información
+            </p>
+          </div>
+        </section>
+
+        {/* Tipos de ubicaciones */}
+        <section>
+          <div className="text-center mb-12">
+            <Badge className="bg-asram-100 text-asram-800 mb-4">¿Dónde instalamos?</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Puntos Verdes para todo tipo de espacios
+            </h2>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Home,
+                title: "Comunidades de vecinos",
+                desc: "El lugar más común. Instalamos contenedores en zonas comunes para uso de todos los residentes.",
+                image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80",
+                stats: "180+ comunidades"
+              },
+              {
+                icon: Building,
+                title: "Centros educativos",
+                desc: "Colegios, institutos y universidades como parte de nuestra Alianza Verde Escolar.",
+                image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=400&q=80",
+                stats: "45+ centros"
+              },
+              {
+                icon: Users,
+                title: "Empresas y comercios",
+                desc: "Restaurantes, hoteles y empresas comprometidas con la sostenibilidad.",
+                image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80",
+                stats: "25+ empresas"
+              }
+            ].map((type, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="group"
+              >
+                <Card className="h-full overflow-hidden hover:shadow-xl transition-shadow">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={type.image}
+                      alt={type.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-asram/10 rounded-lg">
+                        <type.icon className="w-5 h-5 text-asram" />
+                      </div>
+                      <Badge variant="outline">{type.stats}</Badge>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{type.title}</h3>
+                    <p className="text-gray-600">{type.desc}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Formulario */}
+        <section className="bg-gradient-to-br from-asram to-green-600 rounded-3xl p-8 md:p-12 text-white">
+          <div className="grid lg:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <Badge className="bg-white/20 text-white border-white/30">Solicita tu Punto Verde</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Instalación 100% gratuita
+              </h2>
+              <p className="text-lg text-white/90 leading-relaxed">
+                Completa el formulario y nos pondremos en contacto contigo en 48 horas 
+                para coordinar la instalación de tu Punto Verde.
+              </p>
+              
+              <div className="space-y-4">
+                {[
+                  "Sin coste de instalación",
+                  "Contenedores de alta calidad",
+                  "Recipientes individuales para cada hogar",
+                  "Formación incluida",
+                  "Recogida periódica garantizada",
+                  "Certificado de sostenibilidad"
+                ].map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-300" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex items-center gap-4 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+                <Award className="w-12 h-12 text-yellow-300" />
+                <div>
+                  <div className="font-semibold">Respuesta en 48 horas</div>
+                  <div className="text-sm text-white/80">Instalación en menos de 2 semanas</div>
+                </div>
+              </div>
+            </div>
+            
+            <Card className="bg-white text-gray-900">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Send className="h-5 w-5 text-asram" />
-                  Solicitar un Punto Verde
-                </CardTitle>
-                <CardDescription>
-                  Completa el formulario para solicitar la instalación gratuita
-                </CardDescription>
+                <CardTitle>Formulario de solicitud</CardTitle>
+                <CardDescription>Completa tus datos para solicitar la instalación</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="nombre">Nombre de contacto *</Label>
+                      <Label htmlFor="nombre">Nombre *</Label>
                       <Input
                         id="nombre"
                         value={formData.nombre}
                         onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-                        placeholder="Tu nombre completo"
+                        placeholder="Tu nombre"
                         required
                       />
                     </div>
@@ -370,6 +542,9 @@ const PuntosVerdes = () => {
                         required
                       />
                     </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
                       <Input
@@ -380,19 +555,19 @@ const PuntosVerdes = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="tipoSolicitante">Tipo de solicitante *</Label>
+                      <Label htmlFor="tipoSolicitante">Tipo de ubicación *</Label>
                       <Select 
                         value={formData.tipoSolicitante} 
                         onValueChange={(value) => setFormData(prev => ({ ...prev, tipoSolicitante: value }))}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona el tipo" />
+                          <SelectValue placeholder="Selecciona" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="comunidad-vecinos">Comunidad de vecinos</SelectItem>
-                          <SelectItem value="centro-educativo">Centro educativo</SelectItem>
+                          <SelectItem value="comunidad">Comunidad de vecinos</SelectItem>
+                          <SelectItem value="colegio">Centro educativo</SelectItem>
                           <SelectItem value="empresa">Empresa</SelectItem>
-                          <SelectItem value="asociacion">Asociación</SelectItem>
+                          <SelectItem value="restaurante">Restaurante/Hostelería</SelectItem>
                           <SelectItem value="otro">Otro</SelectItem>
                         </SelectContent>
                       </Select>
@@ -405,53 +580,54 @@ const PuntosVerdes = () => {
                       id="organizacion"
                       value={formData.organizacion}
                       onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
-                      placeholder="Comunidad de propietarios, nombre del centro..."
+                      placeholder="Comunidad de Propietarios..."
                       required
                     />
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="direccion">Dirección completa *</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-2 space-y-2">
+                      <Label htmlFor="direccion">Dirección *</Label>
                       <Input
                         id="direccion"
                         value={formData.direccion}
                         onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
-                        placeholder="Calle, número, código postal, ciudad"
+                        placeholder="Calle, número, código postal"
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="numeroViviendas">Número de viviendas/usuarios</Label>
+                      <Label htmlFor="numeroViviendas">Nº viviendas</Label>
                       <Input
                         id="numeroViviendas"
+                        type="number"
                         value={formData.numeroViviendas}
                         onChange={(e) => setFormData(prev => ({ ...prev, numeroViviendas: e.target.value }))}
-                        placeholder="Ej: 50 viviendas"
+                        placeholder="Ej: 24"
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="mensaje">Información adicional</Label>
+                    <Label htmlFor="mensaje">Comentarios adicionales</Label>
                     <Textarea
                       id="mensaje"
                       value={formData.mensaje}
                       onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
-                      placeholder="Ubicación sugerida para el contenedor, horarios de acceso, persona de contacto alternativa..."
-                      rows={4}
+                      placeholder="Cualquier información adicional..."
+                      rows={3}
                     />
                   </div>
                   
                   <Button type="submit" className="w-full bg-asram hover:bg-asram-700" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Enviando...
                       </>
                     ) : (
                       <>
-                        <Send className="mr-2 h-4 w-4" />
+                        <Send className="w-4 h-4 mr-2" />
                         Solicitar Punto Verde
                       </>
                     )}
@@ -459,274 +635,29 @@ const PuntosVerdes = () => {
                 </form>
               </CardContent>
             </Card>
-          </TabsContent>
-          
-          <TabsContent value="requisitos" className="space-y-8 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Requisitos para la instalación</CardTitle>
-                <CardDescription>
-                  Para instalar un Punto Verde, necesitamos cumplir estas condiciones básicas:
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-8">
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="bg-white rounded-lg border p-6 shadow-sm">
-                    <div className="w-12 h-12 rounded-full bg-asram/20 flex items-center justify-center mb-4">
-                      <MapPin className="w-6 h-6 text-asram" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">Espacio adecuado</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Zona cubierta (portal, garaje, trastero común...)</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Fácil acceso para residentes</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Posibilidad de acceso para personal de recogida</span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-white rounded-lg border p-6 shadow-sm">
-                    <div className="w-12 h-12 rounded-full bg-asram/20 flex items-center justify-center mb-4">
-                      <FileText className="w-6 h-6 text-asram" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">Acuerdo comunitario</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Aprobación en junta de vecinos</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>O autorización del presidente/administrador</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Firma del convenio de colaboración</span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-white rounded-lg border p-6 shadow-sm">
-                    <div className="w-12 h-12 rounded-full bg-asram/20 flex items-center justify-center mb-4">
-                      <Calendar className="w-6 h-6 text-asram" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">Compromiso mínimo</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Mantener el punto verde activo durante al menos 6 meses</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Facilitar el acceso para la recogida periódica</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span>Informar a ASRAM de cualquier incidencia</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h3 className="font-semibold text-lg mb-3">Información adicional a considerar</h3>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-medium mb-2">Tipos de contenedores</h4>
-                      <p className="text-sm text-gray-600 mb-2">
-                        Disponemos de diferentes modelos adaptados a cada necesidad:
-                      </p>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-asram"></div>
-                          <span>Estándar: Capacidad 50L (aprox. 20-25 viviendas)</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-asram"></div>
-                          <span>Grande: Capacidad 100L (aprox. 40-50 viviendas)</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-asram"></div>
-                          <span>Comunitario: Capacidad 200L (grandes comunidades)</span>
-                        </li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium mb-2">Documentación necesaria</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-asram"></div>
-                          <span>Formulario de solicitud cumplimentado</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-asram"></div>
-                          <span>Copia del acta de reunión donde se aprueba (si procede)</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-asram"></div>
-                          <span>Datos de contacto del responsable</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-asram"></div>
-                          <span>Número aproximado de viviendas</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-asram-50 p-6 rounded-lg">
-                  <div>
-                    <h3 className="font-semibold text-lg">¿Cumples los requisitos? Solicita tu Punto Verde</h3>
-                    <p className="text-sm text-gray-600">La instalación y el mantenimiento son completamente gratuitos</p>
-                  </div>
-                  <Button className="bg-asram hover:bg-asram-700" asChild>
-                    <Link to="/contacto">
-                      Solicitar instalación
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="calendario" className="mt-6 space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Calendario de recogidas por distrito</CardTitle>
-                <CardDescription>
-                  Consulta cuándo pasamos a vaciar los contenedores en tu zona
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <Label htmlFor="search-district">Buscar tu distrito</Label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    <Input 
-                      id="search-district"
-                      placeholder="Ej: Chamberí, Centro..." 
-                      className="pl-9"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                </div>
-                
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-asram-50">
-                        <th className="p-3 text-left">Distrito</th>
-                        <th className="p-3 text-left">1ª Semana</th>
-                        <th className="p-3 text-left">2ª Semana</th>
-                        <th className="p-3 text-left">3ª Semana</th>
-                        <th className="p-3 text-left">4ª Semana</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredDistricts.map((district, index) => (
-                        <tr key={index} className={index % 2 === 0 ? "border-b border-gray-100" : "border-b border-gray-100 bg-gray-50"}>
-                          <td className="p-3 font-medium">{district.distrito}</td>
-                          <td className="p-3">{district.semana1}</td>
-                          <td className="p-3">{district.semana2}</td>
-                          <td className="p-3">{district.semana3}</td>
-                          <td className="p-3">{district.semana4}</td>
-                        </tr>
-                      ))}
-                      {filteredDistricts.length === 0 && (
-                        <tr>
-                          <td colSpan={5} className="p-6 text-center">
-                            <div className="text-gray-500">No hay resultados para "{searchQuery}"</div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                
-                <div className="mt-4 bg-amber-50 border border-amber-100 p-4 rounded-lg">
-                  <div className="flex gap-3 items-start">
-                    <div className="bg-amber-100 p-2 rounded-full">
-                      <Calendar className="h-5 w-5 text-amber-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-1">Información importante</h4>
-                      <p className="text-sm text-gray-600">
-                        Este calendario es orientativo y puede estar sujeto a modificaciones por festividades o incidencias.
-                        Los usuarios registrados recibirán notificaciones con antelación sobre cualquier cambio.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="border-t bg-gray-50 flex justify-between">
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/calendario">
-                    Ver calendario completo
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="text-asram">
-                  <ArrowUpRight className="h-4 w-4 mr-1" />
-                  Descargar PDF
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Solicitud de recogida extraordinaria</CardTitle>
-                <CardDescription>
-                  Si tu contenedor está lleno antes de la fecha programada
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p>
-                  Si el contenedor está a punto de llenarse antes de la fecha programada de recogida, 
-                  puedes solicitar una recogida extraordinaria sin coste adicional.
-                </p>
-                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-asram/20 flex items-center justify-center flex-shrink-0">
-                      <div className="text-sm font-medium text-asram">1</div>
-                    </div>
-                    <span>Contacta con al menos 48 horas de antelación</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-asram/20 flex items-center justify-center flex-shrink-0">
-                      <div className="text-sm font-medium text-asram">2</div>
-                    </div>
-                    <span>Indica el código de tu Punto Verde (aparece en la etiqueta del contenedor)</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-asram/20 flex items-center justify-center flex-shrink-0">
-                      <div className="text-sm font-medium text-asram">3</div>
-                    </div>
-                    <span>Confirma la dirección y persona de contacto</span>
-                  </div>
-                </div>
-                
-                <div className="flex justify-end">
-                  <Button className="bg-asram hover:bg-asram-700" asChild>
-                    <Link to="/contacto">
-                      Solicitar recogida extraordinaria
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </section>
+
+        {/* CTA Final */}
+        <section className="text-center py-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            ¿Tienes dudas sobre los Puntos Verdes?
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Nuestro equipo está disponible para resolver cualquier consulta
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button size="lg" asChild>
+              <Link to="/contacto">Contáctanos</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/alianza-verde">
+                Ver Alianza Verde Escolar
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
+        </section>
       </div>
     </PageLayout>
   );

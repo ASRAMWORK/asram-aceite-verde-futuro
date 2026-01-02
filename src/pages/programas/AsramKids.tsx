@@ -2,7 +2,8 @@ import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Baby, BookOpen, Palette, Sparkles, Users, Calendar, ArrowRight, Send, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Baby, BookOpen, Palette, Sparkles, Users, Calendar, ArrowRight, Send, Loader2, Heart, Star, Smile, Music, Puzzle, TreeDeciduous, Recycle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -71,313 +72,474 @@ const AsramKids = () => {
     }
   };
 
-  // Mock data for testimonials and upcoming events
-  const testimonials = [
-    { name: "María Rodríguez", role: "Profesora de infantil", text: "Los niños esperan con ilusión los talleres de ASRAM Kids. Han aprendido tanto sobre reciclaje mientras se divierten." },
-    { name: "Carlos Jiménez", role: "Director", text: "El programa ha conseguido que los más pequeños traigan aceite usado de casa y entiendan por qué es importante reciclarlo." },
-    { name: "Ana Martín", role: "Madre de Pablo (6 años)", text: "Mi hijo ahora me corrige en casa cuando ve que voy a tirar el aceite por el fregadero. ¡Increíble el impacto!" }
-  ];
-  
-  const upcomingEvents = [
-    { title: "Cuentacuentos: La gota viajera", date: "Continuo", location: "Biblioteca Municipal de Chamberí" },
-    { title: "Taller de reciclaje creativo", date: "Continuo", location: "Centro Cultural García Lorca" },
-    { title: "Fiesta del reciclaje", date: "Continuo", location: "Parque del Retiro" }
-  ];
-  
-  // Animations
   const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const activities = [
+    {
+      icon: BookOpen,
+      title: "Cuentacuentos Verdes",
+      desc: "Narraciones interactivas que transmiten valores de cuidado y respeto por el medio ambiente a través de historias protagonizadas por gotas de aceite, árboles y otros elementos naturales.",
+      ages: "3-8 años",
+      color: "bg-blue-100 text-blue-700",
+      image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80"
+    },
+    {
+      icon: Palette,
+      title: "Manualidades Sostenibles",
+      desc: "Talleres donde los niños crean juguetes, instrumentos musicales y objetos decorativos a partir de materiales reciclados, desarrollando su creatividad.",
+      ages: "5-12 años",
+      color: "bg-purple-100 text-purple-700",
+      image: "https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=400&q=80"
+    },
+    {
+      icon: Puzzle,
+      title: "Juegos de Reciclaje",
+      desc: "Actividades interactivas donde aprenden a clasificar residuos de forma divertida, con dinámicas adaptadas a diferentes edades.",
+      ages: "4-10 años",
+      color: "bg-green-100 text-green-700",
+      image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80"
+    },
+    {
+      icon: TreeDeciduous,
+      title: "Mini Jardinería",
+      desc: "Iniciación al cuidado de plantas y cultivo de pequeños huertos usando materiales reciclados como macetas. Los niños aprenden el ciclo de vida de las plantas.",
+      ages: "5-10 años",
+      color: "bg-emerald-100 text-emerald-700",
+      image: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=400&q=80"
+    },
+    {
+      icon: Music,
+      title: "Eco-Música",
+      desc: "Creación de instrumentos musicales con materiales reciclados. Los niños construyen maracas, tambores y más mientras aprenden sobre reutilización.",
+      ages: "4-8 años",
+      color: "bg-orange-100 text-orange-700",
+      image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&q=80"
+    },
+    {
+      icon: Sparkles,
+      title: "Teatro Ecológico",
+      desc: "Representaciones teatrales sobre temas medioambientales donde los niños actúan y aprenden sobre la importancia de cuidar el planeta.",
+      ages: "6-12 años",
+      color: "bg-pink-100 text-pink-700",
+      image: "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=400&q=80"
+    }
+  ];
+
+  const testimonials = [
+    { 
+      name: "María Rodríguez", 
+      role: "Profesora de infantil", 
+      text: "Los niños esperan con ilusión los talleres de ASRAM Kids. Han aprendido tanto sobre reciclaje mientras se divierten.",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80"
+    },
+    { 
+      name: "Carlos Jiménez", 
+      role: "Director de colegio", 
+      text: "El programa ha conseguido que los más pequeños traigan aceite usado de casa y entiendan por qué es importante reciclarlo.",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80"
+    },
+    { 
+      name: "Ana Martín", 
+      role: "Madre de Pablo (6 años)", 
+      text: "Mi hijo ahora me corrige en casa cuando ve que voy a tirar el aceite por el fregadero. ¡Increíble el impacto!",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80"
+    }
+  ];
 
   return (
     <PageLayout 
       title="ASRAM Kids" 
       subtitle="Actividades lúdico-educativas para los más pequeños"
     >
-      <div className="max-w-7xl mx-auto">
-        {/* Hero section */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-purple-50 mb-12">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-yellow-200 rounded-full opacity-30 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-200 rounded-full opacity-30 blur-3xl" />
+      {/* Hero Section Full Width */}
+      <section className="relative -mx-4 md:-mx-8 lg:-mx-16 mb-16">
+        <div className="relative h-[500px] md:h-[600px] overflow-hidden">
+          <img 
+            src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=1920&q=80"
+            alt="Niños aprendiendo sobre el medio ambiente"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-purple-800/70 to-transparent" />
           
-          <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12 relative">
-            <div className="space-y-6">
-              <motion.div 
-                initial="hidden"
-                animate="visible"
-                variants={fadeIn}
-              >
-                <h2 className="text-3xl font-bold text-gray-800">
-                  Aprendiendo hábitos <span className="text-asram">responsables jugando</span>
-                </h2>
-                
-                <p className="mt-4 text-lg leading-relaxed">
-                  ASRAM Kids es un espacio lúdico-educativo vinculado a nuestra Alianza Verde Escolar, 
-                  donde los más pequeños desarrollan conciencia medioambiental a través de juegos, 
-                  cuentos y actividades adaptadas a su edad.
-                </p>
-                
-                <div className="flex flex-wrap gap-3 mt-6">
-                  <Button asChild className="bg-asram hover:bg-asram-700">
-                    <Link to="/contacto">Solicitar actividad</Link>
-                  </Button>
-                  <Button variant="outline">
-                    Descargar catálogo
-                  </Button>
-                </div>
-              </motion.div>
-            </div>
-            
+          <div className="relative h-full max-w-7xl mx-auto px-4 md:px-8 flex items-center">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="relative"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+              className="max-w-2xl text-white space-y-6"
             >
-              <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                <img 
-                  src="/placeholder.svg" 
-                  alt="Niños en un taller de reciclaje" 
-                  className="w-full h-auto object-cover aspect-[4/3]"
-                />
-              </div>
+              <motion.div variants={fadeIn}>
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                  <Baby className="w-4 h-4 mr-2" />
+                  Para niños de 3 a 12 años
+                </Badge>
+              </motion.div>
               
-              <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-xl shadow-lg border border-gray-100 rotate-3">
-                <div className="flex items-center space-x-2 text-blue-600 font-semibold">
-                  <Users className="h-5 w-5" />
-                  <span>+2000 niños participantes</span>
-                </div>
-              </div>
+              <motion.h1 variants={fadeIn} className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                Aprender cuidando el planeta es
+                <span className="text-yellow-300"> ¡súper divertido!</span>
+              </motion.h1>
+              
+              <motion.p variants={fadeIn} className="text-lg md:text-xl text-white/90 leading-relaxed">
+                ASRAM Kids es un espacio lúdico-educativo donde los más pequeños desarrollan 
+                conciencia medioambiental a través de juegos, cuentos y actividades adaptadas a su edad.
+              </motion.p>
+              
+              <motion.div variants={fadeIn} className="flex flex-wrap gap-4 pt-4">
+                <Button size="lg" className="bg-yellow-400 text-gray-900 hover:bg-yellow-300">
+                  <Smile className="w-5 h-5 mr-2" />
+                  Solicitar actividad
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Ver catálogo de actividades
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-8 bg-white/70 backdrop-blur-sm border-t">
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">50+</div>
-              <div className="text-sm text-gray-600">Centros escolares</div>
-            </div>
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">50+</div>
-              <div className="text-sm text-gray-600">Talleres realizados</div>
-            </div>
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">2.000+</div>
-              <div className="text-sm text-gray-600">Niños participantes</div>
-            </div>
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">12</div>
-              <div className="text-sm text-gray-600">Actividades diferentes</div>
-            </div>
+        </div>
+        
+        {/* Stats Bar */}
+        <div className="bg-white shadow-xl -mt-16 relative z-10 mx-4 md:mx-8 lg:mx-16 rounded-2xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
+            {[
+              { value: "2.000+", label: "Niños participantes", icon: Baby },
+              { value: "50+", label: "Centros escolares", icon: BookOpen },
+              { value: "100+", label: "Talleres realizados", icon: Sparkles },
+              { value: "12", label: "Tipos de actividades", icon: Puzzle }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="p-6 md:p-8 text-center"
+              >
+                <stat.icon className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Main content */}
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-asram-800 mb-6">Nuestras actividades</h2>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="bg-white/70 backdrop-blur-sm border-asram-100">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <BookOpen className="w-6 h-6 text-asram" />
-                    </div>
-                    <CardTitle>Cuentacuentos verdes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="mb-3">
-                      Narraciones interactivas que transmiten valores de cuidado y respeto por el medio ambiente a través de historias protagonizadas por gotas de aceite, árboles y otros elementos naturales.
-                    </p>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Baby className="h-4 w-4 mr-1" /> Edades: 3-8 años
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/70 backdrop-blur-sm border-asram-100">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <Palette className="w-6 h-6 text-asram" />
-                    </div>
-                    <CardTitle>Manualidades sostenibles</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="mb-3">
-                      Talleres donde los niños aprenden a crear juguetes, instrumentos musicales y objetos decorativos a partir de materiales reciclados, desarrollando su creatividad mientras entienden el valor de reutilizar.
-                    </p>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Baby className="h-4 w-4 mr-1" /> Edades: 5-12 años
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/70 backdrop-blur-sm border-asram-100">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-asram" />
-                    </div>
-                    <CardTitle>Juegos de reciclaje</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="mb-3">
-                      Actividades interactivas donde aprenden a clasificar residuos de forma divertida, con dinámicas adaptadas a diferentes edades que convierten la gestión de residuos en una experiencia lúdica.
-                    </p>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Baby className="h-4 w-4 mr-1" /> Edades: 4-10 años
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/70 backdrop-blur-sm border-asram-100">
-                  <CardHeader className="pb-2">
-                    <div className="w-12 h-12 mb-2 rounded-full bg-asram/20 flex items-center justify-center">
-                      <Baby className="w-6 h-6 text-asram" />
-                    </div>
-                    <CardTitle>Mini jardinería</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="mb-3">
-                      Iniciación al cuidado de plantas y cultivo de pequeños huertos usando materiales reciclados como macetas. Los niños aprenden el ciclo de vida de las plantas y a cuidar del medio ambiente.
-                    </p>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Baby className="h-4 w-4 mr-1" /> Edades: 5-10 años
-                    </div>
-                  </CardContent>
-                </Card>
+      <div className="max-w-7xl mx-auto space-y-20">
+        {/* Sobre ASRAM Kids */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="grid lg:grid-cols-2 gap-12 items-center"
+        >
+          <motion.div variants={fadeIn} className="space-y-6">
+            <Badge className="bg-purple-100 text-purple-800">Sobre el programa</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Jugando hoy, protegiendo el mañana
+            </h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              ASRAM Kids nace como complemento de nuestra Alianza Verde Escolar, pero enfocado 
+              específicamente en los más pequeños. Creemos que la mejor manera de crear una 
+              generación comprometida con el medio ambiente es empezar desde la infancia.
+            </p>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Nuestras actividades están diseñadas por pedagogos y expertos en medio ambiente 
+              para garantizar que cada niño aprenda mientras se divierte. Utilizamos metodologías 
+              de aprendizaje basado en el juego para que los conceptos de sostenibilidad se 
+              interioricen de forma natural.
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              {[
+                { icon: Heart, title: "Con cariño", desc: "Actividades cuidadas" },
+                { icon: Smile, title: "Divertido", desc: "Aprender jugando" },
+                { icon: Users, title: "En equipo", desc: "Trabajo colaborativo" },
+                { icon: Star, title: "Memorable", desc: "Experiencias únicas" }
+              ].map((item, index) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <item.icon className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                    <p className="text-sm text-gray-600">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+          
+          <motion.div variants={fadeIn} className="relative">
+            <img 
+              src="https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800&q=80"
+              alt="Niños felices aprendiendo"
+              className="w-full h-[500px] object-cover rounded-2xl shadow-2xl"
+            />
+            <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-yellow-100 rounded-full">
+                  <Star className="w-8 h-8 text-yellow-500" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">100%</div>
+                  <div className="text-gray-600">Gratuito para centros</div>
+                </div>
               </div>
-            </section>
+            </div>
+          </motion.div>
+        </motion.section>
 
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-asram-800 mb-6">Testimonios</h2>
-              
-              <div className="space-y-6">
-                {testimonials.map((testimonial, index) => (
-                  <motion.div 
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.2, duration: 0.5 }}
-                    className="bg-white/70 backdrop-blur-sm rounded-lg p-5 border border-gray-100 shadow-sm"
-                  >
-                    <p className="italic text-gray-700 mb-4">"{testimonial.text}"</p>
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 bg-asram-100 rounded-full flex items-center justify-center text-asram-800 font-bold">
-                        {testimonial.name.charAt(0)}
-                      </div>
-                      <div className="ml-3">
-                        <div className="font-medium">{testimonial.name}</div>
-                        <div className="text-sm text-gray-500">{testimonial.role}</div>
-                      </div>
+        {/* Actividades Section */}
+        <section>
+          <div className="text-center mb-12">
+            <Badge className="bg-purple-100 text-purple-800 mb-4">Nuestras actividades</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Un mundo de diversión sostenible
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Cada actividad está diseñada para despertar la curiosidad de los niños 
+              sobre el cuidado del medio ambiente de forma lúdica y memorable.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activities.map((activity, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all"
+              >
+                <div className="h-48 overflow-hidden relative">
+                  <img 
+                    src={activity.image}
+                    alt={activity.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className={`absolute top-4 right-4 ${activity.color} px-3 py-1 rounded-full text-xs font-medium`}>
+                    {activity.ages}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`p-2 rounded-lg ${activity.color}`}>
+                      <activity.icon className="w-5 h-5" />
                     </div>
-                  </motion.div>
+                    <h3 className="font-bold text-gray-900">{activity.title}</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">{activity.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Dónde realizamos actividades */}
+        <section className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-3xl p-8 md:p-12">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <Badge className="bg-purple-100 text-purple-800">Lugares</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                Llevamos la diversión a donde estés
+              </h2>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Nuestras actividades pueden realizarse en múltiples espacios. 
+                Nos adaptamos a tus necesidades y las de tu comunidad.
+              </p>
+              
+              <div className="space-y-4">
+                {[
+                  { icon: BookOpen, title: "Centros educativos", desc: "Colegios, guarderías e institutos" },
+                  { icon: Baby, title: "Bibliotecas públicas", desc: "Espacios culturales de tu barrio" },
+                  { icon: TreeDeciduous, title: "Parques y espacios verdes", desc: "Actividades al aire libre" },
+                  { icon: Calendar, title: "Eventos familiares", desc: "Fiestas y celebraciones sostenibles" },
+                  { icon: Users, title: "Campamentos de verano", desc: "Semanas temáticas de reciclaje" }
+                ].map((place, index) => (
+                  <div key={index} className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <place.icon className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{place.title}</h4>
+                      <p className="text-sm text-gray-600">{place.desc}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
-            </section>
+              
+              <div className="bg-yellow-100 border border-yellow-200 rounded-xl p-4">
+                <p className="text-yellow-800 font-medium">
+                  ✨ Todas las actividades son gratuitas para centros que participan en la Alianza Verde Escolar
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <img 
+                src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=80"
+                alt="Actividad en colegio"
+                className="w-full h-48 object-cover rounded-xl shadow-lg"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1564429238535-db6caf0c5809?w=400&q=80"
+                alt="Actividad en parque"
+                className="w-full h-48 object-cover rounded-xl shadow-lg mt-8"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=400&q=80"
+                alt="Niños aprendiendo"
+                className="w-full h-48 object-cover rounded-xl shadow-lg"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=400&q=80"
+                alt="Taller de reciclaje"
+                className="w-full h-48 object-cover rounded-xl shadow-lg mt-8"
+              />
+            </div>
           </div>
+        </section>
 
-          <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-asram" />
-                  Próximos eventos
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {upcomingEvents.map((event, index) => (
-                    <div key={index} className="border-b pb-4 last:border-0 last:pb-0">
-                      <h4 className="font-medium">{event.title}</h4>
-                      <div className="text-sm text-gray-500 flex flex-col gap-1 mt-1">
-                        <div className="flex items-center">
-                          <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                          {event.date}
-                        </div>
-                        <div className="flex items-center">
-                          <Baby className="h-3.5 w-3.5 mr-1.5" />
-                          {event.location}
-                        </div>
-                      </div>
-                    </div>
+        {/* Testimonios */}
+        <section>
+          <div className="text-center mb-12">
+            <Badge className="bg-pink-100 text-pink-800 mb-4">Testimonios</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Lo que dicen de nosotros
+            </h2>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+              >
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-
-                <Button variant="outline" className="w-full mt-4" asChild>
-                  <Link to="/eventos">
-                    Ver todos los eventos
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Send className="h-5 w-5 text-asram" />
-                  Solicita una actividad
-                </CardTitle>
-                <CardDescription>Lleva ASRAM Kids a tu centro educativo</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p>
-                  Nuestras actividades están diseñadas para adaptarse a diferentes edades y pueden realizarse en:
-                </p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Centros educativos</li>
-                  <li>Bibliotecas públicas</li>
-                  <li>Centros culturales</li>
-                  <li>Eventos familiares</li>
-                  <li>Campamentos de verano</li>
-                </ul>
-                
-                <div className="py-2 px-4 bg-asram-50 rounded-lg mt-2 text-sm">
-                  Todas las actividades son gratuitas para centros que participan en la Alianza Verde Escolar
+                <p className="text-gray-600 italic mb-6">"{testimonial.text}"</p>
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div>
+                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                    <div className="text-sm text-gray-600">{testimonial.role}</div>
+                  </div>
                 </div>
-                
-                <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t">
-                  <div className="space-y-2">
-                    <Label htmlFor="nombre">Nombre de contacto *</Label>
-                    <Input
-                      id="nombre"
-                      value={formData.nombre}
-                      onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-                      placeholder="Tu nombre completo"
-                      required
-                    />
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Formulario */}
+        <section className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl p-8 md:p-12 text-white">
+          <div className="grid lg:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <Badge className="bg-white/20 text-white border-white/30">Solicita una actividad</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold">
+                ¡Trae ASRAM Kids a tu centro!
+              </h2>
+              <p className="text-lg text-white/90 leading-relaxed">
+                Nuestro equipo de educadores ambientales está listo para llevar la 
+                diversión sostenible a tu colegio, biblioteca o evento.
+              </p>
+              
+              <div className="space-y-4">
+                {[
+                  "Actividades adaptadas a cada grupo de edad",
+                  "Materiales incluidos en cada taller",
+                  "Educadores especializados",
+                  "Certificado de participación",
+                  "Seguimiento y evaluación del aprendizaje"
+                ].map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <Star className="w-5 h-5 text-yellow-300" />
+                    <span>{benefit}</span>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="tu@email.com"
-                      required
-                    />
+                ))}
+              </div>
+              
+              <div className="flex items-center gap-4 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+                <Recycle className="w-12 h-12 text-yellow-300" />
+                <div>
+                  <div className="font-semibold">¿Ya participas en la Alianza Verde?</div>
+                  <div className="text-sm text-white/80">Las actividades son 100% gratuitas para ti</div>
+                </div>
+              </div>
+            </div>
+            
+            <Card className="bg-white text-gray-900">
+              <CardHeader>
+                <CardTitle>Formulario de solicitud</CardTitle>
+                <CardDescription>Completa tus datos y organizamos una actividad</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nombre">Nombre *</Label>
+                      <Input
+                        id="nombre"
+                        value={formData.nombre}
+                        onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                        placeholder="Tu nombre"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="tu@email.com"
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="telefono">Teléfono</Label>
-                    <Input
-                      id="telefono"
-                      value={formData.telefono}
-                      onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
-                      placeholder="600 000 000"
-                    />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="telefono">Teléfono</Label>
+                      <Input
+                        id="telefono"
+                        value={formData.telefono}
+                        onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                        placeholder="600 000 000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="organizacion">Centro/Organización *</Label>
+                      <Input
+                        id="organizacion"
+                        value={formData.organizacion}
+                        onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
+                        placeholder="Nombre del centro"
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="organizacion">Nombre del centro/organización *</Label>
-                    <Input
-                      id="organizacion"
-                      value={formData.organizacion}
-                      onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
-                      placeholder="Centro educativo, biblioteca..."
-                      required
-                    />
-                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="tipoSolicitante">Tipo de centro *</Label>
                     <Select 
@@ -388,36 +550,36 @@ const AsramKids = () => {
                         <SelectValue placeholder="Selecciona el tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="escuela-infantil">Escuela infantil</SelectItem>
-                        <SelectItem value="colegio">Colegio</SelectItem>
-                        <SelectItem value="biblioteca">Biblioteca pública</SelectItem>
-                        <SelectItem value="centro-cultural">Centro cultural</SelectItem>
-                        <SelectItem value="campamento">Campamento de verano</SelectItem>
-                        <SelectItem value="evento">Evento familiar</SelectItem>
+                        <SelectItem value="colegio">Colegio / Guardería</SelectItem>
+                        <SelectItem value="biblioteca">Biblioteca</SelectItem>
+                        <SelectItem value="centro_cultural">Centro cultural</SelectItem>
+                        <SelectItem value="campamento">Campamento</SelectItem>
+                        <SelectItem value="evento">Evento privado</SelectItem>
                         <SelectItem value="otro">Otro</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="mensaje">Actividades de interés o información adicional</Label>
+                    <Label htmlFor="mensaje">¿Qué actividad te interesa?</Label>
                     <Textarea
                       id="mensaje"
                       value={formData.mensaje}
                       onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
-                      placeholder="Cuéntanos qué actividades te interesan, edad de los niños, fechas preferidas..."
+                      placeholder="Cuéntanos qué actividad te gustaría, edades de los niños, fechas..."
                       rows={3}
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full bg-asram hover:bg-asram-700" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Enviando...
                       </>
                     ) : (
                       <>
-                        <Send className="mr-2 h-4 w-4" />
+                        <Send className="w-4 h-4 mr-2" />
                         Solicitar actividad
                       </>
                     )}
@@ -425,34 +587,29 @@ const AsramKids = () => {
                 </form>
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Impacto educativo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between border-b pb-2">
-                    <span>Talleres realizados:</span>
-                    <span className="font-semibold">50+</span>
-                  </div>
-                  <div className="flex justify-between border-b pb-2">
-                    <span>Niños sensibilizados:</span>
-                    <span className="font-semibold">2.000+</span>
-                  </div>
-                  <div className="flex justify-between border-b pb-2">
-                    <span>Litros aceite recolectados:</span>
-                    <span className="font-semibold">10.000 L</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Familia involucradas:</span>
-                    <span className="font-semibold">5.000+</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
-        </div>
+        </section>
+
+        {/* CTA Final */}
+        <section className="text-center py-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            ¿Quieres saber más sobre ASRAM Kids?
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Estamos encantados de responder todas tus preguntas sobre nuestras actividades infantiles
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button size="lg" asChild>
+              <Link to="/contacto">Contáctanos</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/alianza-verde">
+                Ver Alianza Verde Escolar
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
+        </section>
       </div>
     </PageLayout>
   );

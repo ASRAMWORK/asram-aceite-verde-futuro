@@ -1,15 +1,13 @@
 import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Truck, Users, Building, ChevronRight, Tractor, Mountain, Map, Home, ArrowUpRight, Send, Loader2 } from "lucide-react";
+import { MapPin, Truck, Users, Building, ChevronRight, Mountain, Map, Home, Send, Loader2, TreeDeciduous, Tractor, Calendar, CheckCircle, Award, Leaf, Sun, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -77,20 +75,16 @@ const AsramRural = () => {
     }
   };
 
-  // Animation variants
   const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
-  
-  // Mock data
-  const partnerships = [
-    { name: "Cooperativa Agrícola Sierra Norte", location: "Sierra Norte", type: "Agrícola", members: 45 },
-    { name: "Asociación de Desarrollo Rural Valle del Lozoya", location: "Valle del Lozoya", type: "Desarrollo local", members: 24 },
-    { name: "Productores Unidos de Buitrago", location: "Buitrago de Lozoya", type: "Producción local", members: 18 },
-    { name: "Asociación de Turismo Rural de Madrid", location: "Madrid", type: "Turismo", members: 67 }
-  ];
-  
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
   const localities = [
     { name: "La Hiruela", region: "Sierra Norte", households: 85, status: "activo" },
     { name: "Puebla de la Sierra", region: "Sierra Norte", households: 110, status: "activo" },
@@ -100,278 +94,399 @@ const AsramRural = () => {
     { name: "Torrelaguna", region: "Sierra Norte", households: 420, status: "próximo" }
   ];
 
+  const programFeatures = [
+    {
+      icon: MapPin,
+      title: "Puntos de recolección local",
+      desc: "Instalamos puntos de recogida adaptados a las necesidades específicas de cada población.",
+      color: "bg-green-100 text-green-700"
+    },
+    {
+      icon: Users,
+      title: "Talleres comunitarios",
+      desc: "Sesiones formativas en escuelas rurales y asociaciones locales sobre reciclaje.",
+      color: "bg-blue-100 text-blue-700"
+    },
+    {
+      icon: Truck,
+      title: "Rutas optimizadas",
+      desc: "Circuitos eficientes para minimizar la huella de carbono en el transporte.",
+      color: "bg-amber-100 text-amber-700"
+    },
+    {
+      icon: Building,
+      title: "Alianzas locales",
+      desc: "Colaboramos con cooperativas y entidades del territorio para fortalecer el tejido social.",
+      color: "bg-purple-100 text-purple-700"
+    }
+  ];
+
   return (
     <PageLayout 
       title="ASRAM Rural" 
       subtitle="Llevamos el reciclaje sostenible a zonas rurales"
     >
-      <div className="max-w-7xl mx-auto">
-        {/* Hero section with map illustration */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 to-yellow-50 mb-12">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-green-200 rounded-full opacity-30 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-yellow-200 rounded-full opacity-30 blur-3xl" />
+      {/* Hero Section Full Width */}
+      <section className="relative -mx-4 md:-mx-8 lg:-mx-16 mb-16">
+        <div className="relative h-[500px] md:h-[600px] overflow-hidden">
+          <img 
+            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80"
+            alt="Paisaje rural de la Sierra de Madrid"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-green-900/90 via-amber-800/60 to-transparent" />
           
-          <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12 relative">
-            <div className="space-y-6">
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-200 px-3 py-1 text-sm">
-                Programa de Extensión
-              </Badge>
+          <div className="relative h-full max-w-7xl mx-auto px-4 md:px-8 flex items-center">
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+              className="max-w-2xl text-white space-y-6"
+            >
+              <motion.div variants={fadeIn}>
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                  <Mountain className="w-4 h-4 mr-2" />
+                  Programa de Extensión Rural
+                </Badge>
+              </motion.div>
               
-              <motion.h2 
-                initial="hidden"
-                animate="visible"
-                variants={fadeIn}
-                transition={{ duration: 0.5 }}
-                className="text-3xl font-bold text-gray-800"
-              >
-                Adaptando el modelo urbano a entornos rurales
-              </motion.h2>
+              <motion.h1 variants={fadeIn} className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                Sostenibilidad sin fronteras geográficas
+              </motion.h1>
               
-              <p className="text-lg leading-relaxed">
-                ASRAM Rural es una adaptación de nuestro modelo urbano a las particularidades de las zonas 
-                rurales, donde la gestión de residuos presenta desafíos diferentes. Garantizamos que todas 
-                las comunidades, independientemente de su tamaño o ubicación, contribuyan a la economía circular.
-              </p>
+              <motion.p variants={fadeIn} className="text-lg md:text-xl text-white/90 leading-relaxed">
+                ASRAM Rural adapta nuestro modelo urbano a las particularidades de las zonas rurales, 
+                garantizando que todas las comunidades, independientemente de su tamaño o ubicación, 
+                contribuyan a la economía circular.
+              </motion.p>
               
-              <div className="pt-4 flex flex-wrap gap-3">
-                <Button asChild className="bg-asram hover:bg-asram-700">
-                  <Link to="/contacto">Solicitar información</Link>
+              <motion.div variants={fadeIn} className="flex flex-wrap gap-4 pt-4">
+                <Button size="lg" className="bg-white text-green-800 hover:bg-white/90">
+                  <TreeDeciduous className="w-5 h-5 mr-2" />
+                  Solicitar información
                 </Button>
-                <Button variant="outline">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                   Ver municipios participantes
                 </Button>
-              </div>
+              </motion.div>
               
-              <div className="flex flex-wrap gap-4 pt-4">
-                <div className="bg-white/80 backdrop-blur-sm shadow-sm px-4 py-2 rounded-full flex items-center gap-2">
-                  <div className="bg-green-100 p-1 rounded-full">
-                    <MapPin className="h-4 w-4 text-green-600" />
-                  </div>
+              <motion.div variants={fadeIn} className="flex flex-wrap gap-4 pt-4">
+                <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-green-300" />
                   <span className="text-sm font-medium">12 municipios participantes</span>
                 </div>
-                <div className="bg-white/80 backdrop-blur-sm shadow-sm px-4 py-2 rounded-full flex items-center gap-2">
-                  <div className="bg-blue-100 p-1 rounded-full">
-                    <Truck className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <span className="text-sm font-medium">Rutas optimizadas ecológicamente</span>
+                <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-amber-300" />
+                  <span className="text-sm font-medium">Rutas ecológicas</span>
                 </div>
-              </div>
-            </div>
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative hidden md:block"
-            >
-              <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden p-6">
-                <div className="aspect-square relative rounded-lg overflow-hidden bg-green-50 border border-green-100">
-                  {/* Mock map illustration - in a real app, this could be an interactive map */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Map className="h-24 w-24 text-asram opacity-10" />
-                  </div>
-                  
-                  {/* Sample location markers */}
-                  <div className="absolute top-1/4 left-1/3">
-                    <div className="h-3 w-3 bg-asram rounded-full animate-pulse" />
-                  </div>
-                  <div className="absolute top-1/3 right-1/4">
-                    <div className="h-3 w-3 bg-asram rounded-full animate-pulse" />
-                  </div>
-                  <div className="absolute bottom-1/4 left-1/2">
-                    <div className="h-3 w-3 bg-asram rounded-full animate-pulse" />
-                  </div>
-                  <div className="absolute bottom-1/3 right-1/3">
-                    <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse" />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-xl shadow-lg border border-gray-100 rotate-2">
-                <div className="flex items-center space-x-2 text-asram font-semibold">
-                  <Mountain className="h-5 w-5" />
-                  <span>Sierra Norte de Madrid</span>
-                </div>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-8 bg-white/70 backdrop-blur-sm border-t">
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">12</div>
-              <div className="text-sm text-gray-600">Municipios</div>
-            </div>
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">985</div>
-              <div className="text-sm text-gray-600">Hogares servidos</div>
-            </div>
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">1.250L</div>
-              <div className="text-sm text-gray-600">Aceite reciclado</div>
-            </div>
-            <div className="text-center p-3">
-              <div className="text-3xl font-bold text-asram">4</div>
-              <div className="text-sm text-gray-600">Cooperativas locales</div>
-            </div>
+        </div>
+        
+        {/* Stats Bar */}
+        <div className="bg-white shadow-xl -mt-16 relative z-10 mx-4 md:mx-8 lg:mx-16 rounded-2xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
+            {[
+              { value: "12", label: "Municipios", icon: MapPin },
+              { value: "985", label: "Hogares servidos", icon: Home },
+              { value: "1.250L", label: "Aceite reciclado", icon: Leaf },
+              { value: "4", label: "Cooperativas aliadas", icon: Users }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="p-6 md:p-8 text-center"
+              >
+                <stat.icon className="w-8 h-8 text-green-600 mx-auto mb-3" />
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Main tabs content */}
-        <Tabs defaultValue="programa" className="w-full mb-12">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="programa">El programa</TabsTrigger>
-            <TabsTrigger value="alianzas">Alianzas locales</TabsTrigger>
-            <TabsTrigger value="resultados">Resultados</TabsTrigger>
-          </TabsList>
-          
-          {/* Programa tab */}
-          <TabsContent value="programa" className="space-y-8 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mountain className="h-5 w-5 text-asram" />
-                  Componentes del programa
-                </CardTitle>
-                <CardDescription>
-                  ASRAM Rural adapta nuestro modelo urbano a las necesidades específicas de las zonas rurales
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="rounded-lg border p-5 hover:border-asram transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-green-100 p-3 rounded-lg">
-                        <MapPin className="h-5 w-5 text-green-700" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Puntos de recolección local</h3>
-                        <p className="text-gray-600">
-                          Instalamos puntos de recogida adaptados a las necesidades específicas de cada población, 
-                          considerando sus características únicas.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="rounded-lg border p-5 hover:border-asram transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-blue-100 p-3 rounded-lg">
-                        <Users className="h-5 w-5 text-blue-700" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Talleres gratuitos comunitarios</h3>
-                        <p className="text-gray-600">
-                          Organizamos sesiones formativas en escuelas rurales y asociaciones locales para concienciar sobre 
-                          la importancia del reciclaje de aceite.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="rounded-lg border p-5 hover:border-asram transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-amber-100 p-3 rounded-lg">
-                        <Truck className="h-5 w-5 text-amber-700" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Rutas de recogida optimizadas</h3>
-                        <p className="text-gray-600">
-                          Diseñamos circuitos eficientes para minimizar la huella de carbono en el transporte, agrupando 
-                          municipios cercanos en una misma ruta.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="rounded-lg border p-5 hover:border-asram transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-purple-100 p-3 rounded-lg">
-                        <Building className="h-5 w-5 text-purple-700" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Alianzas con cooperativas locales</h3>
-                        <p className="text-gray-600">
-                          Colaboramos con entidades del territorio para fortalecer el tejido social y económico, creando 
-                          oportunidades para el desarrollo local.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mt-6 p-6 bg-asram-50/50 rounded-lg border border-asram-100">
-                  <h3 className="font-semibold text-lg mb-3">Adaptación a contextos rurales</h3>
-                  <p className="mb-4">
-                    El programa ASRAM Rural reconoce las características únicas de las comunidades rurales y adapta 
-                    sus servicios para maximizar su impacto:
-                  </p>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-asram flex items-center justify-center text-white">
-                        <ChevronRight className="h-4 w-4" />
-                      </div>
-                      <p className="text-sm">
-                        <span className="font-medium">Distancias y accesibilidad:</span> Planificación de rutas que 
-                        consideren la dispersión geográfica y el estado de los accesos.
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-asram flex items-center justify-center text-white">
-                        <ChevronRight className="h-4 w-4" />
-                      </div>
-                      <p className="text-sm">
-                        <span className="font-medium">Estacionalidad:</span> Ajuste de frecuencias de recogida según 
-                        variaciones poblacionales durante temporadas turísticas.
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-asram flex items-center justify-center text-white">
-                        <ChevronRight className="h-4 w-4" />
-                      </div>
-                      <p className="text-sm">
-                        <span className="font-medium">Coordinación con agendas locales:</span> Sincronización con ferias, 
-                        mercados y eventos locales para maximizar la participación.
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-asram flex items-center justify-center text-white">
-                        <ChevronRight className="h-4 w-4" />
-                      </div>
-                      <p className="text-sm">
-                        <span className="font-medium">Vinculación con identidad local:</span> Integración del programa 
-                        con valores culturales y tradiciones de cada comunidad.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="max-w-7xl mx-auto space-y-20">
+        {/* Sobre ASRAM Rural */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="grid lg:grid-cols-2 gap-12 items-center"
+        >
+          <motion.div variants={fadeIn} className="space-y-6">
+            <Badge className="bg-green-100 text-green-800">Sobre el programa</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              El reciclaje llega al mundo rural
+            </h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Las zonas rurales enfrentan desafíos únicos en la gestión de residuos: 
+              distancias mayores, menor densidad de población y acceso limitado a servicios. 
+              ASRAM Rural nació para superar estas barreras y garantizar que ninguna 
+              comunidad quede fuera de la economía circular.
+            </p>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Adaptamos nuestras rutas, calendarios y métodos de recogida a las 
+              particularidades de cada municipio, trabajando siempre en colaboración 
+              con ayuntamientos, cooperativas y asociaciones locales.
+            </p>
             
-            {/* Formulario de inscripción */}
-            <Card className="mt-8">
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              {[
+                { icon: Mountain, title: "Sierra Norte", desc: "Nuestra zona principal" },
+                { icon: Tractor, title: "Cooperativas", desc: "Alianzas productivas" },
+                { icon: Calendar, title: "Flexibilidad", desc: "Adaptamos calendarios" },
+                { icon: Heart, title: "Comunidad", desc: "Desarrollo local" }
+              ].map((item, index) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-gradient-to-br from-green-50 to-amber-50 rounded-xl">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <item.icon className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                    <p className="text-sm text-gray-600">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+          
+          <motion.div variants={fadeIn} className="relative">
+            <img 
+              src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80"
+              alt="Pueblo de la Sierra de Madrid"
+              className="w-full h-[500px] object-cover rounded-2xl shadow-2xl"
+            />
+            <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <Sun className="w-8 h-8 text-amber-500" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">Sierra Norte</div>
+                  <div className="text-gray-600">de Madrid</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.section>
+
+        {/* Componentes del programa */}
+        <section>
+          <div className="text-center mb-12">
+            <Badge className="bg-green-100 text-green-800 mb-4">Componentes</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Un programa adaptado al entorno rural
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Cada elemento del programa está diseñado considerando las características 
+              únicas de las comunidades rurales
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {programFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="h-full hover:shadow-lg transition-shadow">
+                  <CardContent className="pt-6">
+                    <div className={`w-14 h-14 rounded-xl ${feature.color} flex items-center justify-center mb-4`}>
+                      <feature.icon className="w-7 h-7" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.desc}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Adaptaciones especiales */}
+        <section className="bg-gradient-to-br from-green-50 via-amber-50 to-green-50 rounded-3xl p-8 md:p-12">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <Badge className="bg-amber-100 text-amber-800">Adaptaciones</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                Entendemos el mundo rural
+              </h2>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                El programa ASRAM Rural reconoce las características únicas de las 
+                comunidades rurales y adapta sus servicios para maximizar su impacto.
+              </p>
+              
+              <div className="space-y-4">
+                {[
+                  { 
+                    title: "Distancias y accesibilidad", 
+                    desc: "Planificación de rutas que consideren la dispersión geográfica y el estado de los accesos." 
+                  },
+                  { 
+                    title: "Estacionalidad", 
+                    desc: "Ajuste de frecuencias de recogida según variaciones poblacionales durante temporadas turísticas." 
+                  },
+                  { 
+                    title: "Coordinación con agendas locales", 
+                    desc: "Sincronización con ferias, mercados y eventos locales para maximizar la participación." 
+                  },
+                  { 
+                    title: "Vinculación con identidad local", 
+                    desc: "Integración del programa con valores culturales y tradiciones de cada comunidad." 
+                  }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <ChevronRight className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                      <p className="text-sm text-gray-600">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <img 
+                src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=400&q=80"
+                alt="Paisaje rural"
+                className="w-full h-48 object-cover rounded-xl shadow-lg"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1516253593875-bd7ba052f2b5?w=400&q=80"
+                alt="Pueblo tradicional"
+                className="w-full h-48 object-cover rounded-xl shadow-lg mt-8"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1473773508845-188df298d2d1?w=400&q=80"
+                alt="Campo de cultivo"
+                className="w-full h-48 object-cover rounded-xl shadow-lg"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1559070169-a3077159ee16?w=400&q=80"
+                alt="Montañas"
+                className="w-full h-48 object-cover rounded-xl shadow-lg mt-8"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Municipios participantes */}
+        <section>
+          <div className="text-center mb-12">
+            <Badge className="bg-green-100 text-green-800 mb-4">Red de municipios</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Municipios participantes
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Nuestra red crece cada día. Conoce los municipios que ya forman parte del programa.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {localities.map((locality, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className={`h-full ${locality.status === 'activo' ? 'border-green-200 bg-green-50/50' : 'border-amber-200 bg-amber-50/50'}`}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">{locality.name}</h3>
+                        <p className="text-sm text-gray-600">{locality.region}</p>
+                      </div>
+                      <Badge className={locality.status === 'activo' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white'}>
+                        {locality.status === 'activo' ? 'Activo' : 'Próximamente'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Home className="w-4 h-4" />
+                      <span>{locality.households} hogares</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-8">
+            <p className="text-gray-600 mb-4">¿Tu municipio no está en la lista?</p>
+            <Button variant="outline" asChild>
+              <Link to="/contacto">
+                Solicita que lleguemos a tu zona
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+
+        {/* Formulario */}
+        <section className="bg-gradient-to-br from-green-700 to-amber-600 rounded-3xl p-8 md:p-12 text-white">
+          <div className="grid lg:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <Badge className="bg-white/20 text-white border-white/30">Únete al programa</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Lleva ASRAM Rural a tu municipio
+              </h2>
+              <p className="text-lg text-white/90 leading-relaxed">
+                Si eres parte de un ayuntamiento, cooperativa o asociación local y 
+                quieres que el reciclaje de aceite llegue a tu territorio, contáctanos.
+              </p>
+              
+              <div className="space-y-4">
+                {[
+                  "Instalación adaptada a las características locales",
+                  "Formación para la comunidad",
+                  "Rutas de recogida optimizadas",
+                  "Colaboración con entidades locales",
+                  "Impacto medioambiental medible",
+                  "Sin coste para el municipio"
+                ].map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-300" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex items-center gap-4 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+                <Award className="w-12 h-12 text-amber-300" />
+                <div>
+                  <div className="font-semibold">Programa certificado</div>
+                  <div className="text-sm text-white/80">Reconocido por su impacto social y ambiental</div>
+                </div>
+              </div>
+            </div>
+            
+            <Card className="bg-white text-gray-900">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Send className="h-5 w-5 text-asram" />
-                  Lleva ASRAM Rural a tu municipio
-                </CardTitle>
-                <CardDescription>
-                  Completa el formulario para solicitar información sobre el programa
-                </CardDescription>
+                <CardTitle>Formulario de contacto</CardTitle>
+                <CardDescription>Cuéntanos sobre tu municipio</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="nombre">Nombre de contacto *</Label>
+                      <Label htmlFor="nombre">Nombre *</Label>
                       <Input
                         id="nombre"
                         value={formData.nombre}
                         onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-                        placeholder="Tu nombre completo"
+                        placeholder="Tu nombre"
                         required
                       />
                     </div>
@@ -386,6 +501,9 @@ const AsramRural = () => {
                         required
                       />
                     </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
                       <Input
@@ -396,18 +514,18 @@ const AsramRural = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="tipoSolicitante">Tipo de solicitante *</Label>
+                      <Label htmlFor="tipoSolicitante">Tipo de entidad *</Label>
                       <Select 
                         value={formData.tipoSolicitante} 
                         onValueChange={(value) => setFormData(prev => ({ ...prev, tipoSolicitante: value }))}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona el tipo" />
+                          <SelectValue placeholder="Selecciona" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="ayuntamiento">Ayuntamiento</SelectItem>
-                          <SelectItem value="cooperativa">Cooperativa local</SelectItem>
-                          <SelectItem value="asociacion">Asociación vecinal</SelectItem>
+                          <SelectItem value="cooperativa">Cooperativa</SelectItem>
+                          <SelectItem value="asociacion">Asociación local</SelectItem>
                           <SelectItem value="particular">Particular</SelectItem>
                           <SelectItem value="otro">Otro</SelectItem>
                         </SelectContent>
@@ -416,12 +534,12 @@ const AsramRural = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="organizacion">Municipio u organización *</Label>
+                    <Label htmlFor="organizacion">Municipio/Organización *</Label>
                     <Input
                       id="organizacion"
                       value={formData.organizacion}
                       onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
-                      placeholder="Nombre del municipio o entidad"
+                      placeholder="Nombre del municipio u organización"
                       required
                     />
                   </div>
@@ -432,313 +550,61 @@ const AsramRural = () => {
                       id="direccion"
                       value={formData.direccion}
                       onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
-                      placeholder="Sierra Norte, Valle del Lozoya..."
+                      placeholder="Ej: Sierra Norte de Madrid"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="mensaje">Cuéntanos sobre tu municipio</Label>
+                    <Label htmlFor="mensaje">Cuéntanos más</Label>
                     <Textarea
                       id="mensaje"
                       value={formData.mensaje}
                       onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
-                      placeholder="Número de habitantes, situación actual del reciclaje, necesidades específicas..."
-                      rows={4}
+                      placeholder="Número de habitantes, situación actual de reciclaje, necesidades específicas..."
+                      rows={3}
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full bg-asram hover:bg-asram-700" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Enviando...
                       </>
                     ) : (
                       <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Solicitar información
+                        <Send className="w-4 h-4 mr-2" />
+                        Enviar solicitud
                       </>
                     )}
                   </Button>
                 </form>
               </CardContent>
             </Card>
-          </TabsContent>
-          
-          {/* Alianzas tab */}
-          <TabsContent value="alianzas" className="space-y-8 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Tractor className="h-5 w-5 text-asram" />
-                  Alianzas con cooperativas locales
-                </CardTitle>
-                <CardDescription>
-                  Colaboramos con entidades rurales para fortalecer el tejido socioeconómico local
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="bg-gray-50">
-                          <th className="text-left p-3 font-medium text-gray-600">Organización</th>
-                          <th className="text-left p-3 font-medium text-gray-600">Localidad</th>
-                          <th className="text-left p-3 font-medium text-gray-600">Tipo</th>
-                          <th className="text-left p-3 font-medium text-gray-600">Miembros</th>
-                          <th className="text-left p-3 font-medium text-gray-600">Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y">
-                        {partnerships.map((partner, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="p-3 font-medium">{partner.name}</td>
-                            <td className="p-3">{partner.location}</td>
-                            <td className="p-3">{partner.type}</td>
-                            <td className="p-3">{partner.members}</td>
-                            <td className="p-3">
-                              <Button variant="ghost" size="sm" className="text-asram">
-                                Ver detalles
-                                <ArrowUpRight className="ml-1 h-3 w-3" />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  
-                  <div className="bg-gray-50 p-5 rounded-lg">
-                    <h3 className="font-semibold text-lg mb-3">Beneficios de las alianzas locales</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <p>Fortalecimiento de la economía local</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <p>Mayor alcance en zonas de difícil acceso</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <p>Aprovechamiento de conocimiento local</p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <p>Creación de empleo rural</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <p>Integración en redes locales existentes</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <p>Sensibilización adaptada al contexto</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-semibold text-lg">¿Interesado en colaborar?</h3>
-                      <Button className="bg-asram hover:bg-asram-700" asChild>
-                        <Link to="/contacto">
-                          Contactar ahora
-                        </Link>
-                      </Button>
-                    </div>
-                    <p className="text-gray-600">
-                      Si representas a una cooperativa, asociación o entidad local y quieres formar parte de 
-                      ASRAM Rural, contacta con nosotros para explorar posibles vías de colaboración.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Resultados tab */}
-          <TabsContent value="resultados" className="space-y-8 mt-6">
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Home className="h-5 w-5 text-asram" />
-                    Municipios participantes
-                  </CardTitle>
-                  <CardDescription>
-                    Localidades que actualmente participan en ASRAM Rural
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {localities.map((locality, index) => (
-                      <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
-                        <div>
-                          <div className="font-medium">{locality.name}</div>
-                          <div className="text-sm text-gray-500">{locality.region}</div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-right">
-                            <div className="text-sm font-medium">{locality.households} hogares</div>
-                          </div>
-                          <Badge className={locality.status === "activo" ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}>
-                            {locality.status === "activo" ? "Activo" : "Próximamente"}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 pt-2 text-sm text-gray-500 text-center">
-                    Mostrando 6 de 12 municipios participantes
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Estadísticas de impacto</CardTitle>
-                  <CardDescription>
-                    Resultados del programa ASRAM Rural desde su inicio
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Aceite reciclado (litros)</h3>
-                      <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-green-500 to-asram rounded-full" style={{ width: '75%' }}></div>
-                      </div>
-                      <div className="flex justify-between mt-1 text-sm">
-                        <span>0 L</span>
-                        <span className="font-medium">1.250 L</span>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">75% del objetivo anual de 1.500 L</p>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-2xl font-bold text-asram">985</div>
-                        <div className="text-sm text-gray-500">Hogares participantes</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-asram">24</div>
-                        <div className="text-sm text-gray-500">Puntos de recogida</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-asram">18</div>
-                        <div className="text-sm text-gray-500">Talleres realizados</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-asram">8</div>
-                        <div className="text-sm text-gray-500">Rutas establecidas</div>
-                      </div>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <h3 className="font-medium mb-2">Impacto medioambiental estimado</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>Agua no contaminada:</span>
-                          <span className="font-medium">1.250.000 L</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>CO₂ no emitido:</span>
-                          <span className="font-medium">3.750 kg</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Equivalente a árboles:</span>
-                          <span className="font-medium">187 árboles/año</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                      <p className="text-sm text-center">
-                        La iniciativa ASRAM Rural ha crecido un <span className="font-bold text-green-700">35%</span> en el último año
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Próximas expansiones</CardTitle>
-                <CardDescription>
-                  Municipios donde ASRAM Rural llegará próximamente
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium">Manzanares El Real</h3>
-                      <Badge variant="outline">Fase 1</Badge>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-2">Sierra de Guadarrama</p>
-                    <div className="text-sm">
-                      <div className="flex justify-between">
-                        <span>Inicio estimado:</span>
-                        <span>Junio 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Puntos previstos:</span>
-                        <span>5</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium">Valle de Lozoya</h3>
-                      <Badge variant="outline">Fase 1</Badge>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-2">Sierra Norte</p>
-                    <div className="text-sm">
-                      <div className="flex justify-between">
-                        <span>Inicio estimado:</span>
-                        <span>Julio 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Puntos previstos:</span>
-                        <span>3</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium">Rascafría</h3>
-                      <Badge variant="outline">Fase 2</Badge>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-2">Sierra Norte</p>
-                    <div className="text-sm">
-                      <div className="flex justify-between">
-                        <span>Inicio estimado:</span>
-                        <span>Sept 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Puntos previstos:</span>
-                        <span>4</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </section>
+
+        {/* CTA Final */}
+        <section className="text-center py-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            El reciclaje no conoce fronteras
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Trabajamos para que todas las comunidades, urbanas y rurales, 
+            contribuyan a un futuro más sostenible
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button size="lg" asChild>
+              <Link to="/contacto">Contáctanos</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/puntos-verdes">
+                Ver Puntos Verdes urbanos
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
+        </section>
       </div>
     </PageLayout>
   );
