@@ -14,7 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      convocatorias: {
+        Row: {
+          bonificacion_maxima: number
+          categoria: string
+          created_at: string
+          descripcion: string
+          documentos_requeridos: string[] | null
+          estado: string
+          fecha_fin: string
+          fecha_inicio: string
+          id: string
+          nombre: string
+          requisitos: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          bonificacion_maxima?: number
+          categoria: string
+          created_at?: string
+          descripcion: string
+          documentos_requeridos?: string[] | null
+          estado?: string
+          fecha_fin: string
+          fecha_inicio: string
+          id?: string
+          nombre: string
+          requisitos?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          bonificacion_maxima?: number
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          documentos_requeridos?: string[] | null
+          estado?: string
+          fecha_fin?: string
+          fecha_inicio?: string
+          id?: string
+          nombre?: string
+          requisitos?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      solicitudes_convocatoria: {
+        Row: {
+          cif: string
+          ciudad: string
+          codigo_postal: string
+          convocatoria_id: string | null
+          created_at: string
+          direccion: string
+          email: string
+          estado: string
+          id: string
+          nombre_comunidad: string
+          nombre_contacto: string
+          numero_viviendas: number | null
+          observaciones: string | null
+          participa_programa: boolean | null
+          programa_participacion: string | null
+          provincia: string
+          telefono: string
+          updated_at: string
+        }
+        Insert: {
+          cif: string
+          ciudad: string
+          codigo_postal: string
+          convocatoria_id?: string | null
+          created_at?: string
+          direccion: string
+          email: string
+          estado?: string
+          id?: string
+          nombre_comunidad: string
+          nombre_contacto: string
+          numero_viviendas?: number | null
+          observaciones?: string | null
+          participa_programa?: boolean | null
+          programa_participacion?: string | null
+          provincia: string
+          telefono: string
+          updated_at?: string
+        }
+        Update: {
+          cif?: string
+          ciudad?: string
+          codigo_postal?: string
+          convocatoria_id?: string | null
+          created_at?: string
+          direccion?: string
+          email?: string
+          estado?: string
+          id?: string
+          nombre_comunidad?: string
+          nombre_contacto?: string
+          numero_viviendas?: number | null
+          observaciones?: string | null
+          participa_programa?: boolean | null
+          programa_participacion?: string | null
+          provincia?: string
+          telefono?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitudes_convocatoria_convocatoria_id_fkey"
+            columns: ["convocatoria_id"]
+            isOneToOne: false
+            referencedRelation: "convocatorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

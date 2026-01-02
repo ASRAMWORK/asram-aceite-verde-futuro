@@ -27,6 +27,7 @@ import Apadrina from "./pages/colabora/Apadrina";
 import Detergente from "./pages/colabora/Detergente";
 import Contacto from "./pages/colabora/Contacto";
 import Tienda from "./pages/tienda/Tienda";
+import Convocatorias from "./pages/convocatorias/Convocatorias";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/detergente" element={<Detergente />} />
             <Route path="/contacto" element={<Contacto />} />
             <Route path="/tienda" element={<Tienda />} />
+            <Route path="/convocatorias" element={<Convocatorias />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
