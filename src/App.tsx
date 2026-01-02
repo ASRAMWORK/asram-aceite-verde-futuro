@@ -26,6 +26,7 @@ import AsramRural from "./pages/programas/AsramRural";
 import Apadrina from "./pages/colabora/Apadrina";
 import Detergente from "./pages/colabora/Detergente";
 import Contacto from "./pages/colabora/Contacto";
+import Voluntarios from "./pages/colabora/Voluntarios";
 import Tienda from "./pages/tienda/Tienda";
 import Convocatorias from "./pages/convocatorias/Convocatorias";
 import { toast } from 'sonner';
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/apadrina" element={<Apadrina />} />
             <Route path="/detergente" element={<Detergente />} />
             <Route path="/contacto" element={<Contacto />} />
+            <Route path="/voluntarios" element={<Voluntarios />} />
             <Route path="/tienda" element={<Tienda />} />
             <Route path="/convocatorias" element={<Convocatorias />} />
             

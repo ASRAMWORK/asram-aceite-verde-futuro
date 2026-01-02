@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.send-solicitud-convocatoria]
 verify_jwt = false
+
+[functions.send-solicitud-voluntario]
+verify_jwt = false

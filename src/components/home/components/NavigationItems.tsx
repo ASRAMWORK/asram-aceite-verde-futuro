@@ -95,6 +95,9 @@ const NavigationItems = () => {
               <ListItem href="/detergente" title="Detergente Solidario">
                 Proyecto de emergencia social
               </ListItem>
+              <ListItem href="/voluntarios" title="Sé Voluntario">
+                Únete a nuestro equipo de voluntarios
+              </ListItem>
               <ListItem href="/contacto" title="Contacto">
                 Únete a nosotros
               </ListItem>
