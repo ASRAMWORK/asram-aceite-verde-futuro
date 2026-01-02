@@ -22,7 +22,9 @@ import {
   Recycle,
   HandHeart,
   GraduationCap,
-  TreePine
+  TreePine,
+  Droplets,
+  Globe
 } from "lucide-react";
 
 const Voluntarios = () => {
@@ -81,7 +83,6 @@ const Voluntarios = () => {
     setIsSubmitting(true);
 
     try {
-      // Send email notification
       const { error: emailError } = await supabase.functions.invoke('send-solicitud-voluntario', {
         body: formData
       });
@@ -92,7 +93,6 @@ const Voluntarios = () => {
 
       toast.success("¡Solicitud enviada correctamente! Nos pondremos en contacto contigo pronto.");
       
-      // Reset form
       setFormData({
         nombre: "",
         apellidos: "",
@@ -118,92 +118,100 @@ const Voluntarios = () => {
 
   const beneficios = [
     {
-      icon: Heart,
-      title: "Impacto Real",
-      description: "Tu trabajo tiene un efecto directo en el medio ambiente y la comunidad"
+      icon: Leaf,
+      title: "Impacto Ambiental",
+      description: "Contribuye directamente a la protección del medio ambiente"
     },
     {
       icon: Users,
-      title: "Comunidad",
-      description: "Conoce personas con tus mismos valores e intereses"
+      title: "Comunidad Verde",
+      description: "Conecta con personas comprometidas con la sostenibilidad"
     },
     {
       icon: GraduationCap,
-      title: "Formación",
-      description: "Accede a talleres y formaciones gratuitas sobre sostenibilidad"
+      title: "Formación Ecológica",
+      description: "Aprende sobre reciclaje, economía circular y sostenibilidad"
     },
     {
-      icon: Star,
-      title: "Reconocimiento",
-      description: "Certificados y reconocimientos por tu labor voluntaria"
+      icon: Globe,
+      title: "Cambio Global",
+      description: "Sé parte del movimiento por un planeta más limpio"
     }
   ];
 
   const actividades = [
     {
-      icon: Recycle,
+      icon: Droplets,
       title: "Recogida de Aceite",
-      description: "Ayuda en las rutas de recogida de aceite usado en comunidades y hogares"
+      description: "Ayuda en las rutas de recogida de aceite usado, evitando la contaminación de miles de litros de agua"
     },
     {
       icon: TreePine,
       title: "Educación Ambiental",
-      description: "Participa en talleres y charlas en colegios y centros comunitarios"
+      description: "Enseña a niños y adultos la importancia del reciclaje y el cuidado del medio ambiente"
+    },
+    {
+      icon: Recycle,
+      title: "Puntos Verdes",
+      description: "Gestiona y mantiene nuestra red de puntos de recogida sostenibles"
     },
     {
       icon: HandHeart,
-      title: "Eventos Solidarios",
-      description: "Colabora en mercadillos, ferias y eventos de concienciación"
-    },
-    {
-      icon: Leaf,
-      title: "Puntos Verdes",
-      description: "Ayuda en la gestión y mantenimiento de nuestros puntos de recogida"
+      title: "Eventos Ecológicos",
+      description: "Participa en jornadas de limpieza, plantación de árboles y ferias verdes"
     }
+  ];
+
+  const impactoStats = [
+    { value: "+50.000L", label: "Aceite reciclado" },
+    { value: "+200", label: "Voluntarios activos" },
+    { value: "21", label: "Distritos de Madrid" },
+    { value: "-150T", label: "CO₂ evitado" }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <NavBar />
       
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-asram/10 via-background to-accent/5" />
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234A7C59' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}
-        />
+      {/* Hero Section con imagen medioambiental */}
+      <section className="relative pt-20 pb-24 overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
+            alt="Manos sosteniendo una planta"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+        </div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-asram/10 text-asram px-4 py-2 rounded-full mb-6">
-              <Heart className="w-4 h-4" />
-              <span className="text-sm font-medium">Únete a nuestro equipo</span>
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 bg-asram/90 text-white px-4 py-2 rounded-full mb-6">
+              <Leaf className="w-4 h-4" />
+              <span className="text-sm font-medium">Únete al cambio</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
               Sé Voluntario en{" "}
-              <span className="text-asram">ASRAM</span>
+              <span className="text-asram-light">ASRAM</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Forma parte de una comunidad comprometida con el medio ambiente. 
-              Tu tiempo y dedicación pueden marcar la diferencia en Madrid.
+            <p className="text-xl text-white/90 mb-8 max-w-2xl">
+              Tu compromiso con el medio ambiente puede cambiar el mundo. 
+              Cada litro de aceite que reciclamos juntos protege 1.000 litros de agua.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-6 text-white/80">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-asram" />
-                <span>+200 voluntarios activos</span>
+                <Users className="w-5 h-5 text-asram-light" />
+                <span>+200 voluntarios</span>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-asram" />
-                <span>Toda la Comunidad de Madrid</span>
+                <MapPin className="w-5 h-5 text-asram-light" />
+                <span>Comunidad de Madrid</span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-asram" />
+                <Clock className="w-5 h-5 text-asram-light" />
                 <span>Horarios flexibles</span>
               </div>
             </div>
@@ -211,101 +219,40 @@ const Voluntarios = () => {
         </div>
       </section>
 
-      {/* Imagen destacada */}
-      <section className="py-8">
+      {/* Stats de impacto */}
+      <section className="py-8 bg-asram">
         <div className="container mx-auto px-4">
-          <div className="relative rounded-2xl overflow-hidden max-w-5xl mx-auto shadow-xl">
-            <img 
-              src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
-              alt="Voluntarios trabajando juntos"
-              className="w-full h-[400px] object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <p className="text-white text-xl font-medium">
-                "Juntos construimos un Madrid más sostenible"
-              </p>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {impactoStats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white">{stat.value}</div>
+                <div className="text-white/80 text-sm">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Quiénes somos section */}
-      <section className="py-16 bg-muted/30">
+      {/* Por qué ser voluntario */}
+      <section className="py-20 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">¿Quiénes somos?</h2>
-              <p className="text-lg text-muted-foreground">
-                ASRAM es la Asociación para el Reciclaje de Aceite en Madrid
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-foreground">Nuestra Misión</h3>
-                <p className="text-muted-foreground">
-                  Trabajamos para transformar el aceite usado de cocina en biodiesel y otros productos 
-                  sostenibles, evitando la contaminación del agua y contribuyendo a la economía circular.
-                </p>
-                <p className="text-muted-foreground">
-                  Cada litro de aceite reciclado evita la contaminación de hasta 1.000 litros de agua. 
-                  Con tu ayuda, multiplicamos nuestro impacto.
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-foreground">Nuestros Programas</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-asram mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">
-                      <strong>Alianza Verde Escolar:</strong> Educación ambiental en colegios
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-asram mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">
-                      <strong>Puntos Verdes:</strong> Red de contenedores de reciclaje
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-asram mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">
-                      <strong>ASRAM Rural:</strong> Reciclaje en zonas rurales
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-asram mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">
-                      <strong>ASRAM Kids:</strong> Actividades para los más pequeños
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Beneficios de ser voluntario */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              ¿Por qué ser voluntario en ASRAM?
+          <div className="text-center mb-14">
+            <span className="text-asram font-medium text-sm uppercase tracking-wider">Únete a nuestra misión</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
+              ¿Por qué ser voluntario?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Más que voluntariado, es una experiencia de vida que te conecta con tu comunidad y el planeta
+              Ser voluntario en ASRAM es más que reciclar: es formar parte de un movimiento 
+              que transforma Madrid en una ciudad más sostenible
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {beneficios.map((beneficio, index) => (
-              <Card key={index} className="text-center border-none shadow-md hover:shadow-lg transition-shadow">
+              <Card key={index} className="text-center border-none shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-card">
                 <CardHeader>
-                  <div className="w-14 h-14 bg-asram/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <beneficio.icon className="w-7 h-7 text-asram" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-asram to-asram-dark rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <beneficio.icon className="w-8 h-8 text-white" />
                   </div>
                   <CardTitle className="text-lg">{beneficio.title}</CardTitle>
                 </CardHeader>
@@ -318,28 +265,92 @@ const Voluntarios = () => {
         </div>
       </section>
 
-      {/* Actividades */}
-      <section className="py-16 bg-muted/30">
+      {/* Imagen de naturaleza */}
+      <section className="relative h-[400px] overflow-hidden">
+        <img 
+          src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
+          alt="Bosque verde y sostenible"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+          <div className="container mx-auto">
+            <blockquote className="text-white text-2xl md:text-3xl font-light italic max-w-3xl">
+              "La Tierra no es una herencia de nuestros padres, sino un préstamo de nuestros hijos"
+            </blockquote>
+            <p className="text-white/70 mt-4">— Proverbio indígena</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Quiénes somos */}
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            <div className="relative">
+              <img 
+                src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Reciclaje y sostenibilidad"
+                className="rounded-2xl shadow-2xl w-full"
+              />
+              <div className="absolute -bottom-6 -right-6 bg-asram text-white p-6 rounded-xl shadow-xl">
+                <Recycle className="w-10 h-10 mb-2" />
+                <div className="text-2xl font-bold">+10K</div>
+                <div className="text-sm text-white/80">Litros reciclados</div>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <span className="text-asram font-medium text-sm uppercase tracking-wider">Nuestra misión</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Transformamos aceite usado en un futuro sostenible
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                ASRAM es la Asociación para el Reciclaje de Aceite en Madrid. Trabajamos para 
+                convertir el aceite usado de cocina en biodiesel y productos sostenibles, 
+                protegiendo nuestros ríos y acuíferos.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  "1 litro de aceite contamina 1.000 litros de agua",
+                  "Transformamos residuos en recursos renovables",
+                  "Fomentamos la economía circular en Madrid",
+                  "Educamos a nuevas generaciones en sostenibilidad"
+                ].map((item, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckCircle className="w-6 h-6 text-asram mt-0.5 flex-shrink-0" />
+                    <span className="text-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Actividades */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-14">
+            <span className="text-asram font-medium text-sm uppercase tracking-wider">Áreas de voluntariado</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
               ¿En qué puedes colaborar?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Hay muchas formas de aportar tu granito de arena
+              Hay muchas formas de aportar tu granito de arena al medio ambiente
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {actividades.map((actividad, index) => (
-              <Card key={index} className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-start gap-4">
-                  <div className="w-12 h-12 bg-asram/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <actividad.icon className="w-6 h-6 text-asram" />
+              <Card key={index} className="border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <CardHeader className="flex flex-row items-start gap-5 pb-2">
+                  <div className="w-14 h-14 bg-gradient-to-br from-asram/20 to-asram/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:from-asram group-hover:to-asram-dark transition-all duration-300">
+                    <actividad.icon className="w-7 h-7 text-asram group-hover:text-white transition-colors" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg mb-2">{actividad.title}</CardTitle>
-                    <CardDescription>{actividad.description}</CardDescription>
+                    <CardTitle className="text-xl mb-2">{actividad.title}</CardTitle>
+                    <CardDescription className="text-base">{actividad.description}</CardDescription>
                   </div>
                 </CardHeader>
               </Card>
@@ -348,30 +359,40 @@ const Voluntarios = () => {
         </div>
       </section>
 
-      {/* Imagen motivacional */}
-      <section className="py-8">
+      {/* Galería de imágenes medioambientales */}
+      <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            <div className="relative rounded-xl overflow-hidden shadow-lg">
+          <div className="grid md:grid-cols-3 gap-4 max-w-6xl mx-auto">
+            <div className="relative rounded-xl overflow-hidden shadow-lg group h-[250px]">
               <img 
-                src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt="Trabajo en equipo voluntarios"
-                className="w-full h-[280px] object-cover"
+                src="https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Paisaje montañoso verde"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-            <div className="relative rounded-xl overflow-hidden shadow-lg">
+            <div className="relative rounded-xl overflow-hidden shadow-lg group h-[250px]">
               <img 
-                src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt="Voluntarios ayudando"
-                className="w-full h-[280px] object-cover"
+                src="https://images.unsplash.com/photo-1518173946687-a4c036bc3e96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Gotas de agua en hoja"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <div className="relative rounded-xl overflow-hidden shadow-lg group h-[250px]">
+              <img 
+                src="https://images.unsplash.com/photo-1500829243541-74b677fecc30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Campo de flores silvestres"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </div>
       </section>
 
       {/* Formulario de inscripción */}
-      <section className="py-16" id="formulario">
+      <section className="py-20 bg-gradient-to-b from-muted/30 to-background" id="formulario">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-10">
@@ -379,26 +400,33 @@ const Voluntarios = () => {
                 <Calendar className="w-4 h-4" />
                 <span className="text-sm font-medium">Inscripción abierta</span>
               </div>
-              <h2 className="text-3xl font-bold text-foreground mb-4">
-                Formulario de Inscripción
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Únete a nuestro equipo
               </h2>
-              <p className="text-muted-foreground">
-                Completa el formulario y nos pondremos en contacto contigo
+              <p className="text-muted-foreground text-lg">
+                Completa el formulario y forma parte del cambio
               </p>
             </div>
 
-            <Card className="shadow-lg border-t-4 border-t-asram">
-              <CardHeader>
-                <CardTitle>Datos del Voluntario</CardTitle>
+            <Card className="shadow-2xl border-0 overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-asram via-asram-light to-asram" />
+              <CardHeader className="bg-muted/30">
+                <CardTitle className="flex items-center gap-3">
+                  <Heart className="w-6 h-6 text-asram" />
+                  Datos del Voluntario
+                </CardTitle>
                 <CardDescription>
-                  Todos los campos marcados con * son obligatorios
+                  Los campos marcados con * son obligatorios
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <CardContent className="pt-6">
+                <form onSubmit={handleSubmit} className="space-y-8">
                   {/* Datos personales */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-foreground border-b pb-2">Datos Personales</h3>
+                    <h3 className="font-semibold text-foreground flex items-center gap-2">
+                      <Users className="w-5 h-5 text-asram" />
+                      Datos Personales
+                    </h3>
                     
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -410,6 +438,7 @@ const Voluntarios = () => {
                           onChange={handleInputChange}
                           required
                           placeholder="Tu nombre"
+                          className="h-11"
                         />
                       </div>
                       <div className="space-y-2">
@@ -421,6 +450,7 @@ const Voluntarios = () => {
                           onChange={handleInputChange}
                           required
                           placeholder="Tus apellidos"
+                          className="h-11"
                         />
                       </div>
                     </div>
@@ -436,6 +466,7 @@ const Voluntarios = () => {
                           onChange={handleInputChange}
                           required
                           placeholder="tu@email.com"
+                          className="h-11"
                         />
                       </div>
                       <div className="space-y-2">
@@ -448,6 +479,7 @@ const Voluntarios = () => {
                           onChange={handleInputChange}
                           required
                           placeholder="600 000 000"
+                          className="h-11"
                         />
                       </div>
                     </div>
@@ -461,13 +493,17 @@ const Voluntarios = () => {
                         value={formData.fechaNacimiento}
                         onChange={handleInputChange}
                         required
+                        className="h-11"
                       />
                     </div>
                   </div>
 
                   {/* Dirección */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-foreground border-b pb-2">Dirección</h3>
+                    <h3 className="font-semibold text-foreground flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-asram" />
+                      Dirección
+                    </h3>
                     
                     <div className="space-y-2">
                       <Label htmlFor="direccion">Dirección</Label>
@@ -477,6 +513,7 @@ const Voluntarios = () => {
                         value={formData.direccion}
                         onChange={handleInputChange}
                         placeholder="Calle, número, piso..."
+                        className="h-11"
                       />
                     </div>
 
@@ -489,6 +526,7 @@ const Voluntarios = () => {
                           value={formData.codigoPostal}
                           onChange={handleInputChange}
                           placeholder="28000"
+                          className="h-11"
                         />
                       </div>
                       <div className="space-y-2">
@@ -499,6 +537,7 @@ const Voluntarios = () => {
                           value={formData.ciudad}
                           onChange={handleInputChange}
                           placeholder="Madrid"
+                          className="h-11"
                         />
                       </div>
                       <div className="space-y-2">
@@ -509,6 +548,7 @@ const Voluntarios = () => {
                           value={formData.provincia}
                           onChange={handleInputChange}
                           placeholder="Madrid"
+                          className="h-11"
                         />
                       </div>
                     </div>
@@ -516,14 +556,17 @@ const Voluntarios = () => {
 
                   {/* Disponibilidad */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-foreground border-b pb-2">Disponibilidad *</h3>
+                    <h3 className="font-semibold text-foreground flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-asram" />
+                      Disponibilidad *
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       Selecciona cuándo podrías colaborar con nosotros
                     </p>
                     
                     <div className="grid sm:grid-cols-2 gap-3">
                       {disponibilidadOptions.map((option) => (
-                        <div key={option} className="flex items-center space-x-2">
+                        <div key={option} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                           <Checkbox
                             id={option}
                             checked={formData.disponibilidad.includes(option)}
@@ -531,7 +574,7 @@ const Voluntarios = () => {
                               handleDisponibilidadChange(option, checked as boolean)
                             }
                           />
-                          <Label htmlFor={option} className="text-sm font-normal cursor-pointer">
+                          <Label htmlFor={option} className="text-sm font-normal cursor-pointer flex-1">
                             {option}
                           </Label>
                         </div>
@@ -541,7 +584,10 @@ const Voluntarios = () => {
 
                   {/* Experiencia y motivación */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-foreground border-b pb-2">Cuéntanos más</h3>
+                    <h3 className="font-semibold text-foreground flex items-center gap-2">
+                      <Star className="w-5 h-5 text-asram" />
+                      Cuéntanos más
+                    </h3>
                     
                     <div className="space-y-2">
                       <Label htmlFor="experiencia">Experiencia previa en voluntariado</Label>
@@ -552,6 +598,7 @@ const Voluntarios = () => {
                         onChange={handleInputChange}
                         placeholder="Cuéntanos si has participado en otros proyectos de voluntariado..."
                         rows={3}
+                        className="resize-none"
                       />
                     </div>
 
@@ -565,13 +612,14 @@ const Voluntarios = () => {
                         required
                         placeholder="Cuéntanos qué te motiva a colaborar con nosotros..."
                         rows={4}
+                        className="resize-none"
                       />
                     </div>
                   </div>
 
                   {/* Términos y condiciones */}
                   <div className="space-y-4 pt-4 border-t">
-                    <div className="flex items-start space-x-2">
+                    <div className="flex items-start space-x-3 p-4 rounded-lg bg-muted/30">
                       <Checkbox
                         id="aceptaTerminos"
                         checked={formData.aceptaTerminos}
@@ -579,9 +627,9 @@ const Voluntarios = () => {
                           setFormData(prev => ({ ...prev, aceptaTerminos: checked as boolean }))
                         }
                       />
-                      <Label htmlFor="aceptaTerminos" className="text-sm font-normal cursor-pointer">
+                      <Label htmlFor="aceptaTerminos" className="text-sm font-normal cursor-pointer leading-relaxed">
                         Acepto la{" "}
-                        <Link to="/privacidad" className="text-asram hover:underline">
+                        <Link to="/privacidad" className="text-asram hover:underline font-medium">
                           política de privacidad
                         </Link>{" "}
                         y consiento el tratamiento de mis datos para gestionar mi solicitud de voluntariado. *
@@ -591,10 +639,17 @@ const Voluntarios = () => {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-asram hover:bg-asram/90"
+                    className="w-full h-12 text-base bg-asram hover:bg-asram/90 shadow-lg"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Enviando solicitud..." : "Enviar Solicitud de Voluntariado"}
+                    {isSubmitting ? (
+                      "Enviando solicitud..."
+                    ) : (
+                      <>
+                        <Leaf className="w-5 h-5 mr-2" />
+                        Enviar Solicitud de Voluntariado
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
@@ -604,9 +659,19 @@ const Voluntarios = () => {
       </section>
 
       {/* CTA Final */}
-      <section className="py-16 bg-asram text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
+            alt="Paisaje natural al atardecer"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-asram/85" />
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <Leaf className="w-12 h-12 text-white/80 mx-auto mb-6" />
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             ¿Tienes dudas?
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
@@ -615,11 +680,10 @@ const Voluntarios = () => {
           <Button 
             asChild 
             size="lg" 
-            variant="outline" 
-            className="border-white text-white hover:bg-white hover:text-asram"
+            className="bg-white text-asram hover:bg-white/90 shadow-xl"
           >
             <Link to="/contacto">
-              Contactar
+              Contactar con nosotros
             </Link>
           </Button>
         </div>

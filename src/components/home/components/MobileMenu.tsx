@@ -92,6 +92,13 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
               Detergente Solidario
             </Link>
             <Link 
+              to="/voluntarios"
+              className="block px-2 py-1 rounded hover:bg-gray-100"
+              onClick={onClose}
+            >
+              Sé Voluntario
+            </Link>
+            <Link 
               to="/contacto"
               className="block px-2 py-1 rounded hover:bg-gray-100"
               onClick={onClose}
