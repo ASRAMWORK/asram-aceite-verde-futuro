@@ -37,6 +37,13 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
             >
               Modelo Circular
             </Link>
+            <Link 
+              to="/ruta-dorada"
+              className="block px-2 py-1 rounded hover:bg-gray-100"
+              onClick={onClose}
+            >
+              Ruta Dorada
+            </Link>
           </nav>
         </div>
         

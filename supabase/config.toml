@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.send-solicitud-voluntario]
 verify_jwt = false
+
+[functions.send-inscripcion-ruta-dorada]
+verify_jwt = false
