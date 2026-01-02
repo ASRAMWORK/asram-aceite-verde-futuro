@@ -1,15 +1,82 @@
-
+import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { MapPin, Truck, Users, Building, ChevronRight, Tractor, Mountain, Map, Home, ArrowUpRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MapPin, Truck, Users, Building, ChevronRight, Tractor, Mountain, Map, Home, ArrowUpRight, Send, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const inscripcionSchema = z.object({
+  nombre: z.string().trim().min(1, "El nombre es obligatorio").max(100),
+  email: z.string().trim().email("Email inválido").max(255),
+  telefono: z.string().trim().max(20).optional(),
+  organizacion: z.string().trim().min(1, "El nombre del municipio/organización es obligatorio").max(200),
+  tipoSolicitante: z.string().min(1, "Selecciona el tipo de solicitante"),
+  direccion: z.string().trim().max(500).optional(),
+  mensaje: z.string().trim().max(1000).optional(),
+});
 
 const AsramRural = () => {
+  const [formData, setFormData] = useState({
+    nombre: "",
+    email: "",
+    telefono: "",
+    organizacion: "",
+    tipoSolicitante: "",
+    direccion: "",
+    mensaje: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const validation = inscripcionSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-programa-inscripcion', {
+        body: {
+          programa: 'asram-rural',
+          ...formData
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("¡Solicitud enviada! Te contactaremos pronto.");
+      setFormData({
+        nombre: "",
+        email: "",
+        telefono: "",
+        organizacion: "",
+        tipoSolicitante: "",
+        direccion: "",
+        mensaje: ""
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error al enviar la solicitud. Inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Animation variants
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -281,6 +348,119 @@ const AsramRural = () => {
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+            
+            {/* Formulario de inscripción */}
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Send className="h-5 w-5 text-asram" />
+                  Lleva ASRAM Rural a tu municipio
+                </CardTitle>
+                <CardDescription>
+                  Completa el formulario para solicitar información sobre el programa
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nombre">Nombre de contacto *</Label>
+                      <Input
+                        id="nombre"
+                        value={formData.nombre}
+                        onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                        placeholder="Tu nombre completo"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="tu@email.com"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="telefono">Teléfono</Label>
+                      <Input
+                        id="telefono"
+                        value={formData.telefono}
+                        onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                        placeholder="600 000 000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="tipoSolicitante">Tipo de solicitante *</Label>
+                      <Select 
+                        value={formData.tipoSolicitante} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, tipoSolicitante: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona el tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ayuntamiento">Ayuntamiento</SelectItem>
+                          <SelectItem value="cooperativa">Cooperativa local</SelectItem>
+                          <SelectItem value="asociacion">Asociación vecinal</SelectItem>
+                          <SelectItem value="particular">Particular</SelectItem>
+                          <SelectItem value="otro">Otro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="organizacion">Municipio u organización *</Label>
+                    <Input
+                      id="organizacion"
+                      value={formData.organizacion}
+                      onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
+                      placeholder="Nombre del municipio o entidad"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="direccion">Ubicación/Comarca</Label>
+                    <Input
+                      id="direccion"
+                      value={formData.direccion}
+                      onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
+                      placeholder="Sierra Norte, Valle del Lozoya..."
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="mensaje">Cuéntanos sobre tu municipio</Label>
+                    <Textarea
+                      id="mensaje"
+                      value={formData.mensaje}
+                      onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
+                      placeholder="Número de habitantes, situación actual del reciclaje, necesidades específicas..."
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-asram hover:bg-asram-700" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Solicitar información
+                      </>
+                    )}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
           </TabsContent>

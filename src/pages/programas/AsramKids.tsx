@@ -1,12 +1,76 @@
-
+import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Baby, BookOpen, Palette, Sparkles, Users, Calendar, ArrowRight } from "lucide-react";
+import { Baby, BookOpen, Palette, Sparkles, Users, Calendar, ArrowRight, Send, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const inscripcionSchema = z.object({
+  nombre: z.string().trim().min(1, "El nombre es obligatorio").max(100),
+  email: z.string().trim().email("Email inválido").max(255),
+  telefono: z.string().trim().max(20).optional(),
+  organizacion: z.string().trim().min(1, "El nombre del centro/organización es obligatorio").max(200),
+  tipoSolicitante: z.string().min(1, "Selecciona el tipo de centro"),
+  mensaje: z.string().trim().max(1000).optional(),
+});
 
 const AsramKids = () => {
+  const [formData, setFormData] = useState({
+    nombre: "",
+    email: "",
+    telefono: "",
+    organizacion: "",
+    tipoSolicitante: "",
+    mensaje: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const validation = inscripcionSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-programa-inscripcion', {
+        body: {
+          programa: 'asram-kids',
+          ...formData
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("¡Solicitud enviada! Te contactaremos pronto.");
+      setFormData({
+        nombre: "",
+        email: "",
+        telefono: "",
+        organizacion: "",
+        tipoSolicitante: "",
+        mensaje: ""
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error al enviar la solicitud. Inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Mock data for testimonials and upcoming events
   const testimonials = [
     { name: "María Rodríguez", role: "Profesora de infantil", text: "Los niños esperan con ilusión los talleres de ASRAM Kids. Han aprendido tanto sobre reciclaje mientras se divierten." },
@@ -251,7 +315,10 @@ const AsramKids = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Solicita una actividad</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Send className="h-5 w-5 text-asram" />
+                  Solicita una actividad
+                </CardTitle>
                 <CardDescription>Lleva ASRAM Kids a tu centro educativo</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -270,11 +337,92 @@ const AsramKids = () => {
                   Todas las actividades son gratuitas para centros que participan en la Alianza Verde Escolar
                 </div>
                 
-                <Button className="w-full bg-asram hover:bg-asram-700" asChild>
-                  <Link to="/contacto">
-                    Solicitar información
-                  </Link>
-                </Button>
+                <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t">
+                  <div className="space-y-2">
+                    <Label htmlFor="nombre">Nombre de contacto *</Label>
+                    <Input
+                      id="nombre"
+                      value={formData.nombre}
+                      onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                      placeholder="Tu nombre completo"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="tu@email.com"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Input
+                      id="telefono"
+                      value={formData.telefono}
+                      onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                      placeholder="600 000 000"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="organizacion">Nombre del centro/organización *</Label>
+                    <Input
+                      id="organizacion"
+                      value={formData.organizacion}
+                      onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
+                      placeholder="Centro educativo, biblioteca..."
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tipoSolicitante">Tipo de centro *</Label>
+                    <Select 
+                      value={formData.tipoSolicitante} 
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, tipoSolicitante: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="escuela-infantil">Escuela infantil</SelectItem>
+                        <SelectItem value="colegio">Colegio</SelectItem>
+                        <SelectItem value="biblioteca">Biblioteca pública</SelectItem>
+                        <SelectItem value="centro-cultural">Centro cultural</SelectItem>
+                        <SelectItem value="campamento">Campamento de verano</SelectItem>
+                        <SelectItem value="evento">Evento familiar</SelectItem>
+                        <SelectItem value="otro">Otro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mensaje">Actividades de interés o información adicional</Label>
+                    <Textarea
+                      id="mensaje"
+                      value={formData.mensaje}
+                      onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
+                      placeholder="Cuéntanos qué actividades te interesan, edad de los niños, fechas preferidas..."
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-asram hover:bg-asram-700" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Solicitar actividad
+                      </>
+                    )}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
 

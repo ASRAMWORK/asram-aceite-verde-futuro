@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.send-inscripcion-ruta-dorada]
 verify_jwt = false
+
+[functions.send-programa-inscripcion]
+verify_jwt = false
