@@ -19,6 +19,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import About from "./pages/About";
 import Mision from "./pages/Mision";
 import Modelo from "./pages/Modelo";
+import RutaDorada from "./pages/sobre-nosotros/RutaDorada";
 import AlianzaVerde from "./pages/programas/AlianzaVerde";
 import AsramKids from "./pages/programas/AsramKids";
 import PuntosVerdes from "./pages/programas/PuntosVerdes";
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/mision" element={<Mision />} />
             <Route path="/modelo" element={<Modelo />} />
+            <Route path="/ruta-dorada" element={<RutaDorada />} />
             
             <Route path="/alianza-verde" element={<AlianzaVerde />} />
             <Route path="/asram-kids" element={<AsramKids />} />

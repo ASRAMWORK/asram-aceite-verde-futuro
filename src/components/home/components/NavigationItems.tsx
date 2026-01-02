@@ -61,6 +61,9 @@ const NavigationItems = () => {
               <ListItem href="/modelo" title="Modelo Circular">
                 Descubre cómo funciona nuestra economía circular
               </ListItem>
+              <ListItem href="/ruta-dorada" title="Ruta Dorada">
+                Evento para comercios locales sostenibles
+              </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
