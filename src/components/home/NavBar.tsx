@@ -93,6 +93,10 @@ const NavBar = () => {
             <Link to="/tienda" className="px-3 py-2 rounded-md text-gray-700 hover:text-asram hover:bg-gray-100">
               Tienda
             </Link>
+            
+            <Link to="/convocatorias" className="px-3 py-2 rounded-md text-gray-700 hover:text-asram hover:bg-gray-100">
+              Convocatorias
+            </Link>
           </nav>
           
           <div className="hidden lg:flex items-center gap-3">
@@ -231,6 +235,14 @@ const NavBar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Tienda
+            </Link>
+            
+            <Link 
+              to="/convocatorias" 
+              className="block px-3 py-2 rounded-md hover:bg-gray-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Convocatorias y Ayudas
             </Link>
             
             {/* Mobile action buttons - repositioned and redesigned */}
