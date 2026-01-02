@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -6,13 +5,80 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, Calendar, FileText, ArrowRight, ThumbsUp, Droplet, CheckCircle, Search, ArrowUpRight } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MapPin, Calendar, FileText, ArrowRight, ThumbsUp, Droplet, CheckCircle, Search, ArrowUpRight, Send, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const inscripcionSchema = z.object({
+  nombre: z.string().trim().min(1, "El nombre es obligatorio").max(100),
+  email: z.string().trim().email("Email inválido").max(255),
+  telefono: z.string().trim().max(20).optional(),
+  organizacion: z.string().trim().min(1, "El nombre de la comunidad/entidad es obligatorio").max(200),
+  tipoSolicitante: z.string().min(1, "Selecciona el tipo de solicitante"),
+  direccion: z.string().trim().min(1, "La dirección es obligatoria").max(500),
+  numeroViviendas: z.string().optional(),
+  mensaje: z.string().trim().max(1000).optional(),
+});
 
 const PuntosVerdes = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [formData, setFormData] = useState({
+    nombre: "",
+    email: "",
+    telefono: "",
+    organizacion: "",
+    tipoSolicitante: "",
+    direccion: "",
+    numeroViviendas: "",
+    mensaje: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const validation = inscripcionSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-programa-inscripcion', {
+        body: {
+          programa: 'puntos-verdes',
+          ...formData
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("¡Solicitud enviada! Te contactaremos en 48 horas.");
+      setFormData({
+        nombre: "",
+        email: "",
+        telefono: "",
+        organizacion: "",
+        tipoSolicitante: "",
+        direccion: "",
+        numeroViviendas: "",
+        mensaje: ""
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error al enviar la solicitud. Inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   // Mock data for the district calendar
   const districtCalendar = [
@@ -265,13 +331,132 @@ const PuntosVerdes = () => {
                     <h3 className="text-xl font-semibold">Solicita la instalación gratuita de un Punto Verde en tu comunidad</h3>
                     <p>Completa el formulario de solicitud y nuestro equipo se pondrá en contacto contigo en 48 horas.</p>
                   </div>
-                  <Button size="lg" className="bg-asram hover:bg-asram-700" asChild>
-                    <Link to="/contacto">
-                      Solicitar ahora
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Link>
-                  </Button>
                 </div>
+              </CardContent>
+            </Card>
+            
+            {/* Formulario de inscripción */}
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Send className="h-5 w-5 text-asram" />
+                  Solicitar un Punto Verde
+                </CardTitle>
+                <CardDescription>
+                  Completa el formulario para solicitar la instalación gratuita
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nombre">Nombre de contacto *</Label>
+                      <Input
+                        id="nombre"
+                        value={formData.nombre}
+                        onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                        placeholder="Tu nombre completo"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="tu@email.com"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="telefono">Teléfono</Label>
+                      <Input
+                        id="telefono"
+                        value={formData.telefono}
+                        onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                        placeholder="600 000 000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="tipoSolicitante">Tipo de solicitante *</Label>
+                      <Select 
+                        value={formData.tipoSolicitante} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, tipoSolicitante: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona el tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="comunidad-vecinos">Comunidad de vecinos</SelectItem>
+                          <SelectItem value="centro-educativo">Centro educativo</SelectItem>
+                          <SelectItem value="empresa">Empresa</SelectItem>
+                          <SelectItem value="asociacion">Asociación</SelectItem>
+                          <SelectItem value="otro">Otro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="organizacion">Nombre de la comunidad/entidad *</Label>
+                    <Input
+                      id="organizacion"
+                      value={formData.organizacion}
+                      onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
+                      placeholder="Comunidad de propietarios, nombre del centro..."
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="direccion">Dirección completa *</Label>
+                      <Input
+                        id="direccion"
+                        value={formData.direccion}
+                        onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
+                        placeholder="Calle, número, código postal, ciudad"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="numeroViviendas">Número de viviendas/usuarios</Label>
+                      <Input
+                        id="numeroViviendas"
+                        value={formData.numeroViviendas}
+                        onChange={(e) => setFormData(prev => ({ ...prev, numeroViviendas: e.target.value }))}
+                        placeholder="Ej: 50 viviendas"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="mensaje">Información adicional</Label>
+                    <Textarea
+                      id="mensaje"
+                      value={formData.mensaje}
+                      onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
+                      placeholder="Ubicación sugerida para el contenedor, horarios de acceso, persona de contacto alternativa..."
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-asram hover:bg-asram-700" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Solicitar Punto Verde
+                      </>
+                    )}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
           </TabsContent>

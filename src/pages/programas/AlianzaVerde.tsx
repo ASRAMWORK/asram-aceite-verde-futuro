@@ -1,14 +1,89 @@
-
+import { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { School, Leaf, Lightbulb, Users, Award, ExternalLink, CheckCircle, Calendar, Clock, Map, FileText } from "lucide-react";
+import { School, Leaf, Lightbulb, Users, Award, ExternalLink, CheckCircle, Calendar, Clock, Map, FileText, Send, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const inscripcionSchema = z.object({
+  nombre: z.string().trim().min(1, "El nombre es obligatorio").max(100),
+  email: z.string().trim().email("Email inválido").max(255),
+  telefono: z.string().trim().max(20).optional(),
+  organizacion: z.string().trim().min(1, "El nombre del centro es obligatorio").max(200),
+  direccion: z.string().trim().max(500).optional(),
+  etapasEducativas: z.array(z.string()).min(1, "Selecciona al menos una etapa educativa"),
+  mensaje: z.string().trim().max(1000).optional(),
+});
 
 const AlianzaVerde = () => {
+  const [formData, setFormData] = useState({
+    nombre: "",
+    email: "",
+    telefono: "",
+    organizacion: "",
+    direccion: "",
+    etapasEducativas: [] as string[],
+    mensaje: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleEtapaChange = (etapa: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      etapasEducativas: checked 
+        ? [...prev.etapasEducativas, etapa]
+        : prev.etapasEducativas.filter(e => e !== etapa)
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const validation = inscripcionSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-programa-inscripcion', {
+        body: {
+          programa: 'alianza-verde',
+          ...formData
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("¡Inscripción enviada! Te contactaremos pronto.");
+      setFormData({
+        nombre: "",
+        email: "",
+        telefono: "",
+        organizacion: "",
+        direccion: "",
+        etapasEducativas: [],
+        mensaje: ""
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error al enviar la inscripción. Inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <PageLayout 
       title="Alianza Verde Escolar" 
@@ -517,6 +592,116 @@ const AlianzaVerde = () => {
                 </CardContent>
               </Card>
             </div>
+            
+            {/* Formulario de inscripción */}
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Send className="h-5 w-5 text-asram" />
+                  Inscribe tu centro educativo
+                </CardTitle>
+                <CardDescription>
+                  Completa el formulario para unirte a la Alianza Verde Escolar
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nombre">Nombre de contacto *</Label>
+                      <Input
+                        id="nombre"
+                        value={formData.nombre}
+                        onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                        placeholder="Tu nombre completo"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="tu@email.com"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="telefono">Teléfono</Label>
+                      <Input
+                        id="telefono"
+                        value={formData.telefono}
+                        onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                        placeholder="600 000 000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="organizacion">Nombre del centro educativo *</Label>
+                      <Input
+                        id="organizacion"
+                        value={formData.organizacion}
+                        onChange={(e) => setFormData(prev => ({ ...prev, organizacion: e.target.value }))}
+                        placeholder="CEIP, IES, Colegio..."
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="direccion">Dirección del centro</Label>
+                    <Input
+                      id="direccion"
+                      value={formData.direccion}
+                      onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
+                      placeholder="Calle, número, código postal, ciudad"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Etapas educativas *</Label>
+                    <div className="flex flex-wrap gap-4">
+                      {['Infantil', 'Primaria', 'ESO', 'Bachillerato', 'FP'].map((etapa) => (
+                        <div key={etapa} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={etapa}
+                            checked={formData.etapasEducativas.includes(etapa)}
+                            onCheckedChange={(checked) => handleEtapaChange(etapa, checked as boolean)}
+                          />
+                          <label htmlFor={etapa} className="text-sm cursor-pointer">{etapa}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="mensaje">Mensaje o información adicional</Label>
+                    <Textarea
+                      id="mensaje"
+                      value={formData.mensaje}
+                      onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
+                      placeholder="Cuéntanos sobre tu centro, número de alumnos, intereses específicos..."
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-asram hover:bg-asram-700" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Enviar inscripción
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
