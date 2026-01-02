@@ -29,12 +29,18 @@ import {
   ChevronRight,
   Users,
   Heart,
-  Sparkles
+  Sparkles,
+  Award,
+  Gift,
+  Recycle,
+  HandHeart,
+  Shield
 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { motion } from 'framer-motion';
 
 interface Convocatoria {
   id: string;
@@ -91,6 +97,16 @@ const programasASRAM = [
   'ASRAM Rural',
   'Apadrina una Calle',
 ];
+
+const fadeIn = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
 
 const Convocatorias = () => {
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([]);
@@ -156,7 +172,6 @@ const Convocatorias = () => {
 
     setSubmitting(true);
     try {
-      // Save to database
       const { error } = await supabase
         .from('solicitudes_convocatoria')
         .insert({
@@ -178,7 +193,6 @@ const Convocatorias = () => {
 
       if (error) throw error;
 
-      // Send notification email
       const emailPayload = {
         convocatoria_nombre: selectedConvocatoria.nombre,
         nombre_comunidad: formData.nombre_comunidad.trim(),
@@ -202,7 +216,6 @@ const Convocatorias = () => {
 
       if (emailError) {
         console.error('Error sending email notification:', emailError);
-        // Don't throw - the solicitud was saved successfully
       }
 
       toast.success('Solicitud enviada correctamente. Nos pondremos en contacto contigo pronto.');
@@ -248,167 +261,261 @@ const Convocatorias = () => {
       title="Convocatorias y Ayudas" 
       subtitle="Programa de ayudas sociales para comunidades de propietarios"
     >
-      <div className="max-w-7xl mx-auto">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-asram-50 via-white to-green-50 rounded-2xl p-8 md:p-12 mb-12 border border-asram-100">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-6 h-6 text-asram" />
-                <span className="text-asram font-semibold">Nuevo en 2025</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+      {/* Hero Section Full Width */}
+      <section className="relative -mx-4 md:-mx-8 lg:-mx-16 mb-16">
+        <div className="relative h-[500px] md:h-[600px] overflow-hidden">
+          <img 
+            src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=1920&q=80"
+            alt="Comunidad sostenible y solidaria"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-asram-900/90 via-green-800/70 to-transparent" />
+          
+          <div className="relative h-full max-w-7xl mx-auto px-4 md:px-8 flex items-center">
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+              className="max-w-2xl text-white space-y-6"
+            >
+              <motion.div variants={fadeIn}>
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Nuevo en 2025
+                </Badge>
+              </motion.div>
+              
+              <motion.h1 variants={fadeIn} className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Economía 360° para una vida mejor
-              </h2>
-              <p className="text-gray-600 text-lg mb-6">
-                Desde ASRAM lanzamos un innovador programa de ayudas sociales diseñado para mejorar 
-                la calidad de vida de particulares y comunidades de propietarios a través de técnicas 
-                de economía circular y sostenible.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
-                  <Heart className="w-5 h-5 text-red-500" />
-                  <span className="text-sm font-medium">Red de apoyo comunitario</span>
+              </motion.h1>
+              
+              <motion.p variants={fadeIn} className="text-lg md:text-xl text-white/90 leading-relaxed">
+                Programa innovador de ayudas sociales diseñado para mejorar la calidad de vida 
+                de particulares y comunidades de propietarios a través de la economía circular.
+              </motion.p>
+              
+              <motion.div variants={fadeIn} className="flex flex-wrap gap-4 pt-4">
+                <Button size="lg" className="bg-white text-asram-800 hover:bg-white/90">
+                  <Gift className="w-5 h-5 mr-2" />
+                  Ver convocatorias
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Cómo participar
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+        
+        {/* Stats Bar */}
+        <div className="bg-white shadow-xl -mt-16 relative z-10 mx-4 md:mx-8 lg:mx-16 rounded-2xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
+            {[
+              { value: "50%", label: "Bonificación máxima", icon: Award },
+              { value: "5+", label: "Tipos de servicios", icon: Leaf },
+              { value: "100+", label: "Familias beneficiadas", icon: Users },
+              { value: "24/7", label: "Soporte disponible", icon: Shield }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="p-6 md:p-8 text-center"
+              >
+                <stat.icon className="w-8 h-8 text-asram mx-auto mb-3" />
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto space-y-20">
+        {/* Qué ofrecemos */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="grid lg:grid-cols-2 gap-12 items-center"
+        >
+          <motion.div variants={fadeIn} className="space-y-6">
+            <Badge className="bg-asram-100 text-asram-800">Sobre el programa</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Ayudas para comunidades comprometidas
+            </h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Desde ASRAM lanzamos un innovador programa de ayudas sociales diseñado para 
+              mejorar la calidad de vida de particulares y comunidades de propietarios a 
+              través de técnicas de economía circular y sostenible.
+            </p>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Las comunidades que participan activamente en nuestros programas de reciclaje 
+              pueden acceder a bonificaciones de hasta el 50% en servicios esenciales.
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              {[
+                { icon: Leaf, title: "Jardinería", desc: "Mantenimiento de zonas verdes" },
+                { icon: SprayCan, title: "Limpieza", desc: "Servicios de limpieza" },
+                { icon: Building2, title: "Portería", desc: "Conserjería y vigilancia" },
+                { icon: Zap, title: "Electricidad", desc: "Optimización energética" }
+              ].map((item, index) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+                  <div className="p-2 bg-asram/10 rounded-lg">
+                    <item.icon className="w-5 h-5 text-asram" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                    <p className="text-sm text-gray-600">{item.desc}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
-                  <Users className="w-5 h-5 text-asram" />
-                  <span className="text-sm font-medium">Para participantes de programas ASRAM</span>
+              ))}
+            </div>
+          </motion.div>
+          
+          <motion.div variants={fadeIn} className="relative">
+            <img 
+              src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&q=80"
+              alt="Comunidad de vecinos"
+              className="w-full h-[500px] object-cover rounded-2xl shadow-2xl"
+            />
+            <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <HandHeart className="w-8 h-8 text-green-600" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">Hasta 50%</div>
+                  <div className="text-gray-600">de bonificación</div>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-6 shadow-lg border">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Beneficios principales</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">Bonificaciones de hasta el 50% directamente en factura</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">Servicios de jardinería, limpieza, portería y más</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">Optimización de consumo eléctrico</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">Actividades infantiles educativas</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-600">Compromiso con el entorno y la sostenibilidad</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.section>
 
-        {/* Info Banner */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-12">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-amber-800 mb-1">Requisito importante</h3>
-              <p className="text-amber-700">
+        {/* Requisito importante */}
+        <section className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-8">
+          <div className="flex flex-col md:flex-row items-start gap-6">
+            <div className="p-4 bg-amber-100 rounded-xl">
+              <AlertCircle className="w-10 h-10 text-amber-600" />
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-amber-900">Requisito importante</h3>
+              <p className="text-lg text-amber-800">
                 Estas ayudas están exclusivamente dirigidas a comunidades de propietarios y particulares 
-                que sean participantes activos de alguno de nuestros programas (Recogida de Aceite, 
-                Alianza Verde, ASRAM Kids, etc.). Si aún no participas, 
-                <a href="/contacto" className="underline font-medium ml-1">contacta con nosotros</a> 
-                para inscribirte primero.
+                que sean <strong>participantes activos</strong> de alguno de nuestros programas (Recogida de Aceite, 
+                Alianza Verde, ASRAM Kids, Puntos Verdes, etc.).
               </p>
+              <p className="text-amber-700">
+                Si aún no participas en ningún programa, <a href="/contacto" className="underline font-medium">contacta con nosotros</a> para inscribirte primero.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-2">
+                {['Recogida de Aceite', 'Alianza Verde', 'ASRAM Kids', 'Puntos Verdes', 'ASRAM Rural'].map((prog, i) => (
+                  <Badge key={i} className="bg-amber-200 text-amber-800">{prog}</Badge>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Convocatorias Abiertas */}
         {convocatoriasAbiertas.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-green-500 p-2 rounded-lg">
-                <CheckCircle2 className="w-6 h-6 text-white" />
+          <section>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="p-3 bg-green-500 rounded-xl">
+                <CheckCircle2 className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Convocatorias Abiertas</h2>
-              <Badge className="bg-green-500 text-white">Solicitar ahora</Badge>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">Convocatorias Abiertas</h2>
+                <p className="text-gray-600">Solicita ahora y accede a los beneficios</p>
+              </div>
             </div>
             
             <div className="grid gap-6">
               {convocatoriasAbiertas.map((conv) => (
-                <Card key={conv.id} className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-white overflow-hidden">
-                  <div className="flex flex-col lg:flex-row">
-                    <div className={`p-6 flex items-center justify-center ${categoriaColores[conv.categoria]} lg:w-48`}>
-                      <div className="text-center">
-                        {categoriaIconos[conv.categoria]}
-                        <p className="mt-2 font-semibold capitalize">{conv.categoria}</p>
-                      </div>
-                    </div>
-                    <div className="flex-1 p-6">
-                      <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                        <div>
-                          <Badge className={estadoBadge[conv.estado].color + " mb-2"}>
-                            {estadoBadge[conv.estado].icon}
-                            <span className="ml-1">{estadoBadge[conv.estado].label}</span>
-                          </Badge>
-                          <h3 className="text-xl font-bold text-gray-900">{conv.nombre}</h3>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-3xl font-bold text-asram">Hasta {conv.bonificacion_maxima}%</div>
-                          <div className="text-sm text-gray-500">de bonificación</div>
+                <motion.div
+                  key={conv.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                >
+                  <Card className="border-2 border-green-200 overflow-hidden hover:shadow-xl transition-shadow">
+                    <div className="flex flex-col lg:flex-row">
+                      <div className={`p-8 flex items-center justify-center ${categoriaColores[conv.categoria]} lg:w-56`}>
+                        <div className="text-center">
+                          {categoriaIconos[conv.categoria]}
+                          <p className="mt-3 font-bold capitalize text-lg">{conv.categoria}</p>
                         </div>
                       </div>
-                      
-                      <p className="text-gray-600 mb-4">{conv.descripcion}</p>
-                      
-                      <div className="grid md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
-                            Requisitos
-                          </h4>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {conv.requisitos?.map((req, idx) => (
-                              <li key={idx} className="flex items-start gap-2">
-                                <ChevronRight className="w-4 h-4 text-asram flex-shrink-0 mt-0.5" />
-                                {req}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
-                            Documentación necesaria
-                          </h4>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {conv.documentos_requeridos?.map((doc, idx) => (
-                              <li key={idx} className="flex items-start gap-2">
-                                <ChevronRight className="w-4 h-4 text-asram flex-shrink-0 mt-0.5" />
-                                {doc}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t">
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>Plazo: {formatDate(conv.fecha_inicio)} - {formatDate(conv.fecha_fin)}</span>
+                      <div className="flex-1 p-6 lg:p-8">
+                        <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                          <div>
+                            <Badge className={estadoBadge[conv.estado].color + " mb-2"}>
+                              {estadoBadge[conv.estado].icon}
+                              <span className="ml-1">{estadoBadge[conv.estado].label}</span>
+                            </Badge>
+                            <h3 className="text-2xl font-bold text-gray-900">{conv.nombre}</h3>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-4xl font-bold text-asram">Hasta {conv.bonificacion_maxima}%</div>
+                            <div className="text-gray-500">de bonificación</div>
                           </div>
                         </div>
-                        <Button 
-                          size="lg" 
-                          className="bg-asram hover:bg-asram-600"
-                          onClick={() => openSolicitudDialog(conv)}
-                        >
-                          Solicitar ayuda
-                          <ChevronRight className="w-4 h-4 ml-1" />
-                        </Button>
+                        
+                        <p className="text-gray-600 text-lg mb-6">{conv.descripcion}</p>
+                        
+                        <div className="grid md:grid-cols-2 gap-6 mb-6">
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <FileText className="w-5 h-5 text-asram" />
+                              Requisitos
+                            </h4>
+                            <ul className="space-y-2">
+                              {conv.requisitos?.map((req, idx) => (
+                                <li key={idx} className="flex items-start gap-2 text-gray-600">
+                                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-1" />
+                                  {req}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <FileText className="w-5 h-5 text-asram" />
+                              Documentación
+                            </h4>
+                            <ul className="space-y-2">
+                              {conv.documentos_requeridos?.map((doc, idx) => (
+                                <li key={idx} className="flex items-start gap-2 text-gray-600">
+                                  <ChevronRight className="w-4 h-4 text-asram flex-shrink-0 mt-1" />
+                                  {doc}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t">
+                          <div className="flex items-center gap-2 text-gray-500">
+                            <Calendar className="w-5 h-5" />
+                            <span>Plazo: {formatDate(conv.fecha_inicio)} - {formatDate(conv.fecha_fin)}</span>
+                          </div>
+                          <Button 
+                            size="lg" 
+                            className="bg-asram hover:bg-asram-600"
+                            onClick={() => openSolicitudDialog(conv)}
+                          >
+                            Solicitar ayuda
+                            <ChevronRight className="w-5 h-5 ml-2" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </section>
@@ -416,267 +523,249 @@ const Convocatorias = () => {
 
         {/* Próximas Convocatorias */}
         {convocatoriasProximas.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-amber-500 p-2 rounded-lg">
-                <Clock className="w-6 h-6 text-white" />
+          <section>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="p-3 bg-amber-500 rounded-xl">
+                <Clock className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Próximas Convocatorias</h2>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">Próximas Convocatorias</h2>
+                <p className="text-gray-600">Próximamente disponibles</p>
+              </div>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {convocatoriasProximas.map((conv) => (
-                <Card key={conv.id} className="border border-gray-200 overflow-hidden opacity-90 hover:opacity-100 transition-opacity">
-                  <CardHeader className={`${categoriaColores[conv.categoria]} border-b`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                <motion.div
+                  key={conv.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                >
+                  <Card className="h-full border-amber-200 opacity-80 hover:opacity-100 transition-opacity">
+                    <CardHeader>
+                      <div className={`w-14 h-14 rounded-xl ${categoriaColores[conv.categoria]} flex items-center justify-center mb-4`}>
                         {categoriaIconos[conv.categoria]}
-                        <div>
-                          <Badge className={estadoBadge[conv.estado].color + " mb-1"}>
-                            {estadoBadge[conv.estado].icon}
-                            <span className="ml-1">{estadoBadge[conv.estado].label}</span>
-                          </Badge>
-                          <CardTitle className="text-lg">{conv.nombre}</CardTitle>
-                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">Hasta {conv.bonificacion_maxima}%</div>
+                      <Badge className={estadoBadge[conv.estado].color + " w-fit"}>
+                        {estadoBadge[conv.estado].icon}
+                        <span className="ml-1">{estadoBadge[conv.estado].label}</span>
+                      </Badge>
+                      <CardTitle className="mt-2">{conv.nombre}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 mb-4">{conv.descripcion}</p>
+                      <div className="text-2xl font-bold text-asram">Hasta {conv.bonificacion_maxima}%</div>
+                      <div className="text-sm text-gray-500 mt-2">
+                        Disponible a partir del {formatDate(conv.fecha_inicio)}
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <p className="text-gray-600 text-sm mb-4">{conv.descripcion}</p>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Calendar className="w-4 h-4" />
-                      <span>Apertura prevista: {formatDate(conv.fecha_inicio)}</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="bg-gray-50 border-t">
-                    <Button variant="outline" disabled className="w-full">
-                      Próximamente disponible
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </section>
         )}
 
-        {/* Cómo solicitar */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">¿Cómo solicitar una ayuda?</h2>
+        {/* Cómo funciona */}
+        <section className="bg-gradient-to-br from-asram-50 to-green-50 rounded-3xl p-8 md:p-12">
+          <div className="text-center mb-12">
+            <Badge className="bg-asram-100 text-asram-800 mb-4">El proceso</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              ¿Cómo solicitar una ayuda?
+            </h2>
+          </div>
+          
           <div className="grid md:grid-cols-4 gap-6">
-            <Card className="text-center p-6 bg-white">
-              <div className="w-12 h-12 bg-asram-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-xl font-bold text-asram">1</span>
+            {[
+              { step: "1", title: "Verifica tu elegibilidad", desc: "Asegúrate de participar en algún programa ASRAM" },
+              { step: "2", title: "Elige la convocatoria", desc: "Selecciona el servicio que necesitas" },
+              { step: "3", title: "Completa la solicitud", desc: "Rellena el formulario con los datos requeridos" },
+              { step: "4", title: "Recibe tu bonificación", desc: "Disfruta del descuento en tu factura" }
+            ].map((item, index) => (
+              <div key={index} className="text-center">
+                <div className="w-16 h-16 bg-asram text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                  {item.step}
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm">{item.desc}</p>
               </div>
-              <h3 className="font-semibold mb-2">Verifica tu participación</h3>
-              <p className="text-sm text-gray-600">Asegúrate de ser participante activo de algún programa ASRAM</p>
-            </Card>
-            <Card className="text-center p-6 bg-white">
-              <div className="w-12 h-12 bg-asram-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-xl font-bold text-asram">2</span>
-              </div>
-              <h3 className="font-semibold mb-2">Elige la convocatoria</h3>
-              <p className="text-sm text-gray-600">Selecciona la ayuda que mejor se adapte a las necesidades de tu comunidad</p>
-            </Card>
-            <Card className="text-center p-6 bg-white">
-              <div className="w-12 h-12 bg-asram-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-xl font-bold text-asram">3</span>
-              </div>
-              <h3 className="font-semibold mb-2">Completa el formulario</h3>
-              <p className="text-sm text-gray-600">Rellena todos los datos de tu comunidad y adjunta la documentación</p>
-            </Card>
-            <Card className="text-center p-6 bg-white">
-              <div className="w-12 h-12 bg-asram-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-xl font-bold text-asram">4</span>
-              </div>
-              <h3 className="font-semibold mb-2">Recibe tu bonificación</h3>
-              <p className="text-sm text-gray-600">Una vez aprobada, recibirás el descuento directamente en tu factura</p>
-            </Card>
+            ))}
           </div>
         </section>
 
-        {/* CTA */}
-        <div className="bg-asram rounded-2xl p-8 md:p-12 text-center text-white">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Tienes dudas sobre las convocatorias?</h2>
-          <p className="text-asram-100 mb-6 max-w-2xl mx-auto">
-            Nuestro equipo está disponible para ayudarte con cualquier consulta sobre el proceso 
-            de solicitud, requisitos o documentación necesaria.
+        {/* CTA Final */}
+        <section className="text-center py-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            ¿Tienes dudas sobre las convocatorias?
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Nuestro equipo está disponible para ayudarte con cualquier consulta sobre el programa de ayudas
           </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            className="bg-white text-asram hover:bg-gray-100"
-            onClick={() => window.location.href = '/contacto'}
-          >
-            Contactar con ASRAM
-          </Button>
-        </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button size="lg" asChild>
+              <a href="/contacto">Contáctanos</a>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <a href="/puntos-verdes">
+                Únete a un programa
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </a>
+            </Button>
+          </div>
+        </section>
       </div>
 
-      {/* Dialog de Solicitud */}
+      {/* Dialog de solicitud */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl">Solicitud de Ayuda</DialogTitle>
+            <DialogTitle className="text-xl">Solicitud de ayuda</DialogTitle>
             <DialogDescription>
-              {selectedConvocatoria?.nombre}
+              {selectedConvocatoria?.nombre} - Hasta {selectedConvocatoria?.bonificacion_maxima}% de bonificación
             </DialogDescription>
           </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-6 py-4">
-            {/* Datos de la Comunidad */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900 border-b pb-2">Datos de la Comunidad</h3>
-              
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nombre_comunidad">Nombre de la Comunidad *</Label>
-                  <Input 
-                    id="nombre_comunidad"
-                    name="nombre_comunidad"
-                    value={formData.nombre_comunidad}
-                    onChange={handleInputChange}
-                    placeholder="Comunidad de Propietarios..."
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cif">CIF de la Comunidad *</Label>
-                  <Input 
-                    id="cif"
-                    name="cif"
-                    value={formData.cif}
-                    onChange={handleInputChange}
-                    placeholder="H12345678"
-                    required
-                  />
-                </div>
-              </div>
-
+          
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="direccion">Dirección *</Label>
-                <Input 
-                  id="direccion"
-                  name="direccion"
-                  value={formData.direccion}
+                <Label htmlFor="nombre_comunidad">Nombre de la comunidad *</Label>
+                <Input
+                  id="nombre_comunidad"
+                  name="nombre_comunidad"
+                  value={formData.nombre_comunidad}
                   onChange={handleInputChange}
-                  placeholder="Calle, número, piso..."
+                  placeholder="Comunidad de Propietarios..."
                   required
                 />
               </div>
-
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="codigo_postal">Código Postal *</Label>
-                  <Input 
-                    id="codigo_postal"
-                    name="codigo_postal"
-                    value={formData.codigo_postal}
-                    onChange={handleInputChange}
-                    placeholder="28001"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ciudad">Ciudad *</Label>
-                  <Input 
-                    id="ciudad"
-                    name="ciudad"
-                    value={formData.ciudad}
-                    onChange={handleInputChange}
-                    placeholder="Madrid"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="provincia">Provincia *</Label>
-                  <Input 
-                    id="provincia"
-                    name="provincia"
-                    value={formData.provincia}
-                    onChange={handleInputChange}
-                    placeholder="Madrid"
-                    required
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
-                <Label htmlFor="numero_viviendas">Número de Viviendas</Label>
-                <Input 
+                <Label htmlFor="cif">CIF *</Label>
+                <Input
+                  id="cif"
+                  name="cif"
+                  value={formData.cif}
+                  onChange={handleInputChange}
+                  placeholder="A12345678"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="direccion">Dirección *</Label>
+              <Input
+                id="direccion"
+                name="direccion"
+                value={formData.direccion}
+                onChange={handleInputChange}
+                placeholder="Calle, número, piso..."
+                required
+              />
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="codigo_postal">Código postal *</Label>
+                <Input
+                  id="codigo_postal"
+                  name="codigo_postal"
+                  value={formData.codigo_postal}
+                  onChange={handleInputChange}
+                  placeholder="28001"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ciudad">Ciudad *</Label>
+                <Input
+                  id="ciudad"
+                  name="ciudad"
+                  value={formData.ciudad}
+                  onChange={handleInputChange}
+                  placeholder="Madrid"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="provincia">Provincia *</Label>
+                <Input
+                  id="provincia"
+                  name="provincia"
+                  value={formData.provincia}
+                  onChange={handleInputChange}
+                  placeholder="Madrid"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nombre_contacto">Nombre de contacto *</Label>
+                <Input
+                  id="nombre_contacto"
+                  name="nombre_contacto"
+                  value={formData.nombre_contacto}
+                  onChange={handleInputChange}
+                  placeholder="Tu nombre"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="tu@email.com"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="telefono">Teléfono *</Label>
+                <Input
+                  id="telefono"
+                  name="telefono"
+                  value={formData.telefono}
+                  onChange={handleInputChange}
+                  placeholder="600 000 000"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="numero_viviendas">Número de viviendas</Label>
+                <Input
                   id="numero_viviendas"
                   name="numero_viviendas"
                   type="number"
                   value={formData.numero_viviendas}
                   onChange={handleInputChange}
-                  placeholder="Ej: 50"
+                  placeholder="24"
                 />
               </div>
             </div>
-
-            {/* Datos de Contacto */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900 border-b pb-2">Datos de Contacto</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="nombre_contacto">Nombre de la persona de contacto *</Label>
-                <Input 
-                  id="nombre_contacto"
-                  name="nombre_contacto"
-                  value={formData.nombre_contacto}
-                  onChange={handleInputChange}
-                  placeholder="Nombre y apellidos"
-                  required
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input 
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="email@ejemplo.com"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefono">Teléfono *</Label>
-                  <Input 
-                    id="telefono"
-                    name="telefono"
-                    value={formData.telefono}
-                    onChange={handleInputChange}
-                    placeholder="600 000 000"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Participación en Programas */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900 border-b pb-2">Participación en Programas ASRAM</h3>
-              
+            
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-2">
-                <Checkbox 
+                <Checkbox
                   id="participa_programa"
                   checked={formData.participa_programa}
                   onCheckedChange={handleCheckboxChange}
                 />
                 <Label htmlFor="participa_programa">
-                  Confirmo que la comunidad participa activamente en un programa ASRAM
+                  Participo en algún programa de ASRAM
                 </Label>
               </div>
-
+              
               {formData.participa_programa && (
                 <div className="space-y-2">
-                  <Label htmlFor="programa_participacion">¿En qué programa participa?</Label>
+                  <Label htmlFor="programa_participacion">¿En qué programa participas?</Label>
                   <Select 
                     value={formData.programa_participacion} 
                     onValueChange={(value) => handleSelectChange('programa_participacion', value)}
@@ -686,61 +775,29 @@ const Convocatorias = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {programasASRAM.map((programa) => (
-                        <SelectItem key={programa} value={programa}>
-                          {programa}
-                        </SelectItem>
+                        <SelectItem key={programa} value={programa}>{programa}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               )}
             </div>
-
-            {/* Observaciones */}
+            
             <div className="space-y-2">
               <Label htmlFor="observaciones">Observaciones adicionales</Label>
-              <Textarea 
+              <Textarea
                 id="observaciones"
                 name="observaciones"
                 value={formData.observaciones}
                 onChange={handleInputChange}
-                placeholder="Información adicional que consideres relevante..."
+                placeholder="Cualquier información adicional que quieras compartir..."
                 rows={3}
               />
             </div>
-
-            {/* Información adicional */}
-            <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
-              <p className="font-medium text-gray-900 mb-2">Documentación a presentar:</p>
-              <ul className="list-disc list-inside space-y-1">
-                {selectedConvocatoria?.documentos_requeridos?.map((doc, idx) => (
-                  <li key={idx}>{doc}</li>
-                ))}
-              </ul>
-              <p className="mt-3 text-xs">
-                * Una vez enviada la solicitud, nos pondremos en contacto contigo para solicitar 
-                la documentación necesaria.
-              </p>
-            </div>
-
-            {/* Submit */}
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setDialogOpen(false)}
-                disabled={submitting}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                type="submit" 
-                className="bg-asram hover:bg-asram-600"
-                disabled={submitting || !formData.participa_programa}
-              >
-                {submitting ? 'Enviando...' : 'Enviar solicitud'}
-              </Button>
-            </div>
+            
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? 'Enviando...' : 'Enviar solicitud'}
+            </Button>
           </form>
         </DialogContent>
       </Dialog>
