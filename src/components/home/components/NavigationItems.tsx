@@ -61,9 +61,6 @@ const NavigationItems = () => {
               <ListItem href="/modelo" title="Modelo Circular">
                 Descubre cómo funciona nuestra economía circular
               </ListItem>
-              <ListItem href="/ruta-dorada" title="Ruta Dorada">
-                Evento para comercios locales sostenibles
-              </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -84,6 +81,12 @@ const NavigationItems = () => {
               <ListItem href="/asram-rural" title="ASRAM Rural">
                 Llevamos el reciclaje a zonas rurales
               </ListItem>
+              <ListItem href="/ruta-dorada" title="Ruta Dorada">
+                Evento para comercios locales sostenibles
+              </ListItem>
+              <ListItem href="/voluntarios" title="Sé Voluntario">
+                Únete a nuestro equipo de voluntarios
+              </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -97,9 +100,6 @@ const NavigationItems = () => {
               </ListItem>
               <ListItem href="/detergente" title="Detergente Solidario">
                 Proyecto de emergencia social
-              </ListItem>
-              <ListItem href="/voluntarios" title="Sé Voluntario">
-                Únete a nuestro equipo de voluntarios
               </ListItem>
               <ListItem href="/contacto" title="Contacto">
                 Únete a nosotros

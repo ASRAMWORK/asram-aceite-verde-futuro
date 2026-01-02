@@ -68,6 +68,12 @@ const NavBar = () => {
                 <Link to="/asram-rural" className="block px-4 py-2 rounded-md hover:bg-gray-100">
                   ASRAM Rural
                 </Link>
+                <Link to="/ruta-dorada" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Ruta Dorada
+                </Link>
+                <Link to="/voluntarios" className="block px-4 py-2 rounded-md hover:bg-gray-100">
+                  Sé Voluntario
+                </Link>
               </div>
             </div>
             
@@ -198,6 +204,20 @@ const NavBar = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   ASRAM Rural
+                </Link>
+                <Link 
+                  to="/ruta-dorada" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Ruta Dorada
+                </Link>
+                <Link 
+                  to="/voluntarios" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sé Voluntario
                 </Link>
               </div>
             </div>
