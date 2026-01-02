@@ -37,13 +37,6 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
             >
               Modelo Circular
             </Link>
-            <Link 
-              to="/ruta-dorada"
-              className="block px-2 py-1 rounded hover:bg-gray-100"
-              onClick={onClose}
-            >
-              Ruta Dorada
-            </Link>
           </nav>
         </div>
         
@@ -78,6 +71,20 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
             >
               ASRAM Rural
             </Link>
+            <Link 
+              to="/ruta-dorada"
+              className="block px-2 py-1 rounded hover:bg-gray-100"
+              onClick={onClose}
+            >
+              Ruta Dorada
+            </Link>
+            <Link 
+              to="/voluntarios"
+              className="block px-2 py-1 rounded hover:bg-gray-100"
+              onClick={onClose}
+            >
+              Sé Voluntario
+            </Link>
           </nav>
         </div>
         
@@ -97,13 +104,6 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
               onClick={onClose}
             >
               Detergente Solidario
-            </Link>
-            <Link 
-              to="/voluntarios"
-              className="block px-2 py-1 rounded hover:bg-gray-100"
-              onClick={onClose}
-            >
-              Sé Voluntario
             </Link>
             <Link 
               to="/contacto"
