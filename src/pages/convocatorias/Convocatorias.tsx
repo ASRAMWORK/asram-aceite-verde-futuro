@@ -156,6 +156,7 @@ const Convocatorias = () => {
 
     setSubmitting(true);
     try {
+      // Save to database
       const { error } = await supabase
         .from('solicitudes_convocatoria')
         .insert({
@@ -176,6 +177,33 @@ const Convocatorias = () => {
         });
 
       if (error) throw error;
+
+      // Send notification email
+      const emailPayload = {
+        convocatoria_nombre: selectedConvocatoria.nombre,
+        nombre_comunidad: formData.nombre_comunidad.trim(),
+        cif: formData.cif.trim().toUpperCase(),
+        direccion: formData.direccion.trim(),
+        codigo_postal: formData.codigo_postal.trim(),
+        ciudad: formData.ciudad.trim(),
+        provincia: formData.provincia.trim(),
+        nombre_contacto: formData.nombre_contacto.trim(),
+        email: formData.email.trim().toLowerCase(),
+        telefono: formData.telefono.trim(),
+        numero_viviendas: formData.numero_viviendas ? parseInt(formData.numero_viviendas) : null,
+        participa_programa: formData.participa_programa,
+        programa_participacion: formData.programa_participacion || null,
+        observaciones: formData.observaciones.trim() || null,
+      };
+
+      const { error: emailError } = await supabase.functions.invoke('send-solicitud-convocatoria', {
+        body: emailPayload,
+      });
+
+      if (emailError) {
+        console.error('Error sending email notification:', emailError);
+        // Don't throw - the solicitud was saved successfully
+      }
 
       toast.success('Solicitud enviada correctamente. Nos pondremos en contacto contigo pronto.');
       setDialogOpen(false);
