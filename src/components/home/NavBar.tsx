@@ -84,6 +84,9 @@ const NavBar = () => {
                 <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               <div className="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <Link to="/dona-tu-aceite" className="block px-4 py-2 rounded-md hover:bg-gray-100 font-medium text-asram">
+                  Dona tu Aceite
+                </Link>
                 <Link to="/apadrina" className="block px-4 py-2 rounded-md hover:bg-gray-100">
                   Apadrina una Calle
                 </Link>
@@ -225,6 +228,13 @@ const NavBar = () => {
             <div>
               <h3 className="font-medium text-gray-500 mb-2">Colabora</h3>
               <div className="space-y-2">
+                <Link 
+                  to="/dona-tu-aceite" 
+                  className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium text-asram"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dona tu Aceite
+                </Link>
                 <Link 
                   to="/apadrina" 
                   className="block px-3 py-2 rounded-md hover:bg-gray-100"

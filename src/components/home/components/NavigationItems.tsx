@@ -95,6 +95,21 @@ const NavigationItems = () => {
           <NavigationMenuTrigger>Colabora</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4">
+              <li className="row-span-2">
+                <NavigationMenuLink asChild>
+                  <Link
+                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-amber-500/50 to-amber-600 p-6 no-underline outline-none focus:shadow-md"
+                    to="/dona-tu-aceite"
+                  >
+                    <div className="mb-2 mt-4 text-lg font-medium text-white">
+                      Dona tu Aceite
+                    </div>
+                    <p className="text-sm leading-tight text-white/90">
+                      Bares, restaurantes y hoteles: financiad la recogida doméstica
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
               <ListItem href="/apadrina" title="Apadrina una Calle">
                 Ayuda a expandir nuestra red de reciclaje
               </ListItem>
