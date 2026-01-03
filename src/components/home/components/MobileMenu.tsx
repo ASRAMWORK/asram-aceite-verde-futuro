@@ -92,6 +92,13 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           <h3 className="font-medium text-gray-500 mb-2">Colabora</h3>
           <nav className="space-y-2">
             <Link 
+              to="/dona-tu-aceite"
+              className="block px-2 py-1 rounded hover:bg-gray-100 font-medium text-amber-600"
+              onClick={onClose}
+            >
+              Dona tu Aceite
+            </Link>
+            <Link 
               to="/apadrina"
               className="block px-2 py-1 rounded hover:bg-gray-100"
               onClick={onClose}
