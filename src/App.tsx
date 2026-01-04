@@ -31,6 +31,7 @@ import Voluntarios from "./pages/colabora/Voluntarios";
 import Tienda from "./pages/tienda/Tienda";
 import Convocatorias from "./pages/convocatorias/Convocatorias";
 import DonaTuAceite from "./pages/colabora/DonaTuAceite";
+import PoliticaPrivacidad from "./pages/legal/PoliticaPrivacidad";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/tienda" element={<Tienda />} />
             <Route path="/convocatorias" element={<Convocatorias />} />
             <Route path="/dona-tu-aceite" element={<DonaTuAceite />} />
+            <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
