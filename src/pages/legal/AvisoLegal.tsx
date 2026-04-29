@@ -33,9 +33,9 @@ const AvisoLegal = () => {
               </p>
               <ul className="space-y-2 text-gray-700">
                 <li><strong>Razón social:</strong> Asociación ASRAM (Asociación de Servicios de Recogida de Aceite de Madrid)</li>
-                <li><strong>NIF / CIF:</strong> G-XXXXXXXX</li>
-                <li><strong>Domicilio social:</strong> C/ Ejemplo, nº 00, 28000 Madrid (España)</li>
-                <li><strong>Datos de inscripción:</strong> Inscrita en el Registro Nacional de Asociaciones, Grupo 1, Sección 1, número nacional XXXXXX</li>
+                <li><strong>NIF / CIF:</strong> G70725312</li>
+                <li><strong>Domicilio social:</strong> C/ Genciana 6, 28039 Madrid (España)</li>
+                <li><strong>Datos de inscripción:</strong> Inscrita en el Registro Nacional de Asociaciones con número nacional 41.636</li>
                 <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-asram-600" /> <strong>Email:</strong> info@asramadrid.com</li>
                 <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-asram-600" /> <strong>Teléfono:</strong> +34 600 000 000</li>
                 <li className="flex items-center gap-2"><Globe className="w-4 h-4 text-asram-600" /> <strong>Sitio web:</strong> https://asramadrid.com</li>
