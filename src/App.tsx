@@ -34,6 +34,8 @@ import DonaTuAceite from "./pages/colabora/DonaTuAceite";
 import PoliticaPrivacidad from "./pages/legal/PoliticaPrivacidad";
 import PoliticaCookies from "./pages/legal/PoliticaCookies";
 import PoliticaPrivacidad2026 from "./pages/legal/PoliticaPrivacidad2026";
+import AvisoLegal from "./pages/legal/AvisoLegal";
+import TerminosContratacion from "./pages/legal/TerminosContratacion";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -75,6 +77,8 @@ const App = () => (
             <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
             <Route path="/politica-cookies" element={<PoliticaCookies />} />
             <Route path="/politica-privacidad-2026" element={<PoliticaPrivacidad2026 />} />
+            <Route path="/aviso-legal" element={<AvisoLegal />} />
+            <Route path="/terminos-contratacion" element={<TerminosContratacion />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
