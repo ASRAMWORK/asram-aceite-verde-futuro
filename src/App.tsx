@@ -33,6 +33,7 @@ import Convocatorias from "./pages/convocatorias/Convocatorias";
 import DonaTuAceite from "./pages/colabora/DonaTuAceite";
 import PoliticaPrivacidad from "./pages/legal/PoliticaPrivacidad";
 import PoliticaCookies from "./pages/legal/PoliticaCookies";
+import PoliticaPrivacidad2026 from "./pages/legal/PoliticaPrivacidad2026";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/dona-tu-aceite" element={<DonaTuAceite />} />
             <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
             <Route path="/politica-cookies" element={<PoliticaCookies />} />
+            <Route path="/politica-privacidad-2026" element={<PoliticaPrivacidad2026 />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
